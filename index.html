@@ -1,264 +1,559 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<title>VANSH CALCULATOR</title>
 
-  <title>YASHWIN APP STORE</title>
+<style>
+* {
+    box-sizing: border-box;
+}
 
-  <link rel="manifest" href="manifest.json">
+body {
+    margin: 0;
+    padding: 20px;
+    background: #101010;
+    color: white;
+    font-family: Arial, sans-serif;
+}
 
-  <style>
+.calculator {
+    width: 100%;
+    max-width: 620px;
+    margin: auto;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+/* TITLE */
+h1 {
+    text-align: center;
+    color: #ff9800;
+    font-size: 36px;
+    margin: 20px 0 30px;
+}
+
+/* DISPLAY */
+.display {
+    width: 100%;
+    min-height: 145px;
+    background: #222;
+    border-radius: 25px;
+    padding: 25px;
+    margin-bottom: 25px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+
+    overflow: hidden;
+}
+
+.expression {
+    width: 100%;
+    min-height: 35px;
+    color: #aaa;
+    font-size: 24px;
+    text-align: right;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.result {
+    width: 100%;
+    color: white;
+    font-size: 55px;
+    text-align: right;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* BUTTON GRID */
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* BUTTON */
+button {
+    border: none;
+    border-radius: 22px;
+    min-height: 80px;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    background: #303030;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* OPERATORS */
+.operator {
+    background: #ff9800;
+}
+
+.equal {
+    background: #ff9800;
+    grid-column: span 2;
+}
+
+.clear {
+    background: #d62828;
+}
+
+.zero {
+    grid-column: span 2;
+}
+
+/* HISTORY */
+.history-title {
+    margin-top: 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-title h2 {
+    color: #ff9800;
+    font-size: 30px;
+}
+
+.clear-history {
+    min-height: 55px;
+    padding: 0 22px;
+    font-size: 18px;
+    background: #333;
+}
+
+#history {
+    margin-top: 10px;
+}
+
+.history-item {
+    background: #222;
+    padding: 15px 18px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+    font-size: 20px;
+}
+
+@media (max-width: 450px) {
 
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #101010;
-      color: white;
+        padding: 12px;
     }
 
-    header {
-      text-align: center;
-      padding: 30px 15px;
-      background: #202020;
+    h1 {
+        font-size: 32px;
     }
 
-    header h1 {
-      margin: 0;
-      color: #ff9800;
-      font-size: 32px;
-      font-weight: bold;
+    .display {
+        min-height: 125px;
+        padding: 20px;
     }
 
-    header p {
-      margin: 15px 0 0;
-      color: #dddddd;
-      font-size: 18px;
+    .result {
+        font-size: 48px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 700px;
-      margin: auto;
-      padding: 25px 15px;
-    }
-
-    .app-card {
-      width: 100%;
-      background: #242424;
-      border-radius: 25px;
-      padding: 20px;
-
-      display: flex;
-      align-items: center;
-      gap: 20px;
-
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-    }
-
-    .app-logo {
-      width: 100px;
-      height: 100px;
-
-      border-radius: 20px;
-
-      object-fit: cover;
-
-      flex-shrink: 0;
-
-      border: 3px solid #ff9800;
-
-      background: #111111;
-    }
-
-    .app-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .app-info h2 {
-      margin: 0 0 8px;
-      color: #ff9800;
-      font-size: 23px;
-    }
-
-    .app-info p {
-      margin: 0 0 15px;
-      color: #dddddd;
-      font-size: 16px;
-    }
-
-    .button {
-      display: inline-block;
-
-      padding: 13px 24px;
-
-      background: #ff9800;
-      color: white;
-
-      text-decoration: none;
-
-      border-radius: 12px;
-
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .button:active {
-      transform: scale(0.97);
-    }
-
-    footer {
-      text-align: center;
-      color: #777777;
-      padding: 35px 10px;
-      font-size: 16px;
-    }
-
-    @media (max-width: 500px) {
-
-      header h1 {
-        font-size: 28px;
-      }
-
-      header p {
-        font-size: 17px;
-      }
-
-      .app-card {
-        padding: 16px;
-        gap: 15px;
-      }
-
-      .app-logo {
-        width: 90px;
-        height: 90px;
-      }
-
-      .app-info h2 {
+    .expression {
         font-size: 20px;
-      }
-
-      .app-info p {
-        font-size: 14px;
-      }
-
-      .button {
-        padding: 12px 20px;
-      }
     }
 
-    @media (max-width: 360px) {
-
-      .app-card {
-        gap: 10px;
-      }
-
-      .app-logo {
-        width: 75px;
-        height: 75px;
-      }
-
-      .app-info h2 {
-        font-size: 18px;
-      }
-
-      .app-info p {
-        font-size: 13px;
-      }
-
-      .button {
-        padding: 10px 15px;
-        font-size: 14px;
-      }
+    .buttons {
+        gap: 12px;
     }
 
-  </style>
-
+    button {
+        min-height: 72px;
+        font-size: 25px;
+        border-radius: 18px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-  <header>
+<div class="calculator">
 
-    <h1>YASHWIN APP STORE</h1>
+    <!-- LOGO HATA DIYA GAYA HAI -->
 
-    <p>
-      Discover, Download and Enjoy Apps
-    </p>
+    <h1>VANSH CALCULATOR</h1>
 
-  </header>
+    <!-- DISPLAY -->
+    <div class="display">
 
+        <div id="expression" class="expression"></div>
 
-  <main class="container">
-
-    <div class="app-card">
-
-      <img
-        class="app-logo"
-        src="icon-512.png"
-        alt="VANSH CALCULATOR"
-      >
-
-      <div class="app-info">
-
-        <h2>VANSH CALCULATOR</h2>
-
-        <p>
-          Fast and simple calculator app.
-        </p>
-
-        <a
-          class="button"
-          href="calculator.html"
-        >
-          OPEN APP
-        </a>
-
-      </div>
+        <div id="result" class="result">0</div>
 
     </div>
 
-  </main>
+
+    <!-- BUTTONS -->
+    <div class="buttons">
+
+        <button class="clear" onclick="clearAll()">AC</button>
+
+        <button onclick="backspace()">⌫</button>
+
+        <button onclick="percent()">%</button>
+
+        <button class="operator" onclick="operator('/')">÷</button>
 
 
-  <footer>
+        <button onclick="number('7')">7</button>
+        <button onclick="number('8')">8</button>
+        <button onclick="number('9')">9</button>
+        <button class="operator" onclick="operator('*')">×</button>
 
-    © 2026 YASHWIN APP STORE
 
-  </footer>
+        <button onclick="number('4')">4</button>
+        <button onclick="number('5')">5</button>
+        <button onclick="number('6')">6</button>
+        <button class="operator" onclick="operator('-')">−</button>
 
 
-  <script>
+        <button onclick="number('1')">1</button>
+        <button onclick="number('2')">2</button>
+        <button onclick="number('3')">3</button>
+        <button class="operator" onclick="operator('+')">+</button>
 
-    if ("serviceWorker" in navigator) {
 
-      window.addEventListener("load", function () {
+        <button class="zero" onclick="number('0')">0</button>
 
-        navigator.serviceWorker.register("sw.js")
-          .then(function () {
-            console.log("YASHWIN APP STORE ready");
-          })
-          .catch(function (error) {
-            console.log(
-              "Service Worker Error:",
-              error
-            );
-          });
+        <button onclick="decimal()">.</button>
 
-      });
+
+        <button class="equal" onclick="calculate()">=</button>
+
+    </div>
+
+
+    <!-- HISTORY -->
+    <div class="history-title">
+
+        <h2>History</h2>
+
+        <button class="clear-history" onclick="clearHistory()">
+            CLEAR
+        </button>
+
+    </div>
+
+    <div id="history"></div>
+
+</div>
+
+
+<script>
+
+let current = "0";
+let previous = "";
+let currentOperator = "";
+let shouldReset = false;
+
+
+/* DISPLAY UPDATE */
+function updateDisplay() {
+
+    document.getElementById("result").textContent = current;
+
+    let expression = "";
+
+    if (previous !== "" && currentOperator !== "") {
+
+        expression =
+            formatNumber(previous) +
+            " " +
+            displayOperator(currentOperator);
+
+        if (!shouldReset) {
+            expression += " " + formatNumber(current);
+        }
+    }
+
+    document.getElementById("expression").textContent = expression;
+}
+
+
+/* NUMBER */
+function number(value) {
+
+    if (shouldReset) {
+
+        current = value;
+        shouldReset = false;
+
+    } else {
+
+        if (current === "0") {
+            current = value;
+        } else {
+            current += value;
+        }
+    }
+
+    updateDisplay();
+}
+
+
+/* DECIMAL */
+function decimal() {
+
+    if (shouldReset) {
+
+        current = "0.";
+        shouldReset = false;
+
+    } else if (!current.includes(".")) {
+
+        current += ".";
 
     }
 
-  </script>
+    updateDisplay();
+}
+
+
+/* OPERATOR */
+function operator(op) {
+
+    if (currentOperator !== "" && !shouldReset) {
+        calculate();
+    }
+
+    previous = current;
+    currentOperator = op;
+    shouldReset = true;
+
+    updateDisplay();
+}
+
+
+/* CALCULATE */
+function calculate() {
+
+    if (previous === "" || currentOperator === "") {
+        return;
+    }
+
+    let a = parseFloat(previous);
+    let b = parseFloat(current);
+
+    let answer;
+
+    switch (currentOperator) {
+
+        case "+":
+            answer = a + b;
+            break;
+
+        case "-":
+            answer = a - b;
+            break;
+
+        case "*":
+            answer = a * b;
+            break;
+
+        case "/":
+
+            if (b === 0) {
+
+                current = "Error";
+                previous = "";
+                currentOperator = "";
+                updateDisplay();
+
+                return;
+            }
+
+            answer = a / b;
+            break;
+    }
+
+    let expression =
+        formatNumber(a) +
+        " " +
+        displayOperator(currentOperator) +
+        " " +
+        formatNumber(b);
+
+    current = cleanNumber(answer);
+
+    addHistory(expression, current);
+
+    previous = "";
+    currentOperator = "";
+    shouldReset = true;
+
+    updateDisplay();
+}
+
+
+/* PERCENT */
+function percent() {
+
+    let value = parseFloat(current);
+
+    if (isNaN(value)) {
+        return;
+    }
+
+    current = cleanNumber(value / 100);
+
+    updateDisplay();
+}
+
+
+/* BACKSPACE */
+function backspace() {
+
+    if (shouldReset) {
+        return;
+    }
+
+    if (current.length <= 1) {
+
+        current = "0";
+
+    } else {
+
+        current = current.slice(0, -1);
+    }
+
+    updateDisplay();
+}
+
+
+/* AC */
+function clearAll() {
+
+    current = "0";
+    previous = "";
+    currentOperator = "";
+    shouldReset = false;
+
+    updateDisplay();
+}
+
+
+/* HISTORY */
+function addHistory(expression, answer) {
+
+    let history = document.getElementById("history");
+
+    let item = document.createElement("div");
+
+    item.className = "history-item";
+
+    item.textContent =
+        expression + " = " + answer;
+
+    history.prepend(item);
+}
+
+
+/* CLEAR HISTORY */
+function clearHistory() {
+
+    document.getElementById("history").innerHTML = "";
+}
+
+
+/* OPERATOR DISPLAY */
+function displayOperator(op) {
+
+    if (op === "*") return "×";
+    if (op === "/") return "÷";
+    if (op === "-") return "−";
+
+    return op;
+}
+
+
+/* NUMBER FORMAT */
+function formatNumber(value) {
+
+    let num = Number(value);
+
+    if (!Number.isFinite(num)) {
+        return value;
+    }
+
+    return cleanNumber(num);
+}
+
+
+/* CLEAN NUMBER */
+function cleanNumber(value) {
+
+    if (!Number.isFinite(value)) {
+        return "Error";
+    }
+
+    if (Number.isInteger(value)) {
+        return String(value);
+    }
+
+    return String(
+        parseFloat(value.toFixed(10))
+    );
+}
+
+
+/* KEYBOARD SUPPORT */
+document.addEventListener("keydown", function(event) {
+
+    let key = event.key;
+
+    if (key >= "0" && key <= "9") {
+        number(key);
+    }
+
+    else if (key === ".") {
+        decimal();
+    }
+
+    else if (
+        key === "+" ||
+        key === "-" ||
+        key === "*" ||
+        key === "/"
+    ) {
+        operator(key);
+    }
+
+    else if (key === "Enter" || key === "=") {
+        calculate();
+    }
+
+    else if (key === "Backspace") {
+        backspace();
+    }
+
+    else if (key === "Escape") {
+        clearAll();
+    }
+
+    else if (key === "%") {
+        percent();
+    }
+
+});
+
+
+// START
+updateDisplay();
+
+</script>
 
 </body>
-
 </html>
