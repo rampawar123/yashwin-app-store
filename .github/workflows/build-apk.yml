@@ -1,67 +1,172 @@
-name: Build VANSH CALCULATOR APK
+name: Build YASHWIN APP STORE APK
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
       - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
-
-      - name: Configure Bubblewrap
         run: |
-          mkdir -p "$HOME/.bubblewrap"
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME_17_X64",
-            "androidSdkPath": "$ANDROID_HOME"
+          npm install -g @bubblewrap/cli
+
+      - name: Create TWA folder
+        run: |
+          rm -rf twa
+          mkdir -p twa
+
+      - name: Download Web Manifest
+        run: |
+          curl -L \
+            "https://rampawar123.github.io/yashwin-app-store/manifest.json" \
+            -o web-manifest.json
+
+      - name: Create Bubblewrap manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          import urllib.parse
+
+          with open("web-manifest.json", "r") as f:
+              m = json.load(f)
+
+          host = "rampawar123.github.io"
+          start_url = m.get("start_url", "/yashwin-app-store/")
+          name = m.get("name", "YASHWIN APP STORE")
+
+          # Android launcher name must be 12 characters or less
+          launcher_name = "YASHWIN"
+
+          theme_color = m.get("theme_color", "#000000")
+          background_color = m.get("background_color", "#FFFFFF")
+
+          icons = m.get("icons", [])
+
+          icon_url = None
+          maskable_icon_url = None
+
+          for icon in icons:
+              src = icon.get("src")
+              if not src:
+                  continue
+
+              full = urllib.parse.urljoin(
+                  "https://rampawar123.github.io/yashwin-app-store/",
+                  src
+              )
+
+              purpose = icon.get("purpose", "")
+
+              if "maskable" in purpose and maskable_icon_url is None:
+                  maskable_icon_url = full
+
+              if icon_url is None:
+                  icon_url = full
+
+          twa = {
+              "packageId": "io.github.rampawar123.yashwinappstore",
+              "host": host,
+              "name": name,
+              "launcherName": launcher_name,
+              "display": "standalone",
+              "themeColor": theme_color,
+              "themeColorDark": "#000000",
+              "navigationColor": "#000000",
+              "navigationColorDark": "#000000",
+              "navigationDividerColor": "#00000000",
+              "navigationDividerColorDark": "#00000000",
+              "backgroundColor": background_color,
+              "enableNotifications": True,
+              "startUrl": start_url,
+              "iconUrl": icon_url,
+              "maskableIconUrl": maskable_icon_url,
+              "splashScreenFadeOutDuration": 300,
+              "signingKey": {
+                  "path": "./android.keystore",
+                  "alias": "android"
+              },
+              "appVersionCode": 1,
+              "appVersion": "1.0",
+              "shortcuts": [],
+              "generatorApp": "bubblewrap",
+              "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
+              "fallbackType": "customtabs",
+              "features": {},
+              "alphaDependencies": {
+                  "enabled": False
+              },
+              "enableSiteSettingsShortcut": True,
+              "isChromeOSOnly": False,
+              "isMetaQuest": False,
+              "minSdkVersion": 21,
+              "fingerprints": [],
+              "additionalTrustedOrigins": [],
+              "retainedBundles": [],
+              "orientation": "default"
           }
-          EOF
 
-      - name: Prepare TWA folder
-        run: |
-          rm -rf ./twa
-          mkdir -p ./twa
+          with open("twa/twa-manifest.json", "w") as f:
+              json.dump(twa, f, indent=2)
 
-      - name: Create Android project
+          print(json.dumps(twa, indent=2))
+          PY
+
+      - name: Create signing key
         working-directory: ./twa
+        env:
+          KEYSTORE_PASSWORD: VANSH12345
         run: |
-          yes "" | bubblewrap init \
-            --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
-            --directory="."
+          if [ ! -f android.keystore ]; then
+            keytool -genkeypair \
+              -v \
+              -keystore android.keystore \
+              -alias android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass "$KEYSTORE_PASSWORD" \
+              -keypass "$KEYSTORE_PASSWORD" \
+              -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+          fi
 
       - name: Build APK
         working-directory: ./twa
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: "VANSH12345"
-          BUBBLEWRAP_KEY_PASSWORD: "VANSH12345"
+          BUBBLEWRAP_KEYSTORE_PASSWORD: VANSH12345
+          BUBBLEWRAP_KEY_PASSWORD: VANSH12345
         run: |
-          yes "" | bubblewrap build --skipPwaValidation
+          bubblewrap build --skipPwaValidation
+
+      - name: Find APK
+        run: |
+          echo "APK files:"
+          find ./twa -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: VANSH-CALCULATOR-APK
+          name: YASHWIN-APP-STORE-APK
           path: |
+            twa/*-signed.apk
             twa/app-release-signed.apk
-            twa/app-release-bundle.aab
+          if-no-files-found: error
