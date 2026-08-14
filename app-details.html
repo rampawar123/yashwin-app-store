@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color" content="#101010">
+
+<title>VANSH CALCULATOR - YASHWIN APP STORE</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#101010;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+.header{
+    background:#181818;
+    padding:18px;
+    border-bottom:1px solid #333;
+}
+
+.header-inner{
+    max-width:900px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.store-name{
+    color:#ff9800;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.back{
+    color:white;
+    text-decoration:none;
+    background:#292929;
+    padding:10px 15px;
+    border-radius:10px;
+}
+
+.container{
+    max-width:850px;
+    margin:auto;
+    padding:30px 18px 60px;
+}
+
+.app-top{
+    text-align:center;
+    padding:25px 10px;
+}
+
+.app-logo{
+    width:180px;
+    height:180px;
+    object-fit:cover;
+    border-radius:35px;
+    border:3px solid #ff9800;
+    box-shadow:0 0 30px rgba(255,152,0,.25);
+}
+
+h1{
+    color:#ff9800;
+    font-size:34px;
+    margin:22px 0 10px;
+}
+
+.version{
+    color:#999;
+    margin-bottom:25px;
+}
+
+.open-button{
+    display:inline-block;
+    background:#ff9800;
+    color:#111;
+    text-decoration:none;
+    padding:15px 45px;
+    border-radius:13px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.card{
+    background:#202020;
+    border:1px solid #333;
+    border-radius:20px;
+    padding:22px;
+    margin-top:22px;
+}
+
+.card h2{
+    color:#ff9800;
+    margin-top:0;
+}
+
+.card p{
+    color:#ccc;
+    line-height:1.7;
+}
+
+.info{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.info-box{
+    background:#181818;
+    padding:15px;
+    border-radius:12px;
+}
+
+.info-box span{
+    display:block;
+    color:#888;
+    font-size:13px;
+    margin-bottom:5px;
+}
+
+.info-box strong{
+    color:white;
+}
+
+footer{
+    text-align:center;
+    color:#666;
+    padding:30px 15px;
+    border-top:1px solid #252525;
+}
+
+@media(max-width:500px){
+
+    .app-logo{
+        width:150px;
+        height:150px;
+    }
+
+    h1{
+        font-size:28px;
+    }
+
+    .store-name{
+        font-size:18px;
+    }
+
+    .info{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <div class="store-name">
+            YASHWIN APP STORE
+        </div>
+
+        <a class="back" href="index.html">
+            ← Back
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <section class="app-top">
+
+        <img
+        class="app-logo"
+        src="icon-512.png"
+        alt="VANSH CALCULATOR">
+
+        <h1>
+            VANSH CALCULATOR
+        </h1>
+
+        <div class="version">
+            Version 1.0
+        </div>
+
+        <a
+        class="open-button"
+        href="calculator.html">
+
+            OPEN APP
+
+        </a>
+
+    </section>
+
+
+    <section class="card">
+
+        <h2>
+            About this app
+        </h2>
+
+        <p>
+            VANSH CALCULATOR is a fast,
+            simple and easy-to-use calculator
+            app made for everyday calculations.
+        </p>
+
+        <p>
+            You can perform addition,
+            subtraction, multiplication,
+            division and other basic
+            calculations.
+        </p>
+
+    </section>
+
+
+    <section class="card">
+
+        <h2>
+            App Information
+        </h2>
+
+        <div class="info">
+
+            <div class="info-box">
+
+                <span>App Name</span>
+
+                <strong>
+                    VANSH CALCULATOR
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span>Version</span>
+
+                <strong>
+                    1.0
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span>Category</span>
+
+                <strong>
+                    Calculator
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span>Developer</span>
+
+                <strong>
+                    YASHWIN APP STORE
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="card">
+
+        <h2>
+            Features
+        </h2>
+
+        <p>
+            ✓ Addition (+)
+        </p>
+
+        <p>
+            ✓ Subtraction (−)
+        </p>
+
+        <p>
+            ✓ Multiplication (×)
+        </p>
+
+        <p>
+            ✓ Division (÷)
+        </p>
+
+        <p>
+            ✓ Percentage (%)
+        </p>
+
+        <p>
+            ✓ Calculation History
+        </p>
+
+    </section>
+
+
+</main>
+
+
+<footer>
+
+    © 2026 YASHWIN APP STORE
+
+</footer>
+
+</body>
+</html>
