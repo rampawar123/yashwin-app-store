@@ -1,12 +1,10 @@
-const CACHE_NAME = "yashwin-app-store-v1";
+const CACHE_NAME = "yashwin-store-v2";
 
-const FILES_TO_CACHE = [
+const APP_FILES = [
   "./",
   "./index.html",
-  "./calculator.html",
   "./app-details.html",
-  "./style.css",
-  "./script.js",
+  "./calculator.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -14,83 +12,59 @@ const FILES_TO_CACHE = [
   "./icon-512-maskable.png"
 ];
 
-
 self.addEventListener("install", event => {
-
   event.waitUntil(
-
     caches.open(CACHE_NAME).then(cache => {
-
-      return cache.addAll(FILES_TO_CACHE);
-
+      return cache.addAll(APP_FILES);
     })
-
   );
 
   self.skipWaiting();
-
 });
 
-
 self.addEventListener("activate", event => {
-
   event.waitUntil(
-
     caches.keys().then(keys => {
-
       return Promise.all(
-
         keys
           .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
-
       );
-
     })
-
   );
 
   self.clients.claim();
-
 });
-
 
 self.addEventListener("fetch", event => {
 
-  event.respondWith(
+  // HTML pages: network first
+  if (event.request.mode === "navigate") {
 
-    caches.match(event.request).then(cached => {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
 
-      if (cached) {
-        return cached;
-      }
+          const copy = response.clone();
 
-      return fetch(event.request).then(response => {
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, copy);
+          });
 
-        if (
-          !response ||
-          response.status !== 200 ||
-          response.type === "opaque"
-        ) {
           return response;
-        }
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
 
-        const copy = response.clone();
+    return;
+  }
 
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, copy);
-        });
-
-        return response;
-
-      }).catch(() => {
-
-        return caches.match("./index.html");
-
-      });
-
+  // Other files: cache first
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request);
     })
-
   );
-
 });
