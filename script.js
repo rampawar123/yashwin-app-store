@@ -1,185 +1,231 @@
 let current = "0";
-let expression = "";
-let justCalculated = false;
+let firstNumber = null;
+let operator = null;
+let waitingForSecond = false;
 
 const display = document.getElementById("display");
+const historyBox = document.getElementById("history");
+const totalValue = document.getElementById("totalValue");
 
-function updateDisplay(){
-  display.textContent = current;
+function showDisplay() {
+    let text = current;
+
+    if (firstNumber !== null && operator !== null) {
+        text = format(firstNumber) + " " + symbol(operator);
+
+        if (!waitingForSecond) {
+            text += " " + current;
+        }
+    }
+
+    display.textContent = text;
+    display.scrollLeft = display.scrollWidth;
 }
 
-function press(value){
+function pressNumber(n) {
+    if (waitingForSecond) {
+        current = n === "00" ? "0" : n;
+        waitingForSecond = false;
+    } else {
+        if (current === "0") {
+            current = n === "00" ? "0" : n;
+        } else {
+            current += n;
+        }
+    }
 
-  if(justCalculated){
+    showDisplay();
+}
+
+function pressDecimal() {
+    if (waitingForSecond) {
+        current = "0.";
+        waitingForSecond = false;
+    } else if (!current.includes(".")) {
+        current += ".";
+    }
+
+    showDisplay();
+}
+
+function pressOperator(op) {
+    const num = Number(current);
+
+    if (firstNumber === null) {
+        firstNumber = num;
+    } else if (!waitingForSecond) {
+        firstNumber = calculateResult(
+            firstNumber,
+            num,
+            operator
+        );
+
+        current = format(firstNumber);
+    }
+
+    operator = op;
+    waitingForSecond = true;
+
+    showDisplay();
+}
+
+function calculate() {
+    if (
+        firstNumber === null ||
+        operator === null ||
+        waitingForSecond
+    ) {
+        return;
+    }
+
+    const second = Number(current);
+
+    const result = calculateResult(
+        firstNumber,
+        second,
+        operator
+    );
+
+    const expression =
+        format(firstNumber) +
+        " " +
+        symbol(operator) +
+        " " +
+        format(second);
+
+    addHistory(expression, result);
+
+    current = format(result);
+
+    firstNumber = null;
+    operator = null;
+    waitingForSecond = false;
+
+    showDisplay();
+}
+
+function calculateResult(a, b, op) {
+    if (op === "+") return a + b;
+    if (op === "-") return a - b;
+    if (op === "*") return a * b;
+
+    if (op === "/") {
+        if (b === 0) return NaN;
+        return a / b;
+    }
+
+    return b;
+}
+
+function percent() {
+    current = format(Number(current) / 100);
+    showDisplay();
+}
+
+function backspace() {
+    if (waitingForSecond) return;
+
+    if (current.length <= 1) {
+        current = "0";
+    } else {
+        current = current.slice(0, -1);
+    }
+
+    showDisplay();
+}
+
+function clearAll() {
     current = "0";
-    expression = "";
-    justCalculated = false;
-  }
+    firstNumber = null;
+    operator = null;
+    waitingForSecond = false;
 
-  if("0123456789.".includes(value)){
+    showDisplay();
+}
 
-    if(current === "0" && value !== "."){
-      current = value;
-    }
-    else if(value === "." && current.includes(".")){
-      return;
-    }
-    else{
-      current += value;
-    }
+function symbol(op) {
+    if (op === "*") return "×";
+    if (op === "/") return "÷";
+    if (op === "-") return "−";
+    return op;
+}
 
-  }else{
+function format(n) {
+    if (!Number.isFinite(n)) return "Error";
 
-    if(current === "0"){
-      expression = "0";
-    }else{
-      expression += current;
+    if (Number.isInteger(n)) {
+        return String(n);
     }
 
-    expression += value;
-    current = "0";
-  }
-
-  updateDisplay();
+    return String(
+        Number(n.toFixed(10))
+    );
 }
 
-function calculate(){
+function addHistory(expression, answer) {
+    const item = document.createElement("div");
 
-  if(current !== "0"){
-    expression += current;
-  }
+    item.className = "history-item";
 
-  if(!expression){
-    return;
-  }
+    const text = document.createElement("div");
 
-  try{
+    text.className = "history-text";
 
-    let safeExpression = expression
-      .replace(/÷/g,"/")
-      .replace(/×/g,"*")
-      .replace(/−/g,"-");
+    text.textContent =
+        expression +
+        " = " +
+        format(answer);
 
-    if(!/^[0-9+\-*/().\s]+$/.test(safeExpression)){
-      throw new Error("Invalid");
-    }
+    const del = document.createElement("button");
 
-    let result = Function(
-      '"use strict"; return (' + safeExpression + ')'
-    )();
+    del.className = "delete-history";
 
-    if(!Number.isFinite(result)){
-      throw new Error("Invalid");
-    }
+    del.textContent = "🗑️";
 
-    let text =
-      expression.replace(/\*/g,"×")
-      + " = "
-      + result;
+    del.onclick = function () {
+        item.remove();
+        updateTotal();
+    };
 
-    addHistory(text);
+    item.appendChild(text);
+    item.appendChild(del);
 
-    current = String(result);
-    expression = "";
-    justCalculated = true;
+    historyBox.prepend(item);
 
-    updateDisplay();
-
-  }catch(error){
-
-    current = "Error";
-    expression = "";
-    justCalculated = true;
-
-    updateDisplay();
-  }
+    updateTotal();
 }
 
-function clearAll(){
+function updateTotal() {
+    let total = 0;
 
-  current = "0";
-  expression = "";
-  justCalculated = false;
+    document
+        .querySelectorAll(".history-item")
+        .forEach(item => {
 
-  updateDisplay();
+            const text =
+                item.querySelector(
+                    ".history-text"
+                ).textContent;
+
+            const parts = text.split("=");
+
+            const answer =
+                Number(
+                    parts[parts.length - 1]
+                );
+
+            if (!isNaN(answer)) {
+                total += answer;
+            }
+        });
+
+    totalValue.textContent =
+        format(total);
 }
 
-function backspace(){
-
-  if(justCalculated){
-    clearAll();
-    return;
-  }
-
-  if(current.length > 1){
-    current = current.slice(0,-1);
-  }else{
-    current = "0";
-  }
-
-  updateDisplay();
+function clearHistory() {
+    historyBox.innerHTML = "";
+    updateTotal();
 }
 
-function percent(){
-
-  let number = parseFloat(current);
-
-  if(isNaN(number)){
-    return;
-  }
-
-  current = String(number / 100);
-
-  updateDisplay();
-}
-
-function addHistory(text){
-
-  let history =
-    JSON.parse(localStorage.getItem("vanshHistory")) || [];
-
-  history.unshift(text);
-
-  if(history.length > 20){
-    history = history.slice(0,20);
-  }
-
-  localStorage.setItem(
-    "vanshHistory",
-    JSON.stringify(history)
-  );
-
-  showHistory();
-}
-
-function showHistory(){
-
-  const box = document.getElementById("history");
-
-  let history =
-    JSON.parse(localStorage.getItem("vanshHistory")) || [];
-
-  box.innerHTML = "";
-
-  history.forEach(item=>{
-
-    const div = document.createElement("div");
-
-    div.className = "history-item";
-
-    div.textContent = item;
-
-    box.appendChild(div);
-
-  });
-}
-
-function clearHistory(){
-
-  localStorage.removeItem("vanshHistory");
-
-  showHistory();
-}
-
-showHistory();
-updateDisplay();
+showDisplay();
