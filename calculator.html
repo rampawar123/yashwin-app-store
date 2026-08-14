@@ -1,34 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#111111">
-  <meta name="description" content="VANSH CALCULATOR">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.svg">
-  <link rel="stylesheet" href="style.css">
-  <title>VANSH CALCULATOR</title>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VANSH CALCULATOR</title>
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
-<div id="calculator">
-  <h1>VANSH CALCULATOR</h1>
+
+<div class="calculator">
+
+  <div class="top">
+
+    <div class="logo">
+      <div class="logo-title">VANSH</div>
+      <div class="logo-sub">CALCULATOR</div>
+    </div>
+
+    <h1>VANSH CALCULATOR</h1>
+
+  </div>
+
   <div id="display">0</div>
-  <div class="keypad">
-    <button id="clear" class="function">AC</button>
-    <button id="backspace" class="function">⌫</button>
-    <button id="percent" class="function">%</button>
-    <button class="operator">÷</button>
-    <button class="number">7</button><button class="number">8</button><button class="number">9</button><button class="operator">×</button>
-    <button class="number">4</button><button class="number">5</button><button class="number">6</button><button class="operator">−</button>
-    <button class="number">1</button><button class="number">2</button><button class="number">3</button><button class="operator">+</button>
-    <button id="sign">±</button><button class="number">0</button><button class="number">.</button><button id="equals">=</button>
+
+  <div class="buttons">
+
+    <button class="danger" onclick="clearAll()">AC</button>
+    <button onclick="backspace()">⌫</button>
+    <button onclick="percent()">%</button>
+    <button class="operator" onclick="press('/')">÷</button>
+
+    <button onclick="press('7')">7</button>
+    <button onclick="press('8')">8</button>
+    <button onclick="press('9')">9</button>
+    <button class="operator" onclick="press('*')">×</button>
+
+    <button onclick="press('4')">4</button>
+    <button onclick="press('5')">5</button>
+    <button onclick="press('6')">6</button>
+    <button class="operator" onclick="press('-')">−</button>
+
+    <button onclick="press('1')">1</button>
+    <button onclick="press('2')">2</button>
+    <button onclick="press('3')">3</button>
+    <button class="operator" onclick="press('+')">+</button>
+
+    <button onclick="press('0')" class="zero">0</button>
+    <button onclick="press('.')">.</button>
+    <button class="equal" onclick="calculate()">=</button>
+
   </div>
-  <div id="history">
-    <div class="history-header"><h3>History</h3><button id="clearHistory">CLEAR</button></div>
-    <div id="historyList"></div>
+
+  <div class="history-section">
+
+    <div class="history-title">
+      <h2>History</h2>
+      <button onclick="clearHistory()">CLEAR</button>
+    </div>
+
+    <div id="history"></div>
+
   </div>
+
 </div>
+
 <script src="script.js"></script>
+
 </body>
 </html>
