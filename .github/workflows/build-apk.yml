@@ -14,7 +14,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check project
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Create Android project
         run: |
-          echo "VANSH CALCULATOR project found"
-          ls -la
+          mkdir -p twa
+          cd twa
+          bubblewrap init --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json"
+
+      - name: Build APK
+        run: |
+          cd twa
+          bubblewrap build --skipPwaValidation --skipSigning
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VANSH-CALCULATOR-APK
+          path: twa/app-release-unsigned-aligned.apk
+          if-no-files-found: error
