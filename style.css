@@ -1,1 +1,134 @@
-*{box-sizing:border-box}body{margin:0;padding:15px;min-height:100vh;background:#101010;font-family:Arial,sans-serif}#calculator{width:100%;max-width:400px;margin:15px auto;padding:20px;background:#222;border-radius:25px;box-shadow:0 15px 40px rgba(0,0,0,.6)}h1{margin:0 0 20px;text-align:center;color:orange;font-size:28px;letter-spacing:1px}#display{width:100%;min-height:85px;padding:15px;margin-bottom:15px;background:#000;color:#fff;border-radius:15px;display:flex;align-items:center;justify-content:flex-end;text-align:right;font-size:34px;font-weight:bold;overflow-x:auto;white-space:nowrap}.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.keypad button{height:62px;border:0;border-radius:14px;font-size:23px;font-weight:bold;cursor:pointer;transition:transform .1s}.number{background:#444;color:#fff}.operator{background:orange;color:#fff}.function{background:#666;color:#fff}#sign{background:#555;color:#fff}#equals{background:orange;color:#fff}.keypad button:active{transform:scale(.91)}#history{margin-top:20px;padding:15px;background:#333;color:#fff;border-radius:15px}.history-header{display:flex;align-items:center;justify-content:space-between}.history-header h3{margin:0;color:orange}.history-header button{padding:7px 10px;border:0;border-radius:8px;background:#555;color:#fff;font-weight:bold}#historyList{margin-top:12px;max-height:180px;overflow-y:auto}.history-item{padding:9px 0;border-bottom:1px solid #555;font-size:16px}@media(max-width:400px){body{padding:8px}#calculator{margin:5px auto;padding:15px}h1{font-size:24px}#display{font-size:29px}.keypad{gap:7px}.keypad button{height:58px;font-size:21px}}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+}
+
+header {
+  text-align: center;
+  padding: 30px 15px;
+  background: #1f1f1f;
+}
+
+header h1 {
+  margin: 0;
+  color: #ff9800;
+  font-size: 30px;
+}
+
+header p {
+  color: #ccc;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+/* YASHWIN APP STORE logo */
+.store-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 15px;
+  border: 4px solid #ff9800;
+  box-shadow: 0 0 18px rgba(255, 152, 0, 0.5);
+}
+
+/* Main area */
+.container {
+  padding: 20px;
+  max-width: 700px;
+  margin: auto;
+}
+
+/* App card */
+.app-card {
+  background: #222;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* App icon */
+.app-icon {
+  width: 75px;
+  height: 75px;
+  border-radius: 18px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #333;
+}
+
+/* App information */
+.app-info {
+  flex: 1;
+}
+
+.app-info h2 {
+  margin: 0 0 8px;
+  color: #ff9800;
+  font-size: 21px;
+}
+
+.app-info p {
+  margin: 0 0 12px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+/* Open button */
+.button {
+  display: inline-block;
+  padding: 12px 20px;
+  background: #ff9800;
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.button:active {
+  transform: scale(0.96);
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 30px 15px;
+  color: #777;
+}
+
+/* Mobile */
+@media (max-width: 500px) {
+
+  header h1 {
+    font-size: 26px;
+  }
+
+  .store-logo {
+    width: 85px;
+    height: 85px;
+  }
+
+  .app-card {
+    padding: 15px;
+  }
+
+  .app-icon {
+    width: 65px;
+    height: 65px;
+  }
+
+  .app-info h2 {
+    font-size: 18px;
+  }
+}
