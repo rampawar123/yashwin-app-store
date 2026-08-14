@@ -1,1 +1,290 @@
+name: Build VANSH CALCULATOR APK
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android
+        uses: android-actions/setup-android@v3
+
+      - name: Create Android project
+        run: |
+          mkdir -p app/src/main/java/com/yashwin/vanshcalculator
+          mkdir -p app/src/main/assets
+          mkdir -p app/src/main/res/values
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.name = "VANSH-CALCULATOR"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.6.1' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.yashwin.vanshcalculator'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId 'com.yashwin.vanshcalculator'
+                  minSdk 23
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+
+          dependencies {
+          }
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="AppTheme"
+                  parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:colorAccent">#ff9800</item>
+                  <item name="android:navigationBarColor">#101010</item>
+                  <item name="android:statusBarColor">#101010</item>
+                  <item name="android:windowLightStatusBar">false</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:theme="@style/AppTheme"
+                  android:label="VANSH CALCULATOR"
+                  android:allowBackup="true">
+
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
+
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/yashwin/vanshcalculator/MainActivity.java <<'EOF'
+          package com.yashwin.vanshcalculator;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+
+          public class MainActivity extends Activity {
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  WebView webView = new WebView(this);
+
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+
+                  webView.loadUrl("file:///android_asset/calculator.html");
+
+                  setContentView(webView);
+              }
+          }
+          EOF
+
+          cat > app/src/main/assets/calculator.html <<'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>VANSH CALCULATOR</title>
+
+          <style>
+          body {
+              margin: 0;
+              background: #101010;
+              color: white;
+              font-family: Arial;
+              text-align: center;
+              padding: 20px;
+          }
+
+          h1 {
+              color: #ff9800;
+          }
+
+          .display {
+              background: #222;
+              padding: 30px;
+              border-radius: 20px;
+              font-size: 45px;
+              text-align: right;
+              overflow: auto;
+          }
+
+          .grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 10px;
+              margin-top: 20px;
+          }
+
+          button {
+              min-height: 70px;
+              border: 0;
+              border-radius: 16px;
+              background: #303030;
+              color: white;
+              font-size: 25px;
+          }
+
+          .op,
+          .eq {
+              background: #ff9800;
+              color: #111;
+          }
+          </style>
+          </head>
+
+          <body>
+
+          <h1>VANSH CALCULATOR</h1>
+
+          <div id="d" class="display">0</div>
+
+          <div class="grid">
+
+          <button onclick="c='';show()">AC</button>
+          <button onclick="c=c.slice(0,-1)||'0';show()">⌫</button>
+          <button onclick="c+='%' ;show()">%</button>
+          <button class="op" onclick="op('/')">÷</button>
+
+          <button onclick="n('7')">7</button>
+          <button onclick="n('8')">8</button>
+          <button onclick="n('9')">9</button>
+          <button class="op" onclick="op('*')">×</button>
+
+          <button onclick="n('4')">4</button>
+          <button onclick="n('5')">5</button>
+          <button onclick="n('6')">6</button>
+          <button class="op" onclick="op('-')">−</button>
+
+          <button onclick="n('1')">1</button>
+          <button onclick="n('2')">2</button>
+          <button onclick="n('3')">3</button>
+          <button class="op" onclick="op('+')">+</button>
+
+          <button onclick="n('0')">0</button>
+          <button onclick="n('00')">00</button>
+          <button onclick="n('.')">.</button>
+          <button class="eq" onclick="calc()">=</button>
+
+          </div>
+
+          <script>
+          let c = '';
+          let a = null;
+          let o = null;
+
+          function show() {
+              document.getElementById('d').textContent = c || '0';
+          }
+
+          function n(x) {
+              c = (c === '0' ? x : c + x);
+              show();
+          }
+
+          function op(x) {
+              if (!c) return;
+              a = Number(c);
+              o = x;
+              c = '';
+              show();
+          }
+
+          function calc() {
+              if (a === null || o === null || !c) return;
+
+              let b = Number(c);
+              let r;
+
+              if (o === '+') r = a + b;
+              else if (o === '-') r = a - b;
+              else if (o === '*') r = a * b;
+              else r = a / b;
+
+              c = String(r);
+              a = null;
+              o = null;
+
+              show();
+          }
+          </script>
+
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        run: |
+          gradle wrapper --gradle-version 8.7
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VANSH-CALCULATOR-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
