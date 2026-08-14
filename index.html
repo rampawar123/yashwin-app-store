@@ -2,312 +2,262 @@
 <html lang="en">
 
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<title>YASHWIN APP STORE</title>
+  <title>YASHWIN APP STORE</title>
 
-<link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
 
-<style>
+  <style>
 
-*{
-  box-sizing:border-box;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#101010;
-  color:white;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101010;
+      color: white;
+    }
 
-/* HEADER */
+    header {
+      text-align: center;
+      padding: 30px 15px;
+      background: #202020;
+    }
 
-header{
-  text-align:center;
-  padding:30px 15px;
-  background:#202020;
-}
+    header h1 {
+      margin: 0;
+      color: #ff9800;
+      font-size: 32px;
+      font-weight: bold;
+    }
 
-header h1{
-  margin:0;
-  color:#ff9800;
-  font-size:32px;
-  font-weight:bold;
-}
+    header p {
+      margin: 15px 0 0;
+      color: #dddddd;
+      font-size: 18px;
+    }
 
-header p{
-  color:#ddd;
-  font-size:18px;
-  margin:15px 0 0;
-}
+    .container {
+      width: 100%;
+      max-width: 700px;
+      margin: auto;
+      padding: 25px 15px;
+    }
 
-/* MAIN */
+    .app-card {
+      width: 100%;
+      background: #242424;
+      border-radius: 25px;
+      padding: 20px;
 
-.container{
-  max-width:700px;
-  margin:auto;
-  padding:25px 15px;
-}
+      display: flex;
+      align-items: center;
+      gap: 20px;
 
-/* APP CARD */
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    }
 
-.app-card{
-  background:#242424;
-  border-radius:25px;
-  padding:20px;
-  margin-bottom:20px;
+    .app-logo {
+      width: 100px;
+      height: 100px;
 
-  display:flex;
-  align-items:center;
+      border-radius: 20px;
 
-  gap:20px;
+      object-fit: cover;
 
-  box-shadow:
-  0 8px 25px rgba(0,0,0,.35);
-}
+      flex-shrink: 0;
 
-/* APP LOGO */
+      border: 3px solid #ff9800;
 
-.app-logo{
-  width:100px;
-  height:100px;
+      background: #111111;
+    }
 
-  border-radius:20px;
+    .app-info {
+      flex: 1;
+      min-width: 0;
+    }
 
-  object-fit:cover;
+    .app-info h2 {
+      margin: 0 0 8px;
+      color: #ff9800;
+      font-size: 23px;
+    }
 
-  flex-shrink:0;
+    .app-info p {
+      margin: 0 0 15px;
+      color: #dddddd;
+      font-size: 16px;
+    }
 
-  border:3px solid #ff9800;
+    .button {
+      display: inline-block;
 
-  background:#111;
+      padding: 13px 24px;
 
-  box-shadow:
-  0 0 15px rgba(255,152,0,.25);
-}
+      background: #ff9800;
+      color: white;
 
-/* APP INFORMATION */
+      text-decoration: none;
 
-.app-info{
-  flex:1;
-}
+      border-radius: 12px;
 
-.app-info h2{
-  margin:0 0 8px;
+      font-size: 16px;
+      font-weight: bold;
+    }
 
-  color:#ff9800;
+    .button:active {
+      transform: scale(0.97);
+    }
 
-  font-size:23px;
-}
+    footer {
+      text-align: center;
+      color: #777777;
+      padding: 35px 10px;
+      font-size: 16px;
+    }
 
-.app-info p{
-  margin:0 0 15px;
+    @media (max-width: 500px) {
 
-  color:#ddd;
+      header h1 {
+        font-size: 28px;
+      }
 
-  font-size:16px;
-}
+      header p {
+        font-size: 17px;
+      }
 
-/* OPEN BUTTON */
+      .app-card {
+        padding: 16px;
+        gap: 15px;
+      }
 
-.button{
-  display:inline-block;
+      .app-logo {
+        width: 90px;
+        height: 90px;
+      }
 
-  padding:13px 24px;
+      .app-info h2 {
+        font-size: 20px;
+      }
 
-  background:#ff9800;
+      .app-info p {
+        font-size: 14px;
+      }
 
-  color:white;
+      .button {
+        padding: 12px 20px;
+      }
+    }
 
-  text-decoration:none;
+    @media (max-width: 360px) {
 
-  border-radius:12px;
+      .app-card {
+        gap: 10px;
+      }
 
-  font-weight:bold;
+      .app-logo {
+        width: 75px;
+        height: 75px;
+      }
 
-  font-size:16px;
-}
+      .app-info h2 {
+        font-size: 18px;
+      }
 
-.button:active{
-  transform:scale(.97);
-}
+      .app-info p {
+        font-size: 13px;
+      }
 
-/* FOOTER */
+      .button {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+    }
 
-footer{
-  text-align:center;
-
-  color:#777;
-
-  padding:35px 10px;
-
-  font-size:16px;
-}
-
-/* MOBILE */
-
-@media(max-width:500px){
-
-  header h1{
-    font-size:28px;
-  }
-
-  header p{
-    font-size:17px;
-  }
-
-  .app-card{
-    padding:16px;
-    gap:15px;
-  }
-
-  .app-logo{
-    width:90px;
-    height:90px;
-  }
-
-  .app-info h2{
-    font-size:20px;
-  }
-
-  .app-info p{
-    font-size:14px;
-  }
-
-  .button{
-    padding:12px 20px;
-  }
-}
-
-/* SMALL MOBILE */
-
-@media(max-width:360px){
-
-  .app-card{
-    gap:10px;
-  }
-
-  .app-logo{
-    width:75px;
-    height:75px;
-  }
-
-  .app-info h2{
-    font-size:18px;
-  }
-
-  .button{
-    padding:10px 15px;
-    font-size:14px;
-  }
-}
-
-</style>
+  </style>
 
 </head>
 
-
 <body>
 
-<!-- HEADER -->
+  <header>
 
-<header>
+    <h1>YASHWIN APP STORE</h1>
 
-  <h1>
-    YASHWIN APP STORE
-  </h1>
+    <p>
+      Discover, Download and Enjoy Apps
+    </p>
 
-  <p>
-    Discover, Download and Enjoy Apps
-  </p>
-
-</header>
+  </header>
 
 
-<!-- APP LIST -->
+  <main class="container">
 
-<div class="container">
+    <div class="app-card">
 
-
-  <!-- VANSH CALCULATOR -->
-
-  <div class="app-card">
-
-    <img
-      class="app-logo"
-      src="icon-512.png"
-      alt="VANSH CALCULATOR"
-    >
-
-    <div class="app-info">
-
-      <h2>
-        VANSH CALCULATOR
-      </h2>
-
-      <p>
-        Fast and simple calculator app.
-      </p>
-
-      <a
-        class="button"
-        href="calculator.html"
+      <img
+        class="app-logo"
+        src="icon-512.png"
+        alt="VANSH CALCULATOR"
       >
-        OPEN APP
-      </a>
+
+      <div class="app-info">
+
+        <h2>VANSH CALCULATOR</h2>
+
+        <p>
+          Fast and simple calculator app.
+        </p>
+
+        <a
+          class="button"
+          href="calculator.html"
+        >
+          OPEN APP
+        </a>
+
+      </div>
 
     </div>
 
-  </div>
+  </main>
 
 
-</div>
+  <footer>
+
+    © 2026 YASHWIN APP STORE
+
+  </footer>
 
 
-<!-- FOOTER -->
+  <script>
 
-<footer>
+    if ("serviceWorker" in navigator) {
 
-  © 2026 YASHWIN APP STORE
+      window.addEventListener("load", function () {
 
-</footer>
+        navigator.serviceWorker.register("sw.js")
+          .then(function () {
+            console.log("YASHWIN APP STORE ready");
+          })
+          .catch(function (error) {
+            console.log(
+              "Service Worker Error:",
+              error
+            );
+          });
 
+      });
 
-<!-- SERVICE WORKER -->
+    }
 
-<script>
-
-if("serviceWorker" in navigator){
-
-  window.addEventListener("load",function(){
-
-    navigator.serviceWorker.register("sw.js")
-
-    .then(function(){
-
-      console.log("YASHWIN APP STORE ready");
-
-    })
-
-    .catch(function(error){
-
-      console.log(
-        "Service Worker Error:",
-        error
-      );
-
-    });
-
-  });
-
-}
-
-</script>
-
+  </script>
 
 </body>
 
