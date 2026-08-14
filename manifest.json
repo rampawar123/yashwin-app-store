@@ -1,31 +1,33 @@
 {
   "name": "YASHWIN APP STORE",
-  "short_name": "YASHWIN",
-  "start_url": "/yashwin-app-store/",
-  "scope": "/yashwin-app-store/",
+  "short_name": "YASHWIN STORE",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#111111",
+  "background_color": "#101010",
   "theme_color": "#ff9800",
   "description": "YASHWIN APP STORE - Discover, Download and Enjoy Apps",
   "icons": [
     {
-      "src": "/yashwin-app-store/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/yashwin-app-store/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/yashwin-app-store/icon-192-maskable.png",
+      "src": "icon-192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/yashwin-app-store/icon-512-maskable.png",
+      "src": "icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
