@@ -28,13 +28,24 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Create Bubblewrap manifest
+      - name: Configure Bubblewrap
         run: |
-          bubblewrap init --manifest https://rampawar123.github.io/yashwin-app-store/manifest.json
+          mkdir -p ~/.bubblewrap
+          echo '{
+            "jdkPath": "'"$JAVA_HOME_17_X64"'",
+            "androidSdkPath": "'"$ANDROID_HOME"'"
+          }' > ~/.bubblewrap/config.json
 
-      - name: Generate Android project
+      - name: Create Android project
         run: |
-          bubblewrap updateConfig --jdkPath "$JAVA_HOME_17_X64" --androidSdkPath "$ANDROID_HOME" || true
+          bubblewrap init --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" --directory=./twa
+
+      - name: Build APK
+        working-directory: ./twa
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: "VANSH12345"
+          BUBBLEWRAP_KEY_PASSWORD: "VANSH12345"
+        run: |
           bubblewrap build --skipPwaValidation
 
       - name: Upload APK
@@ -42,4 +53,5 @@ jobs:
         with:
           name: VANSH-CALCULATOR-APK
           path: |
-            **/*.apk
+            twa/app-release-signed.apk
+            twa/app-release-bundle.aab
