@@ -2,7 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#ff9800">
+
+  <meta name="description" content="YASHWIN APP STORE - Discover, Download and Enjoy Apps">
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="icon" href="icon.svg">
 
   <title>YASHWIN APP STORE</title>
 
@@ -33,11 +42,12 @@
     header p {
       color: #ccc;
       margin-bottom: 0;
+      font-size: 16px;
     }
 
     .container {
       padding: 20px;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
     }
 
@@ -56,6 +66,7 @@
       height: 75px;
       border-radius: 18px;
       object-fit: cover;
+      flex-shrink: 0;
     }
 
     .app-info {
@@ -76,18 +87,41 @@
 
     .button {
       display: inline-block;
-      padding: 10px 18px;
+      padding: 12px 20px;
       background: #ff9800;
       color: white;
       text-decoration: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-weight: bold;
+    }
+
+    .button:active {
+      transform: scale(0.96);
     }
 
     footer {
       text-align: center;
+      padding: 30px 15px;
       color: #777;
-      padding: 30px 10px;
+    }
+
+    @media (max-width: 500px) {
+      header h1 {
+        font-size: 26px;
+      }
+
+      .app-card {
+        padding: 15px;
+      }
+
+      .app-icon {
+        width: 65px;
+        height: 65px;
+      }
+
+      .app-info h2 {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
@@ -99,29 +133,57 @@
     <p>Discover, Download and Enjoy Apps</p>
   </header>
 
-  <div class="container">
+  <main class="container">
 
     <div class="app-card">
 
-      <img class="app-icon" src="icon-192.png" alt="VANSH CALCULATOR">
+      <img
+        class="app-icon"
+        src="icon-192.png"
+        alt="VANSH CALCULATOR"
+      >
 
       <div class="app-info">
+
         <h2>VANSH CALCULATOR</h2>
 
         <p>Fast and simple calculator app.</p>
 
-        <a class="button" href="calculator.html">
+        <a
+          class="button"
+          href="calculator.html"
+        >
           OPEN APP
         </a>
+
       </div>
 
     </div>
 
-  </div>
+  </main>
 
   <footer>
     © 2026 YASHWIN APP STORE
   </footer>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+
+      window.addEventListener("load", () => {
+
+        navigator.serviceWorker
+          .register("sw.js")
+          .then(() => {
+            console.log("YASHWIN APP STORE ready");
+          })
+          .catch((error) => {
+            console.log("Service Worker error:", error);
+          });
+
+      });
+
+    }
+  </script>
 
 </body>
 </html>
