@@ -9,7 +9,6 @@
   "orientation": "portrait",
   "background_color": "#101010",
   "theme_color": "#ff9800",
-
   "icons": [
     {
       "src": "icon-192.png",
@@ -36,7 +35,6 @@
       "purpose": "maskable"
     }
   ],
-
   "categories": [
     "apps",
     "utilities"
