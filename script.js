@@ -1,15 +1,13 @@
-let display=document.getElementById("display");let numbers=document.querySelectorAll(".number");let operators=document.querySelectorAll(".operator");let equals=document.getElementById("equals"),clear=document.getElementById("clear"),backspace=document.getElementById("backspace"),percent=document.getElementById("percent"),sign=document.getElementById("sign"),historyList=document.getElementById("historyList"),clearHistory=document.getElementById("clearHistory");let expression="",justCalculated=false;
-numbers.forEach(button=>button.onclick=()=>{let value=button.innerText;if(justCalculated){expression="";display.innerText="0";justCalculated=false}if(value==="."){let last=getLastNumber(expression);if(last.includes("."))return;if(expression===""||isOperator(expression.slice(-1)))expression+="0.";else expression+="."}else{expression=expression==="0"?value:expression+value}display.innerText=expression||"0"});
-operators.forEach(button=>button.onclick=()=>{let symbol=button.innerText;if(!expression||expression==="0"||expression==="Error")return;if(isOperator(expression.slice(-1)))expression=expression.slice(0,-1)+symbol;else expression+=symbol;display.innerText=expression;justCalculated=false});
-equals.onclick=()=>{if(!expression||isOperator(expression.slice(-1)))return;let original=expression,result=calculateExpression(expression);if(result==="Error"){display.innerText="Error";expression="";return}addHistory(original+" = "+result);display.innerText=result;expression=result.toString();justCalculated=true};
-function calculateExpression(text){let clean=text.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-");try{if(!/^[0-9+\-*/.() ]+$/.test(clean))return"Error";let result=Function("return "+clean)();return Number.isFinite(result)?formatNumber(result):"Error"}catch(e){return"Error"}}
-function getLastNumber(text){return text.split(/[+−×÷]/).pop()}
-function isOperator(v){return["+","−","×","÷"].includes(v)}
-backspace.onclick=()=>{if(!expression||display.innerText==="Error"){expression="";display.innerText="0";return}expression=expression.slice(0,-1);display.innerText=expression||"0"};
-percent.onclick=()=>{if(!expression)return;let last=getLastNumber(expression);if(!last)return;let value=Number(last)/100;expression=expression.slice(0,-last.length)+formatNumber(value);display.innerText=expression};
-sign.onclick=()=>{if(!expression)return;let last=getLastNumber(expression);if(!last)return;let value=Number(last)*-1;expression=expression.slice(0,-last.length)+formatNumber(value);display.innerText=expression};
-clear.onclick=()=>{expression="";display.innerText="0";justCalculated=false};
-function addHistory(text){let item=document.createElement("div");item.className="history-item";item.innerText=text;historyList.prepend(item)}
-clearHistory.onclick=()=>historyList.innerHTML="";
-function formatNumber(number){if(!Number.isFinite(Number(number)))return"Error";if(Number.isInteger(Number(number)))return Number(number).toString();return Number(Number(number).toFixed(10)).toString()}
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+document.addEventListener("DOMContentLoaded", function () {
+
+  console.log("YASHWIN APP STORE started");
+
+  const openAppButton = document.querySelector(".button");
+
+  if (openAppButton) {
+    openAppButton.addEventListener("click", function () {
+      console.log("VANSH CALCULATOR opened");
+    });
+  }
+
+});
