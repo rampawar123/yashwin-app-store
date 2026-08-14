@@ -1,46 +1,20 @@
-const CACHE_NAME = "yashwin-app-store-v1";
+// YASHWIN APP STORE
 
-const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./style.css",
-  "./script.js",
-  "./icon.svg",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./icon-192-maskable.png",
-  "./icon-512-maskable.png"
-];
+document.addEventListener("DOMContentLoaded", function () {
 
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
-  );
+  console.log("YASHWIN APP STORE started");
 
-  self.skipWaiting();
-});
+  // Open App button
+  const openAppButton = document.querySelector(".button");
 
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    )
-  );
+  if (openAppButton) {
 
-  self.clients.claim();
-});
+    openAppButton.addEventListener("click", function () {
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
-  );
+      console.log("VANSH CALCULATOR opened");
+
+    });
+
+  }
+
 });
