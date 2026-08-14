@@ -1,12 +1,15 @@
 {
+  "id": "./",
   "name": "YASHWIN APP STORE",
   "short_name": "YASHWIN STORE",
-  "start_url": "./",
+  "description": "YASHWIN APP STORE - Discover, Download and Enjoy Apps",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#101010",
   "theme_color": "#ff9800",
-  "description": "YASHWIN APP STORE - Discover, Download and Enjoy Apps",
+
   "icons": [
     {
       "src": "icon-192.png",
@@ -32,5 +35,10 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+
+  "categories": [
+    "apps",
+    "utilities"
   ]
 }
