@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+content="width=device-width, initial-scale=1.0">
 
 <title>VANSH CALCULATOR</title>
 
@@ -14,14 +12,15 @@
 
 *{
     box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
 }
 
 body{
     margin:0;
-    padding:15px;
+    padding:16px;
     background:#101010;
-    color:white;
-    font-family:Arial,sans-serif;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
 .calculator{
@@ -30,30 +29,24 @@ body{
     margin:auto;
 }
 
-
 /* TITLE */
 
 h1{
     text-align:center;
     color:#ff9800;
     font-size:38px;
-    margin:25px 0 30px;
+    margin:20px 0 28px;
 }
-
 
 /* DISPLAY */
 
 .display{
     width:100%;
-    min-height:145px;
-
+    height:145px;
     background:#222;
-
-    border-radius:25px;
-
+    border-radius:28px;
     padding:20px 25px;
-
-    margin-bottom:25px;
+    margin-bottom:24px;
 
     display:flex;
     align-items:flex-end;
@@ -63,17 +56,13 @@ h1{
 }
 
 #display{
-
     width:100%;
-
     text-align:right;
 
-    font-size:45px;
-
-    color:white;
+    font-size:48px;
+    font-weight:400;
 
     white-space:nowrap;
-
     overflow-x:auto;
 
     scrollbar-width:none;
@@ -83,239 +72,196 @@ h1{
     display:none;
 }
 
-
-/* BUTTONS */
+/* BUTTON GRID */
 
 .buttons{
-
     display:grid;
-
-    grid-template-columns:
-    repeat(4,1fr);
-
-    gap:14px;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
 }
 
+/* BUTTON */
+
 button{
-
-    border:none;
-
+    border:0;
     min-height:78px;
 
     border-radius:20px;
 
-    font-size:28px;
+    background:#303030;
+    color:#fff;
 
+    font-size:27px;
     font-weight:bold;
 
-    color:white;
-
-    background:#303030;
-
     cursor:pointer;
+
+    touch-action:manipulation;
 }
 
 button:active{
     transform:scale(.95);
 }
 
-.operator{
-    background:#ff9800;
-}
+/* ORANGE */
 
-.clear{
-    background:#d62828;
-}
-
+.operator,
 .equal{
     background:#ff9800;
 }
 
+/* AC */
+
+.clear{
+    background:#d92323;
+}
 
 /* HISTORY HEADER */
 
 .history-header{
-
-    margin-top:35px;
+    margin-top:34px;
 
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 }
 
 .history-header h2{
-
     margin:0;
-
     color:#ff9800;
-
     font-size:30px;
 }
 
-
-/* CLEAR */
+/* CLEAR HISTORY */
 
 .clear-history{
-
-    min-height:52px;
-
-    padding:0 18px;
-
-    font-size:17px;
+    min-height:55px;
+    padding:0 20px;
 
     background:#333;
+    border-radius:16px;
 
-    border-radius:15px;
+    font-size:17px;
 }
-
 
 /* HISTORY BOX */
 
 #history{
+    margin-top:14px;
 
-    margin-top:12px;
-
-    height:240px;
+    height:260px;
 
     padding:12px;
 
     background:#181818;
 
-    border-radius:18px;
+    border-radius:20px;
 
     overflow-y:auto;
-
     overflow-x:hidden;
 }
-
 
 /* HISTORY ITEM */
 
 .history-item{
+    width:100%;
 
     display:flex;
-
     align-items:center;
-
-    justify-content:space-between;
 
     gap:10px;
 
     background:#292929;
 
-    color:white;
-
     padding:12px;
 
     margin-bottom:10px;
 
-    border-radius:13px;
-
-    font-size:19px;
+    border-radius:14px;
 }
 
-
-/* CALCULATION TEXT */
+/* HISTORY TEXT */
 
 .history-text{
-
     flex:1;
 
-    text-align:left;
+    color:#fff;
+
+    font-size:18px;
 
     word-break:break-word;
 }
 
-
-/* DELETE BUTTON */
+/* DELETE */
 
 .delete-history{
+    flex:0 0 46px;
 
-    min-height:42px;
-
-    width:45px;
+    width:46px;
+    min-height:44px;
 
     padding:0;
 
-    border-radius:10px;
+    border-radius:11px;
 
-    background:#d62828;
+    background:#d92323;
 
-    font-size:19px;
-
-    flex-shrink:0;
+    font-size:18px;
 }
-
 
 /* TOTAL */
 
 .total-box{
-
-    margin-top:15px;
-
-    background:#222;
-
-    border:2px solid #ff9800;
-
-    border-radius:18px;
+    margin-top:14px;
 
     padding:15px 18px;
 
+    min-height:75px;
+
+    border:3px solid #ff9800;
+
+    border-radius:20px;
+
+    background:#222;
+
     display:flex;
 
-    justify-content:space-between;
-
     align-items:center;
+
+    justify-content:space-between;
 }
 
 .total-title{
-
     color:#ff9800;
-
-    font-size:22px;
-
+    font-size:25px;
     font-weight:bold;
 }
 
 .total-value{
-
-    color:white;
-
-    font-size:28px;
-
+    color:#fff;
+    font-size:30px;
     font-weight:bold;
 
     max-width:60%;
 
     overflow-x:auto;
-
     white-space:nowrap;
 }
 
-
-/* SCROLLBAR */
+/* HISTORY SCROLLBAR */
 
 #history::-webkit-scrollbar{
-
     width:7px;
 }
 
 #history::-webkit-scrollbar-track{
-
     background:#222;
-
-    border-radius:10px;
 }
 
 #history::-webkit-scrollbar-thumb{
-
     background:#ff9800;
-
     border-radius:10px;
 }
-
 
 /* MOBILE */
 
@@ -326,16 +272,17 @@ button:active{
     }
 
     h1{
-        font-size:32px;
+        font-size:34px;
+        margin-top:18px;
     }
 
     .display{
-        min-height:125px;
-        padding:20px;
+        height:145px;
+        border-radius:27px;
     }
 
     #display{
-        font-size:40px;
+        font-size:45px;
     }
 
     .buttons{
@@ -343,48 +290,35 @@ button:active{
     }
 
     button{
-        min-height:70px;
-        font-size:24px;
-        border-radius:17px;
+        min-height:78px;
+        border-radius:19px;
+        font-size:26px;
     }
 
-    .history-item{
+    #history{
+        height:260px;
+    }
+
+    .history-text{
         font-size:17px;
-    }
-
-    .total-title{
-        font-size:20px;
-    }
-
-    .total-value{
-        font-size:24px;
     }
 }
 
 </style>
-
 </head>
 
 
 <body>
 
-
 <div class="calculator">
 
-
-<h1>
-VANSH CALCULATOR
-</h1>
+<h1>VANSH CALCULATOR</h1>
 
 
 <!-- DISPLAY -->
 
 <div class="display">
-
-<div id="display">
-0
-</div>
-
+    <div id="display">0</div>
 </div>
 
 
@@ -392,134 +326,83 @@ VANSH CALCULATOR
 
 <div class="buttons">
 
+    <button class="clear"
+    onclick="clearAll()">AC</button>
 
-<button
-class="clear"
-onclick="clearAll()">
-AC
-</button>
+    <button
+    onclick="backspace()">⌫</button>
 
+    <button
+    onclick="percent()">%</button>
 
-<button
-onclick="backspace()">
-⌫
-</button>
-
-
-<button
-onclick="percent()">
-%
-</button>
+    <button class="operator"
+    onclick="operatorPressed('/')">÷</button>
 
 
-<button
-class="operator"
-onclick="pressOperator('/')">
-÷
-</button>
+    <button
+    onclick="numberPressed('7')">7</button>
+
+    <button
+    onclick="numberPressed('8')">8</button>
+
+    <button
+    onclick="numberPressed('9')">9</button>
+
+    <button class="operator"
+    onclick="operatorPressed('*')">×</button>
 
 
+    <button
+    onclick="numberPressed('4')">4</button>
 
-<button onclick="pressNumber('7')">
-7
-</button>
+    <button
+    onclick="numberPressed('5')">5</button>
 
-<button onclick="pressNumber('8')">
-8
-</button>
+    <button
+    onclick="numberPressed('6')">6</button>
 
-<button onclick="pressNumber('9')">
-9
-</button>
-
-<button
-class="operator"
-onclick="pressOperator('*')">
-×
-</button>
+    <button class="operator"
+    onclick="operatorPressed('-')">−</button>
 
 
+    <button
+    onclick="numberPressed('1')">1</button>
 
-<button onclick="pressNumber('4')">
-4
-</button>
+    <button
+    onclick="numberPressed('2')">2</button>
 
-<button onclick="pressNumber('5')">
-5
-</button>
+    <button
+    onclick="numberPressed('3')">3</button>
 
-<button onclick="pressNumber('6')">
-6
-</button>
-
-<button
-class="operator"
-onclick="pressOperator('-')">
-−
-</button>
+    <button class="operator"
+    onclick="operatorPressed('+')">+</button>
 
 
+    <button
+    onclick="numberPressed('0')">0</button>
 
-<button onclick="pressNumber('1')">
-1
-</button>
+    <button
+    onclick="numberPressed('00')">00</button>
 
-<button onclick="pressNumber('2')">
-2
-</button>
+    <button
+    onclick="decimalPressed()">.</button>
 
-<button onclick="pressNumber('3')">
-3
-</button>
-
-<button
-class="operator"
-onclick="pressOperator('+')">
-+
-</button>
-
-
-
-<!-- LAST ROW -->
-
-<button onclick="pressNumber('0')">
-0
-</button>
-
-<button onclick="pressNumber('00')">
-00
-</button>
-
-<button onclick="pressDecimal()">
-.
-</button>
-
-<button
-class="equal"
-onclick="calculate()">
-=
-</button>
-
+    <button class="equal"
+    onclick="calculate()">=</button>
 
 </div>
-
 
 
 <!-- HISTORY -->
 
 <div class="history-header">
 
-<h2>
-History
-</h2>
+    <h2>History</h2>
 
-<button
-class="clear-history"
-onclick="clearHistory()">
-
-CLEAR
-
-</button>
+    <button class="clear-history"
+    onclick="clearHistory()">
+        CLEAR
+    </button>
 
 </div>
 
@@ -531,453 +414,185 @@ CLEAR
 
 <div class="total-box">
 
-<div class="total-title">
-TOTAL
-</div>
+    <div class="total-title">
+        TOTAL
+    </div>
 
-<div
-id="totalValue"
-class="total-value">
-
-0
-
-</div>
+    <div
+    id="totalValue"
+    class="total-value">
+        0
+    </div>
 
 </div>
 
-
 </div>
-
 
 
 <script>
 
+/* =========================================
+   VANSH CALCULATOR
+========================================= */
 
-/* =========================
-   CALCULATOR VARIABLES
-========================= */
+let expression = "";
 
-let current = "0";
-
-let firstNumber = null;
-
-let operator = null;
-
-let waitingForSecondNumber = false;
+let justCalculated = false;
 
 
-/* =========================
-   DISPLAY
-========================= */
+/* DISPLAY */
 
 function updateDisplay(){
 
     const display =
-    document.getElementById("display");
+        document.getElementById("display");
 
-
-    /*
-       Operator select hone ke baad:
-       5 +
-    */
-
-    if(
-        firstNumber !== null &&
-        operator !== null
-    ){
-
-        let text =
-        cleanNumber(firstNumber)
-        + " "
-        + operatorSymbol(operator);
-
-
-        /*
-           Second number enter ho gaya:
-           5 + 5
-        */
-
-        if(!waitingForSecondNumber){
-
-            text +=
-            " "
-            + current;
-
-        }
-
-
-        display.textContent = text;
-
+    if(expression === ""){
+        display.textContent = "0";
     }
-
     else{
-
         display.textContent =
-        current;
-
+            expression;
     }
-
 
     display.scrollLeft =
-    display.scrollWidth;
+        display.scrollWidth;
 }
 
 
-/* =========================
-   NUMBER
-========================= */
+/* NUMBER */
 
-function pressNumber(value){
+function numberPressed(value){
 
     /*
-       Operator ke baad
-       naya number
+       New calculation after =
     */
 
-    if(waitingForSecondNumber){
+    if(justCalculated){
+
+        expression = "";
+        justCalculated = false;
+    }
+
+
+    /*
+       00 at empty display
+    */
+
+    if(expression === ""){
 
         if(value === "00"){
-
-            current = "0";
-
+            expression = "0";
         }
         else{
-
-            current = value;
-
+            expression = value;
         }
-
-        waitingForSecondNumber =
-        false;
 
     }
 
     else{
 
-        if(current === "0"){
+        /*
+           Prevent 00000 at beginning
+        */
 
-            if(value === "00"){
+        if(
+            expression === "0" &&
+            value !== "."
+        ){
 
-                current = "0";
-
-            }
-            else{
-
-                current = value;
-
-            }
+            expression = value;
 
         }
         else{
 
-            current += value;
+            expression += value;
 
         }
 
     }
 
-
     updateDisplay();
 }
 
 
-/* =========================
-   OPERATOR
-========================= */
+/* DECIMAL */
 
-function pressOperator(newOperator){
+function decimalPressed(){
 
-    const number =
-    parseFloat(current);
+    if(justCalculated){
 
-
-    /*
-       First operator
-    */
-
-    if(firstNumber === null){
-
-        firstNumber = number;
-
+        expression = "";
+        justCalculated = false;
     }
 
 
     /*
-       Agar previous calculation
-       pending hai
+       Find current number
+       after last operator
     */
 
-    else if(
-        !waitingForSecondNumber
-    ){
+    const parts =
+        expression.split(/[+\-×÷]/);
 
-        const result =
-        performCalculation(
-            firstNumber,
-            number,
-            operator
-        );
+    const currentNumber =
+        parts[parts.length - 1];
 
 
-        if(!Number.isFinite(result)){
-
-            current = "Error";
-
-            firstNumber = null;
-
-            operator = null;
-
-            waitingForSecondNumber = true;
-
-            updateDisplay();
-
-            return;
-
-        }
-
-
-        firstNumber = result;
-
-        current =
-        cleanNumber(result);
+    if(currentNumber.includes(".")){
+        return;
     }
 
-
-    operator =
-    newOperator;
-
-
-    waitingForSecondNumber =
-    true;
-
-
-    updateDisplay();
-}
-
-
-/* =========================
-   CALCULATE
-========================= */
-
-function calculate(){
 
     if(
-        firstNumber === null ||
-        operator === null
+        expression === "" ||
+        /[+\-×÷]$/.test(expression)
     ){
 
-        return;
+        expression += "0.";
 
     }
-
-
-    /*
-       Operator ke baad
-       direct = nahi
-    */
-
-    if(waitingForSecondNumber){
-
-        return;
-
-    }
-
-
-    const secondNumber =
-    parseFloat(current);
-
-
-    const result =
-    performCalculation(
-        firstNumber,
-        secondNumber,
-        operator
-    );
-
-
-    if(!Number.isFinite(result)){
-
-        current = "Error";
-
-        firstNumber = null;
-
-        operator = null;
-
-        waitingForSecondNumber = true;
-
-        updateDisplay();
-
-        return;
-
-    }
-
-
-    /*
-       History expression
-    */
-
-    const expression =
-    cleanNumber(firstNumber)
-    + " "
-    + operatorSymbol(operator)
-    + " "
-    + cleanNumber(secondNumber);
-
-
-    const answer =
-    cleanNumber(result);
-
-
-    /*
-       HISTORY ME ADD
-    */
-
-    addHistory(
-        expression,
-        answer
-    );
-
-
-    /*
-       FINAL RESULT
-    */
-
-    current = answer;
-
-    firstNumber = null;
-
-    operator = null;
-
-    waitingForSecondNumber = false;
-
-
-    updateDisplay();
-}
-
-
-/* =========================
-   CALCULATION ENGINE
-========================= */
-
-function performCalculation(
-    a,
-    b,
-    op
-){
-
-    switch(op){
-
-        case "+":
-
-            return a + b;
-
-
-        case "-":
-
-            return a - b;
-
-
-        case "*":
-
-            return a * b;
-
-
-        case "/":
-
-            if(b === 0){
-
-                return NaN;
-
-            }
-
-            return a / b;
-
-
-        default:
-
-            return b;
-    }
-}
-
-
-/* =========================
-   PERCENT
-========================= */
-
-function percent(){
-
-    const number =
-    parseFloat(current);
-
-
-    if(isNaN(number)){
-
-        return;
-
-    }
-
-
-    current =
-    cleanNumber(
-        number / 100
-    );
-
-
-    updateDisplay();
-}
-
-
-/* =========================
-   DECIMAL
-========================= */
-
-function pressDecimal(){
-
-    if(waitingForSecondNumber){
-
-        current = "0.";
-
-        waitingForSecondNumber =
-        false;
-
-    }
-
-    else if(
-        !current.includes(".")
-    ){
-
-        current += ".";
-
-    }
-
-
-    updateDisplay();
-}
-
-
-/* =========================
-   BACKSPACE
-========================= */
-
-function backspace(){
-
-    if(waitingForSecondNumber){
-
-        return;
-
-    }
-
-
-    if(current.length <= 1){
-
-        current = "0";
-
-    }
-
     else{
 
-        current =
-        current.slice(0,-1);
+        expression += ".";
+
+    }
+
+    updateDisplay();
+}
+
+
+/* OPERATOR */
+
+function operatorPressed(op){
+
+    justCalculated = false;
+
+
+    /*
+       Empty expression
+    */
+
+    if(expression === ""){
+        return;
+    }
+
+
+    /*
+       If last character is operator,
+       replace it
+    */
+
+    if(/[+\-×÷]$/.test(expression)){
+
+        expression =
+            expression.slice(0,-1)
+            + symbol(op);
+
+    }
+    else{
+
+        expression += symbol(op);
 
     }
 
@@ -986,76 +601,466 @@ function backspace(){
 }
 
 
-/* =========================
-   AC
-========================= */
+/* SYMBOL */
 
-function clearAll(){
-
-    current = "0";
-
-    firstNumber = null;
-
-    operator = null;
-
-    waitingForSecondNumber =
-    false;
-
-
-    updateDisplay();
-}
-
-
-/* =========================
-   OPERATOR SYMBOL
-========================= */
-
-function operatorSymbol(op){
+function symbol(op){
 
     if(op === "*"){
-
         return "×";
-
     }
-
 
     if(op === "/"){
-
         return "÷";
-
     }
-
-
-    if(op === "-"){
-
-        return "−";
-
-    }
-
 
     return op;
 }
 
 
-/* =========================
-   ADD HISTORY
-========================= */
+/* BACKSPACE */
+
+function backspace(){
+
+    if(justCalculated){
+
+        expression = "";
+        justCalculated = false;
+
+    }
+    else{
+
+        expression =
+            expression.slice(0,-1);
+
+    }
+
+    updateDisplay();
+}
+
+
+/* AC */
+
+function clearAll(){
+
+    expression = "";
+    justCalculated = false;
+
+    updateDisplay();
+}
+
+
+/* PERCENT */
+
+function percent(){
+
+    if(expression === ""){
+        return;
+    }
+
+
+    /*
+       Find last number
+    */
+
+    const match =
+        expression.match(/(\d+\.?\d*)$/);
+
+    if(!match){
+        return;
+    }
+
+
+    const number =
+        Number(match[1]);
+
+    const result =
+        number / 100;
+
+
+    expression =
+        expression.slice(
+            0,
+            expression.length -
+            match[1].length
+        )
+        + format(result);
+
+
+    updateDisplay();
+}
+
+
+/* =========================================
+   CALCULATE
+========================================= */
+
+function calculate(){
+
+    if(expression === ""){
+        return;
+    }
+
+
+    /*
+       Last character operator
+       ho to calculation mat karo
+    */
+
+    if(/[+\-×÷]$/.test(expression)){
+        return;
+    }
+
+
+    const original =
+        expression;
+
+
+    try{
+
+        /*
+           Convert display symbols
+           into JavaScript operators
+        */
+
+        let math =
+            expression
+            .replace(/×/g,"*")
+            .replace(/÷/g,"/");
+
+
+        /*
+           Only allow numbers/operators/dot
+        */
+
+        if(!/^[0-9+\-*/.\s]+$/.test(math)){
+            return;
+        }
+
+
+        /*
+           Calculate
+        */
+
+        const answer =
+            Function(
+                '"use strict"; return (' +
+                math +
+                ')'
+            )();
+
+
+        if(
+            typeof answer !== "number" ||
+            !Number.isFinite(answer)
+        ){
+
+            expression = "Error";
+
+            updateDisplay();
+
+            setTimeout(
+                clearAll,
+                1000
+            );
+
+            return;
+        }
+
+
+        const result =
+            format(answer);
+
+
+        /*
+           Add History
+        */
+
+        addHistory(
+            original,
+            result
+        );
+
+
+        /*
+           Show final answer
+        */
+
+        expression = result;
+
+        justCalculated = true;
+
+        updateDisplay();
+
+    }
+    catch(error){
+
+        expression = "Error";
+
+        updateDisplay();
+
+        setTimeout(
+            clearAll,
+            1000
+        );
+
+    }
+}
+
+
+/* FORMAT NUMBER */
+
+function format(number){
+
+    if(
+        !Number.isFinite(number)
+    ){
+        return "Error";
+    }
+
+
+    if(
+        Number.isInteger(number)
+    ){
+        return String(number);
+    }
+
+
+    return String(
+        Number(
+            number.toFixed(10)
+        )
+    );
+}
+
+
+/* =========================================
+   HISTORY
+========================================= */
 
 function addHistory(
-    expression,
+    calculation,
     answer
 ){
 
     const history =
-    document.getElementById(
-        "history"
-    );
+        document.getElementById(
+            "history"
+        );
+
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+    item.className =
+        "history-item";
+
+
+    const text =
+        document.createElement(
+            "div"
+        );
+
+    text.className =
+        "history-text";
+
+
+    text.textContent =
+        calculation
+        + " = "
+        + answer;
+
+
+    const deleteButton =
+        document.createElement(
+            "button"
+        );
+
+    deleteButton.className =
+        "delete-history";
+
+    deleteButton.textContent =
+        "🗑️";
 
 
     /*
-       History item
+       Delete only this calculation
     */
 
-    const item =
-    document.createElement(
-        "div"
+    deleteButton.onclick =
+        function(){
+
+            item.remove();
+
+            updateTotal();
+
+        };
+
+
+    item.appendChild(text);
+
+    item.appendChild(
+        deleteButton
+    );
+
+
+    history.prepend(item);
+
+
+    updateTotal();
+
+}
+
+
+/* =========================================
+   TOTAL
+========================================= */
+
+function updateTotal(){
+
+    let total = 0;
+
+
+    const items =
+        document.querySelectorAll(
+            ".history-item"
+        );
+
+
+    items.forEach(
+        function(item){
+
+            const text =
+                item.querySelector(
+                    ".history-text"
+                ).textContent;
+
+
+            const parts =
+                text.split("=");
+
+
+            const answer =
+                Number(
+                    parts[
+                        parts.length - 1
+                    ]
+                );
+
+
+            if(!isNaN(answer)){
+
+                total += answer;
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "totalValue"
+    ).textContent =
+        format(total);
+
+}
+
+
+/* =========================================
+   CLEAR HISTORY
+========================================= */
+
+function clearHistory(){
+
+    document.getElementById(
+        "history"
+    ).innerHTML = "";
+
+
+    updateTotal();
+
+}
+
+
+/* =========================================
+   KEYBOARD SUPPORT
+========================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        const key =
+            event.key;
+
+
+        if(
+            key >= "0" &&
+            key <= "9"
+        ){
+
+            numberPressed(key);
+
+        }
+
+        else if(key === "."){
+
+            decimalPressed();
+
+        }
+
+        else if(
+            key === "+" ||
+            key === "-" ||
+            key === "*" ||
+            key === "/"
+        ){
+
+            operatorPressed(key);
+
+        }
+
+        else if(
+            key === "Enter" ||
+            key === "="
+        ){
+
+            calculate();
+
+        }
+
+        else if(
+            key === "Backspace"
+        ){
+
+            backspace();
+
+        }
+
+        else if(
+            key === "Escape"
+        ){
+
+            clearAll();
+
+        }
+
+        else if(key === "%"){
+
+            percent();
+
+        }
+
+    }
+);
+
+
+/* START */
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>
