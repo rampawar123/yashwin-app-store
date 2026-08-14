@@ -30,6 +30,17 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
+      - name: Configure Java and Android SDK
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
+
+          bubblewrap doctor
+
       - name: Create TWA folder
         run: |
           rm -rf twa
@@ -37,26 +48,23 @@ jobs:
 
       - name: Download Web Manifest
         run: |
-          curl -L \
+          curl -fL \
             "https://rampawar123.github.io/yashwin-app-store/manifest.json" \
             -o web-manifest.json
 
-      - name: Create Bubblewrap manifest
+      - name: Create TWA Manifest
         run: |
-          python3 - <<'PY'
+          python3 <<'PY'
           import json
           import urllib.parse
 
           with open("web-manifest.json", "r") as f:
               m = json.load(f)
 
-          host = "rampawar123.github.io"
-          start_url = m.get("start_url", "/yashwin-app-store/")
+          base = "https://rampawar123.github.io/yashwin-app-store/"
+
           name = m.get("name", "YASHWIN APP STORE")
-
-          # Android launcher name must be 12 characters or less
-          launcher_name = "YASHWIN"
-
+          start_url = m.get("start_url", "/yashwin-app-store/")
           theme_color = m.get("theme_color", "#000000")
           background_color = m.get("background_color", "#FFFFFF")
 
@@ -70,31 +78,27 @@ jobs:
               if not src:
                   continue
 
-              full = urllib.parse.urljoin(
-                  "https://rampawar123.github.io/yashwin-app-store/",
-                  src
-              )
-
+              full_url = urllib.parse.urljoin(base, src)
               purpose = icon.get("purpose", "")
 
-              if "maskable" in purpose and maskable_icon_url is None:
-                  maskable_icon_url = full
-
               if icon_url is None:
-                  icon_url = full
+                  icon_url = full_url
+
+              if "maskable" in purpose and maskable_icon_url is None:
+                  maskable_icon_url = full_url
 
           twa = {
               "packageId": "io.github.rampawar123.yashwinappstore",
-              "host": host,
+              "host": "rampawar123.github.io",
               "name": name,
-              "launcherName": launcher_name,
+              "launcherName": "YASHWIN",
               "display": "standalone",
               "themeColor": theme_color,
               "themeColorDark": "#000000",
               "navigationColor": "#000000",
               "navigationColorDark": "#000000",
-              "navigationDividerColor": "#00000000",
-              "navigationDividerColorDark": "#00000000",
+              "navigationDividerColor": "#000000",
+              "navigationDividerColorDark": "#000000",
               "backgroundColor": background_color,
               "enableNotifications": True,
               "startUrl": start_url,
@@ -109,7 +113,7 @@ jobs:
               "appVersion": "1.0",
               "shortcuts": [],
               "generatorApp": "bubblewrap",
-              "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
+              "webManifestUrl": base + "manifest.json",
               "fallbackType": "customtabs",
               "features": {},
               "alphaDependencies": {
@@ -128,26 +132,24 @@ jobs:
           with open("twa/twa-manifest.json", "w") as f:
               json.dump(twa, f, indent=2)
 
-          print(json.dumps(twa, indent=2))
+          print("TWA manifest created successfully.")
           PY
 
-      - name: Create signing key
+      - name: Create Signing Key
         working-directory: ./twa
         env:
           KEYSTORE_PASSWORD: VANSH12345
         run: |
-          if [ ! -f android.keystore ]; then
-            keytool -genkeypair \
-              -v \
-              -keystore android.keystore \
-              -alias android \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -storepass "$KEYSTORE_PASSWORD" \
-              -keypass "$KEYSTORE_PASSWORD" \
-              -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
-          fi
+          keytool -genkeypair \
+            -v \
+            -keystore android.keystore \
+            -alias android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEYSTORE_PASSWORD" \
+            -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
 
       - name: Build APK
         working-directory: ./twa
@@ -159,7 +161,7 @@ jobs:
 
       - name: Find APK
         run: |
-          echo "APK files:"
+          echo "Generated APK files:"
           find ./twa -type f -name "*.apk" -print
 
       - name: Upload APK
