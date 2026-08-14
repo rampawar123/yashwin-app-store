@@ -1,77 +1,1270 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>VANSH CALCULATOR</title>
 
-<link rel="manifest" href="manifest.json">
 
-<link rel="stylesheet" href="style.css">
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 15px;
+    background: #101010;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+
+/* MAIN */
+
+.calculator {
+    width: 100%;
+    max-width: 650px;
+    margin: auto;
+}
+
+
+/* TITLE */
+
+h1 {
+    text-align: center;
+    color: #ff9800;
+    font-size: 38px;
+    margin: 25px 0 30px;
+}
+
+
+/* DISPLAY */
+
+.display {
+    width: 100%;
+    min-height: 145px;
+
+    background: #222;
+
+    border-radius: 25px;
+
+    padding: 20px 25px;
+
+    margin-bottom: 25px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+
+    overflow: hidden;
+}
+
+
+/*
+   IMPORTANT:
+   Calculation yahi main display me dikhega.
+   Example:
+   5
+   5 +
+   5 + 5
+*/
+
+#display {
+    width: 100%;
+
+    text-align: right;
+
+    font-size: 48px;
+
+    color: white;
+
+    white-space: nowrap;
+
+    overflow-x: auto;
+
+    scrollbar-width: none;
+}
+
+#display::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* BUTTON GRID */
+
+.buttons {
+
+    display: grid;
+
+    grid-template-columns:
+    repeat(4, 1fr);
+
+    gap: 14px;
+}
+
+
+/* BUTTON */
+
+button {
+
+    border: none;
+
+    min-height: 78px;
+
+    border-radius: 20px;
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    color: white;
+
+    background: #303030;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+button:active {
+
+    transform: scale(0.95);
+
+}
+
+
+/* OPERATOR */
+
+.operator {
+
+    background: #ff9800;
+
+}
+
+
+/* CLEAR */
+
+.clear {
+
+    background: #d62828;
+
+}
+
+
+/* EQUAL */
+
+.equal {
+
+    background: #ff9800;
+
+}
+
+
+/* HISTORY TITLE */
+
+.history-header {
+
+    margin-top: 35px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.history-header h2 {
+
+    margin: 0;
+
+    color: #ff9800;
+
+    font-size: 30px;
+}
+
+
+/* CLEAR HISTORY */
+
+.clear-history {
+
+    min-height: 55px;
+
+    padding: 0 22px;
+
+    font-size: 18px;
+
+    background: #333;
+
+    border-radius: 18px;
+}
+
+
+/* HISTORY BOX */
+
+#history {
+
+    margin-top: 12px;
+
+    height: 230px;
+
+    padding: 12px;
+
+    background: #181818;
+
+    border-radius: 18px;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+}
+
+
+/* HISTORY ITEM */
+
+.history-item {
+
+    background: #292929;
+
+    color: white;
+
+    padding: 15px;
+
+    margin-bottom: 10px;
+
+    border-radius: 13px;
+
+    font-size: 20px;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+
+/* HISTORY SCROLLBAR */
+
+#history::-webkit-scrollbar {
+
+    width: 7px;
+}
+
+#history::-webkit-scrollbar-track {
+
+    background: #222;
+
+    border-radius: 10px;
+}
+
+#history::-webkit-scrollbar-thumb {
+
+    background: #ff9800;
+
+    border-radius: 10px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 450px) {
+
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+
+        font-size: 32px;
+
+        margin-top: 20px;
+
+        margin-bottom: 25px;
+    }
+
+    .display {
+
+        min-height: 125px;
+
+        border-radius: 22px;
+
+        padding: 20px;
+    }
+
+    #display {
+
+        font-size: 43px;
+    }
+
+    .buttons {
+
+        gap: 11px;
+    }
+
+    button {
+
+        min-height: 72px;
+
+        border-radius: 18px;
+
+        font-size: 25px;
+    }
+
+    #history {
+
+        height: 220px;
+    }
+
+}
+
+
+/* SMALL MOBILE */
+
+@media (max-width: 350px) {
+
+    #display {
+
+        font-size: 36px;
+    }
+
+    button {
+
+        min-height: 65px;
+
+        font-size: 22px;
+    }
+
+}
+
+</style>
 
 </head>
 
+
 <body>
+
 
 <div class="calculator">
 
-  <div class="top">
 
-    <div class="logo">
-      <div class="logo-title">VANSH</div>
-      <div class="logo-sub">CALCULATOR</div>
-    </div>
+    <!-- NO LOGO HERE -->
 
     <h1>VANSH CALCULATOR</h1>
 
-  </div>
 
-  <div id="display">0</div>
+    <!-- DISPLAY -->
 
-  <div class="buttons">
+    <div class="display">
 
-    <button class="danger" onclick="clearAll()">AC</button>
-    <button onclick="backspace()">⌫</button>
-    <button onclick="percent()">%</button>
-    <button class="operator" onclick="press('/')">÷</button>
+        <div id="display">0</div>
 
-    <button onclick="press('7')">7</button>
-    <button onclick="press('8')">8</button>
-    <button onclick="press('9')">9</button>
-    <button class="operator" onclick="press('*')">×</button>
-
-    <button onclick="press('4')">4</button>
-    <button onclick="press('5')">5</button>
-    <button onclick="press('6')">6</button>
-    <button class="operator" onclick="press('-')">−</button>
-
-    <button onclick="press('1')">1</button>
-    <button onclick="press('2')">2</button>
-    <button onclick="press('3')">3</button>
-    <button class="operator" onclick="press('+')">+</button>
-
-    <button onclick="press('0')" class="zero">0</button>
-    <button onclick="press('.')">.</button>
-    <button class="equal" onclick="calculate()">=</button>
-
-  </div>
-
-  <div class="history-section">
-
-    <div class="history-title">
-      <h2>History</h2>
-      <button onclick="clearHistory()">CLEAR</button>
     </div>
+
+
+    <!-- BUTTONS -->
+
+    <div class="buttons">
+
+
+        <!-- ROW 1 -->
+
+        <button
+        class="clear"
+        onclick="clearAll()">
+            AC
+        </button>
+
+
+        <button
+        onclick="backspace()">
+            ⌫
+        </button>
+
+
+        <button
+        onclick="percent()">
+            %
+        </button>
+
+
+        <button
+        class="operator"
+        onclick="pressOperator('/')">
+            ÷
+        </button>
+
+
+
+        <!-- ROW 2 -->
+
+        <button
+        onclick="pressNumber('7')">
+            7
+        </button>
+
+
+        <button
+        onclick="pressNumber('8')">
+            8
+        </button>
+
+
+        <button
+        onclick="pressNumber('9')">
+            9
+        </button>
+
+
+        <button
+        class="operator"
+        onclick="pressOperator('*')">
+            ×
+        </button>
+
+
+
+        <!-- ROW 3 -->
+
+        <button
+        onclick="pressNumber('4')">
+            4
+        </button>
+
+
+        <button
+        onclick="pressNumber('5')">
+            5
+        </button>
+
+
+        <button
+        onclick="pressNumber('6')">
+            6
+        </button>
+
+
+        <button
+        class="operator"
+        onclick="pressOperator('-')">
+            −
+        </button>
+
+
+
+        <!-- ROW 4 -->
+
+        <button
+        onclick="pressNumber('1')">
+            1
+        </button>
+
+
+        <button
+        onclick="pressNumber('2')">
+            2
+        </button>
+
+
+        <button
+        onclick="pressNumber('3')">
+            3
+        </button>
+
+
+        <button
+        class="operator"
+        onclick="pressOperator('+')">
+            +
+        </button>
+
+
+
+        <!-- FINAL ROW -->
+
+        <button
+        onclick="pressNumber('0')">
+            0
+        </button>
+
+
+        <button
+        onclick="pressNumber('00')">
+            00
+        </button>
+
+
+        <button
+        onclick="pressDecimal()">
+            .
+        </button>
+
+
+        <button
+        class="equal"
+        onclick="calculate()">
+            =
+        </button>
+
+
+    </div>
+
+
+
+    <!-- HISTORY -->
+
+    <div class="history-header">
+
+        <h2>History</h2>
+
+
+        <button
+        class="clear-history"
+        onclick="clearHistory()">
+
+            CLEAR
+
+        </button>
+
+    </div>
+
 
     <div id="history"></div>
 
-  </div>
 
 </div>
 
-<script src="script.js"></script>
+
+
+<script>
+
+
+/* =========================
+   CALCULATOR VARIABLES
+========================= */
+
+let current = "0";
+
+let firstNumber = null;
+
+let operator = null;
+
+let waitingForSecondNumber = false;
+
+
+/* =========================
+   DISPLAY
+========================= */
+
+function updateDisplay(text = null) {
+
+    const display =
+        document.getElementById("display");
+
+
+    if (text !== null) {
+
+        display.textContent = text;
+
+    }
+
+    else {
+
+        display.textContent = current;
+
+    }
+
+
+    /* Always show latest part */
+
+    display.scrollLeft =
+        display.scrollWidth;
+
+}
+
+
+/* =========================
+   NUMBER
+========================= */
+
+function pressNumber(value) {
+
+
+    /*
+       Agar operator ke baad
+       second number start ho raha hai
+    */
+
+    if (waitingForSecondNumber) {
+
+        if (value === "00") {
+
+            current = "0";
+
+        }
+
+        else {
+
+            current = value;
+
+        }
+
+        waitingForSecondNumber = false;
+
+    }
+
+
+    else {
+
+
+        /*
+           0 ke baad normal number
+        */
+
+        if (current === "0") {
+
+            if (value === "00") {
+
+                current = "0";
+
+            }
+
+            else {
+
+                current = value;
+
+            }
+
+        }
+
+
+        else {
+
+            current += value;
+
+        }
+
+    }
+
+
+    showCalculation();
+
+}
+
+
+/* =========================
+   OPERATOR
+========================= */
+
+function pressOperator(newOperator) {
+
+
+    const number =
+        parseFloat(current);
+
+
+    /*
+       Pehli baar operator
+    */
+
+    if (firstNumber === null) {
+
+        firstNumber = number;
+
+    }
+
+
+    /*
+       Agar already operator hai
+       aur second number enter ho gaya
+    */
+
+    else if (!waitingForSecondNumber) {
+
+        const result =
+            performCalculation(
+                firstNumber,
+                number,
+                operator
+            );
+
+
+        firstNumber = result;
+
+        current = cleanNumber(result);
+
+    }
+
+
+    operator = newOperator;
+
+    waitingForSecondNumber = true;
+
+
+    showCalculation();
+
+}
+
+
+/* =========================
+   SHOW 5 + 5
+========================= */
+
+function showCalculation() {
+
+    const display =
+        document.getElementById("display");
+
+
+    /*
+       Example:
+       5 +
+    */
+
+    if (
+        firstNumber !== null &&
+        operator !== null
+    ) {
+
+        let text =
+            cleanNumber(firstNumber)
+            + " "
+            + operatorSymbol(operator);
+
+
+        /*
+           Example:
+           5 + 5
+        */
+
+        if (!waitingForSecondNumber) {
+
+            text +=
+                " " +
+                current;
+
+        }
+
+
+        display.textContent = text;
+
+
+        display.scrollLeft =
+            display.scrollWidth;
+
+    }
+
+
+    else {
+
+        display.textContent =
+            current;
+
+    }
+
+}
+
+
+/* =========================
+   EQUAL
+========================= */
+
+function calculate() {
+
+
+    if (
+        firstNumber === null ||
+        operator === null
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       Agar + dabane ke baad
+       direct = dabaya
+    */
+
+    if (waitingForSecondNumber) {
+
+        return;
+
+    }
+
+
+    const secondNumber =
+        parseFloat(current);
+
+
+    const result =
+        performCalculation(
+            firstNumber,
+            secondNumber,
+            operator
+        );
+
+
+    /*
+       HISTORY
+    */
+
+    const expression =
+
+        cleanNumber(firstNumber)
+        + " "
+        + operatorSymbol(operator)
+        + " "
+        + cleanNumber(secondNumber);
+
+
+    addHistory(
+        expression,
+        cleanNumber(result)
+    );
+
+
+    /*
+       RESULT
+    */
+
+    current =
+        cleanNumber(result);
+
+
+    firstNumber = null;
+
+    operator = null;
+
+    waitingForSecondNumber = false;
+
+
+    updateDisplay();
+
+}
+
+
+/* =========================
+   CALCULATION ENGINE
+========================= */
+
+function performCalculation(
+    a,
+    b,
+    op
+) {
+
+
+    switch (op) {
+
+
+        case "+":
+
+            return a + b;
+
+
+        case "-":
+
+            return a - b;
+
+
+        case "*":
+
+            return a * b;
+
+
+        case "/":
+
+            if (b === 0) {
+
+                return NaN;
+
+            }
+
+            return a / b;
+
+
+        default:
+
+            return b;
+
+    }
+
+}
+
+
+/* =========================
+   OPERATOR SYMBOL
+========================= */
+
+function operatorSymbol(op) {
+
+    if (op === "*") {
+
+        return "×";
+
+    }
+
+
+    if (op === "/") {
+
+        return "÷";
+
+    }
+
+
+    if (op === "-") {
+
+        return "−";
+
+    }
+
+
+    return op;
+
+}
+
+
+/* =========================
+   DECIMAL
+========================= */
+
+function pressDecimal() {
+
+
+    if (waitingForSecondNumber) {
+
+        current = "0.";
+
+        waitingForSecondNumber = false;
+
+    }
+
+
+    else if (
+        !current.includes(".")
+    ) {
+
+        current += ".";
+
+    }
+
+
+    showCalculation();
+
+}
+
+
+/* =========================
+   PERCENT
+========================= */
+
+function percent() {
+
+
+    const number =
+        parseFloat(current);
+
+
+    if (isNaN(number)) {
+
+        return;
+
+    }
+
+
+    current =
+        cleanNumber(number / 100);
+
+
+    showCalculation();
+
+}
+
+
+/* =========================
+   BACKSPACE
+========================= */
+
+function backspace() {
+
+
+    if (waitingForSecondNumber) {
+
+        return;
+
+    }
+
+
+    if (
+        current.length <= 1
+    ) {
+
+        current = "0";
+
+    }
+
+
+    else {
+
+        current =
+            current.slice(0, -1);
+
+    }
+
+
+    showCalculation();
+
+}
+
+
+/* =========================
+   AC
+========================= */
+
+function clearAll() {
+
+
+    current = "0";
+
+    firstNumber = null;
+
+    operator = null;
+
+    waitingForSecondNumber = false;
+
+
+    updateDisplay();
+
+}
+
+
+/* =========================
+   HISTORY
+========================= */
+
+function addHistory(
+    expression,
+    answer
+) {
+
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+
+    item.className =
+        "history-item";
+
+
+    item.textContent =
+        expression +
+        " = " +
+        answer;
+
+
+    /*
+       New result top par
+    */
+
+    history.prepend(item);
+
+
+    /*
+       History ke box ko
+       latest result tak scroll
+    */
+
+    history.scrollTop = 0;
+
+}
+
+
+/* =========================
+   CLEAR HISTORY
+========================= */
+
+function clearHistory() {
+
+    document.getElementById(
+        "history"
+    ).innerHTML = "";
+
+}
+
+
+/* =========================
+   NUMBER CLEAN
+========================= */
+
+function cleanNumber(number) {
+
+
+    if (
+        typeof number !== "number" ||
+        !Number.isFinite(number)
+    ) {
+
+        return "Error";
+
+    }
+
+
+    if (
+        Number.isInteger(number)
+    ) {
+
+        return String(number);
+
+    }
+
+
+    return String(
+        parseFloat(
+            number.toFixed(10)
+        )
+    );
+
+}
+
+
+/* =========================
+   KEYBOARD
+========================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+
+        const key =
+            event.key;
+
+
+        /*
+           Numbers
+        */
+
+        if (
+            key >= "0" &&
+            key <= "9"
+        ) {
+
+            pressNumber(key);
+
+        }
+
+
+        /*
+           Decimal
+        */
+
+        else if (
+            key === "."
+        ) {
+
+            pressDecimal();
+
+        }
+
+
+        /*
+           Operators
+        */
+
+        else if (
+            key === "+" ||
+            key === "-" ||
+            key === "*" ||
+            key === "/"
+        ) {
+
+            pressOperator(key);
+
+        }
+
+
+        /*
+           Equal
+        */
+
+        else if (
+            key === "Enter" ||
+            key === "="
+        ) {
+
+            calculate();
+
+        }
+
+
+        /*
+           Backspace
+        */
+
+        else if (
+            key === "Backspace"
+        ) {
+
+            backspace();
+
+        }
+
+
+        /*
+           Escape = AC
+        */
+
+        else if (
+            key === "Escape"
+        ) {
+
+            clearAll();
+
+        }
+
+
+        /*
+           Percentage
+        */
+
+        else if (
+            key === "%"
+        ) {
+
+            percent();
+
+        }
+
+    }
+);
+
+
+/* =========================
+   START
+========================= */
+
+updateDisplay();
+
+</script>
+
 
 </body>
+
 </html>
