@@ -2,508 +2,315 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<meta name="theme-color" content="#ff9800">
-
-<link rel="manifest" href="./manifest.json">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YASHWIN APP STORE</title>
 
 <style>
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    background:#101010;
+    color:white;
+    font-family:Arial,sans-serif;
 }
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
+.header{
+    background:#181818;
+    padding:18px 24px;
+    border-bottom:1px solid #333;
+    position:sticky;
+    top:0;
+    z-index:10;
 }
 
-body {
-    background: #101010;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
+.header-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-/* HEADER */
-.store-header {
-    background: #181818;
-    border-bottom: 1px solid #333;
-    padding: 18px 24px;
+.logo-title{
+    color:#ff9800;
+    font-size:26px;
+    font-weight:bold;
 }
 
-.header-row {
-    max-width: 1100px;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
+.menu-btn{
+    background:#292929;
+    color:white;
+    border:0;
+    border-radius:12px;
+    font-size:30px;
+    padding:5px 14px;
+    cursor:pointer;
 }
 
-.store-name {
-    color: #ff9800;
-    font-size: 28px;
-    font-weight: bold;
+.menu{
+    display:none;
+    margin-top:15px;
 }
 
-.menu-button {
-    background: #292929;
-    color: white;
-    border: 0;
-    border-radius: 12px;
-    padding: 12px 18px;
-    font-size: 28px;
+.menu button{
+    width:100%;
+    padding:14px;
+    margin-top:8px;
+    border:0;
+    border-radius:10px;
+    background:#ff9800;
+    font-size:17px;
+    font-weight:bold;
 }
 
-/* NAV */
-.nav {
-    max-width: 1100px;
-    margin: auto;
-    padding: 14px 24px;
-    display: flex;
-    gap: 12px;
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:35px 20px;
 }
 
-.nav-button {
-    border: 0;
-    border-radius: 12px;
-    padding: 14px 22px;
-    background: #292929;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
+h1{
+    text-align:center;
+    color:#ff9800;
+    font-size:46px;
 }
 
-.nav-button.active {
-    background: #ff9800;
-    color: #111;
+.subtitle{
+    text-align:center;
+    color:#ccc;
+    font-size:22px;
 }
 
-/* HERO */
-.hero {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 55px 20px 35px;
-    text-align: center;
+.search{
+    display:flex;
+    margin:35px 0;
 }
 
-.hero h1 {
-    margin: 0;
-    color: #ff9800;
-    font-size: clamp(38px, 8vw, 64px);
-    line-height: 1.1;
+.search input{
+    flex:1;
+    padding:18px;
+    border-radius:15px 0 0 15px;
+    border:1px solid #555;
+    background:#222;
+    color:white;
+    font-size:18px;
 }
 
-.hero p {
-    margin: 22px 0 35px;
-    color: #d0d0d0;
-    font-size: 22px;
+.search button{
+    width:90px;
+    border:0;
+    border-radius:0 15px 15px 0;
+    background:#ff9800;
+    font-size:25px;
 }
 
-/* SEARCH */
-.search-box {
-    width: 100%;
-    max-width: 650px;
-    margin: auto;
-    display: flex;
-    background: #242424;
-    border: 1px solid #555;
-    border-radius: 18px;
-    overflow: hidden;
+.section-title{
+    color:#ff9800;
+    font-size:38px;
+    margin-top:40px;
 }
 
-.search-box input {
-    flex: 1;
-    min-width: 0;
-    padding: 18px;
-    border: 0;
-    outline: none;
-    background: transparent;
-    color: white;
-    font-size: 20px;
+.app-card{
+    background:#222;
+    border:1px solid #444;
+    border-radius:25px;
+    padding:25px;
+    margin-top:20px;
+    text-align:center;
 }
 
-.search-box input::placeholder {
-    color: #888;
+.app-card img{
+    width:180px;
+    max-width:70%;
+    border-radius:25px;
 }
 
-.search-button {
-    width: 115px;
-    border: 0;
-    background: #ff9800;
-    font-size: 28px;
+.app-card h2{
+    font-size:30px;
 }
 
-/* APPS */
-.apps-section {
-    max-width: 1100px;
-    margin: auto;
-    padding: 20px 24px 60px;
+.app-card p{
+    color:#ccc;
+    font-size:18px;
 }
 
-.section-title {
-    color: #ff9800;
-    font-size: 40px;
-    margin: 20px 0 30px;
+.btn{
+    display:block;
+    width:100%;
+    padding:17px;
+    margin-top:15px;
+    border:0;
+    border-radius:14px;
+    background:#ff9800;
+    color:#111;
+    font-size:20px;
+    font-weight:bold;
+    text-decoration:none;
 }
 
-/* APP CARD */
-.app-card {
-    width: 100%;
-    background: #222;
-    border: 1px solid #3b3b3b;
-    border-radius: 28px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    gap: 25px;
+.install{
+    background:#333;
+    color:white;
+    border:2px solid #ff9800;
 }
 
-.app-icon {
-    width: 145px;
-    height: 145px;
-    object-fit: cover;
-    border-radius: 25px;
-    flex-shrink: 0;
+.coming{
+    margin-top:30px;
+    padding:30px;
+    border:1px dashed #777;
+    border-radius:25px;
+    text-align:center;
+    color:#ff9800;
 }
 
-.app-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.app-info h2 {
-    margin: 0 0 10px;
-    color: white;
-    font-size: 30px;
-}
-
-.app-info p {
-    margin: 0 0 14px;
-    color: #bdbdbd;
-    font-size: 18px;
-}
-
-.app-meta {
-    color: #999;
-    font-size: 16px;
-    margin-bottom: 18px;
-}
-
-.open-button {
-    display: inline-block;
-    text-decoration: none;
-    background: #ff9800;
-    color: #111;
-    border-radius: 12px;
-    padding: 14px 28px;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* COMING SOON */
-.coming-soon {
-    margin-top: 35px;
-    padding: 35px 20px;
-    text-align: center;
-    background: #191919;
-    border: 1px dashed #555;
-    border-radius: 25px;
-}
-
-.coming-soon h2 {
-    margin: 0 0 12px;
-    color: #ff9800;
-    font-size: 28px;
-}
-
-.coming-soon p {
-    margin: 0;
-    color: #aaa;
-    font-size: 18px;
-}
-
-/* FOOTER */
-.footer {
-    text-align: center;
-    padding: 35px 20px;
-    color: #777;
-    border-top: 1px solid #222;
-}
-
-/* MOBILE */
-@media (max-width: 600px) {
-
-    .store-header {
-        padding: 18px 24px;
-    }
-
-    .store-name {
-        font-size: 26px;
-    }
-
-    .menu-button {
-        font-size: 25px;
-        padding: 9px 14px;
-    }
-
-    .nav {
-        padding: 12px 24px;
-    }
-
-    .nav-button {
-        padding: 12px 18px;
-        font-size: 17px;
-    }
-
-    .hero {
-        padding: 35px 18px 25px;
-    }
-
-    .hero h1 {
-        font-size: 42px;
-    }
-
-    .hero p {
-        font-size: 19px;
-    }
-
-    .search-box {
-        border-radius: 15px;
-    }
-
-    .search-button {
-        width: 85px;
-    }
-
-    .apps-section {
-        padding: 15px 24px 45px;
-    }
-
-    .section-title {
-        font-size: 38px;
-    }
-
-    .app-card {
-        padding: 22px;
-        flex-direction: column;
-        text-align: left;
-        align-items: stretch;
-        gap: 18px;
-    }
-
-    .app-icon {
-        width: 140px;
-        height: 140px;
-    }
-
-    .app-info h2 {
-        font-size: 28px;
-    }
-
-    .app-info p {
-        font-size: 17px;
-    }
-
-    .open-button {
-        text-align: center;
-        width: 100%;
-    }
-
-    .coming-soon {
-        padding: 30px 18px;
-    }
-}
 </style>
 </head>
 
 <body>
 
-<header class="store-header">
-    <div class="header-row">
+<header class="header">
 
-        <div class="store-name">
-            YASHWIN APP STORE
-        </div>
+<div class="header-top">
 
-        <button class="menu-button" type="button">
-            ☰
-        </button>
+<div class="logo-title">
+YASHWIN APP STORE
+</div>
 
-    </div>
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
 
-    <nav class="nav">
+</div>
 
-        <button class="nav-button active" type="button">
-            📱 Apps
-        </button>
+<div class="menu" id="menu">
 
-        <button class="nav-button" type="button"
-                onclick="showAbout()">
-            ℹ️ About
-        </button>
+<button onclick="goHome()">🏠 Home</button>
 
-    </nav>
+<button onclick="showAbout()">ℹ️ About</button>
+
+</div>
+
 </header>
 
 
-<main>
+<main class="container" id="home">
 
-<section class="hero">
+<h1>YASHWIN APP STORE</h1>
 
-    <h1>YASHWIN APP STORE</h1>
-
-    <p>
-        Discover, Download and Enjoy Apps
-    </p>
-
-    <div class="search-box">
-
-        <input
-            id="searchInput"
-            type="search"
-            placeholder="Search apps..."
-            autocomplete="off">
-
-        <button
-            class="search-button"
-            type="button"
-            onclick="searchApps()">
-            🔍
-        </button>
-
-    </div>
-
-</section>
+<div class="subtitle">
+Discover, Download and Enjoy Apps
+</div>
 
 
-<section class="apps-section">
+<div class="search">
 
-    <h2 class="section-title">
-        📱 Apps
-    </h2>
+<input id="searchBox"
+placeholder="Search apps..."
+onkeyup="searchApps()">
 
+<button>🔍</button>
 
-    <div class="app-card" id="calculatorCard">
-
-        <img
-            class="app-icon"
-            src="./icon-192.png"
-            alt="VANSH CALCULATOR">
-
-        <div class="app-info">
-
-            <h2>VANSH CALCULATOR</h2>
-
-            <p>
-                Fast, simple and powerful calculator.
-            </p>
-
-            <div class="app-meta">
-                🧮 Calculator &nbsp; • &nbsp; v1.0
-            </div>
-
-            <a
-                class="open-button"
-                href="./app-details.html">
-                OPEN APP
-            </a>
-
-        </div>
-
-    </div>
+</div>
 
 
-    <div class="coming-soon">
+<h2 class="section-title">📱 Apps</h2>
 
-        <h2>
-            🚀 More Apps Coming Soon
-        </h2>
 
-        <p>
-            New apps will be added to
-            YASHWIN APP STORE.
-        </p>
+<div class="app-card" id="calculator">
 
-    </div>
+<img src="icon-192.png">
 
-</section>
+<h2>VANSH CALCULATOR</h2>
+
+<p>
+Fast, simple and powerful calculator.
+</p>
+
+<p>🧮 Calculator &nbsp; • &nbsp; v1.0</p>
+
+<a
+class="btn"
+href="calculator.html">
+OPEN APP
+</a>
+
+<a
+class="btn install"
+href="calculator.html">
+📲 INSTALL / OPEN
+</a>
+
+</div>
+
+
+<div class="coming">
+
+<h2>🚀 More Apps Coming Soon</h2>
+
+<p>
+New apps will be added to YASHWIN APP STORE.
+</p>
+
+</div>
 
 </main>
 
 
-<footer class="footer">
-    © 2026 YASHWIN APP STORE
-</footer>
-
-
 <script>
-function searchApps() {
 
-    const input =
-        document.getElementById("searchInput");
+function toggleMenu(){
 
-    const card =
-        document.getElementById("calculatorCard");
+    const menu=document.getElementById("menu");
 
-    const text =
-        input.value.toLowerCase().trim();
-
-    if (
-        text === "" ||
-        text.includes("vansh") ||
-        text.includes("calculator")
-    ) {
-        card.style.display = "flex";
-    } else {
-        card.style.display = "none";
+    if(menu.style.display==="block"){
+        menu.style.display="none";
+    }else{
+        menu.style.display="block";
     }
+
 }
 
+function goHome(){
 
-function showAbout() {
+    document.getElementById("home")
+    .scrollIntoView();
+
+    document.getElementById("menu")
+    .style.display="none";
+
+}
+
+function showAbout(){
 
     alert(
-        "YASHWIN APP STORE\n\n" +
-        "Discover, Download and Enjoy Apps."
+      "YASHWIN APP STORE\n\n" +
+      "Discover, Download and Enjoy Apps.\n\n" +
+      "VANSH CALCULATOR v1.0"
     );
 
 }
 
+function searchApps(){
 
-/* Service Worker */
-if ("serviceWorker" in navigator) {
+    let text=document
+      .getElementById("searchBox")
+      .value
+      .toLowerCase();
 
-    window.addEventListener("load", function () {
+    let calculator=
+      document.getElementById("calculator");
 
-        navigator.serviceWorker
-            .register("./sw.js")
-            .then(function () {
+    if(text==="" ||
+       "vansh calculator calculator"
+       .includes(text)){
 
-                console.log(
-                    "YASHWIN APP STORE Service Worker registered."
-                );
+        calculator.style.display="block";
 
-            })
-            .catch(function (error) {
+    }else{
 
-                console.error(
-                    "Service Worker registration failed:",
-                    error
-                );
+        calculator.style.display="none";
 
-            });
-
-    });
+    }
 
 }
+
 </script>
 
 </body>
