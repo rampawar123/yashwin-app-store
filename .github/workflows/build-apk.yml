@@ -14,12 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
@@ -35,9 +34,7 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Install Bubblewrap
         run: |
@@ -47,52 +44,42 @@ jobs:
         run: |
           mkdir -p "$HOME/.bubblewrap"
 
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
 
-          echo "Bubblewrap configuration:"
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME"
           cat "$HOME/.bubblewrap/config.json"
 
-      - name: Create TWA folder
+      - name: Prepare Bubblewrap project
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf twa
           mkdir -p twa
 
-      - name: Create signing key
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          keytool -genkeypair \
-            -v \
-            -keystore twa/android.keystore \
-            -alias yashwin \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEYSTORE_PASSWORD" \
-            -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
-
-      - name: Initialize TWA project
-        run: |
           cd twa
 
-          bubblewrap init \
-            --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
-            --directory="."
+          printf 'n\n%s\nn\n%s\n\n\n\n\n\n' \
+            "$JAVA_HOME" \
+            "$ANDROID_HOME" \
+            | bubblewrap init \
+                --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
+                --directory="."
 
       - name: Build signed APK and AAB
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd twa
 
           bubblewrap build \
-            --manifest="." \
-            --signingKeyPath="./android.keystore" \
-            --signingKeyAlias="yashwin" \
             --skipPwaValidation
 
       - name: Upload APK and AAB
@@ -102,3 +89,5 @@ jobs:
           path: |
             twa/app-release-signed.apk
             twa/app-release-bundle.aab
+            twa/app-release-signed.apk.idsig
+          if-no-files-found: error
