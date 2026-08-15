@@ -1,19 +1,19 @@
- name: Build YASHWIN APP STORE APK
+name: Build YASHWIN APP STORE APK
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
+
 permissions:
-  contents: write 
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -22,179 +22,30 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
-        run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+          java-version: '17'
 
       - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Create TWA project
         run: |
-          npm install -g @bubblewrap/cli
-
-      - name: Configure Bubblewrap
-        run: |
-          mkdir -p "$HOME/.bubblewrap"
-
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
-          }
-          EOF
-
-          echo "Bubblewrap configuration:"
-          cat "$HOME/.bubblewrap/config.json"
-
-      - name: Create TWA folder
-        run: |
-          rm -rf twa
           mkdir -p twa
-
-      - name: Download Web Manifest
-        run: |
-          curl -fL \
-            "https://rampawar123.github.io/yashwin-app-store/manifest.json" \
-            -o web-manifest.json
-
-      - name: Create TWA Manifest
-        run: |
-          python3 <<'PY'
-          import json
-          import urllib.parse
-
-          with open("web-manifest.json", "r") as f:
-              m = json.load(f)
-
-          base = "https://rampawar123.github.io/yashwin-app-store/"
-
-          name = m.get("name", "YASHWIN APP STORE")
-          start_url = m.get("start_url", "/yashwin-app-store/")
-          theme_color = m.get("theme_color", "#000000")
-          background_color = m.get("background_color", "#FFFFFF")
-
-          icons = m.get("icons", [])
-
-          icon_url = None
-          maskable_icon_url = None
-
-          for icon in icons:
-              src = icon.get("src")
-              if not src:
-                  continue
-
-              full_url = urllib.parse.urljoin(base, src)
-              purpose = icon.get("purpose", "")
-
-              if icon_url is None:
-                  icon_url = full_url
-
-              if "maskable" in purpose and maskable_icon_url is None:
-                  maskable_icon_url = full_url
-
-          twa = {
-              "packageId": "io.github.rampawar123.yashwinappstore",
-              "host": "rampawar123.github.io",
-              "name": name,
-              "launcherName": "YASHWIN",
-              "display": "standalone",
-              "themeColor": theme_color,
-              "themeColorDark": "#000000",
-              "navigationColor": "#000000",
-              "navigationColorDark": "#000000",
-              "navigationDividerColor": "#000000",
-              "navigationDividerColorDark": "#000000",
-              "backgroundColor": background_color,
-              "enableNotifications": True,
-              "startUrl": start_url,
-              "iconUrl": icon_url,
-              "maskableIconUrl": maskable_icon_url,
-              "splashScreenFadeOutDuration": 300,
-              "signingKey": {
-                  "path": "../android.keystore",
-                  "alias": "android"
-              },
-              "appVersionCode": 1,
-              "appVersion": "1.0",
-              "shortcuts": [],
-              "generatorApp": "bubblewrap",
-              "webManifestUrl": base + "manifest.json",
-              "fallbackType": "customtabs",
-              "features": {},
-              "alphaDependencies": {
-                  "enabled": False
-              },
-              "enableSiteSettingsShortcut": True,
-              "isChromeOSOnly": False,
-              "isMetaQuest": False,
-              "minSdkVersion": 21,
-              "fingerprints": []
-          }
-
-          with open("twa/twa-manifest.json", "w") as f:
-              json.dump(twa, f, indent=2)
-
-          print("TWA manifest created successfully")
-          PY
-
-      - name: Create Android project
-        working-directory: twa
-        run: |
-          bubblewrap update --skipVersionUpgrade
-
-      - name: Create temporary signing key
-        run: |
-          keytool -genkeypair \
-            -v \
-            -keystore android.keystore \
-            -alias android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass android \
-            -keypass android \
-            -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+          cd twa
+          bubblewrap init --manifest=https://rampawar123.github.io/yashwin-app-store/manifest.json
 
       - name: Build APK
-        working-directory: twa
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: android
-          BUBBLEWRAP_KEY_PASSWORD: android
         run: |
-          bubblewrap build --skipPwaValidation
-
-      - name: Find APK
-        run: |
-          find . -name "*.apk" -type f -print
+          cd twa
+          bubblewrap build
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: YASHWIN-APP-STORE-APK
+          name: yashwin-app-store-apk
           path: |
             twa/app-release-signed.apk
             twa/app-release-bundle.aab
-          if-no-files-found: error
-
-      - name: Upload APK to Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/heads/main')
-        with:
-          tag_name: v1.0-final
-          name: YASHWIN APP STORE v1.0
-          files: |
-            twa/app-release-signed.apk
-            twa/app-release-bundle.aab
-          make_latest: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
