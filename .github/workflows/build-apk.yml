@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -35,33 +35,16 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Install Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
-          sudo apt-get update
-          sudo apt-get install -y expect
-
-      - name: Configure Bubblewrap
-        run: |
-          mkdir -p "$HOME/.bubblewrap"
-
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
-          }
-          EOF
-
-          cat "$HOME/.bubblewrap/config.json"
 
       - name: Create signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           rm -f android.keystore
 
@@ -79,134 +62,55 @@ jobs:
       - name: Create TWA project
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf twa
           mkdir -p twa
+          cp android.keystore twa/android.keystore
 
-          cat > init.expect <<'EOF'
-          #!/usr/bin/expect -f
+          cd twa
 
-          set timeout 120
-
-          spawn bubblewrap init \
+          bubblewrap init \
             --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
-            --directory="./twa"
+            --directory="."
 
-          expect {
-            -re "Do you want Bubblewrap to install the JDK.*" {
-              send "n\r"
-              exp_continue
-            }
+      - name: Configure signing
+        run: |
+          python3 - <<'PY'
+          import json
 
-            -re "Path to your existing JDK.*" {
-              send "$env(JAVA_HOME)\r"
-              exp_continue
-            }
+          path = "twa/twa-manifest.json"
 
-            -re "Do you want Bubblewrap to install Android SDK.*" {
-              send "n\r"
-              exp_continue
-            }
+          with open(path, "r") as f:
+              data = json.load(f)
 
-            -re "Path to your existing Android SDK.*" {
-              send "$env(ANDROID_HOME)\r"
-              exp_continue
-            }
-
-            -re "Domain:" {
-              send "rampawar123.github.io\r"
-              exp_continue
-            }
-
-            -re "URL path:" {
-              send "/yashwin-app-store/\r"
-              exp_continue
-            }
-
-            -re "Application name:" {
-              send "YASHWIN APP STORE\r"
-              exp_continue
-            }
-
-            -re "Short name:" {
-              send "YASHWIN\r"
-              exp_continue
-            }
-
-            -re "Application ID:" {
-              send "com.yashwin.appstore\r"
-              exp_continue
-            }
-
-            -re "Display mode:" {
-              send "standalone\r"
-              exp_continue
-            }
-
-            -re "Status bar color:" {
-              send "#111111\r"
-              exp_continue
-            }
-
-            -re "Splash screen color:" {
-              send "#111111\r"
-              exp_continue
-            }
-
-            -re "Icon URL:" {
-              send "https://rampawar123.github.io/yashwin-app-store/icon-512.png\r"
-              exp_continue
-            }
-
-            -re "Maskable icon URL:" {
-              send "https://rampawar123.github.io/yashwin-app-store/icon-512-maskable.png\r"
-              exp_continue
-            }
-
-            -re "Monochrome icon URL:" {
-              send "\r"
-              exp_continue
-            }
-
-            -re "Key store location:" {
-              send "./android.keystore\r"
-              exp_continue
-            }
-
-            -re "Key name:" {
-              send "yashwin\r"
-              exp_continue
-            }
-
-            eof
+          data["signingKey"] = {
+              "path": "./android.keystore",
+              "alias": "yashwin"
           }
 
-          catch wait result
-          exit [lindex $result 3]
-          EOF
+          with open(path, "w") as f:
+              json.dump(data, f, indent=2)
 
-          chmod +x init.expect
-          ./init.expect
+          print("Signing configuration updated.")
+          PY
 
       - name: Build signed APK and AAB
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           cd twa
 
           bubblewrap build \
             --skipPwaValidation \
-            --signingKeyPath="../android.keystore" \
-            --signingKeyAlias="yashwin"
+            --signingKeyPath ./android.keystore \
+            --signingKeyAlias yashwin
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: YASHWIN-APP-STORE-APK
+          name: YASHWIN-APP-STORE
           path: |
             twa/app-release-signed.apk
             twa/app-release-bundle.aab
             twa/app-release-signed.apk.idsig
-          if-no-files-found: error
