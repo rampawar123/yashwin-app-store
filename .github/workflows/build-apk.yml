@@ -26,19 +26,34 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
+
       - name: Install Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: Configure Java and Android SDK
+      - name: Configure Bubblewrap
         run: |
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_HOME=$ANDROID_HOME"
+          mkdir -p "$HOME/.bubblewrap"
 
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
-            
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
+          echo "Bubblewrap configuration:"
+          cat "$HOME/.bubblewrap/config.json"
+
       - name: Create TWA folder
         run: |
           rm -rf twa
@@ -104,7 +119,7 @@ jobs:
               "maskableIconUrl": maskable_icon_url,
               "splashScreenFadeOutDuration": 300,
               "signingKey": {
-                  "path": "./android.keystore",
+                  "path": "../android.keystore",
                   "alias": "android"
               },
               "appVersionCode": 1,
@@ -121,22 +136,21 @@ jobs:
               "isChromeOSOnly": False,
               "isMetaQuest": False,
               "minSdkVersion": 21,
-              "fingerprints": [],
-              "additionalTrustedOrigins": [],
-              "retainedBundles": [],
-              "orientation": "default"
+              "fingerprints": []
           }
 
           with open("twa/twa-manifest.json", "w") as f:
               json.dump(twa, f, indent=2)
 
-          print("TWA manifest created successfully.")
+          print("TWA manifest created successfully")
           PY
 
-      - name: Create Signing Key
-        working-directory: ./twa
-        env:
-          KEYSTORE_PASSWORD: VANSH12345
+      - name: Create Android project
+        working-directory: twa
+        run: |
+          bubblewrap update --skipVersionUpgrade
+
+      - name: Create temporary signing key
         run: |
           keytool -genkeypair \
             -v \
@@ -145,28 +159,40 @@ jobs:
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEYSTORE_PASSWORD" \
+            -storepass android \
+            -keypass android \
             -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
 
       - name: Build APK
-        working-directory: ./twa
+        working-directory: twa
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: VANSH12345
-          BUBBLEWRAP_KEY_PASSWORD: VANSH12345
+          BUBBLEWRAP_KEYSTORE_PASSWORD: android
+          BUBBLEWRAP_KEY_PASSWORD: android
         run: |
           bubblewrap build --skipPwaValidation
 
       - name: Find APK
         run: |
-          echo "Generated APK files:"
-          find ./twa -type f -name "*.apk" -print
+          find . -name "*.apk" -type f -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: YASHWIN-APP-STORE-APK
           path: |
-            twa/*-signed.apk
             twa/app-release-signed.apk
+            twa/app-release-bundle.aab
           if-no-files-found: error
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/heads/main')
+        with:
+          tag_name: v1.0-final
+          name: YASHWIN APP STORE v1.0
+          files: |
+            twa/app-release-signed.apk
+            twa/app-release-bundle.aab
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
