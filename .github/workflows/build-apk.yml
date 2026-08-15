@@ -1,4 +1,4 @@
-name: Build YASHWIN APP STORE APK
+ name: Build YASHWIN APP STORE APK
 
 on:
   workflow_dispatch:
