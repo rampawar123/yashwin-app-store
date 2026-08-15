@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -31,10 +32,12 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK packages
+      - name: Install Android SDK
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
 
       - name: Install Bubblewrap
         run: |
@@ -51,43 +54,31 @@ jobs:
           }
           EOF
 
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
-      - name: Prepare Bubblewrap project
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+      - name: Create TWA project
         run: |
-          rm -rf twa
           mkdir -p twa
-
           cd twa
 
-          printf 'n\n%s\nn\n%s\n\n\n\n\n\n' \
-            "$JAVA_HOME" \
-            "$ANDROID_HOME" \
-            | bubblewrap init \
-                --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
-                --directory="."
+          bubblewrap init \
+            --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
+            --directory="."
 
-      - name: Build signed APK and AAB
+      - name: Build APK
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd twa
+          bubblewrap build --skipPwaValidation
 
-          bubblewrap build \
-            --skipPwaValidation
-
-      - name: Upload APK and AAB
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: YASHWIN-APP-STORE-APK
           path: |
             twa/app-release-signed.apk
             twa/app-release-bundle.aab
-            twa/app-release-signed.apk.idsig
           if-no-files-found: error
