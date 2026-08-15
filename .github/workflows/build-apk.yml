@@ -3,6 +3,8 @@ name: Build YASHWIN APP STORE APK
 on:
   workflow_dispatch:
   push:
+  permissions:
+  contents: write
     branches:
       - main
 
