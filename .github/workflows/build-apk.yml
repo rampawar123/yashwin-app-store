@@ -23,29 +23,86 @@ jobs:
           node-version: 22
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
+      - name: Create signing key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+        run: |
+          rm -f android.keystore
+
+          keytool -genkeypair \
+            -v \
+            -keystore android.keystore \
+            -alias yashwin \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEYSTORE_PASSWORD" \
+            -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+
       - name: Create TWA project
         run: |
-          mkdir -p twa
+          rm -rf twa
+          mkdir twa
           cd twa
-          bubblewrap init --manifest=https://rampawar123.github.io/yashwin-app-store/manifest.json
+          bubblewrap init \
+            --manifest=https://rampawar123.github.io/yashwin-app-store/manifest.json \
+            --directory=.
 
-      - name: Build APK
+      - name: Configure signing
+        run: |
+          python3 - <<'PY'
+          import json
+
+          path = "twa/twa-manifest.json"
+
+          with open(path, "r") as f:
+              data = json.load(f)
+
+          data["signingKey"] = {
+              "path": "../android.keystore",
+              "alias": "yashwin"
+          }
+
+          with open(path, "w") as f:
+              json.dump(data, f, indent=2)
+          PY
+
+      - name: Build APK and AAB
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           cd twa
-          bubblewrap build
 
-      - name: Upload APK
+          printf '%s\n%s\n' \
+            "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            "$BUBBLEWRAP_KEYSTORE_PASSWORD" | \
+            bubblewrap build \
+              --skipPwaValidation \
+              --signingKeyPath ../android.keystore \
+              --signingKeyAlias yashwin
+
+      - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: yashwin-app-store-apk
+          name: YASHWIN-APP-STORE-APK
           path: |
             twa/app-release-signed.apk
             twa/app-release-bundle.aab
+            twa/app-release-signed.apk.idsig
