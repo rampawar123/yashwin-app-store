@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -34,21 +35,37 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
 
       - name: Install Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
 
+      - name: Configure Bubblewrap
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
+
+          echo "Bubblewrap configuration:"
+          cat "$HOME/.bubblewrap/config.json"
+
+      - name: Create TWA folder
+        run: |
+          rm -rf twa
+          mkdir -p twa
+
       - name: Create signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
-          rm -f android.keystore
-
           keytool -genkeypair \
             -v \
-            -keystore android.keystore \
+            -keystore twa/android.keystore \
             -alias yashwin \
             -keyalg RSA \
             -keysize 2048 \
@@ -57,49 +74,13 @@ jobs:
             -keypass "$KEYSTORE_PASSWORD" \
             -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
 
-      - name: Create TWA manifest
-        run: |
-          rm -rf twa
-          mkdir -p twa
-
-          cat > twa/twa-manifest.json <<'EOF'
-          {
-            "packageId": "com.yashwin.appstore",
-            "host": "rampawar123.github.io",
-            "name": "YASHWIN APP STORE",
-            "launcherName": "YASHWIN APP STORE",
-            "display": "standalone",
-            "orientation": "portrait",
-            "themeColor": "#111111",
-            "themeColorDark": "#111111",
-            "navigationColor": "#111111",
-            "navigationColorDark": "#111111",
-            "navigationDividerColor": "#111111",
-            "navigationDividerColorDark": "#111111",
-            "backgroundColor": "#111111",
-            "startUrl": "/yashwin-app-store/",
-            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
-            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
-            "splashScreenFadeOutDuration": 300,
-            "appVersionCode": 1,
-            "appVersionName": "1.0.0",
-            "minSdkVersion": 19,
-            "enableNotifications": true,
-            "signingKey": {
-              "path": "../android.keystore",
-              "alias": "yashwin"
-            },
-            "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
-            "isChromeOSOnly": false,
-            "isMetaQuest": false,
-            "generatorApp": "bubblewrap-cli"
-          }
-          EOF
-
-      - name: Generate Android project
+      - name: Initialize TWA project
         run: |
           cd twa
-          bubblewrap update --manifest=twa-manifest.json
+
+          bubblewrap init \
+            --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
+            --directory="."
 
       - name: Build signed APK and AAB
         env:
@@ -107,10 +88,11 @@ jobs:
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           cd twa
+
           bubblewrap build \
-            --manifest=twa-manifest.json \
-            --signingKeyPath=../android.keystore \
-            --signingKeyAlias=yashwin \
+            --manifest="." \
+            --signingKeyPath="./android.keystore" \
+            --signingKeyAlias="yashwin" \
             --skipPwaValidation
 
       - name: Upload APK and AAB
@@ -120,4 +102,3 @@ jobs:
           path: |
             twa/app-release-signed.apk
             twa/app-release-bundle.aab
-            twa/app-release-signed.apk.idsig
