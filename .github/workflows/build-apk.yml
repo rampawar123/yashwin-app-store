@@ -59,40 +59,73 @@ jobs:
             -keypass "$KEY_PASSWORD" \
             -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
 
-      - name: Create TWA project
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+      - name: Create TWA manifest
         run: |
           rm -rf twa
           mkdir -p twa
           cp android.keystore twa/android.keystore
 
-          cd twa
-
-          bubblewrap init \
-            --manifest="https://rampawar123.github.io/yashwin-app-store/manifest.json" \
-            --directory="."
-
-      - name: Configure signing
-        run: |
-          python3 - <<'PY'
-          import json
-
-          path = "twa/twa-manifest.json"
-
-          with open(path, "r") as f:
-              data = json.load(f)
-
-          data["signingKey"] = {
+          cat > twa/twa-manifest.json <<'EOF'
+          {
+            "packageId": "com.yashwin.appstore",
+            "host": "rampawar123.github.io",
+            "name": "YASHWIN APP STORE",
+            "launcherName": "YASHWIN APP STORE",
+            "display": "standalone",
+            "themeColor": "#000000",
+            "themeColorDark": "#000000",
+            "navigationColor": "#000000",
+            "navigationColorDark": "#000000",
+            "navigationDividerColor": "#000000",
+            "navigationDividerColorDark": "#000000",
+            "backgroundColor": "#000000",
+            "enableNotifications": true,
+            "startUrl": "/yashwin-app-store/index.html",
+            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
+            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
+            "splashScreenFadeOutDuration": 300,
+            "signingKey": {
               "path": "./android.keystore",
               "alias": "yashwin"
+            },
+            "appVersionName": "1.0",
+            "appVersionCode": 1,
+            "shortcuts": [],
+            "generatorApp": "bubblewrap-cli",
+            "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
+            "fallbackType": "customtabs",
+            "features": {},
+            "alphaDependencies": {
+              "enabled": false
+            },
+            "enableSiteSettingsShortcut": true,
+            "isChromeOSOnly": false,
+            "isMetaQuest": false,
+            "orientation": "any",
+            "fingerprints": [],
+            "additionalTrustedOrigins": [],
+            "retainedBundles": []
           }
+          EOF
 
-          with open(path, "w") as f:
-              json.dump(data, f, indent=2)
+      - name: Configure Bubblewrap
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
 
-          print("Signing configuration updated.")
-          PY
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
+      - name: Prepare Bubblewrap project
+        run: |
+          cd twa
+
+          bubblewrap update \
+            --manifest="./twa-manifest.json" \
+            --skipVersionUpgrade
 
       - name: Build signed APK and AAB
         env:
@@ -102,9 +135,10 @@ jobs:
           cd twa
 
           bubblewrap build \
+            --manifest="./twa-manifest.json" \
             --skipPwaValidation \
-            --signingKeyPath ./android.keystore \
-            --signingKeyAlias yashwin
+            --signingKeyPath="./android.keystore" \
+            --signingKeyAlias="yashwin"
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
