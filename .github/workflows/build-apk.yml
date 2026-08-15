@@ -38,9 +38,7 @@ jobs:
           bubblewrap updateConfig \
             --jdkPath="$JAVA_HOME" \
             --androidSdkPath="$ANDROID_HOME"
-
-          bubblewrap doctor
-
+            
       - name: Create TWA folder
         run: |
           rm -rf twa
