@@ -644,51 +644,9 @@ window.addEventListener(
    INSTALL BUTTON
 */
 
-async function installApp(){
-
-    /*
-       Chrome ne installation
-       prompt diya hai
-    */
-
-    if(deferredPrompt){
-
-        deferredPrompt.prompt();
-
-
-        const result =
-        await deferredPrompt.userChoice;
-
-
-        console.log(
-            "Install result:",
-            result.outcome
-        );
-
-
-        deferredPrompt = null;
-
-
-        return;
-
-    }
-
-
-    /*
-       Agar Chrome ne prompt
-       available nahi kiya
-    */
-
-    const message =
-    document.getElementById(
-        "installMessage"
-    );
-
-
-    message.style.display =
-    "block";
-
-}
+function installApp(){
+    window.location.href = "https://github.com/rampawar123/yashwin-app-store/releases/download/v1.0-final/VANSH-CALCULATOR-FINAL.apk";
+} 
 
 
 /*
