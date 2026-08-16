@@ -94,7 +94,7 @@ jobs:
             "navigationDividerColorDark": "#000000",
             "backgroundColor": "#000000",
             "enableNotifications": true,
-            "startUrl": "/yashwin-app-store/index.html",
+            "startUrl": "/yashwin-app-store/",
             "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
             "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
             "splashScreenFadeOutDuration": 300,
