@@ -50,7 +50,7 @@ header{
   color:#111;
   border:0;
   border-radius:12px;
-  font-size:28px;
+  font-size:22px;
   padding:8px 14px;
   cursor:pointer;
 }
@@ -117,21 +117,188 @@ nav button{
 }
 
 .search button{
-  width:70px;
+  width:90px;
   border:0;
   border-radius:0 14px 14px 0;
   background:#ff9800;
-  font-size:24px;
+  font-size:18px;
   cursor:pointer;
 }
 
 .section-title{
   color:#ff9800;
-  font-size:32px;
+  font-size:30px;
   margin:30px 0 20px;
 }
 
 .apps{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
- 
+  gap:20px;
+}
+
+.app{
+  background:#1d1d1d;
+  border:1px solid #333;
+  border-radius:18px;
+  padding:20px;
+  text-align:center;
+}
+
+.app img{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:20px;
+  margin-bottom:15px;
+}
+
+.app h3{
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+.app p{
+  color:#aaa;
+  margin-bottom:18px;
+}
+
+.app button{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:10px;
+  background:#ff9800;
+  color:#111;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.empty{
+  display:none;
+  text-align:center;
+  color:#aaa;
+  padding:30px;
+}
+
+footer{
+  margin-top:50px;
+  padding:25px;
+  text-align:center;
+  background:#181818;
+  color:#888;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header">
+    <div class="logo">YASHWIN APP STORE</div>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  </div>
+
+  <nav id="menu">
+    <button onclick="scrollToApps()">Apps</button>
+    <button onclick="showAbout()">About</button>
+  </nav>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <h1>YASHWIN APP STORE</h1>
+    <p>Download useful apps made for everyone.</p>
+  </section>
+
+  <div class="search">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search apps..."
+      oninput="searchApps()"
+    >
+    <button onclick="searchApps()">🔍</button>
+  </div>
+
+  <h2 class="section-title" id="apps">Available Apps</h2>
+
+  <div class="apps" id="appList">
+
+    <div class="app" data-name="VANSH CALCULATOR">
+      <img src="./icon-192.png" alt="VANSH CALCULATOR">
+      <h3>VANSH CALCULATOR</h3>
+      <p>Simple and fast calculator.</p>
+      <button onclick="openCalculator()">Open App</button>
+    </div>
+
+    <div class="app" data-name="YASHWIN APP STORE">
+      <img src="./icon-192.png" alt="YASHWIN APP STORE">
+      <h3>YASHWIN APP STORE</h3>
+      <p>Your personal app store.</p>
+      <button onclick="location.reload()">Open App</button>
+    </div>
+
+  </div>
+
+  <div class="empty" id="empty">
+    No app found.
+  </div>
+
+</main>
+
+<footer>
+  © 2026 YASHWIN APP STORE
+</footer>
+
+<script>
+function toggleMenu(){
+  document.getElementById("menu").classList.toggle("show");
+}
+
+function scrollToApps(){
+  document.getElementById("apps").scrollIntoView({
+    behavior:"smooth"
+  });
+}
+
+function searchApps(){
+  const value=document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+  const apps=document.querySelectorAll(".app");
+  let found=0;
+
+  apps.forEach(app=>{
+    const name=app.dataset.name.toLowerCase();
+
+    if(name.includes(value)){
+      app.style.display="block";
+      found++;
+    }else{
+      app.style.display="none";
+    }
+  });
+
+  document.getElementById("empty").style.display =
+    found===0 ? "block" : "none";
+}
+
+function openCalculator(){
+  window.location.href="./calculator.html";
+}
+
+function showAbout(){
+  alert(
+    "YASHWIN APP STORE\n\n" +
+    "A personal app store project."
+  );
+}
+</script>
+
+</body>
+</html>
