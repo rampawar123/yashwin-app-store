@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -40,6 +41,19 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
+      - name: Configure Bubblewrap for GitHub Actions
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
+          cat "$HOME/.bubblewrap/config.json"
+
       - name: Create signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -58,17 +72,21 @@ jobs:
             -keypass "$KEY_PASSWORD" \
             -dname "CN=VANSH CALCULATOR V2, OU=VANSH, O=VANSH, L=India, ST=Maharashtra, C=IN"
 
+      - name: Check Bubblewrap configuration
+        run: |
+          bubblewrap doctor
+
       - name: Create calculator TWA project
         run: |
           rm -rf calculator-twa
           mkdir -p calculator-twa
-          cp android.keystore calculator-twa/android.keystore
 
           cd calculator-twa
 
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
+          bubblewrap init \
+            --manifest="../calculator-manifest.json" \
+            --directory="." \
+            --skipPwaValidation
 
       - name: Build signed VANSH CALCULATOR V2 APK
         env:
@@ -78,9 +96,8 @@ jobs:
           cd calculator-twa
 
           bubblewrap build \
-            --manifest="./twa-manifest.json" \
             --skipPwaValidation \
-            --signingKeyPath="./android.keystore" \
+            --signingKeyPath="../android.keystore" \
             --signingKeyAlias="vansh"
 
       - name: Upload VANSH CALCULATOR V2 APK
@@ -90,3 +107,4 @@ jobs:
           path: |
             calculator-twa/app-release-signed.apk
             calculator-twa/app-release-signed.apk.idsig
+            calculator-twa/app-release-bundle.aab
