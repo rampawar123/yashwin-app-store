@@ -1,312 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YASHWIN APP STORE</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icon-192.png" type="image/png">    
-<link rel="manifest" href="manifest.json">   
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-*{box-sizing:border-box}
+  <title>YASHWIN APP STORE</title>
 
-body{
-    margin:0;
-    background:#101010;
-    color:white;
-    font-family:Arial,sans-serif;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-.header{
-    background:#181818;
-    padding:18px 24px;
-    border-bottom:1px solid #333;
-    position:sticky;
-    top:0;
-    z-index:10;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101010;
+      color: white;
+    }
 
-.header-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
+    header {
+      background: #181818;
+      padding: 18px;
+      border-bottom: 2px solid #ff9800;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-.logo-title{
-    color:#ff9800;
-    font-size:26px;
-    font-weight:bold;
-}
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.menu-btn{
-    background:#292929;
-    color:white;
-    border:0;
-    border-radius:12px;
-    font-size:30px;
-    padding:5px 14px;
-    cursor:pointer;
-}
+    .logo {
+      color: #ff9800;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-.menu{
-    display:none;
-    margin-top:15px;
-}
+    .menu-btn {
+      background: #ff9800;
+      color: #111;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 22px;
+      cursor: pointer;
+    }
 
-.menu button{
-    width:100%;
-    padding:14px;
-    margin-top:8px;
-    border:0;
-    border-radius:10px;
-    background:#ff9800;
-    font-size:17px;
-    font-weight:bold;
-}
+    .menu {
+      display: none;
+      margin-top: 15px;
+    }
 
-.container{
-    max-width:900px;
-    margin:auto;
-    padding:35px 20px;
-}
+    .menu button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 8px;
+      border: 0;
+      border-radius: 8px;
+      background: #ff9800;
+      color: #111;
+      font-weight: bold;
+    }
 
-h1{
-    text-align:center;
-    color:#ff9800;
-    font-size:46px;
-}
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 30px 18px;
+    }
 
-.subtitle{
-    text-align:center;
-    color:#ccc;
-    font-size:22px;
-}
+    h1 {
+      text-align: center;
+      color: #ff9800;
+      font-size: 36px;
+    }
 
-.search{
-    display:flex;
-    margin:35px 0;
-}
+    .subtitle {
+      text-align: center;
+      color: #ccc;
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
 
-.search input{
-    flex:1;
-    padding:18px;
-    border-radius:15px 0 0 15px;
-    border:1px solid #555;
-    background:#222;
-    color:white;
-    font-size:18px;
-}
+    .search {
+      display: flex;
+      margin-bottom: 35px;
+    }
 
-.search button{
-    width:90px;
-    border:0;
-    border-radius:0 15px 15px 0;
-    background:#ff9800;
-    font-size:25px;
-}
+    .search input {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid #555;
+      border-radius: 10px 0 0 10px;
+      background: #222;
+      color: white;
+      font-size: 16px;
+    }
 
-.section-title{
-    color:#ff9800;
-    font-size:38px;
-    margin-top:40px;
-}
+    .search button {
+      width: 80px;
+      border: 0;
+      border-radius: 0 10px 10px 0;
+      background: #ff9800;
+      font-size: 20px;
+    }
 
-.app-card{
-    background:#222;
-    border:1px solid #444;
-    border-radius:25px;
-    padding:25px;
-    margin-top:20px;
-    text-align:center;
-}
+    .section-title {
+      color: #ff9800;
+      font-size: 26px;
+      margin-bottom: 15px;
+    }
 
-.app-card img{
-    width:180px;
-    max-width:70%;
-    border-radius:25px;
-}
+    .empty {
+      background: #1d1d1d;
+      border: 1px solid #444;
+      border-radius: 15px;
+      padding: 35px 20px;
+      text-align: center;
+    }
 
-.app-card h2{
-    font-size:30px;
-}
+    .empty h2 {
+      color: #ff9800;
+    }
 
-.app-card p{
-    color:#ccc;
-    font-size:18px;
-}
+    .empty p {
+      color: #ccc;
+      line-height: 1.6;
+    }
 
-.btn{
-    display:block;
-    width:100%;
-    padding:17px;
-    margin-top:15px;
-    border:0;
-    border-radius:14px;
-    background:#ff9800;
-    color:#111;
-    font-size:20px;
-    font-weight:bold;
-    text-decoration:none;
-}
-
-.install{
-    background:#333;
-    color:white;
-    border:2px solid #ff9800;
-}
-
-.coming{
-    margin-top:30px;
-    padding:30px;
-    border:1px dashed #777;
-    border-radius:25px;
-    text-align:center;
-    color:#ff9800;
-}
-
-</style>
+    footer {
+      text-align: center;
+      color: #888;
+      padding: 30px 10px;
+      margin-top: 40px;
+    }
+  </style>
 </head>
 
 <body>
 
-<header class="header">
+  <header>
+    <div class="top">
+      <div class="logo">YASHWIN APP STORE</div>
 
-<div class="header-top">
+      <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    </div>
 
-<div class="logo-title">
-YASHWIN APP STORE
-</div>
+    <div class="menu" id="menu">
+      <button onclick="goHome()">🏠 Home</button>
+      <button onclick="showAbout()">ℹ️ About</button>
+    </div>
+  </header>
 
-<button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <main class="container" id="home">
 
-</div>
+    <h1>YASHWIN APP STORE</h1>
 
-<div class="menu" id="menu">
+    <div class="subtitle">
+      Discover, Download and Enjoy Apps
+    </div>
 
-<button onclick="goHome()">🏠 Home</button>
+    <div class="search">
+      <input
+        type="text"
+        id="searchBox"
+        placeholder="Search apps..."
+        onkeyup="searchApps()"
+      >
 
-<button onclick="showAbout()">ℹ️ About</button>
+      <button>🔍</button>
+    </div>
 
-</div>
+    <h2 class="section-title">📱 Apps</h2>
 
-</header>
+    <div class="empty" id="appList">
 
+      <h2>🚀 Apps Coming Soon</h2>
 
-<main class="container" id="home">
+      <p>
+        YASHWIN APP STORE is being prepared.
+        <br><br>
+        New apps will be added here soon.
+      </p>
 
-<h1>YASHWIN APP STORE</h1>
+    </div>
 
-<div class="subtitle">
-Discover, Download and Enjoy Apps
-</div>
+  </main>
 
+  <footer>
+    © 2026 YASHWIN APP STORE
+  </footer>
 
-<div class="search">
+  <script>
 
-<input id="searchBox"
-placeholder="Search apps..."
-onkeyup="searchApps()">
+    function toggleMenu() {
+      const menu = document.getElementById("menu");
 
-<button>🔍</button>
-
-</div>
-
-<h2 class="section-title">📱 Apps</h2>
-<div class="app-card" id="calculator">
-
-  <img src="1000383004.png" alt="VANSH CALCULATOR">
-
-  <h2>VANSH CALCULATOR V2</h2>
-
-  <p>
-    Fast, simple and powerful calculator.
-  </p>
-
-  <p>🧮 Calculator &nbsp; • &nbsp; v2.0</p>
-
-  <a class="btn" href="VANSH-CALCULATOR-V2.apk">
-    OPEN APP
-  </a>
-
-  <a class="btn install" href="https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/VANSH-CALCULATOR-V2.apk">
-📱 INSTALL / DOWNLOAD V2
-  </a>
-
-</div>
-
-<div class="coming">
-
-<h2>🚀 More Apps Coming Soon</h2>
-
-<p>
-New apps will be added to YASHWIN APP STORE.
-</p>
-
-</div>
-
-</main>
-
-
-<script>
-
-function toggleMenu(){
-
-    const menu=document.getElementById("menu");
-
-    if(menu.style.display==="block"){
-        menu.style.display="none";
-    }else{
-        menu.style.display="block";
+      if (menu.style.display === "block") {
+        menu.style.display = "none";
+      } else {
+        menu.style.display = "block";
+      }
     }
 
-}
-
-function goHome(){
-
-    document.getElementById("home")
-    .scrollIntoView();
-
-    document.getElementById("menu")
-    .style.display="none";
-
-}
-
-function showAbout(){
-
-    alert(
-      "YASHWIN APP STORE\n\n" +
-      "Discover, Download and Enjoy Apps.\n\n" +
-      "VANSH CALCULATOR v1.0"
-    );
-
-}
-
-function searchApps(){
-
-    let text=document
-      .getElementById("searchBox")
-      .value
-      .toLowerCase();
-
-    let calculator=
-      document.getElementById("calculator");
-
-    if(text==="" ||
-       "vansh calculator calculator"
-       .includes(text)){
-
-        calculator.style.display="block";
-
-    }else{
-
-        calculator.style.display="none";
-
+    function goHome() {
+      document.getElementById("home").scrollIntoView();
+      document.getElementById("menu").style.display = "none";
     }
 
-}
+    function showAbout() {
+      alert(
+        "YASHWIN APP STORE\n\n" +
+        "Discover, Download and Enjoy Apps.\n\n" +
+        "More apps coming soon!"
+      );
+    }
 
-</script>
+    function searchApps() {
+      const text = document
+        .getElementById("searchBox")
+        .value
+        .toLowerCase();
+
+      const appList = document.getElementById("appList");
+
+      if (text === "") {
+        appList.style.display = "block";
+      } else {
+        appList.style.display = "none";
+      }
+    }
+
+  </script>
 
 </body>
 </html>
