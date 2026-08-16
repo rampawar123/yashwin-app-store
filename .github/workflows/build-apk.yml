@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -41,6 +41,17 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
+      - name: Create Bubblewrap config
+        run: |
+          mkdir -p ~/.bubblewrap
+
+          cat > ~/.bubblewrap/config.json <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
       - name: Create signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -60,30 +71,32 @@ jobs:
             -dname "CN=YASHWIN APP STORE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
 
       - name: Create TWA manifest
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf twa
           mkdir -p twa
 
           cp android.keystore twa/android.keystore
 
-          cat > twa/twa-manifest.json <<'EOF'
+          cat > twa/twa-manifest.json <<EOF
           {
             "packageId": "com.yashwin.appstore",
             "host": "rampawar123.github.io",
             "name": "YASHWIN APP STORE",
             "launcherName": "YASHWIN APP STORE",
             "display": "standalone",
-            "themeColor": "#ff9800",
-            "themeColorDark": "#ff9800",
-            "navigationColor": "#101010",
-            "navigationColorDark": "#101010",
+            "themeColor": "#000000",
+            "navigationColor": "#000000",
+            "navigationColorDark": "#000000",
             "navigationDividerColor": "#000000",
             "navigationDividerColorDark": "#000000",
-            "backgroundColor": "#101010",
+            "backgroundColor": "#000000",
             "enableNotifications": true,
             "startUrl": "/yashwin-app-store/index.html",
             "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
-            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512-maskable.png",
+            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
             "splashScreenFadeOutDuration": 300,
             "signingKey": {
               "path": "android.keystore",
@@ -97,25 +110,20 @@ jobs:
       - name: Prepare Bubblewrap project
         run: |
           cd twa
-          bubblewrap init --manifest twa-manifest.json --directory .
+          bubblewrap update
 
       - name: Build signed APK and AAB
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd twa
-          bubblewrap build \
-            --skipPwaValidation \
-            --signingKeyPath android.keystore \
-            --signingKeyAlias yashwin \
-            --signingKeyPassword "$KEY_PASSWORD" \
-            --signingKeyStorePassword "$KEYSTORE_PASSWORD"
+          bubblewrap build --skipPwaValidation
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: YASHWIN-APP-STORE-APK
+          name: YASHWIN-APP-STORE
           path: |
             twa/app-release-signed.apk
-           
+            twa/app-release-bundle.aab
