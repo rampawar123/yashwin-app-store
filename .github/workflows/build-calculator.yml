@@ -66,9 +66,9 @@ jobs:
 
           cd calculator-twa
 
-          bubblewrap init \
-            --manifest="../calculator-manifest.json" \
-            --skipPwaValidation
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
 
       - name: Build signed VANSH CALCULATOR V2 APK
         env:
