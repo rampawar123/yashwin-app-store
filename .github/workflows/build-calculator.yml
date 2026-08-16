@@ -126,9 +126,10 @@ jobs:
 
           cat twa-manifest.json
 
-      - name: Generate Android project
+            - name: Generate Android project
         run: |
           rm -rf android
+          mkdir -p android
 
           bubblewrap init \
             --manifest twa-manifest.json \
