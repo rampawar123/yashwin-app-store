@@ -1,680 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<meta name="theme-color"
-      content="#101010">
-
-<title>
-VANSH CALCULATOR - YASHWIN APP STORE
-</title>
-
+<title>VANSH CALCULATOR - YASHWIN APP STORE</title>
 
 <style>
-
 *{
-    box-sizing:border-box;
+  box-sizing:border-box;
 }
 
 body{
-    margin:0;
-    background:#101010;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
+  margin:0;
+  background:#101010;
+  color:white;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-
-/* HEADER */
-
-.header{
-
-    background:#181818;
-
-    padding:18px;
-
-    border-bottom:1px solid #333;
+header{
+  background:#181818;
+  padding:18px;
+  border-bottom:1px solid #333;
 }
-
 
 .header-inner{
-
-    max-width:900px;
-
-    margin:auto;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
 }
-
 
 .store-name{
-
-    color:#ff9800;
-
-    font-size:22px;
-
-    font-weight:bold;
+  color:#ff9800;
+  font-size:22px;
+  font-weight:bold;
 }
-
 
 .back{
-
-    color:white;
-
-    text-decoration:none;
-
-    background:#292929;
-
-    padding:10px 15px;
-
-    border-radius:10px;
+  color:white;
+  text-decoration:none;
+  background:#292929;
+  padding:10px 15px;
+  border-radius:10px;
 }
-
-
-/* MAIN */
 
 .container{
-
-    max-width:850px;
-
-    margin:auto;
-
-    padding:30px 18px 60px;
+  max-width:900px;
+  margin:auto;
+  padding:25px 18px;
 }
-
-
-/* APP TOP */
 
 .app-top{
-
-    text-align:center;
-
-    padding:20px 10px 30px;
+  background:#181818;
+  border:1px solid #333;
+  border-radius:18px;
+  padding:25px;
+  text-align:center;
 }
-
 
 .app-logo{
-
-    width:180px;
-
-    height:180px;
-
-    object-fit:cover;
-
-    border-radius:35px;
-
-    border:3px solid #ff9800;
-
-    box-shadow:
-    0 0 30px
-    rgba(255,152,0,.25);
+  width:120px;
+  height:120px;
+  object-fit:contain;
+  border-radius:25px;
 }
-
 
 h1{
-
-    color:#ff9800;
-
-    font-size:34px;
-
-    margin:22px 0 8px;
+  margin:15px 0 8px;
+  font-size:30px;
 }
-
 
 .version{
-
-    color:#999;
-
-    margin-bottom:25px;
+  color:#aaa;
+  margin-bottom:25px;
 }
-
-
-/* BUTTONS */
 
 .buttons{
-
-    display:flex;
-
-    justify-content:center;
-
-    flex-wrap:wrap;
-
-    gap:12px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:20px;
 }
 
-
-.open-button{
-
-    display:inline-block;
-
-    border:0;
-
-    background:#ff9800;
-
-    color:#111;
-
-    text-decoration:none;
-
-    padding:15px 30px;
-
-    border-radius:13px;
-
-    font-size:17px;
-
-    font-weight:bold;
-
-    cursor:pointer;
+.button{
+  display:inline-block;
+  border:none;
+  text-decoration:none;
+  cursor:pointer;
+  font-size:16px;
+  padding:14px 22px;
+  border-radius:12px;
+  font-weight:bold;
 }
-
 
 .install-button{
-
-    background:#333;
-
-    color:white;
-
-    border:2px solid #ff9800;
+  background:#ff9800;
+  color:#000;
 }
 
+.open-button{
+  background:#292929;
+  color:white;
+}
 
+.install-button:active,
 .open-button:active{
-
-    transform:scale(.96);
+  transform:scale(.97);
 }
-
-
-/* CARD */
 
 .card{
-
-    background:#202020;
-
-    border:1px solid #333;
-
-    border-radius:20px;
-
-    padding:22px;
-
-    margin-top:20px;
+  background:#181818;
+  border:1px solid #333;
+  border-radius:18px;
+  padding:22px;
+  margin-top:20px;
 }
-
 
 .card h2{
-
-    color:#ff9800;
-
-    margin-top:0;
+  color:#ff9800;
+  margin-top:0;
 }
-
-
-.card p{
-
-    color:#ccc;
-
-    line-height:1.7;
-}
-
-
-/* INFORMATION */
 
 .info{
-
-    display:grid;
-
-    grid-template-columns:
-    1fr 1fr;
-
-    gap:12px;
+  color:#ccc;
+  line-height:1.7;
 }
-
-
-.info-box{
-
-    background:#181818;
-
-    padding:15px;
-
-    border-radius:12px;
-}
-
-
-.info-box span{
-
-    display:block;
-
-    color:#888;
-
-    font-size:13px;
-
-    margin-bottom:5px;
-}
-
-
-.info-box strong{
-
-    color:white;
-}
-
-
-/* INSTALL MESSAGE */
 
 .install-message{
-
-    display:none;
-
-    margin-top:15px;
-
-    padding:15px;
-
-    background:#292929;
-
-    border-radius:13px;
-
-    color:#ddd;
-
-    line-height:1.5;
+  display:none;
+  margin-top:20px;
+  padding:15px;
+  background:#20351f;
+  border:1px solid #4caf50;
+  border-radius:12px;
+  color:#b9ffbd;
 }
-
-
-/* FOOTER */
 
 footer{
-
-    text-align:center;
-
-    color:#666;
-
-    padding:30px 15px;
-
-    border-top:1px solid #252525;
+  text-align:center;
+  color:#777;
+  padding:30px 15px;
 }
-
-
-/* MOBILE */
-
-@media(max-width:500px){
-
-    .store-name{
-
-        font-size:18px;
-    }
-
-
-    .app-logo{
-
-        width:150px;
-
-        height:150px;
-    }
-
-
-    h1{
-
-        font-size:28px;
-    }
-
-
-    .info{
-
-        grid-template-columns:1fr;
-    }
-
-
-    .open-button{
-
-        width:100%;
-
-        max-width:300px;
-    }
-
-}
-
 </style>
-
 </head>
-
 
 <body>
 
+<header>
+  <div class="header-inner">
 
-<!-- HEADER -->
-
-<header class="header">
-
-    <div class="header-inner">
-
-        <div class="store-name">
-            YASHWIN APP STORE
-        </div>
-
-
-        <a
-        class="back"
-        href="index.html">
-
-            ← Back
-
-        </a>
-
+    <div class="store-name">
+      YASHWIN APP STORE
     </div>
 
+    <a class="back" href="index.html">
+      ← Back
+    </a>
+
+  </div>
 </header>
 
 
-
-<!-- MAIN -->
-
 <main class="container">
 
+  <section class="app-top">
 
-    <!-- APP -->
+    <img
+      class="app-logo"
+      src="icon-512.png"
+      alt="VANSH CALCULATOR"
+    >
 
-    <section class="app-top">
+    <h1>
+      VANSH CALCULATOR
+    </h1>
 
+    <div class="version">
+      Version 1.0
+    </div>
 
-        <img
-        class="app-logo"
-        src="icon-512.png"
-        alt="VANSH CALCULATOR">
 
+    <div class="buttons">
 
-        <h1>
-            VANSH CALCULATOR
-        </h1>
+      <!-- INSTALL / DOWNLOAD APK -->
+      <a
+        class="button install-button"
+        href="https://rampawar123.github.io/yashwin-app-store/VANSH-CALCULATOR-V2.apk"
+      >
+        📥 INSTALL APP
+      </a>
 
 
-        <div class="version">
-            Version 1.0
-        </div>
+      <!-- OPEN CALCULATOR -->
+      <a
+        class="button open-button"
+        href="calculator.html"
+      >
+        ▶ OPEN APP
+      </a>
 
+    </div>
 
-        <!-- BUTTONS -->
 
-        onclick="window.location.href='https://rampawar123.github.io/yashwin-app-store/VANSH-CALCULATOR-V2.apk'">
+    <div id="installMessage" class="install-message">
+      ✅ VANSH CALCULATOR APK download started.
+      <br><br>
+      Download hone ke baad APK ko open karke
+      calculator install karein.
+    </div>
 
+  </section>
 
-            <!-- INSTALL -->
 
-            <button
-            class="open-button install-button"
-            onclick="installApp()">
+  <section class="card">
 
-                📲 INSTALL APP
+    <h2>
+      About this app
+    </h2>
 
-            </button>
+    <div class="info">
 
-
-            <!-- OPEN -->
-
-            <a
-            class="open-button"
-            href="calculator.html">
-
-                OPEN APP
-
-            </a>
-
-        </div>
-
-
-        <!-- INSTALL MESSAGE -->
-
-        <div
-        id="installMessage"
-        class="install-message">
-
-            Chrome ke menu ⋮ me jaakar
-            <b>Install app</b> ya
-            <b>Add to Home screen</b>
-            select karein.
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ABOUT -->
-
-    <section class="card">
-
-        <h2>
-            About this app
-        </h2>
-
-
-        <p>
-
-            VANSH CALCULATOR is a fast,
-            simple and easy-to-use
-            calculator app made for
-            everyday calculations.
-
-        </p>
-
-
-        <p>
-
-            Addition, subtraction,
-            multiplication, division,
-            percentage, decimal,
-            calculation history and
-            total are supported.
-
-        </p>
-
-    </section>
-
-
-
-    <!-- APP INFORMATION -->
-
-    <section class="card">
-
-        <h2>
-            App Information
-        </h2>
-
-
-        <div class="info">
-
-
-            <div class="info-box">
-
-                <span>
-                    App Name
-                </span>
-
-                <strong>
-                    VANSH CALCULATOR
-                </strong>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <span>
-                    Version
-                </span>
-
-                <strong>
-                    1.0
-                </strong>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <span>
-                    Category
-                </span>
-
-                <strong>
-                    Calculator
-                </strong>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <span>
-                    Developer
-                </span>
-
-                <strong>
-                    YASHWIN APP STORE
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- FEATURES -->
-
-    <section class="card">
-
-        <h2>
-            Features
-        </h2>
-
-
-        <p>
-            ✓ Addition (+)
-        </p>
-
-
-        <p>
-            ✓ Subtraction (−)
-        </p>
-
-
-        <p>
-            ✓ Multiplication (×)
-        </p>
-
-
-        <p>
-            ✓ Division (÷)
-        </p>
-
-
-        <p>
-            ✓ Percentage (%)
-        </p>
-
-
-        <p>
-            ✓ Decimal calculation
-        </p>
-
-
-        <p>
-            ✓ Calculation History
-        </p>
-
-
-        <p>
-            ✓ History Delete
-        </p>
-
-
-        <p>
-            ✓ History Total
-        </p>
-
-    </section>
-
-
-</main>
-
-
-
-<!-- FOOTER -->
-
-<footer>
-
-    © 2026 YASHWIN APP STORE
-
-</footer>
-
-
-
-<script>
-
-/*
-   PWA INSTALL
-*/
-
-let deferredPrompt = null;
-
-
-/*
-   Chrome installation event
-*/
-
-window.addEventListener(
-    "beforeinstallprompt",
-    function(event){
-
-        event.preventDefault();
-
-        deferredPrompt = event;
-
-    }
-);
-
-
-/*
-   INSTALL BUTTON
-*/
-
-function installApp(){
-    window.location.href = "https://rampawar123.github.io/yashwin-app-store/VANSH-CALCULATOR-V2.apk";
-}
-
-/*
-   App installed event
-*/
-
-window.addEventListener(
-    "appinstalled",
-    function(){
-
-        const message =
-        document.getElementById(
-            "installMessage"
-        );
-
-
-        message.style.display =
-        "block";
-
-
-        message.innerHTML =
-        "✅ VANSH CALCULATOR successfully installed.";
-
-    }
-);
-
-</script>
-
-
-</body>
-
-</html>
+      <p>
+        <b>VANSH CALCULATOR</
