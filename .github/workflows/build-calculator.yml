@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -40,11 +41,23 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: Configure Bubblewrap
+      - name: Create Bubblewrap config
         run: |
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
+          mkdir -p "$HOME/.bubblewrap"
+
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
+          echo "Bubblewrap config:"
+          cat "$HOME/.bubblewrap/config.json"
+
+      - name: Check Bubblewrap configuration
+        run: |
+          bubblewrap doctor
 
       - name: Create signing key
         env:
@@ -63,10 +76,6 @@ jobs:
             -storepass "$KEYSTORE_PASSWORD" \
             -keypass "$KEY_PASSWORD" \
             -dname "CN=VANSH CALCULATOR V2, OU=VANSH, O=VANSH, L=India, ST=Maharashtra, C=IN"
-
-      - name: Check Bubblewrap
-        run: |
-          bubblewrap doctor
 
       - name: Create calculator TWA project
         run: |
