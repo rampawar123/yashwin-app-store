@@ -1,1 +1,36 @@
-
+{
+  "packageId": "com.vansh.calculator",
+  "host": "rampawar123.github.io",
+  "name": "VANSH CALCULATOR V2",
+  "launcherName": "VANSH CALCULATOR V2",
+  "display": "standalone",
+  "themeColor": "#101010",
+  "themeColorDark": "#101010",
+  "navigationColor": "#101010",
+  "navigationColorDark": "#101010",
+  "navigationDividerColor": "#101010",
+  "navigationDividerColorDark": "#101010",
+  "backgroundColor": "#101010",
+  "enableNotifications": false,
+  "startUrl": "/yashwin-app-store/calculator.html",
+  "iconUrl": "https://rampawar123.github.io/yashwin-app-store/1000383004.png",
+  "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/1000383004.png",
+  "splashScreenFadeOutDuration": 300,
+  "appVersionName": "2.0",
+  "appVersionCode": 2,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "orientation": "any",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}
