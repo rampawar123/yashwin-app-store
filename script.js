@@ -1,231 +1,445 @@
-let current = "0";
-let firstNumber = null;
-let operator = null;
-let waitingForSecond = false;
+const STORE_VERSION = "1.0.0";
 
-const display = document.getElementById("display");
-const historyBox = document.getElementById("history");
-const totalValue = document.getElementById("totalValue");
+const defaultApps = [];
 
-function showDisplay() {
-    let text = current;
-
-    if (firstNumber !== null && operator !== null) {
-        text = format(firstNumber) + " " + symbol(operator);
-
-        if (!waitingForSecond) {
-            text += " " + current;
-        }
-    }
-
-    display.textContent = text;
-    display.scrollLeft = display.scrollWidth;
+function $(id) {
+  return document.getElementById(id);
 }
 
-function pressNumber(n) {
-    if (waitingForSecond) {
-        current = n === "00" ? "0" : n;
-        waitingForSecond = false;
-    } else {
-        if (current === "0") {
-            current = n === "00" ? "0" : n;
-        } else {
-            current += n;
-        }
-    }
+function toggleMenu() {
+  const menu = $("menu");
 
-    showDisplay();
+  if (!menu) return;
+
+  menu.style.display =
+    menu.style.display === "block" ? "none" : "block";
 }
 
-function pressDecimal() {
-    if (waitingForSecond) {
-        current = "0.";
-        waitingForSecond = false;
-    } else if (!current.includes(".")) {
-        current += ".";
-    }
-
-    showDisplay();
+function closeMenu() {
+  const menu = $("menu");
+  if (menu) menu.style.display = "none";
 }
 
-function pressOperator(op) {
-    const num = Number(current);
+function goHome() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 
-    if (firstNumber === null) {
-        firstNumber = num;
-    } else if (!waitingForSecond) {
-        firstNumber = calculateResult(
-            firstNumber,
-            num,
-            operator
-        );
-
-        current = format(firstNumber);
-    }
-
-    operator = op;
-    waitingForSecond = true;
-
-    showDisplay();
+  closeMenu();
 }
 
-function calculate() {
+function showAbout() {
+  alert(
+    "YASHWIN APP STORE\n\n" +
+    "Discover, Download and Enjoy Apps.\n\n" +
+    "Store Version: " + STORE_VERSION
+  );
+
+  closeMenu();
+}
+
+function showUpdates() {
+  const updateBox = $("updateBox");
+
+  if (updateBox) {
+    updateBox.style.display = "block";
+
+    updateBox.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
+
+  closeMenu();
+}
+
+function checkStoreUpdate() {
+  const savedVersion =
+    localStorage.getItem("yashwin_store_version");
+
+  if (savedVersion !== STORE_VERSION) {
+    const updateBox = $("updateBox");
+
+    if (updateBox) {
+      updateBox.style.display = "block";
+    }
+  }
+}
+
+function updateStore() {
+  localStorage.setItem(
+    "yashwin_store_version",
+    STORE_VERSION
+  );
+
+  const updateBox = $("updateBox");
+
+  if (updateBox) {
+    updateBox.style.display = "none";
+  }
+
+  alert(
+    "YASHWIN APP STORE updated successfully.\n\n" +
+    "Version " + STORE_VERSION
+  );
+}
+
+function closeUpdate() {
+  const updateBox = $("updateBox");
+
+  if (updateBox) {
+    updateBox.style.display = "none";
+  }
+}
+
+function getApps() {
+  try {
+    const saved =
+      localStorage.getItem("yashwin_apps");
+
+    if (!saved) {
+      return [...defaultApps];
+    }
+
+    const apps = JSON.parse(saved);
+
+    return Array.isArray(apps) ? apps : [];
+  } catch (error) {
+    console.error(
+      "Unable to load apps:",
+      error
+    );
+
+    return [];
+  }
+}
+
+function saveApps(apps) {
+  localStorage.setItem(
+    "yashwin_apps",
+    JSON.stringify(apps)
+  );
+}
+
+function searchApps() {
+  const searchBox = $("searchBox");
+
+  if (!searchBox) return;
+
+  const text =
+    searchBox.value.trim().toLowerCase();
+
+  const cards =
+    document.querySelectorAll(".app-card");
+
+  let visible = 0;
+
+  cards.forEach(card => {
+    const name =
+      (card.dataset.name || "").toLowerCase();
+
+    const description =
+      (card.dataset.description || "").toLowerCase();
+
+    const match =
+      text === "" ||
+      name.includes(text) ||
+      description.includes(text);
+
+    card.style.display =
+      match ? "block" : "none";
+
+    if (match) {
+      visible++;
+    }
+  });
+
+  const emptySearch = $("emptySearch");
+
+  if (emptySearch) {
+    emptySearch.style.display =
+      text !== "" && visible === 0
+        ? "block"
+        : "none";
+  }
+}
+
+function openAddApp() {
+  const modal = $("addModal");
+
+  if (modal) {
+    modal.style.display = "block";
+  }
+
+  closeMenu();
+}
+
+function closeAddApp() {
+  const modal = $("addModal");
+
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+function clearAppForm() {
+  const fields = [
+    "appName",
+    "appVersion",
+    "appLogo",
+    "appOpen",
+    "appDownload",
+    "appDescription"
+  ];
+
+  fields.forEach(id => {
+    const field = $(id);
+
+    if (field) {
+      field.value = "";
+    }
+  });
+}
+
+function saveApp() {
+  const name =
+    $("appName")?.value.trim();
+
+  const version =
+    $("appVersion")?.value.trim() || "1.0.0";
+
+  const logo =
+    $("appLogo")?.value.trim();
+
+  const open =
+    $("appOpen")?.value.trim();
+
+  const download =
+    $("appDownload")?.value.trim();
+
+  const description =
+    $("appDescription")?.value.trim() ||
+    "New app from YASHWIN APP STORE.";
+
+  if (!name) {
+    alert("Please enter the App Name.");
+    return;
+  }
+
+  const app = {
+    id: Date.now().toString(),
+
+    name: name,
+
+    version: version,
+
+    logo: logo,
+
+    open: open,
+
+    download: download,
+
+    description: description
+  };
+
+  const apps = getApps();
+
+  apps.push(app);
+
+  saveApps(apps);
+
+  clearAppForm();
+
+  closeAddApp();
+
+  renderApps();
+
+  alert(
+    name +
+    " has been added to YASHWIN APP STORE."
+  );
+}
+
+function deleteApp(id) {
+  const confirmed =
+    confirm(
+      "Remove this app from YASHWIN APP STORE?"
+    );
+
+  if (!confirmed) return;
+
+  const apps =
+    getApps().filter(
+      app => app.id !== id
+    );
+
+  saveApps(apps);
+
+  renderApps();
+}
+
+function createAppCard(app) {
+  const card =
+    document.createElement("div");
+
+  card.className = "app-card";
+
+  card.dataset.name =
+    app.name || "";
+
+  card.dataset.description =
+    app.description || "";
+
+  const logo =
+    app.logo ||
+    "icon-192.png";
+
+  const openLink =
+    app.open || "#";
+
+  const downloadLink =
+    app.download || "#";
+
+  card.innerHTML = `
+    <div class="app-logo">
+      <img
+        src="${escapeHTML(logo)}"
+        alt="${escapeHTML(app.name || "App")}"
+        onerror="this.src='icon-192.png'"
+        style="
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          border-radius:22px;
+        "
+      >
+    </div>
+
+    <h2>
+      ${escapeHTML(app.name || "Unnamed App")}
+    </h2>
+
+    <div class="version">
+      Version ${escapeHTML(app.version || "1.0.0")}
+    </div>
+
+    <p class="description">
+      ${escapeHTML(
+        app.description ||
+        "New app from YASHWIN APP STORE."
+      )}
+    </p>
+
+    <div class="buttons">
+
+      <a
+        class="btn btn-open"
+        href="${escapeHTML(openLink)}"
+      >
+        ▶️ OPEN APP
+      </a>
+
+      <a
+        class="btn btn-download"
+        href="${escapeHTML(downloadLink)}"
+        download
+      >
+        ⬇️ DOWNLOAD APK
+      </a>
+
+      <a
+        class="btn btn-install"
+        href="${escapeHTML(downloadLink)}"
+      >
+        📲 INSTALL
+      </a>
+
+      <button
+        class="btn"
+        style="
+          background:#333;
+          color:#ff9800;
+          border:1px solid #555;
+        "
+        onclick="deleteApp('${escapeHTML(app.id || "")}')"
+      >
+        🗑️ REMOVE APP
+      </button>
+
+    </div>
+  `;
+
+  return card;
+}
+
+function renderApps() {
+  const container =
+    $("appsContainer");
+
+  if (!container) return;
+
+  const oldCards =
+    container.querySelectorAll(".app-card");
+
+  oldCards.forEach(card => {
+    card.remove();
+  });
+
+  const apps = getApps();
+
+  const emptyBox =
+    $("emptyBox");
+
+  if (apps.length === 0) {
+    if (emptyBox) {
+      emptyBox.style.display = "block";
+    }
+
+    return;
+  }
+
+  if (emptyBox) {
+    emptyBox.style.display = "none";
+  }
+
+  apps.forEach(app => {
+    const card =
+      createAppCard(app);
+
+    container.appendChild(card);
+  });
+
+  searchApps();
+}
+
+function escapeHTML(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+window.addEventListener(
+  "click",
+  function(event) {
+    const modal = $("addModal");
+
     if (
-        firstNumber === null ||
-        operator === null ||
-        waitingForSecond
+      modal &&
+      event.target === modal
     ) {
-        return;
+      closeAddApp();
     }
+  }
+);
 
-    const second = Number(current);
-
-    const result = calculateResult(
-        firstNumber,
-        second,
-        operator
-    );
-
-    const expression =
-        format(firstNumber) +
-        " " +
-        symbol(operator) +
-        " " +
-        format(second);
-
-    addHistory(expression, result);
-
-    current = format(result);
-
-    firstNumber = null;
-    operator = null;
-    waitingForSecond = false;
-
-    showDisplay();
-}
-
-function calculateResult(a, b, op) {
-    if (op === "+") return a + b;
-    if (op === "-") return a - b;
-    if (op === "*") return a * b;
-
-    if (op === "/") {
-        if (b === 0) return NaN;
-        return a / b;
-    }
-
-    return b;
-}
-
-function percent() {
-    current = format(Number(current) / 100);
-    showDisplay();
-}
-
-function backspace() {
-    if (waitingForSecond) return;
-
-    if (current.length <= 1) {
-        current = "0";
-    } else {
-        current = current.slice(0, -1);
-    }
-
-    showDisplay();
-}
-
-function clearAll() {
-    current = "0";
-    firstNumber = null;
-    operator = null;
-    waitingForSecond = false;
-
-    showDisplay();
-}
-
-function symbol(op) {
-    if (op === "*") return "×";
-    if (op === "/") return "÷";
-    if (op === "-") return "−";
-    return op;
-}
-
-function format(n) {
-    if (!Number.isFinite(n)) return "Error";
-
-    if (Number.isInteger(n)) {
-        return String(n);
-    }
-
-    return String(
-        Number(n.toFixed(10))
-    );
-}
-
-function addHistory(expression, answer) {
-    const item = document.createElement("div");
-
-    item.className = "history-item";
-
-    const text = document.createElement("div");
-
-    text.className = "history-text";
-
-    text.textContent =
-        expression +
-        " = " +
-        format(answer);
-
-    const del = document.createElement("button");
-
-    del.className = "delete-history";
-
-    del.textContent = "🗑️";
-
-    del.onclick = function () {
-        item.remove();
-        updateTotal();
-    };
-
-    item.appendChild(text);
-    item.appendChild(del);
-
-    historyBox.prepend(item);
-
-    updateTotal();
-}
-
-function updateTotal() {
-    let total = 0;
-
-    document
-        .querySelectorAll(".history-item")
-        .forEach(item => {
-
-            const text =
-                item.querySelector(
-                    ".history-text"
-                ).textContent;
-
-            const parts = text.split("=");
-
-            const answer =
-                Number(
-                    parts[parts.length - 1]
-                );
-
-            if (!isNaN(answer)) {
-                total += answer;
-            }
-        });
-
-    totalValue.textContent =
-        format(total);
-}
-
-function clearHistory() {
-    historyBox.innerHTML = "";
-    updateTotal();
-}
-
-showDisplay();
+window.addEventListener(
+  "load",
+  function() {
+    renderApps();
+    checkStoreUpdate();
+  }
+);
