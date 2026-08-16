@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -37,9 +36,11 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Install Bubblewrap
+      - name: Install Bubblewrap and Expect
         run: |
           npm install -g @bubblewrap/cli
+          sudo apt-get update
+          sudo apt-get install -y expect
 
       - name: Configure Bubblewrap
         run: |
@@ -79,13 +80,134 @@ jobs:
             -dname "CN=VANSH CALCULATOR V2, OU=VANSH, O=VANSH, L=India, ST=Maharashtra, C=IN"
 
       - name: Create calculator TWA project
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf calculator-twa
           mkdir -p calculator-twa
 
-          printf '\n%.0s' {1..50} | bubblewrap init \
+          cat > bubblewrap-init.exp <<'EXPECTEOF'
+          #!/usr/bin/expect -f
+
+          set timeout 300
+
+          spawn bubblewrap init \
             --manifest="https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json" \
             --directory="./calculator-twa"
+
+          expect {
+            -re {Do you want Bubblewrap to install JDK.*} {
+              send "No\r"
+              exp_continue
+            }
+
+            -re {Path to your existing JDK.*} {
+              send "$env(JAVA_HOME)\r"
+              exp_continue
+            }
+
+            -re {Path to your Android SDK.*} {
+              send "$env(ANDROID_HOME)\r"
+              exp_continue
+            }
+
+            -re {Domain.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {URL path.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Application name.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Package ID.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Start URL.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Display mode.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Status bar color.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Navigation bar color.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Theme color.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Theme color dark.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Splash screen.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Signing key.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {Key store.*} {
+              send "../android.keystore\r"
+              exp_continue
+            }
+
+            -re {Key alias.*} {
+              send "vansh\r"
+              exp_continue
+            }
+
+            -re {Key store password.*} {
+              send "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+              exp_continue
+            }
+
+            -re {Key password.*} {
+              send "$env(BUBBLEWRAP_KEY_PASSWORD\r"
+              exp_continue
+            }
+
+            eof
+          }
+
+          catch wait result
+          exit [lindex $result 3]
+          EXPECTEOF
+
+          chmod +x bubblewrap-init.exp
+          ./bubblewrap-init.exp
+
+      - name: Check generated TWA project
+        run: |
+          test -f calculator-twa/twa-manifest.json
+          test -f calculator-twa/android.keystore
+          echo "TWA project created successfully."
+          ls -la calculator-twa
 
       - name: Build signed VANSH CALCULATOR V2 APK
         env:
@@ -98,6 +220,12 @@ jobs:
             --skipPwaValidation \
             --signingKeyPath="../android.keystore" \
             --signingKeyAlias="vansh"
+
+      - name: Check APK
+        run: |
+          test -f calculator-twa/app-release-signed.apk
+          test -f calculator-twa/app-release-bundle.aab
+          echo "APK and AAB created successfully."
 
       - name: Upload VANSH CALCULATOR V2 APK
         uses: actions/upload-artifact@v4
