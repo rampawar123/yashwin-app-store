@@ -1,25 +1,21 @@
-const CACHE_NAME = "yashwin-store-v2";
+const CACHE_NAME = "yashwin-app-store-v1";
 
-const APP_FILES = [
+const CORE_FILES = [
   "./",
   "./index.html",
-  "./app-details.html",
-  "./calculator.html",
   "./manifest.json",
+  "./style.css",
+  "./script.js",
   "./icon-192.png",
-  "./icon-512.png",
-  "./icon-192-maskable.png",
-  "./icon-512-maskable.png"
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(APP_FILES);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CORE_FILES))
+      .then(() => self.skipWaiting())
   );
-
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {
@@ -30,41 +26,30 @@ self.addEventListener("activate", event => {
           .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
       );
-    })
+    }).then(() => self.clients.claim())
   );
-
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
 
-  // HTML pages: network first
-  if (event.request.mode === "navigate") {
-
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-
-          const copy = response.clone();
-
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, copy);
-          });
-
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        })
-    );
-
+  if (event.request.method !== "GET") {
     return;
   }
 
-  // Other files: cache first
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(response => {
+
+        const copy = response.clone();
+
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, copy);
+        });
+
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
