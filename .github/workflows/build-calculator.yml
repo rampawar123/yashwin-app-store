@@ -86,7 +86,7 @@ jobs:
 
           cat calculator-web-manifest.json
 
-      - name: Create TWA manifest
+      - name: Fix and create TWA manifest
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
@@ -100,23 +100,31 @@ jobs:
 
           const base = 'https://rampawar123.github.io/yashwin-app-store/';
 
-          const absolute = (value) => {
+          function absolute(value) {
             if (!value) return null;
             return new URL(value, base).toString();
-          };
+          }
 
-          const icons = Array.isArray(web.icons) ? web.icons : [];
+          let icon = null;
 
-          let icon = icons.find(i =>
-            i &&
-            typeof i.src === 'string' &&
-            /512x512|512/i.test(i.src)
-          );
-
-          if (!icon) {
-            icon = icons.find(i =>
-              i && typeof i.src === 'string'
+          if (Array.isArray(web.icons)) {
+            icon = web.icons.find(i =>
+              i &&
+              typeof i.src === 'string' &&
+              /512/i.test(i.src)
             );
+
+            if (!icon) {
+              icon = web.icons.find(i =>
+                i && typeof i.src === 'string'
+              );
+            }
+          }
+
+          if (!icon && typeof web.iconUrl === 'string') {
+            icon = {
+              src: web.iconUrl
+            };
           }
 
           if (!icon) {
@@ -125,72 +133,75 @@ jobs:
             );
           }
 
+          const iconUrl = absolute(icon.src);
+
           const startUrl = new URL(
-            web.start_url || '/',
+            web.start_url || '/calculator.html',
             base
           );
 
           const manifest = {
-            packageId: "com.vansh.calculator.v2",
+            packageId: 'com.vansh.calculator.v2',
 
-            host: "rampawar123.github.io",
+            host: 'rampawar123.github.io',
 
-            name: web.name || "VANSH CALCULATOR V2",
+            name: web.name || 'VANSH CALCULATOR V2',
 
             launcherName:
               web.short_name ||
               web.name ||
-              "VANSH CALCULATOR",
+              'VANSH CALCULATOR',
 
-            display: web.display || "standalone",
+            display: web.display || 'standalone',
 
             themeColor:
-              web.theme_color || "#000000",
+              web.theme_color || '#101010',
 
             themeColorDark:
-              web.theme_color || "#000000",
+              web.theme_color || '#101010',
 
             navigationColor:
-              web.background_color || "#000000",
+              web.background_color || '#101010',
 
             navigationColorDark:
-              web.background_color || "#000000",
+              web.background_color || '#101010',
 
-            navigationDividerColor: "#000000",
+            navigationDividerColor: '#101010',
 
-            navigationDividerColorDark: "#000000",
+            navigationDividerColorDark: '#101010',
 
             backgroundColor:
-              web.background_color || "#ffffff",
+              web.background_color || '#101010',
 
-            enableNotifications: true,
+            enableNotifications: false,
 
             startUrl:
-              startUrl.pathname + startUrl.search,
+              startUrl.pathname +
+              startUrl.search,
 
-            iconUrl: absolute(icon.src),
+            iconUrl: iconUrl,
 
-            maskableIconUrl: absolute(icon.src),
+            maskableIconUrl: iconUrl,
 
             splashScreenFadeOutDuration: 300,
 
             signingKey: {
-              path: "../android.keystore",
-              alias: "vansh"
+              path: '../android.keystore',
+              alias: 'vansh'
             },
 
-            appVersionCode: 1,
+            appVersionCode: 2,
 
-            appVersion: "1.0.0",
+            appVersion: '2.0.0',
 
             shortcuts: [],
 
-            generatorApp: "Bubblewrap",
+            generatorApp: 'bubblewrap-cli',
 
             webManifestUrl:
-              "https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json",
+              base + 'calculator-manifest.json',
 
-            fallbackType: "customtabs",
+            fallbackType: 'customtabs',
 
             features: {},
 
@@ -198,82 +209,68 @@ jobs:
               enabled: false
             },
 
-            enableSiteSettingsShortcut: false,
+            enableSiteSettingsShortcut: true,
 
             isChromeOSOnly: false,
 
             isMetaQuest: false,
 
-            minSdkVersion: 23,
+            orientation: 'any',
 
-            orientation: "default",
+            fingerprints: [],
 
             additionalTrustedOrigins: [],
 
             retainedBundles: []
           };
 
-          fs.mkdirSync('calculator-twa', {
-            recursive: true
-          });
-
           fs.writeFileSync(
-            'calculator-twa/twa-manifest.json',
+            'twa-manifest.json',
             JSON.stringify(manifest, null, 2)
           );
 
+          console.log('Using icon:', iconUrl);
           console.log(
-            'TWA MANIFEST CREATED SUCCESSFULLY'
+            'Created twa-manifest.json successfully'
           );
           NODE
 
-          cat calculator-twa/twa-manifest.json
+          cat twa-manifest.json
 
       - name: Generate Android project
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          cd calculator-twa
+          rm -rf android
 
-          bubblewrap update \
-            --manifest="."
-
-          echo "ANDROID PROJECT GENERATED"
-
-          test -f twa-manifest.json
-          test -f gradlew
-
-          chmod +x gradlew
-
-          ls -la
+          bubblewrap init \
+            --manifest twa-manifest.json \
+            --directory android \
+            --skipPwaValidation
 
       - name: Build signed VANSH CALCULATOR V2 APK
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          cd calculator-twa
+          cd android
 
-          bubblewrap build \
-            --manifest="." \
-            --skipPwaValidation \
-            --signingKeyPath="../android.keystore" \
-            --signingKeyAlias="vansh"
+          chmod +x gradlew
+
+          ./gradlew \
+            --no-daemon \
+            assembleRelease
 
       - name: Check APK
         run: |
-          test -f calculator-twa/app-release-signed.apk
-
-          echo "======================================"
-          echo "VANSH CALCULATOR V2 APK READY"
-          echo "======================================"
-
-          ls -lh calculator-twa/app-release-signed.apk
+          find android -type f \
+            -name "*.apk" \
+            -print
 
       - name: Upload VANSH CALCULATOR V2 APK
         uses: actions/upload-artifact@v4
         with:
-          name: VANSH-CALCULATOR-V2
-          path: |
-            calculator-twa/app-release-signed.apk
-            calculator-twa/app-release-signed.apk.idsig
-            calculator-twa/app-release-bundle.aab
-            calculator-twa/assetlinks.json
+          name: VANSH-CALCULATOR-V2-APK
+          path: android/**/build/outputs/apk/release/*.apk
+          if-no-files-found: error
