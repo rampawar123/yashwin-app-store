@@ -81,8 +81,8 @@ jobs:
             "backgroundColor": "#000000",
             "enableNotifications": true,
             "startUrl": "/yashwin-app-store/index.html",
-            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
-            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
+            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/1000383004.png",
+            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/1000383004.png",
             "splashScreenFadeOutDuration": 300,
             "signingKey": {
               "path": "./android.keystore",
