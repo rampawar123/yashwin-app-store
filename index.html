@@ -6,6 +6,8 @@
 
   <title>YASHWIN APP STORE</title>
 
+  <link rel="manifest" href="manifest.json">
+
   <style>
     * {
       box-sizing: border-box;
@@ -22,9 +24,6 @@
       background: #181818;
       padding: 18px;
       border-bottom: 2px solid #ff9800;
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
 
     .top {
@@ -46,7 +45,6 @@
       border-radius: 10px;
       padding: 10px 15px;
       font-size: 22px;
-      cursor: pointer;
     }
 
     .menu {
@@ -110,7 +108,6 @@
     .section-title {
       color: #ff9800;
       font-size: 26px;
-      margin-bottom: 15px;
     }
 
     .empty {
@@ -134,7 +131,6 @@
       text-align: center;
       color: #888;
       padding: 30px 10px;
-      margin-top: 40px;
     }
   </style>
 </head>
@@ -176,7 +172,6 @@
     <h2 class="section-title">📱 Apps</h2>
 
     <div class="empty" id="appList">
-
       <h2>🚀 Apps Coming Soon</h2>
 
       <p>
@@ -184,7 +179,6 @@
         <br><br>
         New apps will be added here soon.
       </p>
-
     </div>
 
   </main>
@@ -194,46 +188,9 @@
   </footer>
 
   <script>
-
     function toggleMenu() {
       const menu = document.getElementById("menu");
 
       if (menu.style.display === "block") {
         menu.style.display = "none";
       } else {
-        menu.style.display = "block";
-      }
-    }
-
-    function goHome() {
-      document.getElementById("home").scrollIntoView();
-      document.getElementById("menu").style.display = "none";
-    }
-
-    function showAbout() {
-      alert(
-        "YASHWIN APP STORE\n\n" +
-        "Discover, Download and Enjoy Apps.\n\n" +
-        "More apps coming soon!"
-      );
-    }
-
-    function searchApps() {
-      const text = document
-        .getElementById("searchBox")
-        .value
-        .toLowerCase();
-
-      const appList = document.getElementById("appList");
-
-      if (text === "") {
-        appList.style.display = "block";
-      } else {
-        appList.style.display = "none";
-      }
-    }
-
-  </script>
-
-</body>
-</html>
