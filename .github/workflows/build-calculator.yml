@@ -35,21 +35,21 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
-      - name: Install Bubblewrap
+      - name: Install Bubblewrap and Expect
         run: |
           npm install -g @bubblewrap/cli
-
-      - name: Configure environment
-        run: |
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_HOME"
+          sudo apt-get update
+          sudo apt-get install -y expect
 
       - name: Configure Bubblewrap
         run: |
           mkdir -p "$HOME/.bubblewrap"
+
           cat > "$HOME/.bubblewrap/config.json" <<EOF
           {
             "jdkPath": "$JAVA_HOME",
@@ -57,8 +57,6 @@ jobs:
           }
           EOF
 
-      - name: Verify Bubblewrap
-        run: |
           bubblewrap --version
           bubblewrap doctor
 
@@ -80,27 +78,106 @@ jobs:
             -keypass "$KEY_PASSWORD" \
             -dname "CN=VANSH CALCULATOR V2, OU=VANSH, O=VANSH, L=India, ST=Maharashtra, C=IN"
 
+          test -f android.keystore
+
       - name: Create calculator TWA project
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf calculator-twa
           mkdir -p calculator-twa
 
           cd calculator-twa
 
-          printf '\n%.0s' {1..30} | bubblewrap init \
+          cat > init.expect <<'EXPECT'
+          #!/usr/bin/expect -f
+
+          set timeout 300
+
+          spawn bubblewrap init \
             --manifest="https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json" \
-            --directory="." || true
+            --directory="."
+
+          expect {
+            -re "Domain being opened in the TWA.*:" {
+              send "rampawar123.github.io\r"
+              exp_continue
+            }
+
+            -re "Name of the application.*:" {
+              send "VANSH CALCULATOR V2\r"
+              exp_continue
+            }
+
+            -re "Name to be shown on the Android Launcher.*:" {
+              send "VANSH CALCULATOR\r"
+              exp_continue
+            }
+
+            -re "Color to be used for the status bar.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            -re "Color to be used for the splash screen background.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            -re "Relative path to open the TWA.*:" {
+              send "/\r"
+              exp_continue
+            }
+
+            -re "URL to an image that is at least 512.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            -re "URL to an image that is at least 512.*maskable.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            -re "Include app shortcuts.*" {
+              send "n\r"
+              exp_continue
+            }
+
+            -re "Android Package Name.*Application ID.*:" {
+              send "com.vansh.calculator.v2\r"
+              exp_continue
+            }
+
+            -re "Location of the Signing Key.*:" {
+              send "../android.keystore\r"
+              exp_continue
+            }
+
+            -re "Key name.*:" {
+              send "vansh\r"
+              exp_continue
+            }
+
+            eof
+          }
+
+          catch wait result
+          exit [lindex $result 3]
+          EXPECT
+
+          chmod +x init.expect
+          ./init.expect
 
           test -f twa-manifest.json
+          echo "TWA MANIFEST CREATED"
+          ls -lh twa-manifest.json
 
       - name: Check generated TWA project
         run: |
           test -f calculator-twa/twa-manifest.json
           test -f calculator-twa/gradlew
-          echo "TWA project created successfully"
+
+          echo "TWA PROJECT CREATED SUCCESSFULLY"
+          echo "--------------------------------"
           ls -la calculator-twa
 
       - name: Build signed VANSH CALCULATOR V2 APK
@@ -118,7 +195,11 @@ jobs:
       - name: Check APK
         run: |
           test -f calculator-twa/app-release-signed.apk
-          echo "APK CREATED SUCCESSFULLY"
+
+          echo "===================================="
+          echo "VANSH CALCULATOR V2 APK CREATED"
+          echo "===================================="
+
           ls -lh calculator-twa/app-release-signed.apk
 
       - name: Upload VANSH CALCULATOR V2 APK
@@ -129,3 +210,4 @@ jobs:
             calculator-twa/app-release-signed.apk
             calculator-twa/app-release-signed.apk.idsig
             calculator-twa/app-release-bundle.aab
+            calculator-twa/assetlinks.json
