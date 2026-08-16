@@ -56,7 +56,6 @@ jobs:
           EOF
 
           bubblewrap --version
-          bubblewrap doctor
 
       - name: Create signing key
         env:
@@ -76,6 +75,8 @@ jobs:
             -keypass "$KEY_PASSWORD" \
             -dname "CN=VANSH CALCULATOR V2, OU=VANSH, O=VANSH, L=India, ST=Maharashtra, C=IN"
 
+          test -f android.keystore
+
       - name: Create TWA manifest
         run: |
           cat > twa-manifest.json <<'EOF'
@@ -83,7 +84,7 @@ jobs:
             "packageId": "com.vansh.calculator.v2",
             "host": "rampawar123.github.io",
             "name": "VANSH CALCULATOR V2",
-            "launcherName": "VANSH CALCULATOR V2",
+            "launcherName": "VANSH CALCULATOR",
             "display": "standalone",
             "themeColor": "#101010",
             "themeColorDark": "#101010",
@@ -93,19 +94,15 @@ jobs:
             "navigationDividerColorDark": "#101010",
             "backgroundColor": "#101010",
             "enableNotifications": false,
-            "startUrl": "/yashwin-app-store/calculator.html",
+            "startUrl": "https://rampawar123.github.io/yashwin-app-store/calculator.html",
             "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
             "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
             "splashScreenFadeOutDuration": 300,
-            "signingKey": {
-              "path": "../android.keystore",
-              "alias": "vansh"
-            },
-            "appVersionCode": 3,
-            "appVersion": "3.0.0",
+            "appVersionName": "2.0",
+            "appVersionCode": 2,
             "shortcuts": [],
             "generatorApp": "bubblewrap-cli",
-            "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json",
+            "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
             "fallbackType": "customtabs",
             "features": {},
             "alphaDependencies": {
@@ -114,19 +111,25 @@ jobs:
             "enableSiteSettingsShortcut": true,
             "isChromeOSOnly": false,
             "isMetaQuest": false,
-            "orientation": "any",
+            "orientation": "default",
             "fingerprints": [],
             "additionalTrustedOrigins": [],
-            "retainedBundles": []
+            "retainedBundles": [],
+            "signingKey": {
+              "path": "../android.keystore",
+              "alias": "vansh"
+            }
           }
           EOF
 
           cat twa-manifest.json
 
       - name: Generate Android project
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf android
-          mkdir -p android
 
           bubblewrap init \
             --manifest twa-manifest.json \
@@ -134,18 +137,27 @@ jobs:
             --skipPwaValidation
 
       - name: Build signed VANSH CALCULATOR V2 APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease
+
+          bubblewrap build \
+            --signingKeyPath ../android.keystore \
+            --signingKeyAlias vansh \
+            --signingKeyPassword "$KEY_PASSWORD" \
+            --signingKeyStorePassword "$KEYSTORE_PASSWORD"
 
       - name: Check APK
         run: |
-          find android -type f -name "*.apk" -print
+          find android -type f \( -name "*.apk" -o -name "*.aab" \) -print
 
       - name: Upload VANSH CALCULATOR V2 APK
         uses: actions/upload-artifact@v4
         with:
           name: VANSH-CALCULATOR-V2-APK
-          path: android/**/build/outputs/apk/release/*.apk
+          path: |
+            android/app/build/outputs/apk/**/*.apk
+            android/app/build/outputs/bundle/**/*.aab
           if-no-files-found: error
