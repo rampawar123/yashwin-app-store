@@ -40,11 +40,9 @@ jobs:
             "platforms;android-35" \
             "build-tools;35.0.0"
 
-      - name: Install Bubblewrap and Expect
+      - name: Install Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
-          sudo apt-get update
-          sudo apt-get install -y expect
 
       - name: Configure Bubblewrap
         run: |
@@ -80,105 +78,172 @@ jobs:
 
           test -f android.keystore
 
-      - name: Create calculator TWA project
+      - name: Read calculator web manifest
         run: |
-          rm -rf calculator-twa
-          mkdir -p calculator-twa
+          curl -fsSL \
+            "https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json" \
+            -o calculator-web-manifest.json
 
-          cd calculator-twa
+          cat calculator-web-manifest.json
 
-          cat > init.expect <<'EXPECT'
-          #!/usr/bin/expect -f
+      - name: Create TWA manifest
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
 
-          set timeout 300
+          const web = JSON.parse(
+            fs.readFileSync('calculator-web-manifest.json', 'utf8')
+          );
 
-          spawn bubblewrap init \
-            --manifest="https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json" \
-            --directory="."
+          const base = 'https://rampawar123.github.io/yashwin-app-store/';
 
-          expect {
-            -re "Domain being opened in the TWA.*:" {
-              send "rampawar123.github.io\r"
-              exp_continue
-            }
+          const absolute = (value) => {
+            if (!value) return null;
+            return new URL(value, base).toString();
+          };
 
-            -re "Name of the application.*:" {
-              send "VANSH CALCULATOR V2\r"
-              exp_continue
-            }
+          const icons = Array.isArray(web.icons) ? web.icons : [];
 
-            -re "Name to be shown on the Android Launcher.*:" {
-              send "VANSH CALCULATOR\r"
-              exp_continue
-            }
+          let icon = icons.find(i =>
+            i &&
+            typeof i.src === 'string' &&
+            /512x512|512/i.test(i.src)
+          );
 
-            -re "Color to be used for the status bar.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            -re "Color to be used for the splash screen background.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            -re "Relative path to open the TWA.*:" {
-              send "/\r"
-              exp_continue
-            }
-
-            -re "URL to an image that is at least 512.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            -re "URL to an image that is at least 512.*maskable.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            -re "Include app shortcuts.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            -re "Android Package Name.*Application ID.*:" {
-              send "com.vansh.calculator.v2\r"
-              exp_continue
-            }
-
-            -re "Location of the Signing Key.*:" {
-              send "../android.keystore\r"
-              exp_continue
-            }
-
-            -re "Key name.*:" {
-              send "vansh\r"
-              exp_continue
-            }
-
-            eof
+          if (!icon) {
+            icon = icons.find(i =>
+              i && typeof i.src === 'string'
+            );
           }
 
-          catch wait result
-          exit [lindex $result 3]
-          EXPECT
+          if (!icon) {
+            throw new Error(
+              'No icon found in calculator-manifest.json'
+            );
+          }
 
-          chmod +x init.expect
-          ./init.expect
+          const startUrl = new URL(
+            web.start_url || '/',
+            base
+          );
+
+          const manifest = {
+            packageId: "com.vansh.calculator.v2",
+
+            host: "rampawar123.github.io",
+
+            name: web.name || "VANSH CALCULATOR V2",
+
+            launcherName:
+              web.short_name ||
+              web.name ||
+              "VANSH CALCULATOR",
+
+            display: web.display || "standalone",
+
+            themeColor:
+              web.theme_color || "#000000",
+
+            themeColorDark:
+              web.theme_color || "#000000",
+
+            navigationColor:
+              web.background_color || "#000000",
+
+            navigationColorDark:
+              web.background_color || "#000000",
+
+            navigationDividerColor: "#000000",
+
+            navigationDividerColorDark: "#000000",
+
+            backgroundColor:
+              web.background_color || "#ffffff",
+
+            enableNotifications: true,
+
+            startUrl:
+              startUrl.pathname + startUrl.search,
+
+            iconUrl: absolute(icon.src),
+
+            maskableIconUrl: absolute(icon.src),
+
+            splashScreenFadeOutDuration: 300,
+
+            signingKey: {
+              path: "../android.keystore",
+              alias: "vansh"
+            },
+
+            appVersionCode: 1,
+
+            appVersion: "1.0.0",
+
+            shortcuts: [],
+
+            generatorApp: "Bubblewrap",
+
+            webManifestUrl:
+              "https://rampawar123.github.io/yashwin-app-store/calculator-manifest.json",
+
+            fallbackType: "customtabs",
+
+            features: {},
+
+            alphaDependencies: {
+              enabled: false
+            },
+
+            enableSiteSettingsShortcut: false,
+
+            isChromeOSOnly: false,
+
+            isMetaQuest: false,
+
+            minSdkVersion: 23,
+
+            orientation: "default",
+
+            additionalTrustedOrigins: [],
+
+            retainedBundles: []
+          };
+
+          fs.mkdirSync('calculator-twa', {
+            recursive: true
+          });
+
+          fs.writeFileSync(
+            'calculator-twa/twa-manifest.json',
+            JSON.stringify(manifest, null, 2)
+          );
+
+          console.log(
+            'TWA MANIFEST CREATED SUCCESSFULLY'
+          );
+          NODE
+
+          cat calculator-twa/twa-manifest.json
+
+      - name: Generate Android project
+        run: |
+          cd calculator-twa
+
+          bubblewrap update \
+            --manifest="."
+
+          echo "ANDROID PROJECT GENERATED"
 
           test -f twa-manifest.json
-          echo "TWA MANIFEST CREATED"
-          ls -lh twa-manifest.json
+          test -f gradlew
 
-      - name: Check generated TWA project
-        run: |
-          test -f calculator-twa/twa-manifest.json
-          test -f calculator-twa/gradlew
+          chmod +x gradlew
 
-          echo "TWA PROJECT CREATED SUCCESSFULLY"
-          echo "--------------------------------"
-          ls -la calculator-twa
+          ls -la
 
       - name: Build signed VANSH CALCULATOR V2 APK
         env:
@@ -188,6 +253,7 @@ jobs:
           cd calculator-twa
 
           bubblewrap build \
+            --manifest="." \
             --skipPwaValidation \
             --signingKeyPath="../android.keystore" \
             --signingKeyAlias="vansh"
@@ -196,9 +262,9 @@ jobs:
         run: |
           test -f calculator-twa/app-release-signed.apk
 
-          echo "===================================="
-          echo "VANSH CALCULATOR V2 APK CREATED"
-          echo "===================================="
+          echo "======================================"
+          echo "VANSH CALCULATOR V2 APK READY"
+          echo "======================================"
 
           ls -lh calculator-twa/app-release-signed.apk
 
