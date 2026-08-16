@@ -1,196 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff9800">
 
-  <title>YASHWIN APP STORE</title>
+<title>YASHWIN APP STORE</title>
 
-  <link rel="manifest" href="manifest.json">
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+body{
+  font-family:Arial,sans-serif;
+  background:#0d0d0d;
+  color:#fff;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #101010;
-      color: white;
-    }
+.header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:#171717;
+  border-bottom:2px solid #ff9800;
+}
 
-    header {
-      background: #181818;
-      padding: 18px;
-      border-bottom: 2px solid #ff9800;
-    }
+.header-top{
+  max-width:1100px;
+  margin:auto;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
 
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.logo{
+  color:#ff9800;
+  font-size:25px;
+  font-weight:bold;
+}
 
-    .logo {
-      color: #ff9800;
-      font-size: 24px;
-      font-weight: bold;
-    }
+.menu-btn{
+  background:#ff9800;
+  color:#111;
+  border:0;
+  border-radius:12px;
+  font-size:28px;
+  padding:8px 14px;
+  cursor:pointer;
+}
 
-    .menu-btn {
-      background: #ff9800;
-      color: #111;
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 15px;
-      font-size: 22px;
-    }
+.menu{
+  display:none;
+  background:#222;
+  padding:12px 20px 18px;
+}
 
-    .menu {
-      display: none;
-      margin-top: 15px;
-    }
+.menu button{
+  width:100%;
+  margin-top:8px;
+  padding:13px;
+  border:0;
+  border-radius:10px;
+  background:#ff9800;
+  color:#111;
+  font-size:16px;
+  font-weight:bold;
+}
 
-    .menu button {
-      width: 100%;
-      padding: 13px;
-      margin-top: 8px;
-      border: 0;
-      border-radius: 8px;
-      background: #ff9800;
-      color: #111;
-      font-weight: bold;
-    }
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:35px 18px;
+}
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 30px 18px;
-    }
+.hero{
+  text-align:center;
+  padding:20px 0 30px;
+}
 
-    h1 {
-      text-align: center;
-      color: #ff9800;
-      font-size: 36px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #ccc;
-      font-size: 18px;
-      margin-bottom: 30px;
-    }
-
-    .search {
-      display: flex;
-      margin-bottom: 35px;
-    }
-
-    .search input {
-      flex: 1;
-      padding: 15px;
-      border: 1px solid #555;
-      border-radius: 10px 0 0 10px;
-      background: #222;
-      color: white;
-      font-size: 16px;
-    }
-
-    .search button {
-      width: 80px;
-      border: 0;
-      border-radius: 0 10px 10px 0;
-      background: #ff9800;
-      font-size: 20px;
-    }
-
-    .section-title {
-      color: #ff9800;
-      font-size: 26px;
-    }
-
-    .empty {
-      background: #1d1d1d;
-      border: 1px solid #444;
-      border-radius: 15px;
-      padding: 35px 20px;
-      text-align: center;
-    }
-
-    .empty h2 {
-      color: #ff9800;
-    }
-
-    .empty p {
-      color: #ccc;
-      line-height: 1.6;
-    }
-
-    footer {
-      text-align: center;
-      color: #888;
-      padding: 30px 10px;
-    }
-  </style>
-</head>
-
-<body>
-
-  <header>
-    <div class="top">
-      <div class="logo">YASHWIN APP STORE</div>
-
-      <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    </div>
-
-    <div class="menu" id="menu">
-      <button onclick="goHome()">🏠 Home</button>
-      <button onclick="showAbout()">ℹ️ About</button>
-    </div>
-  </header>
-
-  <main class="container" id="home">
-
-    <h1>YASHWIN APP STORE</h1>
-
-    <div class="subtitle">
-      Discover, Download and Enjoy Apps
-    </div>
-
-    <div class="search">
-      <input
-        type="text"
-        id="searchBox"
-        placeholder="Search apps..."
-        onkeyup="searchApps()"
-      >
-
-      <button>🔍</button>
-    </div>
-
-    <h2 class="section-title">📱 Apps</h2>
-
-    <div class="empty" id="appList">
-      <h2>🚀 Apps Coming Soon</h2>
-
-      <p>
-        YASHWIN APP STORE is being prepared.
-        <br><br>
-        New apps will be added here soon.
-      </p>
-    </div>
-
-  </main>
-
-  <footer>
-    © 2026 YASHWIN APP STORE
-  </footer>
-
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById("menu");
-
-      if (menu.style.display === "block") {
-        menu.style.display = "none";
-      } else {
+.hero h1{
+ 
