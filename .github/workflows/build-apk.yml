@@ -44,7 +44,7 @@ jobs:
       - name: Create signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -f android.keystore
 
@@ -63,6 +63,7 @@ jobs:
         run: |
           rm -rf twa
           mkdir -p twa
+
           cp android.keystore twa/android.keystore
 
           cat > twa/twa-manifest.json <<'EOF'
@@ -72,79 +73,49 @@ jobs:
             "name": "YASHWIN APP STORE",
             "launcherName": "YASHWIN APP STORE",
             "display": "standalone",
-            "themeColor": "#000000",
-            "themeColorDark": "#000000",
-            "navigationColor": "#000000",
-            "navigationColorDark": "#000000",
+            "themeColor": "#ff9800",
+            "themeColorDark": "#ff9800",
+            "navigationColor": "#101010",
+            "navigationColorDark": "#101010",
             "navigationDividerColor": "#000000",
             "navigationDividerColorDark": "#000000",
-            "backgroundColor": "#000000",
+            "backgroundColor": "#101010",
             "enableNotifications": true,
             "startUrl": "/yashwin-app-store/index.html",
-            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/1000383004.png",
-            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/1000383004.png",
+            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512.png",
+            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/icon-512-maskable.png",
             "splashScreenFadeOutDuration": 300,
             "signingKey": {
-              "path": "./android.keystore",
+              "path": "android.keystore",
               "alias": "yashwin"
             },
             "appVersionName": "1.0",
-            "appVersionCode": 1,
-            "shortcuts": [],
-            "generatorApp": "bubblewrap-cli",
-            "webManifestUrl": "https://rampawar123.github.io/yashwin-app-store/manifest.json",
-            "fallbackType": "customtabs",
-            "features": {},
-            "alphaDependencies": {
-              "enabled": false
-            },
-            "enableSiteSettingsShortcut": true,
-            "isChromeOSOnly": false,
-            "isMetaQuest": false,
-            "orientation": "any",
-            "fingerprints": [],
-            "additionalTrustedOrigins": [],
-            "retainedBundles": []
-          }
-          EOF
-
-      - name: Configure Bubblewrap
-        run: |
-          mkdir -p "$HOME/.bubblewrap"
-
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
+            "appVersionCode": 1
           }
           EOF
 
       - name: Prepare Bubblewrap project
         run: |
           cd twa
-
-          bubblewrap update \
-            --manifest="./twa-manifest.json" \
-            --skipVersionUpgrade
+          bubblewrap init --manifest twa-manifest.json --directory .
 
       - name: Build signed APK and AAB
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd twa
-
           bubblewrap build \
-            --manifest="./twa-manifest.json" \
             --skipPwaValidation \
-            --signingKeyPath="./android.keystore" \
-            --signingKeyAlias="yashwin"
+            --signingKeyPath android.keystore \
+            --signingKeyAlias yashwin \
+            --signingKeyPassword "$KEY_PASSWORD" \
+            --signingKeyStorePassword "$KEYSTORE_PASSWORD"
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: YASHWIN-APP-STORE
+          name: YASHWIN-APP-STORE-APK
           path: |
             twa/app-release-signed.apk
-            twa/app-release-bundle.aab
-            twa/app-release-signed.apk.idsig
+           
