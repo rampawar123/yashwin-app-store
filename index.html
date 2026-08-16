@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#ff9800">
 
 <title>YASHWIN APP STORE</title>
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
 
 <style>
 *{
@@ -16,19 +18,19 @@
 
 body{
   font-family:Arial,sans-serif;
-  background:#0d0d0d;
+  background:#101010;
   color:#fff;
 }
 
-.header{
+header{
+  background:#181818;
+  border-bottom:3px solid #ff9800;
   position:sticky;
   top:0;
-  z-index:1000;
-  background:#171717;
-  border-bottom:2px solid #ff9800;
+  z-index:100;
 }
 
-.header-top{
+.header{
   max-width:1100px;
   margin:auto;
   padding:16px 20px;
@@ -53,34 +55,83 @@ body{
   cursor:pointer;
 }
 
-.menu{
+nav{
   display:none;
   background:#222;
-  padding:12px 20px 18px;
+  padding:12px 20px;
 }
 
-.menu button{
+nav.show{
+  display:block;
+}
+
+nav button{
   width:100%;
-  margin-top:8px;
   padding:13px;
+  margin:5px 0;
   border:0;
   border-radius:10px;
   background:#ff9800;
   color:#111;
   font-size:16px;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .container{
-  max-width:1000px;
+  max-width:1100px;
   margin:auto;
-  padding:35px 18px;
+  padding:40px 20px;
 }
 
 .hero{
   text-align:center;
-  padding:20px 0 30px;
 }
 
 .hero h1{
+  color:#ff9800;
+  font-size:42px;
+  margin-bottom:15px;
+}
+
+.hero p{
+  color:#ccc;
+  font-size:19px;
+}
+
+.search{
+  display:flex;
+  margin:35px auto;
+  max-width:700px;
+}
+
+.search input{
+  flex:1;
+  padding:16px;
+  border:1px solid #555;
+  border-radius:14px 0 0 14px;
+  background:#222;
+  color:#fff;
+  font-size:17px;
+  outline:none;
+}
+
+.search button{
+  width:70px;
+  border:0;
+  border-radius:0 14px 14px 0;
+  background:#ff9800;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.section-title{
+  color:#ff9800;
+  font-size:32px;
+  margin:30px 0 20px;
+}
+
+.apps{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
  
