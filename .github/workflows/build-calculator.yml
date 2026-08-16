@@ -77,9 +77,6 @@ jobs:
             -dname "CN=VANSH CALCULATOR V2, OU=VANSH, O=VANSH, L=India, ST=Maharashtra, C=IN"
 
       - name: Create TWA manifest
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cat > twa-manifest.json <<'EOF'
           {
@@ -126,7 +123,7 @@ jobs:
 
           cat twa-manifest.json
 
-            - name: Generate Android project
+      - name: Generate Android project
         run: |
           rm -rf android
           mkdir -p android
