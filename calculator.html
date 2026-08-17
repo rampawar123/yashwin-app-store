@@ -272,14 +272,15 @@ let history = JSON.parse(
 
 function updateDisplay(){
 
-  result.textContent = current;
+    result.textContent = current;
 
-  if(previous !== null && operator){
-    expression.textContent =
-      previous + " " + displayOperator(operator);
-  }else{
-    expression.textContent = "";
-  }
+    if(previous !== null && operator){
+        expression.textContent =
+        previous + " " + displayOperator(operator) + " " + current;
+    }else{
+        expression.textContent = "";
+    }
+
 }
 
 function displayOperator(op){
