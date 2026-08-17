@@ -160,12 +160,16 @@ nav button{
 
 .app p{
   color:#aaa;
+  font-size:18px;
   margin-bottom:18px;
 }
 
+.app a,
 .app button{
+  display:block;
   width:100%;
   padding:13px;
+  margin:8px 0;
   border:0;
   border-radius:10px;
   background:#ff9800;
@@ -173,6 +177,7 @@ nav button{
   font-size:16px;
   font-weight:bold;
   cursor:pointer;
+  text-decoration:none;
 }
 
 .empty{
@@ -196,8 +201,15 @@ footer{
 
 <header>
   <div class="header">
-    <div class="logo">YASHWIN APP STORE</div>
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+    <div class="logo">
+      YASHWIN APP STORE
+    </div>
+
+    <button class="menu-btn" onclick="toggleMenu()">
+      ☰
+    </button>
+
   </div>
 
   <nav id="menu">
@@ -206,145 +218,277 @@ footer{
   </nav>
 </header>
 
+
 <main class="container">
 
-  <section class="hero">
-    <h1>YASHWIN APP STORE</h1>
-    <p>Download useful apps made for everyone.</p>
-  </section>
+<section class="hero">
 
-  <div class="search">
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search apps..."
-      oninput="searchApps()"
+  <h1>YASHWIN APP STORE</h1>
+
+  <p>
+    Download useful apps made for everyone.
+  </p>
+
+</section>
+
+
+<div class="search">
+
+  <input
+    id="searchInput"
+    type="text"
+    placeholder="Search apps..."
+    oninput="searchApps()"
+  >
+
+  <button onclick="searchApps()">
+    🔍
+  </button>
+
+</div>
+
+
+<h2 class="section-title" id="apps">
+  Available Apps
+</h2>
+
+
+<div class="apps" id="appList">
+
+
+  <!-- VANSH CALCULATOR -->
+
+  <div class="app" data-name="VANSH CALCULATOR">
+
+    <img
+      src="./calculator-logo.png"
+      alt="VANSH CALCULATOR"
     >
-    <button onclick="searchApps()">🔍</button>
-  </div>
 
-  <h2 class="section-title" id="apps">Available Apps</h2>
+    <h3>
+      VANSH CALCULATOR
+    </h3>
 
-  <div class="apps" id="appList">
+    <p>
+      Simple and fast calculator.
+    </p>
 
-    <div class="app" data-name="VANSH CALCULATOR">
-      <img src="calculator-logo.png" alt="VANSH CALCULATOR">
-      <h3>VANSH CALCULATOR</h3>
-      <p>Simple and fast calculator.</p>
-      <a href="https://github.com/rampawar123/yashwin-app-store/releases/download/v1.0-final/VANSH-CALCULATOR-V2.apk" class="download-btn">
-Download APK
-      </a>
-Download APK
-      </a>
 
-<button class="download-btn" onclick="window.location.href='calculator.html'">
-Open App
-</button>
-      
-      <button class="share-btn" onclick="shareApp()">
-  🔗 Share App
-      </button>
-    </div>
+    <!-- FINAL APK DOWNLOAD -->
 
-    <div class="app" data-name="YASHWIN APP STORE">
-      <img src="./icon-512.png" alt="YASHWIN APP STORE">
-      <h3>YASHWIN APP STORE</h3>
-      <p>Your personal app store.</p>
-      <a href="https://github.com/rampawar123/yashwin-app-store/releases/download/v1.0-final/app-release-signed.apk"
-class="download-btn"
-download>
-Download APK
-      </a>
-      
-      <button onclick="location.reload()">Open App</button>
-      
-      <button class="share-btn" onclick="shareAppStore()">
-  🔗 Share App Store
-      </button>
-    </div>
+    <a
+      href="https://github.com/rampawar123/yashwin-app-store/releases/download/v1.0-final/VANSH-CALCULATOR.apk"
+      class="download-btn"
+    >
+      Download APK
+    </a>
+
+
+    <!-- OPEN CALCULATOR -->
+
+    <button
+      onclick="openCalculator()"
+    >
+      Open App
+    </button>
+
+
+    <!-- SHARE CALCULATOR -->
+
+    <button
+      class="share-btn"
+      onclick="shareApp()"
+    >
+      🔗 Share App
+    </button>
 
   </div>
 
-  <div class="empty" id="empty">
-    No app found.
+
+  <!-- YASHWIN APP STORE -->
+
+  <div
+    class="app"
+    data-name="YASHWIN APP STORE"
+  >
+
+    <img
+      src="./icon-512.png"
+      alt="YASHWIN APP STORE"
+    >
+
+    <h3>
+      YASHWIN APP STORE
+    </h3>
+
+    <p>
+      Your personal app store.
+    </p>
+
+    <a
+      href="https://github.com/rampawar123/yashwin-app-store/releases/download/v1.0-final/app-release-signed.apk"
+      class="download-btn"
+    >
+      Download APK
+    </a>
+
+    <button
+      onclick="location.reload()"
+    >
+      Open App
+    </button>
+
+    <button
+      class="share-btn"
+      onclick="shareAppStore()"
+    >
+      🔗 Share App Store
+    </button>
+
   </div>
+
+
+</div>
+
+
+<div
+  class="empty"
+  id="empty"
+>
+  No app found.
+</div>
 
 </main>
+
 
 <footer>
   © 2026 YASHWIN APP STORE
 </footer>
 
+
 <script>
+
 function toggleMenu(){
-  document.getElementById("menu").classList.toggle("show");
+
+  document
+    .getElementById("menu")
+    .classList
+    .toggle("show");
+
 }
+
 
 function scrollToApps(){
-  document.getElementById("apps").scrollIntoView({
-    behavior:"smooth"
-  });
+
+  document
+    .getElementById("apps")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
 }
+
 
 function searchApps(){
-  const value=document
-    .getElementById("searchInput")
-    .value
-    .toLowerCase();
 
-  const apps=document.querySelectorAll(".app");
-  let found=0;
+  const value =
+    document
+      .getElementById("searchInput")
+      .value
+      .toLowerCase();
 
-  apps.forEach(app=>{
-    const name=app.dataset.name.toLowerCase();
+  const apps =
+    document.querySelectorAll(".app");
+
+  let found = 0;
+
+  apps.forEach(app => {
+
+    const name =
+      app.dataset.name.toLowerCase();
 
     if(name.includes(value)){
+
       app.style.display="block";
       found++;
+
     }else{
+
       app.style.display="none";
+
     }
+
   });
 
+
   document.getElementById("empty").style.display =
-    found===0 ? "block" : "none";
+    found === 0 ? "block" : "none";
+
 }
+
 
 function openCalculator(){
-  window.location.href="./calculator.html";
+
+  window.location.href =
+    "./calculator.html";
+
 }
 
-function showAbout(){
-  alert(
-    "YASHWIN APP STORE\n\n" +
-    "A personal app store project."
-  );
-}
-  function shareApp(){
+
+function shareApp(){
+
   if(navigator.share){
+
     navigator.share({
-      title: "VANSH CALCULATOR",
-      text: "VANSH CALCULATOR डाउनलोड करें",
-      url: window.location.href
+
+      title:"VANSH CALCULATOR",
+
+      text:"VANSH CALCULATOR डाउनलोड करें",
+
+      url:
+        "https://rampawar123.github.io/yashwin-app-store/calculator.html"
+
     });
+
   }else{
-    navigator.clipboard.writeText(window.location.href);
+
+    navigator.clipboard.writeText(
+      "https://rampawar123.github.io/yashwin-app-store/calculator.html"
+    );
+
     alert("Calculator link copied!");
+
   }
+
 }
+
 
 function shareAppStore(){
+
   if(navigator.share){
+
     navigator.share({
-      title: "YASHWIN APP STORE",
-      text: "YASHWIN APP STORE से apps download करें",
-      url: window.location.href
+
+      title:"YASHWIN APP STORE",
+
+      text:"YASHWIN APP STORE से apps download करें",
+
+      url:window.location.href
+
     });
+
   }else{
-    navigator.clipboard.writeText(window.location.href);
+
+    navigator.clipboard.writeText(
+      window.location.href
+    );
+
     alert("App Store link copied!");
+
   }
+
 }
+
 </script>
 
 </body>
