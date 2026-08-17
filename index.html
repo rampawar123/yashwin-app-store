@@ -236,6 +236,9 @@ footer{
    download>
    Download APK
       </a>
+      <button class="share-btn" onclick="shareApp()">
+  🔗 Share App
+      </button>
     </div>
 
     <div class="app" data-name="YASHWIN APP STORE">
@@ -243,6 +246,9 @@ footer{
       <h3>YASHWIN APP STORE</h3>
       <p>Your personal app store.</p>
       <button onclick="location.reload()">Open App</button>
+      <button class="share-btn" onclick="shareAppStore()">
+  🔗 Share App Store
+      </button>
     </div>
 
   </div>
@@ -301,6 +307,31 @@ function showAbout(){
     "YASHWIN APP STORE\n\n" +
     "A personal app store project."
   );
+}
+  function shareApp(){
+  if(navigator.share){
+    navigator.share({
+      title: "VANSH CALCULATOR",
+      text: "VANSH CALCULATOR डाउनलोड करें",
+      url: window.location.href
+    });
+  }else{
+    navigator.clipboard.writeText(window.location.href);
+    alert("Calculator link copied!");
+  }
+}
+
+function shareAppStore(){
+  if(navigator.share){
+    navigator.share({
+      title: "YASHWIN APP STORE",
+      text: "YASHWIN APP STORE से apps download करें",
+      url: window.location.href
+    });
+  }else{
+    navigator.clipboard.writeText(window.location.href);
+    alert("App Store link copied!");
+  }
 }
 </script>
 
