@@ -17,7 +17,7 @@ body{
   background:#101010;
   color:#fff;
   min-height:100vh;
-  padding:20px;
+  padding:16px;
 }
 
 .calculator{
@@ -26,7 +26,7 @@ body{
   background:#1b1b1b;
   border:2px solid #ff9800;
   border-radius:25px;
-  padding:20px;
+  padding:18px;
   box-shadow:0 0 25px rgba(255,152,0,.25);
 }
 
@@ -36,7 +36,7 @@ body{
   height:110px;
   object-fit:cover;
   border-radius:22px;
-  margin:0 auto 12px;
+  margin:0 auto 10px;
 }
 
 .title{
@@ -44,16 +44,16 @@ body{
   color:#ff9800;
   font-size:26px;
   font-weight:bold;
-  margin-bottom:18px;
+  margin-bottom:16px;
 }
 
 .display{
-  background:#080808;
+  background:#090909;
   border:2px solid #333;
   border-radius:15px;
-  padding:15px;
-  min-height:90px;
-  margin-bottom:15px;
+  padding:14px;
+  min-height:105px;
+  margin-bottom:14px;
   text-align:right;
   overflow:hidden;
 }
@@ -62,6 +62,7 @@ body{
   color:#aaa;
   font-size:18px;
   min-height:25px;
+  word-break:break-all;
 }
 
 .result{
@@ -78,12 +79,10 @@ body{
 }
 
 button{
-  border:0;
-  border-radius:12px;
-  padding:18px 5px;
-  background:#292929;
-  color:#fff;
-  font-size:20px;
+  border:none;
+  border-radius:18px;
+  min-height:62px;
+  font-size:25px;
   font-weight:bold;
   cursor:pointer;
 }
@@ -92,420 +91,98 @@ button:active{
   transform:scale(.96);
 }
 
-.operator{
+.number{
+  background:#292929;
+  color:#fff;
+}
+
+.operator,
+.equal{
   background:#ff9800;
   color:#111;
 }
 
 .action{
-  background:#444;
+  background:#555;
+  color:#fff;
 }
 
 .zero{
   grid-column:span 2;
 }
 
-.equal{
-  background:#ff9800;
-  color:#111;
-}
-
-.history-box{
-  margin-top:25px;
-  background:#151515;
+.history-box,
+.saved-box{
+  margin-top:18px;
+  background:#121212;
   border:1px solid #333;
-  border-radius:15px;
-  padding:15px;
+  border-radius:18px;
+  padding:14px;
 }
 
-.history-title{
-  color:#ff9800;
-  font-size:20px;
-  font-weight:bold;
-  margin-bottom:12px;
-  text-align:center;
-}
-
-.history-item{
+.section-head{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:8px;
-  background:#222;
+  margin-bottom:12px;
+}
+
+.section-title{
+  color:#ff9800;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.small-btn{
+  min-height:38px;
+  padding:6px 12px;
   border-radius:10px;
-  padding:10px;
-  margin-bottom:8px;
-}
-
-.history-text{
-  flex:1;
-  color:#ddd;
-  font-size:15px;
-  word-break:break-word;
-}
-
-.delete-history{
-  background:#b71c1c;
-  color:#fff;
-  padding:8px 11px;
   font-size:14px;
-  border-radius:8px;
-}
-
-.clear-history{
-  width:100%;
-  margin-top:8px;
-  background:#444;
+  background:#555;
   color:#fff;
-  padding:12px;
-  font-size:15px;
 }
 
-.empty-history{
-  text-align:center;
-  color:#777;
+.history-item,
+.saved-item{
+  background:#222;
+  border-radius:13px;
   padding:10px;
+  margin-bottom:9px;
 }
 
-@media(max-width:600px){
-  body{
-    padding:10px;
-  }
-
-  .calculator{
-    padding:15px;
-  }
-
-  .calculator-logo{
-    width:95px;
-    height:95px;
-  }
-
-  .title{
-    font-size:23px;
-  }
-
-  button{
-    padding:16px 5px;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<div class="calculator">
-
-  <img
-    src="calculator-logo.png"
-    alt="VANSH CALCULATOR"
-    class="calculator-logo"
-  >
-
-  <div class="title">VANSH CALCULATOR</div>
-
-  <div class="display">
-    <div class="expression" id="expression"></div>
-    <div class="result" id="result">0</div>
-  </div>
-
-  <div class="buttons">
-
-    <button class="action" onclick="clearAll()">AC</button>
-    <button class="action" onclick="backspace()">⌫</button>
-    <button class="action" onclick="percent()">%</button>
-    <button class="operator" onclick="chooseOperator('/')">÷</button>
-
-    <button onclick="number('7')">7</button>
-    <button onclick="number('8')">8</button>
-    <button onclick="number('9')">9</button>
-    <button class="operator" onclick="chooseOperator('*')">×</button>
-
-    <button onclick="number('4')">4</button>
-    <button onclick="number('5')">5</button>
-    <button onclick="number('6')">6</button>
-    <button class="operator" onclick="chooseOperator('-')">−</button>
-
-    <button onclick="number('1')">1</button>
-    <button onclick="number('2')">2</button>
-    <button onclick="number('3')">3</button>
-    <button class="operator" onclick="chooseOperator('+')">+</button>
-
-    <button class="zero" onclick="number('0')">0</button>
-    <button onclick="decimal()">.</button>
-    <button class="equal" onclick="calculate()">=</button>
-
-  </div>
-
-  <div class="history-box">
-
-    <div class="history-title">
-      Calculation History
-    </div>
-
-    <div id="history"></div>
-
-    <button
-      class="clear-history"
-      onclick="clearHistory()">
-      CLEAR HISTORY
-    </button>
-
-  </div>
-
-</div>
-
-<script>
-
-let current = "0";
-let previous = null;
-let operator = null;
-let waiting = false;
-
-const result = document.getElementById("result");
-const expression = document.getElementById("expression");
-const historyBox = document.getElementById("history");
-
-let history = JSON.parse(
-  localStorage.getItem("vanshHistory") || "[]"
-);
-
-function updateDisplay(){
-
-    result.textContent = current;
-
-    if(previous !== null && operator){
-        expression.textContent =
-        previous + " " + displayOperator(operator) + " " + current;
-    }else{
-        expression.textContent = "";
-    }
-
+.math{
+  font-size:17px;
+  margin-bottom:8px;
+  word-break:break-all;
 }
 
-function displayOperator(op){
-
-  if(op === "*") return "×";
-  if(op === "/") return "÷";
-  if(op === "-") return "−";
-  if(op === "+") return "+";
-
-  return op;
+.item-actions{
+  display:flex;
+  gap:6px;
 }
 
-function number(num){
-
-  if(waiting){
-    current = num;
-    waiting = false;
-  }else{
-    current =
-      current === "0"
-      ? num
-      : current + num;
-  }
-
-  updateDisplay();
+.item-actions button{
+  min-height:38px;
+  flex:1;
+  font-size:14px;
+  border-radius:9px;
 }
 
-function decimal(){
-
-  if(waiting){
-    current = "0.";
-    waiting = false;
-    updateDisplay();
-    return;
-  }
-
-  if(!current.includes(".")){
-    current += ".";
-  }
-
-  updateDisplay();
+.delete-btn{
+  background:#d32f2f;
+  color:#fff;
 }
 
-function chooseOperator(op){
-
-  const input = parseFloat(current);
-
-  if(isNaN(input)) return;
-
-  if(previous !== null && operator && !waiting){
-    calculate();
-  }
-
-  previous = parseFloat(current);
-  operator = op;
-  waiting = true;
-
-  updateDisplay();
+.save-btn{
+  background:#2e7d32;
+  color:#fff;
 }
 
-function calculate(){
-
-  if(previous === null || operator === null){
-    return;
-  }
-
-  const second = parseFloat(current);
-
-  let answer;
-
-  if(operator === "+"){
-    answer = previous + second;
-  }
-
-  if(operator === "-"){
-    answer = previous - second;
-  }
-
-  if(operator === "*"){
-    answer = previous * second;
-  }
-
-  if(operator === "/"){
-
-    if(second === 0){
-      alert("Cannot divide by zero");
-      return;
-    }
-
-    answer = previous / second;
-  }
-
-  const oldPrevious = previous;
-  const oldOperator = operator;
-
-  const historyText =
-    oldPrevious +
-    " " +
-    displayOperator(oldOperator) +
-    " " +
-    second +
-    " = " +
-    answer;
-
-  addHistory(historyText);
-
-  current = String(answer);
-  previous = null;
-  operator = null;
-  waiting = true;
-
-  updateDisplay();
+.share-btn{
+  background:#1565c0;
+  color:#fff;
 }
 
-function clearAll(){
-
-  current = "0";
-  previous = null;
-  operator = null;
-  waiting = false;
-
-  updateDisplay();
-}
-
-function backspace(){
-
-  if(waiting) return;
-
-  if(current.length > 1){
-    current = current.slice(0,-1);
-  }else{
-    current = "0";
-  }
-
-  updateDisplay();
-}
-
-function percent(){
-
-  const value = parseFloat(current);
-
-  if(isNaN(value)) return;
-
-  current = String(value / 100);
-
-  updateDisplay();
-}
-
-function addHistory(text){
-
-  history.unshift(text);
-
-  localStorage.setItem(
-    "vanshHistory",
-    JSON.stringify(history)
-  );
-
-  renderHistory();
-}
-
-function renderHistory(){
-
-  historyBox.innerHTML = "";
-
-  if(history.length === 0){
-
-    historyBox.innerHTML =
-      '<div class="empty-history">No calculation history</div>';
-
-    return;
-  }
-
-  history.forEach(function(item,index){
-
-    const row = document.createElement("div");
-
-    row.className = "history-item";
-
-    row.innerHTML = `
-      <div class="history-text">${item}</div>
-      <button
-        class="delete-history"
-        onclick="deleteHistory(${index})">
-        🗑 Delete
-      </button>
-    `;
-
-    historyBox.appendChild(row);
-
-  });
-
-}
-
-function deleteHistory(index){
-
-  history.splice(index,1);
-
-  localStorage.setItem(
-    "vanshHistory",
-    JSON.stringify(history)
-  );
-
-  renderHistory();
-}
-
-function clearHistory(){
-
-  if(history.length === 0){
-    return;
-  }
-
-  if(confirm("Delete all calculation history?")){
-
-    history = [];
-
-    localStorage.removeItem("vanshHistory");
-
-    renderHistory();
-  }
-}
-
-renderHistory();
-updateDisplay();
-
-</script>
-
-</body>
-</html>
+.empty{
+ 
