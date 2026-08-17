@@ -13,65 +13,65 @@
 }
 
 body{
+  background:#080808;
+  color:white;
   font-family:Arial,sans-serif;
-  background:#101010;
-  color:#fff;
   min-height:100vh;
-  padding:16px;
+  padding:12px;
 }
 
 .calculator{
-  max-width:420px;
+  width:100%;
+  max-width:520px;
   margin:auto;
-  background:#1b1b1b;
   border:2px solid #ff9800;
-  border-radius:25px;
+  border-radius:28px;
   padding:18px;
-  box-shadow:0 0 25px rgba(255,152,0,.25);
+  background:#151515;
 }
 
-.calculator-logo{
-  display:block;
-  width:110px;
-  height:110px;
-  object-fit:cover;
-  border-radius:22px;
-  margin:0 auto 10px;
-}
-
+/* TITLE */
 .title{
   text-align:center;
   color:#ff9800;
-  font-size:26px;
+  font-size:28px;
   font-weight:bold;
-  margin-bottom:16px;
+  margin:8px 0 18px;
 }
 
+/* DISPLAY */
 .display{
-  background:#090909;
+  background:#050505;
   border:2px solid #333;
-  border-radius:15px;
-  padding:14px;
-  min-height:105px;
-  margin-bottom:14px;
-  text-align:right;
+  border-radius:22px;
+  min-height:125px;
+  padding:18px;
+  margin-bottom:18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
   overflow:hidden;
 }
 
 .expression{
   color:#aaa;
-  font-size:18px;
-  min-height:25px;
-  word-break:break-all;
+  font-size:20px;
+  text-align:right;
+  min-height:28px;
+  white-space:nowrap;
+  overflow:hidden;
 }
 
 .result{
-  color:#fff;
-  font-size:34px;
+  color:white;
+  font-size:42px;
   font-weight:bold;
-  word-break:break-all;
+  text-align:right;
+  white-space:nowrap;
+  overflow:hidden;
 }
 
+/* BUTTONS */
 .buttons{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -79,11 +79,13 @@ body{
 }
 
 button{
-  border:none;
+  border:0;
   border-radius:18px;
-  min-height:62px;
-  font-size:25px;
+  min-height:70px;
+  font-size:26px;
   font-weight:bold;
+  color:white;
+  background:#292929;
   cursor:pointer;
 }
 
@@ -91,9 +93,8 @@ button:active{
   transform:scale(.96);
 }
 
-.number{
-  background:#292929;
-  color:#fff;
+.function{
+  background:#555;
 }
 
 .operator,
@@ -102,128 +103,168 @@ button:active{
   color:#111;
 }
 
-.action{
-  background:#555;
-  color:#fff;
-}
-
 .zero{
   grid-column:span 2;
 }
 
-.history-box,
-.saved-box{
-  margin-top:18px;
-  background:#121212;
-  border:1px solid #333;
-  border-radius:18px;
+/* HISTORY */
+.box{
+  margin-top:22px;
+  border:2px solid #292929;
+  border-radius:22px;
   padding:14px;
+  background:#101010;
 }
 
-.section-head{
+.box-title{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:8px;
   margin-bottom:12px;
 }
 
-.section-title{
+.box-title h2{
   color:#ff9800;
   font-size:22px;
-  font-weight:bold;
 }
 
-.small-btn{
-  min-height:38px;
-  padding:6px 12px;
-  border-radius:10px;
-  font-size:14px;
+.clear{
+  min-height:42px;
+  padding:0 16px;
+  font-size:16px;
   background:#555;
-  color:#fff;
 }
 
-.history-item,
-.saved-item{
-  background:#222;
-  border-radius:13px;
+/* HISTORY ITEM */
+.history-item{
+  background:#202020;
+  border-radius:18px;
   padding:10px;
   margin-bottom:9px;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
 .math{
-  font-size:17px;
-  margin-bottom:8px;
-  word-break:break-all;
-}
-
-.item-actions{
-  display:flex;
-  gap:6px;
-}
-
-.item-actions button{
-  min-height:38px;
   flex:1;
-  font-size:14px;
-  border-radius:9px;
+  min-width:0;
 }
 
-.delete-btn{
-  background:#d32f2f;
-  color:#fff;
+.math-text{
+  font-size:18px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-.save-btn{
-  background:#2e7d32;
-  color:#fff;
+.answer{
+  color:#55d61f;
+  font-weight:bold;
 }
 
-.share-btn{
-  background:#1565c0;
-  color:#fff;
-}
-
-.empty{
-  color:#888;
-  text-align:center;
-  padding:12px;
-  font-size:14px;
-}
-
-.total{
-  color:#aaa;
-  font-size:13px;
-}
-
-.update-box{
-  display:none;
-  margin-top:15px;
-  padding:12px;
-  background:#252525;
-  border:1px solid #ff9800;
-  border-radius:12px;
-  text-align:center;
-}
-
-.update-box p{
-  margin-bottom:9px;
-}
-
-.update-btn{
-  min-height:42px;
-  background:#ff9800;
-  color:#111;
-  padding:8px 18px;
-  border-radius:10px;
-  font-size:15px;
-}
-
-.footer{
-  text-align:center;
-  color:#777;
+.time{
+  color:#999;
   font-size:12px;
+  margin-top:3px;
+}
+
+/* SMALL ACTION BUTTONS */
+.actions{
+  display:flex;
+  gap:5px;
+}
+
+.action{
+  min-height:38px;
+  width:38px;
+  padding:0;
+  border-radius:10px;
+  font-size:17px;
+}
+
+.delete{
+  background:#e53935;
+}
+
+.save{
+  background:#249b35;
+}
+
+.share{
+  background:#1976d2;
+}
+
+/* TOTAL */
+.total{
+  text-align:center;
+  color:#aaa;
+  font-size:14px;
+  margin-top:10px;
+}
+
+.total span{
+  color:#ff9800;
+  font-weight:bold;
+}
+
+/* SAVED */
+.saved-item{
+  background:#202020;
+  border-radius:15px;
+  padding:12px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.no-data{
+  text-align:center;
+  color:#888;
+  padding:22px 5px;
+}
+
+/* FOOTER */
+.footer{
   margin-top:18px;
+  padding:12px;
+  border:2px solid #292929;
+  border-radius:18px;
+  text-align:center;
+  color:#aaa;
+  font-size:14px;
+}
+
+.footer span{
+  color:#ff9800;
+  font-weight:bold;
+}
+
+/* MOBILE */
+@media(max-width:380px){
+  .calculator{
+    padding:12px;
+  }
+
+  button{
+    min-height:62px;
+    font-size:23px;
+  }
+
+  .result{
+    font-size:36px;
+  }
+
+  .history-item{
+    padding:8px;
+  }
+
+  .action{
+    width:34px;
+    min-height:34px;
+    font-size:15px;
+  }
 }
 </style>
 </head>
@@ -232,96 +273,79 @@ button:active{
 
 <div class="calculator">
 
-  <img
-    class="calculator-logo"
-    src="calculator-logo.png"
-    alt="VANSH CALCULATOR"
-    onerror="this.style.display='none'"
-  >
-
   <div class="title">VANSH CALCULATOR</div>
 
+  <!-- DISPLAY -->
   <div class="display">
-    <div id="expression" class="expression"></div>
-    <div id="result" class="result">0</div>
+    <div class="expression" id="expression"></div>
+    <div class="result" id="result">0</div>
   </div>
 
+  <!-- KEYPAD -->
   <div class="buttons">
 
-    <button class="action" onclick="clearAll()">AC</button>
-    <button class="action" onclick="backspace()">⌫</button>
-    <button class="action" onclick="percentage()">%</button>
+    <button class="function" onclick="clearAll()">AC</button>
+    <button class="function" onclick="backspace()">⌫</button>
+    <button class="function" onclick="percent()">%</button>
     <button class="operator" onclick="chooseOperator('/')">÷</button>
 
-    <button class="number" onclick="number('7')">7</button>
-    <button class="number" onclick="number('8')">8</button>
-    <button class="number" onclick="number('9')">9</button>
+    <button onclick="number('7')">7</button>
+    <button onclick="number('8')">8</button>
+    <button onclick="number('9')">9</button>
     <button class="operator" onclick="chooseOperator('*')">×</button>
 
-    <button class="number" onclick="number('4')">4</button>
-    <button class="number" onclick="number('5')">5</button>
-    <button class="number" onclick="number('6')">6</button>
+    <button onclick="number('4')">4</button>
+    <button onclick="number('5')">5</button>
+    <button onclick="number('6')">6</button>
     <button class="operator" onclick="chooseOperator('-')">−</button>
 
-    <button class="number" onclick="number('1')">1</button>
-    <button class="number" onclick="number('2')">2</button>
-    <button class="number" onclick="number('3')">3</button>
+    <button onclick="number('1')">1</button>
+    <button onclick="number('2')">2</button>
+    <button onclick="number('3')">3</button>
     <button class="operator" onclick="chooseOperator('+')">+</button>
 
-    <button class="number zero" onclick="number('0')">0</button>
-    <button class="number" onclick="decimal()">.</button>
+    <button class="zero" onclick="number('0')">0</button>
+    <button onclick="decimal()">.</button>
     <button class="equal" onclick="calculate()">=</button>
 
   </div>
 
-  <div class="history-box">
+  <!-- HISTORY -->
+  <div class="box">
 
-    <div class="section-head">
-      <div>
-        <div class="section-title">Calculation History</div>
-        <div class="total">
-          Total Maths: <span id="totalMaths">0</span>
-        </div>
-      </div>
-
-      <button class="small-btn" onclick="clearHistory()">
-        CLEAR
-      </button>
+    <div class="box-title">
+      <h2>Calculation History</h2>
+      <button class="clear" onclick="clearHistory()">CLEAR</button>
     </div>
 
     <div id="history"></div>
 
+    <div class="total">
+      Total History: <span id="historyTotal">0</span>
+    </div>
+
   </div>
 
-  <div class="saved-box">
+  <!-- SAVED MATHS -->
+  <div class="box">
 
-    <div class="section-head">
-      <div>
-        <div class="section-title">Saved Maths</div>
-        <div class="total">
-          Saved: <span id="totalSaved">0</span>
-        </div>
-      </div>
-
-      <button class="small-btn" onclick="clearSaved()">
-        CLEAR
-      </button>
+    <div class="box-title">
+      <h2>Saved Maths</h2>
+      <button class="clear" onclick="clearSaved()">CLEAR</button>
     </div>
 
     <div id="saved"></div>
 
-  </div>
+    <div class="total">
+      Total Saved: <span id="savedTotal">0</span>
+    </div>
 
-  <div id="updateBox" class="update-box">
-    <p><strong>VANSH CALCULATOR Update Available</strong></p>
-    <p id="updateText">New version available.</p>
-    <button class="update-btn" onclick="openUpdate()">
-      UPDATE APP
-    </button>
   </div>
 
   <div class="footer">
-    VANSH CALCULATOR • Offline First
+    Total Maths: <span id="footerHistory">0</span>
+    &nbsp; | &nbsp;
+    Total Saved: <span id="footerSaved">0</span>
   </div>
 
 </div>
@@ -333,130 +357,80 @@ let previous = null;
 let operator = null;
 let waiting = false;
 
-const resultEl = document.getElementById("result");
-const expressionEl = document.getElementById("expression");
-const historyEl = document.getElementById("history");
-const savedEl = document.getElementById("saved");
-const totalMathsEl = document.getElementById("totalMaths");
-const totalSavedEl = document.getElementById("totalSaved");
-
 let history = JSON.parse(
   localStorage.getItem("vanshHistory") || "[]"
 );
 
-let savedMaths = JSON.parse(
-  localStorage.getItem("vanshSavedMaths") || "[]"
+let saved = JSON.parse(
+  localStorage.getItem("vanshSaved") || "[]"
 );
 
-function saveData(){
+const result = document.getElementById("result");
+const expression = document.getElementById("expression");
 
-  localStorage.setItem(
-    "vanshHistory",
-    JSON.stringify(history)
-  );
 
-  localStorage.setItem(
-    "vanshSavedMaths",
-    JSON.stringify(savedMaths)
-  );
-}
-
+/* DISPLAY */
 function updateDisplay(){
 
-  resultEl.textContent = current;
+  result.textContent = current;
 
   if(previous !== null && operator){
-
-    expressionEl.textContent =
-      formatNumber(previous) +
-      " " +
+    expression.textContent =
+      formatNumber(previous) + " " +
       displayOperator(operator);
-
   }else{
-
-    expressionEl.textContent = "";
-
+    expression.textContent = "";
   }
 }
 
-function formatNumber(value){
 
-  if(typeof value === "number"){
-
-    if(Number.isInteger(value)){
-      return String(value);
-    }
-
-    return String(
-      Number(value.toFixed(10))
-    );
-
-  }
-
-  return String(value);
-}
-
-function displayOperator(op){
-
-  if(op === "/") return "÷";
-  if(op === "*") return "×";
-  if(op === "-") return "−";
-  if(op === "+") return "+";
-
-  return op;
-}
-
+/* NUMBER */
 function number(num){
 
   if(waiting){
-
     current = num;
     waiting = false;
-
   }else{
 
-    current =
-      current === "0"
-      ? num
-      : current + num;
+    if(current === "0"){
+      current = num;
+    }else{
+      current += num;
+    }
 
   }
 
   updateDisplay();
 }
 
+
+/* DECIMAL */
 function decimal(){
 
   if(waiting){
-
     current = "0.";
     waiting = false;
     updateDisplay();
     return;
-
   }
 
   if(!current.includes(".")){
-
     current += ".";
-
   }
 
   updateDisplay();
 }
 
+
+/* OPERATOR */
 function chooseOperator(op){
 
   const input = parseFloat(current);
 
-  if(isNaN(input)){
-    return;
-  }
+  if(isNaN(input)) return;
 
   if(previous !== null && operator && !waiting){
-
     calculate();
-
   }
 
   previous = parseFloat(current);
@@ -466,6 +440,8 @@ function chooseOperator(op){
   updateDisplay();
 }
 
+
+/* CALCULATE */
 function calculate(){
 
   if(previous === null || operator === null){
@@ -474,9 +450,7 @@ function calculate(){
 
   const second = parseFloat(current);
 
-  if(isNaN(second)){
-    return;
-  }
+  if(isNaN(second)) return;
 
   let answer;
 
@@ -495,40 +469,22 @@ function calculate(){
   if(operator === "/"){
 
     if(second === 0){
-
       alert("Cannot divide by zero");
-
       return;
-
     }
 
     answer = previous / second;
   }
 
-  answer = Number(
-    Number(answer).toFixed(10)
-  );
+  const oldPrevious = previous;
+  const oldOperator = operator;
 
-  const math =
-    formatNumber(previous) +
+  const expressionText =
+    formatNumber(oldPrevious) +
     " " +
-    displayOperator(operator) +
+    displayOperator(oldOperator) +
     " " +
     formatNumber(second);
-
-  const record = {
-    math: math,
-    answer: formatNumber(answer),
-    time: Date.now()
-  };
-
-  history.unshift(record);
-
-  saveData();
-  renderHistory();
-
-  expressionEl.textContent =
-    math + " =";
 
   current = formatNumber(answer);
 
@@ -536,41 +492,42 @@ function calculate(){
   operator = null;
   waiting = true;
 
-  resultEl.textContent = current;
+  addHistory(
+    expressionText,
+    current
+  );
+
+  expression.textContent = expressionText;
+
+  result.textContent = current;
+
 }
 
-function percentage(){
 
-  const value = parseFloat(current);
+/* FORMAT */
+function formatNumber(num){
 
-  if(isNaN(value)){
-    return;
+  if(Number.isInteger(Number(num))){
+    return String(Number(num));
   }
 
-  current = formatNumber(value / 100);
-
-  updateDisplay();
+  return String(Number(num));
 }
 
-function backspace(){
 
-  if(waiting){
-    return;
-  }
+/* OPERATOR DISPLAY */
+function displayOperator(op){
 
-  if(current.length <= 1){
+  if(op === "/") return "÷";
+  if(op === "*") return "×";
+  if(op === "-") return "−";
+  if(op === "+") return "+";
 
-    current = "0";
-
-  }else{
-
-    current = current.slice(0,-1);
-
-  }
-
-  updateDisplay();
+  return op;
 }
 
+
+/* CLEAR */
 function clearAll(){
 
   current = "0";
@@ -581,252 +538,285 @@ function clearAll(){
   updateDisplay();
 }
 
+
+/* BACKSPACE */
+function backspace(){
+
+  if(waiting) return;
+
+  if(current.length <= 1){
+    current = "0";
+  }else{
+    current = current.slice(0,-1);
+  }
+
+  updateDisplay();
+}
+
+
+/* PERCENT */
+function percent(){
+
+  const value = parseFloat(current);
+
+  if(isNaN(value)) return;
+
+  current = String(value / 100);
+
+  updateDisplay();
+}
+
+
+/* ADD HISTORY */
+function addHistory(math,answer){
+
+  const item = {
+    id: Date.now(),
+    math: math,
+    answer: answer,
+    time: new Date().toLocaleTimeString()
+  };
+
+  history.unshift(item);
+
+  localStorage.setItem(
+    "vanshHistory",
+    JSON.stringify(history)
+  );
+
+  renderHistory();
+}
+
+
+/* HISTORY DISPLAY */
 function renderHistory(){
 
-  historyEl.innerHTML = "";
+  const box = document.getElementById("history");
 
-  totalMathsEl.textContent = history.length;
+  box.innerHTML = "";
 
   if(history.length === 0){
 
-    historyEl.innerHTML =
-      '<div class="empty">No calculations yet</div>';
+    box.innerHTML =
+      '<div class="no-data">No calculation history</div>';
 
-    return;
+  }else{
+
+    history.forEach(item => {
+
+      const row = document.createElement("div");
+
+      row.className = "history-item";
+
+      row.innerHTML = `
+
+        <div class="math">
+
+          <div class="math-text">
+            ${item.math} =
+            <span class="answer">${item.answer}</span>
+          </div>
+
+          <div class="time">
+            ${item.time}
+          </div>
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="action delete"
+            onclick="deleteHistory(${item.id})">
+            🗑
+          </button>
+
+          <button
+            class="action save"
+            onclick="saveMath(${item.id})">
+            💾
+          </button>
+
+          <button
+            class="action share"
+            onclick="shareMath(${item.id})">
+            🔗
+          </button>
+
+        </div>
+      `;
+
+      box.appendChild(row);
+
+    });
+
   }
 
-  history.forEach(function(item,index){
+  document.getElementById("historyTotal").textContent =
+    history.length;
 
-    const box = document.createElement("div");
-    box.className = "history-item";
-
-    const math = document.createElement("div");
-    math.className = "math";
-
-    math.textContent =
-      item.math + " = " + item.answer;
-
-    const actions =
-      document.createElement("div");
-
-    actions.className = "item-actions";
-
-    const deleteBtn =
-      document.createElement("button");
-
-    deleteBtn.className = "delete-btn";
-    deleteBtn.textContent = "🗑 Delete";
-
-    deleteBtn.onclick = function(){
-
-      deleteHistory(index);
-
-    };
-
-    const saveBtn =
-      document.createElement("button");
-
-    saveBtn.className = "save-btn";
-    saveBtn.textContent = "💾 Save";
-
-    saveBtn.onclick = function(){
-
-      saveMath(index);
-
-    };
-
-    const shareBtn =
-      document.createElement("button");
-
-    shareBtn.className = "share-btn";
-    shareBtn.textContent = "🔗 Share";
-
-    shareBtn.onclick = function(){
-
-      shareMath(item);
-
-    };
-
-    actions.appendChild(deleteBtn);
-    actions.appendChild(saveBtn);
-    actions.appendChild(shareBtn);
-
-    box.appendChild(math);
-    box.appendChild(actions);
-
-    historyEl.appendChild(box);
-
-  });
+  document.getElementById("footerHistory").textContent =
+    history.length;
 }
 
-function deleteHistory(index){
 
-  history.splice(index,1);
+/* DELETE HISTORY */
+function deleteHistory(id){
 
-  saveData();
+  history = history.filter(
+    item => item.id !== id
+  );
+
+  localStorage.setItem(
+    "vanshHistory",
+    JSON.stringify(history)
+  );
+
   renderHistory();
-
 }
 
+
+/* CLEAR HISTORY */
 function clearHistory(){
 
-  if(history.length === 0){
-    return;
-  }
+  if(history.length === 0) return;
 
   if(confirm("Clear all calculation history?")){
 
     history = [];
 
-    saveData();
-    renderHistory();
+    localStorage.setItem(
+      "vanshHistory",
+      JSON.stringify(history)
+    );
 
+    renderHistory();
   }
 }
 
-function saveMath(index){
 
-  const item = history[index];
+/* SAVE MATH */
+function saveMath(id){
 
-  if(!item){
+  const item = history.find(
+    x => x.id === id
+  );
+
+  if(!item) return;
+
+  if(saved.some(x => x.id === id)){
+
+    alert("Already saved");
+
     return;
   }
 
-  const alreadySaved =
-    savedMaths.some(function(saved){
+  saved.unshift(item);
 
-      return (
-        saved.math === item.math &&
-        saved.answer === item.answer
-      );
+  localStorage.setItem(
+    "vanshSaved",
+    JSON.stringify(saved)
+  );
+
+  renderSaved();
+}
+
+
+/* SAVED DISPLAY */
+function renderSaved(){
+
+  const box = document.getElementById("saved");
+
+  box.innerHTML = "";
+
+  if(saved.length === 0){
+
+    box.innerHTML =
+      '<div class="no-data">No saved maths</div>';
+
+  }else{
+
+    saved.forEach(item => {
+
+      const row = document.createElement("div");
+
+      row.className = "saved-item";
+
+      row.innerHTML = `
+
+        <div>
+          ${item.math} =
+          <span class="answer">${item.answer}</span>
+        </div>
+
+        <button
+          class="action delete"
+          onclick="deleteSaved(${item.id})">
+          🗑
+        </button>
+
+      `;
+
+      box.appendChild(row);
 
     });
 
-  if(alreadySaved){
-
-    alert("This maths is already saved.");
-    return;
-
   }
 
-  savedMaths.unshift({
+  document.getElementById("savedTotal").textContent =
+    saved.length;
 
-    math:item.math,
-    answer:item.answer,
-    time:Date.now()
+  document.getElementById("footerSaved").textContent =
+    saved.length;
+}
 
-  });
 
-  saveData();
+/* DELETE SAVED */
+function deleteSaved(id){
+
+  saved = saved.filter(
+    item => item.id !== id
+  );
+
+  localStorage.setItem(
+    "vanshSaved",
+    JSON.stringify(saved)
+  );
+
   renderSaved();
-
-  alert("Maths saved successfully.");
-
 }
 
-function renderSaved(){
 
-  savedEl.innerHTML = "";
-
-  totalSavedEl.textContent =
-    savedMaths.length;
-
-  if(savedMaths.length === 0){
-
-    savedEl.innerHTML =
-      '<div class="empty">No saved maths</div>';
-
-    return;
-
-  }
-
-  savedMaths.forEach(function(item,index){
-
-    const box =
-      document.createElement("div");
-
-    box.className = "saved-item";
-
-    const math =
-      document.createElement("div");
-
-    math.className = "math";
-
-    math.textContent =
-      item.math + " = " + item.answer;
-
-    const actions =
-      document.createElement("div");
-
-    actions.className = "item-actions";
-
-    const deleteBtn =
-      document.createElement("button");
-
-    deleteBtn.className = "delete-btn";
-    deleteBtn.textContent = "🗑 Delete";
-
-    deleteBtn.onclick = function(){
-
-      deleteSaved(index);
-
-    };
-
-    const shareBtn =
-      document.createElement("button");
-
-    shareBtn.className = "share-btn";
-    shareBtn.textContent = "🔗 Share";
-
-    shareBtn.onclick = function(){
-
-      shareMath(item);
-
-    };
-
-    actions.appendChild(deleteBtn);
-    actions.appendChild(shareBtn);
-
-    box.appendChild(math);
-    box.appendChild(actions);
-
-    savedEl.appendChild(box);
-
-  });
-}
-
-function deleteSaved(index){
-
-  savedMaths.splice(index,1);
-
-  saveData();
-  renderSaved();
-
-}
-
+/* CLEAR SAVED */
 function clearSaved(){
 
-  if(savedMaths.length === 0){
-    return;
-  }
+  if(saved.length === 0) return;
 
   if(confirm("Clear all saved maths?")){
 
-    savedMaths = [];
+    saved = [];
 
-    saveData();
+    localStorage.setItem(
+      "vanshSaved",
+      JSON.stringify(saved)
+    );
+
     renderSaved();
-
   }
 }
 
-async function shareMath(item){
+
+/* SHARE */
+async function shareMath(id){
+
+  const item = history.find(
+    x => x.id === id
+  );
+
+  if(!item) return;
 
   const text =
-    "VANSH CALCULATOR\n\n" +
-    item.math +
-    " = " +
-    item.answer;
+    item.math + " = " + item.answer;
 
   if(navigator.share){
 
@@ -837,11 +827,7 @@ async function shareMath(item){
         text:text
       });
 
-    }catch(error){
-
-      // User cancelled share
-
-    }
+    }catch(e){}
 
   }else{
 
@@ -849,9 +835,9 @@ async function shareMath(item){
 
       await navigator.clipboard.writeText(text);
 
-      alert("Maths copied to clipboard.");
+      alert("Calculation copied");
 
-    }catch(error){
+    }catch(e){
 
       alert(text);
 
@@ -860,104 +846,11 @@ async function shareMath(item){
   }
 }
 
-/*
-  UPDATE CHECK
-
-  The calculator itself remains fully usable offline.
-  When internet is available, this checks the remote
-  calculator manifest if it exists.
-*/
-
-const APP_VERSION = "1.1.0";
-
-const UPDATE_URL =
-  "https://github.com/rampawar123/yashwin-app-store/releases/latest";
-
-function checkForUpdate(){
-
-  if(!navigator.onLine){
-    return;
-  }
-
-  /*
-    We don't block calculator operation if the update
-    server is unavailable.
-  */
-
-  fetch(
-    "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/manifest.json",
-    {
-      cache:"no-store"
-    }
-  )
-  .then(function(response){
-
-    if(!response.ok){
-      throw new Error("Manifest unavailable");
-    }
-
-    return response.json();
-
-  })
-  .then(function(data){
-
-    let remoteVersion =
-      data.version ||
-      data.appVersion ||
-      data.latestVersion;
-
-    if(!remoteVersion){
-      return;
-    }
-
-    if(String(remoteVersion) !== APP_VERSION){
-
-      document.getElementById(
-        "updateBox"
-      ).style.display = "block";
-
-      document.getElementById(
-        "updateText"
-      ).textContent =
-        "New version " +
-        remoteVersion +
-        " is available.";
-
-    }
-
-  })
-  .catch(function(){
-
-    /*
-      Ignore network/update errors.
-      Calculator continues working offline.
-    */
-
-  });
-}
-
-function openUpdate(){
-
-  window.open(
-    UPDATE_URL,
-    "_blank"
-  );
-
-}
-
 
 /* START */
-
+updateDisplay();
 renderHistory();
 renderSaved();
-updateDisplay();
-
-window.addEventListener(
-  "online",
-  checkForUpdate
-);
-
-checkForUpdate();
 
 </script>
 
