@@ -113,6 +113,10 @@ nav button{
   font-size:18px;
 }
 
+.share-btn {
+  margin-top: 10px;
+}
+
 .section-title{
   color:#ff9800;
   font-size:30px;
