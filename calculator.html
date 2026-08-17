@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
 <title>VANSH CALCULATOR</title>
 
 <style>
@@ -12,258 +13,388 @@
   padding:0;
 }
 
-body{
-  background:#080808;
-  color:white;
-  font-family:Arial,sans-serif;
-  min-height:100vh;
-  padding:12px;
+html{
+  scroll-behavior:smooth;
 }
 
-.calculator{
+body{
+  font-family:Arial,sans-serif;
+  background:#080808;
+  color:#fff;
+  min-height:100vh;
+  padding:10px;
+}
+
+/* MAIN APP */
+.app{
   width:100%;
   max-width:520px;
   margin:auto;
-  border:2px solid #ff9800;
+  background:#191919;
+  border:3px solid #ff9800;
+  border-radius:30px;
+  padding:14px;
+  box-shadow:0 0 30px rgba(255,152,0,.20);
+}
+
+/* LOGO */
+.logo{
+  display:block;
+  width:145px;
+  height:145px;
+  object-fit:cover;
+  margin:2px auto 8px;
   border-radius:28px;
-  padding:18px;
-  background:#151515;
 }
 
 /* TITLE */
 .title{
   text-align:center;
   color:#ff9800;
-  font-size:28px;
-  font-weight:bold;
-  margin:8px 0 18px;
+  font-size:clamp(26px,7vw,40px);
+  font-weight:900;
+  margin-bottom:16px;
+}
+
+/* CALCULATOR TOP */
+.calculator{
+  width:100%;
 }
 
 /* DISPLAY */
-.display{
+.display-box{
   background:#050505;
-  border:2px solid #333;
-  border-radius:22px;
+  border:3px solid #292929;
+  border-radius:24px;
   min-height:125px;
-  padding:18px;
-  margin-bottom:18px;
+  padding:18px 16px;
+  margin-bottom:14px;
+  overflow:hidden;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  overflow:hidden;
 }
 
 .expression{
+  width:100%;
   color:#aaa;
-  font-size:20px;
+  font-size:clamp(22px,6vw,34px);
   text-align:right;
-  min-height:28px;
   white-space:nowrap;
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+}
+
+.expression::-webkit-scrollbar{
+  display:none;
 }
 
 .result{
-  color:white;
-  font-size:42px;
-  font-weight:bold;
+  width:100%;
+  color:#fff;
+  font-size:clamp(42px,11vw,62px);
+  font-weight:900;
   text-align:right;
   white-space:nowrap;
-  overflow:hidden;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  line-height:1.1;
 }
 
-/* BUTTONS */
+.result::-webkit-scrollbar{
+  display:none;
+}
+
+/* KEYPAD */
 .buttons{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:10px;
+  gap:9px;
 }
 
-button{
+.btn{
   border:0;
-  border-radius:18px;
-  min-height:70px;
-  font-size:26px;
-  font-weight:bold;
-  color:white;
+  min-height:72px;
+  border-radius:22px;
   background:#292929;
+  color:#fff;
+  font-size:27px;
+  font-weight:800;
   cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:.08s;
 }
 
-button:active{
-  transform:scale(.96);
+.btn:active{
+  transform:scale(.95);
 }
 
-.function{
-  background:#555;
+.btn.function{
+  background:#5a5a5a;
 }
 
-.operator,
-.equal{
+.btn.operator,
+.btn.equal{
   background:#ff9800;
   color:#111;
 }
 
-.zero{
+.btn.zero{
   grid-column:span 2;
 }
 
-/* HISTORY */
-.box{
+/* SECTIONS */
+.section{
   margin-top:22px;
+  background:#0e0e0e;
   border:2px solid #292929;
-  border-radius:22px;
-  padding:14px;
-  background:#101010;
+  border-radius:24px;
+  padding:12px;
 }
 
-.box-title{
+.section-head{
   display:flex;
+  align-items:center;
   justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-}
-
-.box-title h2{
-  color:#ff9800;
-  font-size:22px;
-}
-
-.clear{
-  min-height:42px;
-  padding:0 16px;
-  font-size:16px;
-  background:#555;
-}
-
-/* HISTORY ITEM */
-.history-item{
-  background:#202020;
-  border-radius:18px;
-  padding:10px;
-  margin-bottom:9px;
-  display:flex;
-  align-items:center;
   gap:8px;
+  margin-bottom:6px;
 }
 
-.math{
-  flex:1;
-  min-width:0;
+.section-title{
+  color:#ff9800;
+  font-size:23px;
+  font-weight:900;
+}
+
+.clear-btn{
+  border:0;
+  background:#5b5b5b;
+  color:#fff;
+  border-radius:12px;
+  padding:9px 14px;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.count{
+  color:#999;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+/* HISTORY LIST */
+.history-list,
+.saved-list{
+  width:100%;
+}
+
+/* ONE HISTORY ROW */
+.math-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:6px;
+  background:#1b1b1b;
+  border-radius:14px;
+  padding:7px 7px 7px 10px;
+  margin-bottom:6px;
+  min-height:48px;
 }
 
 .math-text{
-  font-size:18px;
+  min-width:0;
+  overflow:hidden;
+}
+
+.math-expression{
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-.answer{
-  color:#55d61f;
-  font-weight:bold;
-}
-
-.time{
-  color:#999;
-  font-size:12px;
-  margin-top:3px;
+.math-answer{
+  color:#63d636;
+  font-size:17px;
+  font-weight:900;
+  margin-left:5px;
 }
 
 /* SMALL ACTION BUTTONS */
 .actions{
   display:flex;
-  gap:5px;
+  align-items:center;
+  gap:4px;
 }
 
-.action{
-  min-height:38px;
-  width:38px;
+.action-btn{
+  width:34px;
+  height:30px;
+  min-width:34px;
   padding:0;
-  border-radius:10px;
-  font-size:17px;
+  border-radius:8px;
+  border:1px solid #444;
+  background:#151515;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  cursor:pointer;
 }
 
-.delete{
-  background:#e53935;
+.delete-btn{
+  color:#ff3b30;
 }
 
-.save{
-  background:#249b35;
+.save-btn{
+  color:#38d85b;
 }
 
-.share{
-  background:#1976d2;
+.share-btn{
+  color:#168cff;
+}
+
+.action-btn:active{
+  transform:scale(.92);
 }
 
 /* TOTAL */
-.total{
-  text-align:center;
-  color:#aaa;
-  font-size:14px;
-  margin-top:10px;
-}
-
-.total span{
-  color:#ff9800;
-  font-weight:bold;
-}
-
-/* SAVED */
-.saved-item{
-  background:#202020;
-  border-radius:15px;
-  padding:12px;
-  margin-bottom:8px;
+.total-box{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
+  border-top:1px dashed #555;
+  margin-top:8px;
+  padding:10px 4px 3px;
 }
 
-.no-data{
+.total-label{
+  color:#ff9800;
+  font-size:15px;
+  font-weight:900;
+}
+
+.total-value{
+  color:#63d636;
+  font-size:22px;
+  font-weight:900;
+}
+
+/* EMPTY */
+.empty{
   text-align:center;
-  color:#888;
+  color:#777;
   padding:22px 5px;
+  font-size:15px;
 }
 
 /* FOOTER */
 .footer{
-  margin-top:18px;
-  padding:12px;
-  border:2px solid #292929;
-  border-radius:18px;
   text-align:center;
-  color:#aaa;
-  font-size:14px;
-}
-
-.footer span{
-  color:#ff9800;
-  font-weight:bold;
+  color:#777;
+  font-size:13px;
+  margin:20px 0 5px;
 }
 
 /* MOBILE */
-@media(max-width:380px){
-  .calculator{
-    padding:12px;
+@media(max-width:420px){
+
+  body{
+    padding:5px;
   }
 
-  button{
+  .app{
+    padding:10px;
+    border-radius:25px;
+  }
+
+  .logo{
+    width:120px;
+    height:120px;
+  }
+
+  .title{
+    font-size:28px;
+    margin-bottom:12px;
+  }
+
+  .display-box{
+    min-height:105px;
+    padding:13px;
+    border-radius:20px;
+  }
+
+  .buttons{
+    gap:7px;
+  }
+
+  .btn{
     min-height:62px;
-    font-size:23px;
+    border-radius:18px;
+    font-size:24px;
   }
 
-  .result{
-    font-size:36px;
+  .section{
+    margin-top:18px;
+    padding:9px;
   }
 
-  .history-item{
-    padding:8px;
+  .section-title{
+    font-size:20px;
   }
 
-  .action{
-    width:34px;
-    min-height:34px;
+  .math-row{
+    padding:6px;
+    min-height:44px;
+  }
+
+  .math-expression{
+    font-size:14px;
+  }
+
+  .math-answer{
     font-size:15px;
+  }
+
+  .action-btn{
+    width:31px;
+    min-width:31px;
+    height:27px;
+    font-size:14px;
+  }
+}
+
+/* VERY SMALL PHONES */
+@media(max-width:350px){
+
+  .logo{
+    width:105px;
+    height:105px;
+  }
+
+  .title{
+    font-size:24px;
+  }
+
+  .btn{
+    min-height:55px;
+    font-size:21px;
+  }
+
+  .math-expression{
+    font-size:13px;
+  }
+
+  .action-btn{
+    width:28px;
+    min-width:28px;
+    height:25px;
+    font-size:13px;
   }
 }
 </style>
@@ -271,120 +402,214 @@ button:active{
 
 <body>
 
-<div class="calculator">
+<div class="app">
+
+  <!-- LOGO -->
+  <img
+    class="logo"
+    src="calculator-logo.png"
+    alt="VANSH CALCULATOR"
+    onerror="this.style.display='none'"
+  >
 
   <div class="title">VANSH CALCULATOR</div>
 
-  <!-- DISPLAY -->
-  <div class="display">
-    <div class="expression" id="expression"></div>
-    <div class="result" id="result">0</div>
+  <!-- COMPLETE CALCULATOR -->
+  <div class="calculator">
+
+    <div class="display-box">
+      <div id="expression" class="expression"></div>
+      <div id="result" class="result">0</div>
+    </div>
+
+    <div class="buttons">
+
+      <button class="btn function" onclick="clearAll()">AC</button>
+      <button class="btn function" onclick="backspace()">⌫</button>
+      <button class="btn function" onclick="percentage()">%</button>
+      <button class="btn operator" onclick="chooseOperator('/')">÷</button>
+
+      <button class="btn" onclick="number('7')">7</button>
+      <button class="btn" onclick="number('8')">8</button>
+      <button class="btn" onclick="number('9')">9</button>
+      <button class="btn operator" onclick="chooseOperator('*')">×</button>
+
+      <button class="btn" onclick="number('4')">4</button>
+      <button class="btn" onclick="number('5')">5</button>
+      <button class="btn" onclick="number('6')">6</button>
+      <button class="btn operator" onclick="chooseOperator('-')">−</button>
+
+      <button class="btn" onclick="number('1')">1</button>
+      <button class="btn" onclick="number('2')">2</button>
+      <button class="btn" onclick="number('3')">3</button>
+      <button class="btn operator" onclick="chooseOperator('+')">+</button>
+
+      <button class="btn zero" onclick="number('0')">0</button>
+      <button class="btn" onclick="decimal()">.</button>
+      <button class="btn equal" onclick="calculate()">=</button>
+
+    </div>
   </div>
 
-  <!-- KEYPAD -->
-  <div class="buttons">
-
-    <button class="function" onclick="clearAll()">AC</button>
-    <button class="function" onclick="backspace()">⌫</button>
-    <button class="function" onclick="percent()">%</button>
-    <button class="operator" onclick="chooseOperator('/')">÷</button>
-
-    <button onclick="number('7')">7</button>
-    <button onclick="number('8')">8</button>
-    <button onclick="number('9')">9</button>
-    <button class="operator" onclick="chooseOperator('*')">×</button>
-
-    <button onclick="number('4')">4</button>
-    <button onclick="number('5')">5</button>
-    <button onclick="number('6')">6</button>
-    <button class="operator" onclick="chooseOperator('-')">−</button>
-
-    <button onclick="number('1')">1</button>
-    <button onclick="number('2')">2</button>
-    <button onclick="number('3')">3</button>
-    <button class="operator" onclick="chooseOperator('+')">+</button>
-
-    <button class="zero" onclick="number('0')">0</button>
-    <button onclick="decimal()">.</button>
-    <button class="equal" onclick="calculate()">=</button>
-
-  </div>
 
   <!-- HISTORY -->
-  <div class="box">
+  <div class="section">
 
-    <div class="box-title">
-      <h2>Calculation History</h2>
-      <button class="clear" onclick="clearHistory()">CLEAR</button>
+    <div class="section-head">
+      <div class="section-title">Calculation History</div>
+      <button class="clear-btn" onclick="clearHistory()">CLEAR</button>
     </div>
 
-    <div id="history"></div>
+    <div id="historyCount" class="count">
+      Total Maths: 0
+    </div>
 
-    <div class="total">
-      Total History: <span id="historyTotal">0</span>
+    <div id="history" class="history-list"></div>
+
+    <div class="total-box">
+      <span class="total-label">TOTAL (ALL MATHS)</span>
+      <span id="historyTotal" class="total-value">0</span>
     </div>
 
   </div>
+
 
   <!-- SAVED MATHS -->
-  <div class="box">
+  <div class="section">
 
-    <div class="box-title">
-      <h2>Saved Maths</h2>
-      <button class="clear" onclick="clearSaved()">CLEAR</button>
+    <div class="section-head">
+      <div class="section-title">Saved Maths</div>
+      <button class="clear-btn" onclick="clearSaved()">CLEAR</button>
     </div>
 
-    <div id="saved"></div>
+    <div id="savedCount" class="count">
+      Saved: 0
+    </div>
 
-    <div class="total">
-      Total Saved: <span id="savedTotal">0</span>
+    <div id="saved" class="saved-list"></div>
+
+    <div class="total-box">
+      <span class="total-label">TOTAL SAVED</span>
+      <span id="savedTotal" class="total-value">0</span>
     </div>
 
   </div>
 
+
   <div class="footer">
-    Total Maths: <span id="footerHistory">0</span>
-    &nbsp; | &nbsp;
-    Total Saved: <span id="footerSaved">0</span>
+    VANSH CALCULATOR • Offline First
   </div>
 
 </div>
 
+
 <script>
+
+/* =========================
+   CALCULATOR VARIABLES
+========================= */
 
 let current = "0";
 let previous = null;
 let operator = null;
 let waiting = false;
 
-let history = JSON.parse(
-  localStorage.getItem("vanshHistory") || "[]"
-);
 
-let saved = JSON.parse(
-  localStorage.getItem("vanshSaved") || "[]"
-);
+/* =========================
+   STORAGE
+========================= */
 
-const result = document.getElementById("result");
-const expression = document.getElementById("expression");
+let history = loadData("vanshHistory");
+let saved = loadData("vanshSaved");
 
 
-/* DISPLAY */
-function updateDisplay(){
-
-  result.textContent = current;
-
-  if(previous !== null && operator){
-    expression.textContent =
-      formatNumber(previous) + " " +
-      displayOperator(operator);
-  }else{
-    expression.textContent = "";
+function loadData(key){
+  try{
+    return JSON.parse(localStorage.getItem(key)) || [];
+  }catch(e){
+    return [];
   }
 }
 
 
-/* NUMBER */
+function saveData(key,data){
+  localStorage.setItem(key,JSON.stringify(data));
+}
+
+
+/* =========================
+   DISPLAY
+========================= */
+
+function displayOperator(op){
+
+  if(op === "/") return "÷";
+  if(op === "*") return "×";
+  if(op === "-") return "−";
+  return "+";
+}
+
+
+function updateDisplay(){
+
+  /*
+    IMPORTANT:
+    During calculation the COMPLETE expression
+    is shown on ONE LINE.
+  */
+
+  if(previous !== null && operator && !waiting){
+
+    expression.textContent =
+      formatNumber(previous) +
+      " " +
+      displayOperator(operator) +
+      " " +
+      formatNumber(current);
+
+  }else if(previous !== null && operator && waiting){
+
+    expression.textContent =
+      formatNumber(previous) +
+      " " +
+      displayOperator(operator);
+
+  }else{
+    expression.textContent = "";
+  }
+
+  result.textContent = formatNumber(current);
+}
+
+
+/* =========================
+   FORMAT NUMBER
+========================= */
+
+function formatNumber(value){
+
+  if(value === null || value === undefined){
+    return "";
+  }
+
+  let text = String(value);
+
+  if(text.length > 16){
+    let n = Number(value);
+
+    if(Number.isFinite(n)){
+      return n.toPrecision(10).replace(/\.?0+$/,"");
+    }
+  }
+
+  return text;
+}
+
+
+/* =========================
+   NUMBER
+========================= */
+
 function number(num){
 
   if(waiting){
@@ -397,14 +622,16 @@ function number(num){
     }else{
       current += num;
     }
-
   }
 
   updateDisplay();
 }
 
 
-/* DECIMAL */
+/* =========================
+   DECIMAL
+========================= */
+
 function decimal(){
 
   if(waiting){
@@ -422,15 +649,20 @@ function decimal(){
 }
 
 
-/* OPERATOR */
+/* =========================
+   OPERATOR
+========================= */
+
 function chooseOperator(op){
 
   const input = parseFloat(current);
 
-  if(isNaN(input)) return;
+  if(Number.isNaN(input)){
+    return;
+  }
 
   if(previous !== null && operator && !waiting){
-    calculate();
+    calculate(false);
   }
 
   previous = parseFloat(current);
@@ -441,8 +673,11 @@ function chooseOperator(op){
 }
 
 
-/* CALCULATE */
-function calculate(){
+/* =========================
+   CALCULATE
+========================= */
+
+function calculate(addToHistory = true){
 
   if(previous === null || operator === null){
     return;
@@ -450,7 +685,9 @@ function calculate(){
 
   const second = parseFloat(current);
 
-  if(isNaN(second)) return;
+  if(Number.isNaN(second)){
+    return;
+  }
 
   let answer;
 
@@ -476,170 +713,120 @@ function calculate(){
     answer = previous / second;
   }
 
-  const oldPrevious = previous;
-  const oldOperator = operator;
+  if(!Number.isFinite(answer)){
+    alert("Invalid calculation");
+    return;
+  }
+
+  const firstValue = previous;
+  const usedOperator = operator;
+  const secondValue = second;
 
   const expressionText =
-    formatNumber(oldPrevious) +
+    formatNumber(firstValue) +
     " " +
-    displayOperator(oldOperator) +
+    displayOperator(usedOperator) +
     " " +
-    formatNumber(second);
+    formatNumber(secondValue);
 
-  current = formatNumber(answer);
+  current = String(
+    Number.isInteger(answer)
+      ? answer
+      : Number(answer.toFixed(12))
+  );
 
   previous = null;
   operator = null;
   waiting = true;
 
-  addHistory(
-    expressionText,
-    current
-  );
+  /*
+    After =:
+    expression disappears
+    result shows answer
+  */
 
-  expression.textContent = expressionText;
+  expression.textContent = "";
+  result.textContent = formatNumber(current);
 
-  result.textContent = current;
+  if(addToHistory){
 
-}
-
-
-/* FORMAT */
-function formatNumber(num){
-
-  if(Number.isInteger(Number(num))){
-    return String(Number(num));
+    addHistory(
+      expressionText,
+      current
+    );
   }
-
-  return String(Number(num));
 }
 
 
-/* OPERATOR DISPLAY */
-function displayOperator(op){
+/* =========================
+   HISTORY
+========================= */
 
-  if(op === "/") return "÷";
-  if(op === "*") return "×";
-  if(op === "-") return "−";
-  if(op === "+") return "+";
+function addHistory(expressionText,answer){
 
-  return op;
-}
+  history.unshift({
+    expression:expressionText,
+    answer:String(answer)
+  });
 
-
-/* CLEAR */
-function clearAll(){
-
-  current = "0";
-  previous = null;
-  operator = null;
-  waiting = false;
-
-  updateDisplay();
-}
-
-
-/* BACKSPACE */
-function backspace(){
-
-  if(waiting) return;
-
-  if(current.length <= 1){
-    current = "0";
-  }else{
-    current = current.slice(0,-1);
-  }
-
-  updateDisplay();
-}
-
-
-/* PERCENT */
-function percent(){
-
-  const value = parseFloat(current);
-
-  if(isNaN(value)) return;
-
-  current = String(value / 100);
-
-  updateDisplay();
-}
-
-
-/* ADD HISTORY */
-function addHistory(math,answer){
-
-  const item = {
-    id: Date.now(),
-    math: math,
-    answer: answer,
-    time: new Date().toLocaleTimeString()
-  };
-
-  history.unshift(item);
-
-  localStorage.setItem(
-    "vanshHistory",
-    JSON.stringify(history)
-  );
+  saveData("vanshHistory",history);
 
   renderHistory();
 }
 
 
-/* HISTORY DISPLAY */
 function renderHistory(){
 
   const box = document.getElementById("history");
 
   box.innerHTML = "";
 
+  document.getElementById("historyCount").textContent =
+    "Total Maths: " + history.length;
+
   if(history.length === 0){
 
     box.innerHTML =
-      '<div class="no-data">No calculation history</div>';
+      '<div class="empty">No calculations yet</div>';
 
   }else{
 
-    history.forEach(item => {
+    history.forEach((item,index)=>{
 
       const row = document.createElement("div");
 
-      row.className = "history-item";
+      row.className = "math-row";
 
       row.innerHTML = `
-
-        <div class="math">
-
-          <div class="math-text">
-            ${item.math} =
-            <span class="answer">${item.answer}</span>
-          </div>
-
-          <div class="time">
-            ${item.time}
-          </div>
-
+        <div class="math-text">
+          <span class="math-expression">
+            ${escapeHTML(item.expression)} =
+          </span>
+          <span class="math-answer">
+            ${escapeHTML(item.answer)}
+          </span>
         </div>
 
         <div class="actions">
 
           <button
-            class="action delete"
-            onclick="deleteHistory(${item.id})">
+            class="action-btn delete-btn"
+            onclick="deleteHistory(${index})"
+            title="Delete">
             🗑
           </button>
 
           <button
-            class="action save"
-            onclick="saveMath(${item.id})">
+            class="action-btn save-btn"
+            onclick="saveHistoryItem(${index})"
+            title="Save">
             💾
           </button>
 
           <button
-            class="action share"
-            onclick="shareMath(${item.id})">
+            class="action-btn share-btn"
+            onclick="shareHistory(${index})"
+            title="Share">
             🔗
           </button>
 
@@ -647,176 +834,280 @@ function renderHistory(){
       `;
 
       box.appendChild(row);
-
     });
-
   }
 
-  document.getElementById("historyTotal").textContent =
-    history.length;
-
-  document.getElementById("footerHistory").textContent =
-    history.length;
+  updateHistoryTotal();
 }
 
 
-/* DELETE HISTORY */
-function deleteHistory(id){
+/* =========================
+   HISTORY TOTAL
+========================= */
 
-  history = history.filter(
-    item => item.id !== id
-  );
+function updateHistoryTotal(){
 
-  localStorage.setItem(
-    "vanshHistory",
-    JSON.stringify(history)
-  );
+  let total = 0;
+
+  history.forEach(item=>{
+
+    const n = Number(item.answer);
+
+    if(Number.isFinite(n)){
+      total += n;
+    }
+
+  });
+
+  document.getElementById("historyTotal").textContent =
+    formatNumber(total);
+}
+
+
+/* =========================
+   DELETE HISTORY
+========================= */
+
+function deleteHistory(index){
+
+  history.splice(index,1);
+
+  saveData("vanshHistory",history);
 
   renderHistory();
 }
 
 
-/* CLEAR HISTORY */
+/* =========================
+   CLEAR HISTORY
+========================= */
+
 function clearHistory(){
 
-  if(history.length === 0) return;
+  if(history.length === 0){
+    return;
+  }
 
   if(confirm("Clear all calculation history?")){
 
     history = [];
 
-    localStorage.setItem(
-      "vanshHistory",
-      JSON.stringify(history)
-    );
+    saveData("vanshHistory",history);
 
     renderHistory();
   }
 }
 
 
-/* SAVE MATH */
-function saveMath(id){
+/* =========================
+   SAVE HISTORY ITEM
+========================= */
 
-  const item = history.find(
-    x => x.id === id
-  );
+function saveHistoryItem(index){
 
-  if(!item) return;
+  const item = history[index];
 
-  if(saved.some(x => x.id === id)){
-
-    alert("Already saved");
-
+  if(!item){
     return;
   }
 
-  saved.unshift(item);
+  /*
+    Prevent exact duplicate saved maths.
+  */
 
-  localStorage.setItem(
-    "vanshSaved",
-    JSON.stringify(saved)
+  const exists = saved.some(x =>
+    x.expression === item.expression &&
+    x.answer === item.answer
   );
 
-  renderSaved();
+  if(!exists){
+
+    saved.unshift({
+      expression:item.expression,
+      answer:item.answer
+    });
+
+    saveData("vanshSaved",saved);
+
+    renderSaved();
+
+  }else{
+
+    alert("Already saved");
+  }
 }
 
 
-/* SAVED DISPLAY */
+/* =========================
+   SAVED MATHS
+========================= */
+
 function renderSaved(){
 
   const box = document.getElementById("saved");
 
   box.innerHTML = "";
 
+  document.getElementById("savedCount").textContent =
+    "Saved: " + saved.length;
+
   if(saved.length === 0){
 
     box.innerHTML =
-      '<div class="no-data">No saved maths</div>';
+      '<div class="empty">No saved maths</div>';
 
   }else{
 
-    saved.forEach(item => {
+    saved.forEach((item,index)=>{
 
       const row = document.createElement("div");
 
-      row.className = "saved-item";
+      row.className = "math-row";
 
       row.innerHTML = `
-
-        <div>
-          ${item.math} =
-          <span class="answer">${item.answer}</span>
+        <div class="math-text">
+          <span class="math-expression">
+            ${escapeHTML(item.expression)} =
+          </span>
+          <span class="math-answer">
+            ${escapeHTML(item.answer)}
+          </span>
         </div>
 
-        <button
-          class="action delete"
-          onclick="deleteSaved(${item.id})">
-          🗑
-        </button>
+        <div class="actions">
 
+          <button
+            class="action-btn delete-btn"
+            onclick="deleteSaved(${index})"
+            title="Delete">
+            🗑
+          </button>
+
+          <button
+            class="action-btn share-btn"
+            onclick="shareSaved(${index})"
+            title="Share">
+            🔗
+          </button>
+
+        </div>
       `;
 
       box.appendChild(row);
-
     });
-
   }
 
-  document.getElementById("savedTotal").textContent =
-    saved.length;
-
-  document.getElementById("footerSaved").textContent =
-    saved.length;
+  updateSavedTotal();
 }
 
 
-/* DELETE SAVED */
-function deleteSaved(id){
+/* =========================
+   SAVED TOTAL
+========================= */
 
-  saved = saved.filter(
-    item => item.id !== id
-  );
+function updateSavedTotal(){
 
-  localStorage.setItem(
-    "vanshSaved",
-    JSON.stringify(saved)
-  );
+  let total = 0;
+
+  saved.forEach(item=>{
+
+    const n = Number(item.answer);
+
+    if(Number.isFinite(n)){
+      total += n;
+    }
+
+  });
+
+  document.getElementById("savedTotal").textContent =
+    formatNumber(total);
+}
+
+
+/* =========================
+   DELETE SAVED
+========================= */
+
+function deleteSaved(index){
+
+  saved.splice(index,1);
+
+  saveData("vanshSaved",saved);
 
   renderSaved();
 }
 
 
-/* CLEAR SAVED */
+/* =========================
+   CLEAR SAVED
+========================= */
+
 function clearSaved(){
 
-  if(saved.length === 0) return;
+  if(saved.length === 0){
+    return;
+  }
 
   if(confirm("Clear all saved maths?")){
 
     saved = [];
 
-    localStorage.setItem(
-      "vanshSaved",
-      JSON.stringify(saved)
-    );
+    saveData("vanshSaved",saved);
 
     renderSaved();
   }
 }
 
 
-/* SHARE */
-async function shareMath(id){
+/* =========================
+   SHARE HISTORY
+========================= */
 
-  const item = history.find(
-    x => x.id === id
-  );
+async function shareHistory(index){
 
-  if(!item) return;
+  const item = history[index];
+
+  if(!item){
+    return;
+  }
 
   const text =
-    item.math + " = " + item.answer;
+    "VANSH CALCULATOR\n" +
+    item.expression +
+    " = " +
+    item.answer;
+
+  await shareText(text);
+}
+
+
+/* =========================
+   SHARE SAVED
+========================= */
+
+async function shareSaved(index){
+
+  const item = saved[index];
+
+  if(!item){
+    return;
+  }
+
+  const text =
+    "VANSH CALCULATOR\n" +
+    item.expression +
+    " = " +
+    item.answer;
+
+  await shareText(text);
+}
+
+
+/* =========================
+   SHARE FUNCTION
+========================= */
+
+async function shareText(text){
 
   if(navigator.share){
 
@@ -827,7 +1118,10 @@ async function shareMath(id){
         text:text
       });
 
-    }catch(e){}
+    }catch(e){
+
+      /* User cancelled share */
+    }
 
   }else{
 
@@ -840,17 +1134,137 @@ async function shareMath(id){
     }catch(e){
 
       alert(text);
-
     }
-
   }
 }
 
 
-/* START */
-updateDisplay();
+/* =========================
+   BACKSPACE
+========================= */
+
+function backspace(){
+
+  if(waiting){
+    return;
+  }
+
+  if(current.length <= 1){
+
+    current = "0";
+
+  }else{
+
+    current = current.slice(0,-1);
+
+  }
+
+  updateDisplay();
+}
+
+
+/* =========================
+   PERCENTAGE
+========================= */
+
+function percentage(){
+
+  const value = parseFloat(current);
+
+  if(Number.isNaN(value)){
+    return;
+  }
+
+  current = String(value / 100);
+
+  updateDisplay();
+}
+
+
+/* =========================
+   CLEAR CALCULATOR
+========================= */
+
+function clearAll(){
+
+  current = "0";
+  previous = null;
+  operator = null;
+  waiting = false;
+
+  expression.textContent = "";
+  result.textContent = "0";
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+/* =========================
+   KEYBOARD SUPPORT
+========================= */
+
+document.addEventListener("keydown",function(e){
+
+  if(e.key >= "0" && e.key <= "9"){
+    number(e.key);
+  }
+
+  if(e.key === "."){
+    decimal();
+  }
+
+  if(e.key === "+"){
+    chooseOperator("+");
+  }
+
+  if(e.key === "-"){
+    chooseOperator("-");
+  }
+
+  if(e.key === "*"){
+    chooseOperator("*");
+  }
+
+  if(e.key === "/"){
+    e.preventDefault();
+    chooseOperator("/");
+  }
+
+  if(e.key === "Enter" || e.key === "="){
+    calculate();
+  }
+
+  if(e.key === "Backspace"){
+    backspace();
+  }
+
+  if(e.key === "Escape"){
+    clearAll();
+  }
+
+});
+
+
+/* =========================
+   START APP
+========================= */
+
 renderHistory();
 renderSaved();
+updateDisplay();
 
 </script>
 
