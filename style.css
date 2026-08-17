@@ -205,3 +205,11 @@ footer{
     font-size:15px;
   }
 }
+.calculator-logo {
+  display: block;
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  border-radius: 20px;
+}
