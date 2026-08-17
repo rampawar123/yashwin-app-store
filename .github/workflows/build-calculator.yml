@@ -43,10 +43,10 @@ jobs:
       - name: Create Bubblewrap config
         run: |
           mkdir -p ~/.bubblewrap
-          cat > ~/.bubblewrap/config.json <<'EOF'
+          cat > ~/.bubblewrap/config.json <<EOF
           {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
+            "jdkPath": "${JAVA_HOME}",
+            "androidSdkPath": "${ANDROID_HOME}"
           }
           EOF
 
@@ -56,6 +56,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -f calculator.keystore
+
           keytool -genkeypair \
             -v \
             -keystore calculator.keystore \
@@ -68,9 +69,6 @@ jobs:
             -dname "CN=VANSH CALCULATOR, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
 
       - name: Create Calculator TWA manifest
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf twa
           mkdir -p twa
