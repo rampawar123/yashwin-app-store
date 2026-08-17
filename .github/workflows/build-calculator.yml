@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -44,7 +43,7 @@ jobs:
       - name: Create Bubblewrap config
         run: |
           mkdir -p ~/.bubblewrap
-          cat > ~/.bubblewrap/config.json <<EOF
+          cat > ~/.bubblewrap/config.json <<'EOF'
           {
             "jdkPath": "$JAVA_HOME",
             "androidSdkPath": "$ANDROID_HOME"
@@ -57,7 +56,6 @@ jobs:
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -f calculator.keystore
-
           keytool -genkeypair \
             -v \
             -keystore calculator.keystore \
@@ -79,7 +77,7 @@ jobs:
 
           cp calculator.keystore twa/calculator.keystore
 
-          cat > twa/twa-manifest.json <<EOF
+          cat > twa/twa-manifest.json <<'EOF'
           {
             "packageId": "com.yashwin.calculator",
             "host": "rampawar123.github.io",
@@ -101,15 +99,15 @@ jobs:
               "path": "calculator.keystore",
               "alias": "calculator"
             },
-              "appVersionName": "1.1",
-              "appVersionCode": 2
+            "appVersionName": "1.0",
+            "appVersionCode": 2
           }
           EOF
 
       - name: Prepare Bubblewrap project
         run: |
           cd twa
-          bubblewrap update --appVersionName="1.1" --skipVersionUpgrade
+          bubblewrap update --appVersionName="1.0" --skipVersionUpgrade
 
       - name: Build signed Calculator APK
         env:
@@ -119,9 +117,12 @@ jobs:
           cd twa
           bubblewrap build --skipPwaValidation
 
+      - name: Rename Calculator APK
+        run: |
+          cp twa/app-release-signed.apk twa/VANSH-CALCULATOR.apk
+
       - name: Upload Calculator APK
         uses: actions/upload-artifact@v4
         with:
           name: VANSH-CALCULATOR-APK
-          path: |
-            twa/app-release-signed.apk
+          path: twa/VANSH-CALCULATOR.apk
