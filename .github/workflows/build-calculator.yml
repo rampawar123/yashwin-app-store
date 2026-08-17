@@ -94,22 +94,22 @@ jobs:
             "backgroundColor": "#000000",
             "enableNotifications": true,
             "startUrl": "/yashwin-app-store/calculator.html",
-            "iconUrl": "https://rampawar123.github.io/yashwin-app-store/calculator-logo.png",
-            "maskableIconUrl": "https://rampawar123.github.io/yashwin-app-store/calculator-logo.png",
+            "iconUrl": "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/calculator-logo.png",
+            "maskableIconUrl": "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/calculator-logo.png",
             "splashScreenFadeOutDuration": 300,
             "signingKey": {
               "path": "calculator.keystore",
               "alias": "calculator"
             },
-            "appVersionName": "1.0",
-            "appVersionCode": 1
+              "appVersionName": "1.1",
+              "appVersionCode": 2
           }
           EOF
 
       - name: Prepare Bubblewrap project
         run: |
           cd twa
-          bubblewrap update --appVersionName="1.0" --skipVersionUpgrade
+          bubblewrap update --appVersionName="1.1" --skipVersionUpgrade
 
       - name: Build signed Calculator APK
         env:
