@@ -15,50 +15,60 @@
 body{
   font-family:Arial,sans-serif;
   background:#101010;
-  color:white;
+  color:#fff;
   min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  padding:20px;
 }
 
 .calculator{
-  width:100%;
   max-width:420px;
+  margin:auto;
+  background:#1b1b1b;
+  border:2px solid #ff9800;
+  border-radius:25px;
   padding:20px;
+  box-shadow:0 0 25px rgba(255,152,0,.25);
+}
+
+.calculator-logo{
+  display:block;
+  width:110px;
+  height:110px;
+  object-fit:cover;
+  border-radius:22px;
+  margin:0 auto 12px;
 }
 
 .title{
   text-align:center;
   color:#ff9800;
-  font-size:28px;
+  font-size:26px;
   font-weight:bold;
-  margin-bottom:20px;
+  margin-bottom:18px;
 }
 
 .display{
-  background:#1e1e1e;
-  border:1px solid #444;
-  border-radius:18px;
-  padding:20px;
+  background:#080808;
+  border:2px solid #333;
+  border-radius:15px;
+  padding:15px;
+  min-height:90px;
   margin-bottom:15px;
   text-align:right;
-  min-height:100px;
   overflow:hidden;
 }
 
 .expression{
   color:#aaa;
-  font-size:20px;
-  min-height:28px;
+  font-size:18px;
+  min-height:25px;
 }
 
 .result{
-  color:white;
-  font-size:38px;
+  color:#fff;
+  font-size:34px;
   font-weight:bold;
-  margin-top:8px;
-  overflow:hidden;
+  word-break:break-all;
 }
 
 .buttons{
@@ -69,13 +79,13 @@ body{
 
 button{
   border:0;
-  border-radius:16px;
-  min-height:70px;
-  font-size:23px;
+  border-radius:12px;
+  padding:18px 5px;
+  background:#292929;
+  color:#fff;
+  font-size:20px;
   font-weight:bold;
   cursor:pointer;
-  background:#292929;
-  color:white;
 }
 
 button:active{
@@ -91,19 +101,20 @@ button:active{
   background:#444;
 }
 
+.zero{
+  grid-column:span 2;
+}
+
 .equal{
   background:#ff9800;
   color:#111;
 }
 
-.zero{
-  grid-column:span 2;
-}
-
 .history-box{
-  margin-top:20px;
-  background:#1b1b1b;
-  border-radius:16px;
+  margin-top:25px;
+  background:#151515;
+  border:1px solid #333;
+  border-radius:15px;
   padding:15px;
 }
 
@@ -111,38 +122,72 @@ button:active{
   color:#ff9800;
   font-size:20px;
   font-weight:bold;
-  margin-bottom:10px;
+  margin-bottom:12px;
+  text-align:center;
 }
 
 .history-item{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  padding:10px 0;
-  border-bottom:1px solid #333;
-  gap:10px;
+  justify-content:space-between;
+  gap:8px;
+  background:#222;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
 }
 
 .history-text{
-  font-size:16px;
-  overflow:hidden;
+  flex:1;
+  color:#ddd;
+  font-size:15px;
   word-break:break-word;
 }
 
-.delete{
-  min-height:40px;
-  width:45px;
-  font-size:18px;
-  background:#333;
+.delete-history{
+  background:#b71c1c;
+  color:#fff;
+  padding:8px 11px;
+  font-size:14px;
+  border-radius:8px;
 }
 
 .clear-history{
   width:100%;
-  min-height:48px;
-  margin-top:12px;
-  background:#ff9800;
-  color:#111;
-  font-size:17px;
+  margin-top:8px;
+  background:#444;
+  color:#fff;
+  padding:12px;
+  font-size:15px;
+}
+
+.empty-history{
+  text-align:center;
+  color:#777;
+  padding:10px;
+}
+
+@media(max-width:600px){
+  body{
+    padding:10px;
+  }
+
+  .calculator{
+    padding:15px;
+  }
+
+  .calculator-logo{
+    width:95px;
+    height:95px;
+  }
+
+  .title{
+    font-size:23px;
+  }
+
+  button{
+    padding:16px 5px;
+  }
 }
 </style>
 </head>
@@ -150,7 +195,12 @@ button:active{
 <body>
 
 <div class="calculator">
-  <img src="calculator-logo.png" alt="VANSH CALCULATOR" class="calculator-logo">
+
+  <img
+    src="calculator-logo.png"
+    alt="VANSH CALCULATOR"
+    class="calculator-logo"
+  >
 
   <div class="title">VANSH CALCULATOR</div>
 
@@ -189,11 +239,15 @@ button:active{
 
   <div class="history-box">
 
-    <div class="history-title">Calculation History</div>
+    <div class="history-title">
+      Calculation History
+    </div>
 
     <div id="history"></div>
 
-    <button class="clear-history" onclick="clearHistory()">
+    <button
+      class="clear-history"
+      onclick="clearHistory()">
       CLEAR HISTORY
     </button>
 
@@ -212,9 +266,12 @@ const result = document.getElementById("result");
 const expression = document.getElementById("expression");
 const historyBox = document.getElementById("history");
 
-let history = JSON.parse(localStorage.getItem("vanshHistory") || "[]");
+let history = JSON.parse(
+  localStorage.getItem("vanshHistory") || "[]"
+);
 
 function updateDisplay(){
+
   result.textContent = current;
 
   if(previous !== null && operator){
@@ -226,9 +283,12 @@ function updateDisplay(){
 }
 
 function displayOperator(op){
+
   if(op === "*") return "×";
   if(op === "/") return "÷";
   if(op === "-") return "−";
+  if(op === "+") return "+";
+
   return op;
 }
 
@@ -238,7 +298,10 @@ function number(num){
     current = num;
     waiting = false;
   }else{
-    current = current === "0" ? num : current + num;
+    current =
+      current === "0"
+      ? num
+      : current + num;
   }
 
   updateDisplay();
@@ -264,6 +327,184 @@ function chooseOperator(op){
 
   const input = parseFloat(current);
 
-  if(previous === null){
-    previous = input;
-  }else if(operator && !
+  if(isNaN(input)) return;
+
+  if(previous !== null && operator && !waiting){
+    calculate();
+  }
+
+  previous = parseFloat(current);
+  operator = op;
+  waiting = true;
+
+  updateDisplay();
+}
+
+function calculate(){
+
+  if(previous === null || operator === null){
+    return;
+  }
+
+  const second = parseFloat(current);
+
+  let answer;
+
+  if(operator === "+"){
+    answer = previous + second;
+  }
+
+  if(operator === "-"){
+    answer = previous - second;
+  }
+
+  if(operator === "*"){
+    answer = previous * second;
+  }
+
+  if(operator === "/"){
+
+    if(second === 0){
+      alert("Cannot divide by zero");
+      return;
+    }
+
+    answer = previous / second;
+  }
+
+  const oldPrevious = previous;
+  const oldOperator = operator;
+
+  const historyText =
+    oldPrevious +
+    " " +
+    displayOperator(oldOperator) +
+    " " +
+    second +
+    " = " +
+    answer;
+
+  addHistory(historyText);
+
+  current = String(answer);
+  previous = null;
+  operator = null;
+  waiting = true;
+
+  updateDisplay();
+}
+
+function clearAll(){
+
+  current = "0";
+  previous = null;
+  operator = null;
+  waiting = false;
+
+  updateDisplay();
+}
+
+function backspace(){
+
+  if(waiting) return;
+
+  if(current.length > 1){
+    current = current.slice(0,-1);
+  }else{
+    current = "0";
+  }
+
+  updateDisplay();
+}
+
+function percent(){
+
+  const value = parseFloat(current);
+
+  if(isNaN(value)) return;
+
+  current = String(value / 100);
+
+  updateDisplay();
+}
+
+function addHistory(text){
+
+  history.unshift(text);
+
+  localStorage.setItem(
+    "vanshHistory",
+    JSON.stringify(history)
+  );
+
+  renderHistory();
+}
+
+function renderHistory(){
+
+  historyBox.innerHTML = "";
+
+  if(history.length === 0){
+
+    historyBox.innerHTML =
+      '<div class="empty-history">No calculation history</div>';
+
+    return;
+  }
+
+  history.forEach(function(item,index){
+
+    const row = document.createElement("div");
+
+    row.className = "history-item";
+
+    row.innerHTML = `
+      <div class="history-text">${item}</div>
+      <button
+        class="delete-history"
+        onclick="deleteHistory(${index})">
+        🗑 Delete
+      </button>
+    `;
+
+    historyBox.appendChild(row);
+
+  });
+
+}
+
+function deleteHistory(index){
+
+  history.splice(index,1);
+
+  localStorage.setItem(
+    "vanshHistory",
+    JSON.stringify(history)
+  );
+
+  renderHistory();
+}
+
+function clearHistory(){
+
+  if(history.length === 0){
+    return;
+  }
+
+  if(confirm("Delete all calculation history?")){
+
+    history = [];
+
+    localStorage.removeItem("vanshHistory");
+
+    renderHistory();
+  }
+}
+
+renderHistory();
+updateDisplay();
+
+</script>
+
+</body>
+</html>
