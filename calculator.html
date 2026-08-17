@@ -185,4 +185,781 @@ button:active{
 }
 
 .empty{
- 
+  color:#888;
+  text-align:center;
+  padding:12px;
+  font-size:14px;
+}
+
+.total{
+  color:#aaa;
+  font-size:13px;
+}
+
+.update-box{
+  display:none;
+  margin-top:15px;
+  padding:12px;
+  background:#252525;
+  border:1px solid #ff9800;
+  border-radius:12px;
+  text-align:center;
+}
+
+.update-box p{
+  margin-bottom:9px;
+}
+
+.update-btn{
+  min-height:42px;
+  background:#ff9800;
+  color:#111;
+  padding:8px 18px;
+  border-radius:10px;
+  font-size:15px;
+}
+
+.footer{
+  text-align:center;
+  color:#777;
+  font-size:12px;
+  margin-top:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+
+  <img
+    class="calculator-logo"
+    src="calculator-logo.png"
+    alt="VANSH CALCULATOR"
+    onerror="this.style.display='none'"
+  >
+
+  <div class="title">VANSH CALCULATOR</div>
+
+  <div class="display">
+    <div id="expression" class="expression"></div>
+    <div id="result" class="result">0</div>
+  </div>
+
+  <div class="buttons">
+
+    <button class="action" onclick="clearAll()">AC</button>
+    <button class="action" onclick="backspace()">⌫</button>
+    <button class="action" onclick="percentage()">%</button>
+    <button class="operator" onclick="chooseOperator('/')">÷</button>
+
+    <button class="number" onclick="number('7')">7</button>
+    <button class="number" onclick="number('8')">8</button>
+    <button class="number" onclick="number('9')">9</button>
+    <button class="operator" onclick="chooseOperator('*')">×</button>
+
+    <button class="number" onclick="number('4')">4</button>
+    <button class="number" onclick="number('5')">5</button>
+    <button class="number" onclick="number('6')">6</button>
+    <button class="operator" onclick="chooseOperator('-')">−</button>
+
+    <button class="number" onclick="number('1')">1</button>
+    <button class="number" onclick="number('2')">2</button>
+    <button class="number" onclick="number('3')">3</button>
+    <button class="operator" onclick="chooseOperator('+')">+</button>
+
+    <button class="number zero" onclick="number('0')">0</button>
+    <button class="number" onclick="decimal()">.</button>
+    <button class="equal" onclick="calculate()">=</button>
+
+  </div>
+
+  <div class="history-box">
+
+    <div class="section-head">
+      <div>
+        <div class="section-title">Calculation History</div>
+        <div class="total">
+          Total Maths: <span id="totalMaths">0</span>
+        </div>
+      </div>
+
+      <button class="small-btn" onclick="clearHistory()">
+        CLEAR
+      </button>
+    </div>
+
+    <div id="history"></div>
+
+  </div>
+
+  <div class="saved-box">
+
+    <div class="section-head">
+      <div>
+        <div class="section-title">Saved Maths</div>
+        <div class="total">
+          Saved: <span id="totalSaved">0</span>
+        </div>
+      </div>
+
+      <button class="small-btn" onclick="clearSaved()">
+        CLEAR
+      </button>
+    </div>
+
+    <div id="saved"></div>
+
+  </div>
+
+  <div id="updateBox" class="update-box">
+    <p><strong>VANSH CALCULATOR Update Available</strong></p>
+    <p id="updateText">New version available.</p>
+    <button class="update-btn" onclick="openUpdate()">
+      UPDATE APP
+    </button>
+  </div>
+
+  <div class="footer">
+    VANSH CALCULATOR • Offline First
+  </div>
+
+</div>
+
+<script>
+
+let current = "0";
+let previous = null;
+let operator = null;
+let waiting = false;
+
+const resultEl = document.getElementById("result");
+const expressionEl = document.getElementById("expression");
+const historyEl = document.getElementById("history");
+const savedEl = document.getElementById("saved");
+const totalMathsEl = document.getElementById("totalMaths");
+const totalSavedEl = document.getElementById("totalSaved");
+
+let history = JSON.parse(
+  localStorage.getItem("vanshHistory") || "[]"
+);
+
+let savedMaths = JSON.parse(
+  localStorage.getItem("vanshSavedMaths") || "[]"
+);
+
+function saveData(){
+
+  localStorage.setItem(
+    "vanshHistory",
+    JSON.stringify(history)
+  );
+
+  localStorage.setItem(
+    "vanshSavedMaths",
+    JSON.stringify(savedMaths)
+  );
+}
+
+function updateDisplay(){
+
+  resultEl.textContent = current;
+
+  if(previous !== null && operator){
+
+    expressionEl.textContent =
+      formatNumber(previous) +
+      " " +
+      displayOperator(operator);
+
+  }else{
+
+    expressionEl.textContent = "";
+
+  }
+}
+
+function formatNumber(value){
+
+  if(typeof value === "number"){
+
+    if(Number.isInteger(value)){
+      return String(value);
+    }
+
+    return String(
+      Number(value.toFixed(10))
+    );
+
+  }
+
+  return String(value);
+}
+
+function displayOperator(op){
+
+  if(op === "/") return "÷";
+  if(op === "*") return "×";
+  if(op === "-") return "−";
+  if(op === "+") return "+";
+
+  return op;
+}
+
+function number(num){
+
+  if(waiting){
+
+    current = num;
+    waiting = false;
+
+  }else{
+
+    current =
+      current === "0"
+      ? num
+      : current + num;
+
+  }
+
+  updateDisplay();
+}
+
+function decimal(){
+
+  if(waiting){
+
+    current = "0.";
+    waiting = false;
+    updateDisplay();
+    return;
+
+  }
+
+  if(!current.includes(".")){
+
+    current += ".";
+
+  }
+
+  updateDisplay();
+}
+
+function chooseOperator(op){
+
+  const input = parseFloat(current);
+
+  if(isNaN(input)){
+    return;
+  }
+
+  if(previous !== null && operator && !waiting){
+
+    calculate();
+
+  }
+
+  previous = parseFloat(current);
+  operator = op;
+  waiting = true;
+
+  updateDisplay();
+}
+
+function calculate(){
+
+  if(previous === null || operator === null){
+    return;
+  }
+
+  const second = parseFloat(current);
+
+  if(isNaN(second)){
+    return;
+  }
+
+  let answer;
+
+  if(operator === "+"){
+    answer = previous + second;
+  }
+
+  if(operator === "-"){
+    answer = previous - second;
+  }
+
+  if(operator === "*"){
+    answer = previous * second;
+  }
+
+  if(operator === "/"){
+
+    if(second === 0){
+
+      alert("Cannot divide by zero");
+
+      return;
+
+    }
+
+    answer = previous / second;
+  }
+
+  answer = Number(
+    Number(answer).toFixed(10)
+  );
+
+  const math =
+    formatNumber(previous) +
+    " " +
+    displayOperator(operator) +
+    " " +
+    formatNumber(second);
+
+  const record = {
+    math: math,
+    answer: formatNumber(answer),
+    time: Date.now()
+  };
+
+  history.unshift(record);
+
+  saveData();
+  renderHistory();
+
+  expressionEl.textContent =
+    math + " =";
+
+  current = formatNumber(answer);
+
+  previous = null;
+  operator = null;
+  waiting = true;
+
+  resultEl.textContent = current;
+}
+
+function percentage(){
+
+  const value = parseFloat(current);
+
+  if(isNaN(value)){
+    return;
+  }
+
+  current = formatNumber(value / 100);
+
+  updateDisplay();
+}
+
+function backspace(){
+
+  if(waiting){
+    return;
+  }
+
+  if(current.length <= 1){
+
+    current = "0";
+
+  }else{
+
+    current = current.slice(0,-1);
+
+  }
+
+  updateDisplay();
+}
+
+function clearAll(){
+
+  current = "0";
+  previous = null;
+  operator = null;
+  waiting = false;
+
+  updateDisplay();
+}
+
+function renderHistory(){
+
+  historyEl.innerHTML = "";
+
+  totalMathsEl.textContent = history.length;
+
+  if(history.length === 0){
+
+    historyEl.innerHTML =
+      '<div class="empty">No calculations yet</div>';
+
+    return;
+  }
+
+  history.forEach(function(item,index){
+
+    const box = document.createElement("div");
+    box.className = "history-item";
+
+    const math = document.createElement("div");
+    math.className = "math";
+
+    math.textContent =
+      item.math + " = " + item.answer;
+
+    const actions =
+      document.createElement("div");
+
+    actions.className = "item-actions";
+
+    const deleteBtn =
+      document.createElement("button");
+
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "🗑 Delete";
+
+    deleteBtn.onclick = function(){
+
+      deleteHistory(index);
+
+    };
+
+    const saveBtn =
+      document.createElement("button");
+
+    saveBtn.className = "save-btn";
+    saveBtn.textContent = "💾 Save";
+
+    saveBtn.onclick = function(){
+
+      saveMath(index);
+
+    };
+
+    const shareBtn =
+      document.createElement("button");
+
+    shareBtn.className = "share-btn";
+    shareBtn.textContent = "🔗 Share";
+
+    shareBtn.onclick = function(){
+
+      shareMath(item);
+
+    };
+
+    actions.appendChild(deleteBtn);
+    actions.appendChild(saveBtn);
+    actions.appendChild(shareBtn);
+
+    box.appendChild(math);
+    box.appendChild(actions);
+
+    historyEl.appendChild(box);
+
+  });
+}
+
+function deleteHistory(index){
+
+  history.splice(index,1);
+
+  saveData();
+  renderHistory();
+
+}
+
+function clearHistory(){
+
+  if(history.length === 0){
+    return;
+  }
+
+  if(confirm("Clear all calculation history?")){
+
+    history = [];
+
+    saveData();
+    renderHistory();
+
+  }
+}
+
+function saveMath(index){
+
+  const item = history[index];
+
+  if(!item){
+    return;
+  }
+
+  const alreadySaved =
+    savedMaths.some(function(saved){
+
+      return (
+        saved.math === item.math &&
+        saved.answer === item.answer
+      );
+
+    });
+
+  if(alreadySaved){
+
+    alert("This maths is already saved.");
+    return;
+
+  }
+
+  savedMaths.unshift({
+
+    math:item.math,
+    answer:item.answer,
+    time:Date.now()
+
+  });
+
+  saveData();
+  renderSaved();
+
+  alert("Maths saved successfully.");
+
+}
+
+function renderSaved(){
+
+  savedEl.innerHTML = "";
+
+  totalSavedEl.textContent =
+    savedMaths.length;
+
+  if(savedMaths.length === 0){
+
+    savedEl.innerHTML =
+      '<div class="empty">No saved maths</div>';
+
+    return;
+
+  }
+
+  savedMaths.forEach(function(item,index){
+
+    const box =
+      document.createElement("div");
+
+    box.className = "saved-item";
+
+    const math =
+      document.createElement("div");
+
+    math.className = "math";
+
+    math.textContent =
+      item.math + " = " + item.answer;
+
+    const actions =
+      document.createElement("div");
+
+    actions.className = "item-actions";
+
+    const deleteBtn =
+      document.createElement("button");
+
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "🗑 Delete";
+
+    deleteBtn.onclick = function(){
+
+      deleteSaved(index);
+
+    };
+
+    const shareBtn =
+      document.createElement("button");
+
+    shareBtn.className = "share-btn";
+    shareBtn.textContent = "🔗 Share";
+
+    shareBtn.onclick = function(){
+
+      shareMath(item);
+
+    };
+
+    actions.appendChild(deleteBtn);
+    actions.appendChild(shareBtn);
+
+    box.appendChild(math);
+    box.appendChild(actions);
+
+    savedEl.appendChild(box);
+
+  });
+}
+
+function deleteSaved(index){
+
+  savedMaths.splice(index,1);
+
+  saveData();
+  renderSaved();
+
+}
+
+function clearSaved(){
+
+  if(savedMaths.length === 0){
+    return;
+  }
+
+  if(confirm("Clear all saved maths?")){
+
+    savedMaths = [];
+
+    saveData();
+    renderSaved();
+
+  }
+}
+
+async function shareMath(item){
+
+  const text =
+    "VANSH CALCULATOR\n\n" +
+    item.math +
+    " = " +
+    item.answer;
+
+  if(navigator.share){
+
+    try{
+
+      await navigator.share({
+        title:"VANSH CALCULATOR",
+        text:text
+      });
+
+    }catch(error){
+
+      // User cancelled share
+
+    }
+
+  }else{
+
+    try{
+
+      await navigator.clipboard.writeText(text);
+
+      alert("Maths copied to clipboard.");
+
+    }catch(error){
+
+      alert(text);
+
+    }
+
+  }
+}
+
+/*
+  UPDATE CHECK
+
+  The calculator itself remains fully usable offline.
+  When internet is available, this checks the remote
+  calculator manifest if it exists.
+*/
+
+const APP_VERSION = "1.1.0";
+
+const UPDATE_URL =
+  "https://github.com/rampawar123/yashwin-app-store/releases/latest";
+
+function checkForUpdate(){
+
+  if(!navigator.onLine){
+    return;
+  }
+
+  /*
+    We don't block calculator operation if the update
+    server is unavailable.
+  */
+
+  fetch(
+    "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/manifest.json",
+    {
+      cache:"no-store"
+    }
+  )
+  .then(function(response){
+
+    if(!response.ok){
+      throw new Error("Manifest unavailable");
+    }
+
+    return response.json();
+
+  })
+  .then(function(data){
+
+    let remoteVersion =
+      data.version ||
+      data.appVersion ||
+      data.latestVersion;
+
+    if(!remoteVersion){
+      return;
+    }
+
+    if(String(remoteVersion) !== APP_VERSION){
+
+      document.getElementById(
+        "updateBox"
+      ).style.display = "block";
+
+      document.getElementById(
+        "updateText"
+      ).textContent =
+        "New version " +
+        remoteVersion +
+        " is available.";
+
+    }
+
+  })
+  .catch(function(){
+
+    /*
+      Ignore network/update errors.
+      Calculator continues working offline.
+    */
+
+  });
+}
+
+function openUpdate(){
+
+  window.open(
+    UPDATE_URL,
+    "_blank"
+  );
+
+}
+
+
+/* START */
+
+renderHistory();
+renderSaved();
+updateDisplay();
+
+window.addEventListener(
+  "online",
+  checkForUpdate
+);
+
+checkForUpdate();
+
+</script>
+
+</body>
+</html>
