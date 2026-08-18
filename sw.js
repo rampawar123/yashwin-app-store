@@ -1,8 +1,9 @@
-const CACHE_NAME = "yashwin-app-store-v1";
+const CACHE_NAME = "yashwin-app-store-v2";
 
 const CORE_FILES = [
   "./",
   "./index.html",
+  "./calculator.html",
   "./manifest.json",
   "./style.css",
   "./script.js",
