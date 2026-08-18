@@ -35,21 +35,28 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Install Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: Create Bubblewrap config
+      - name: Check signing secrets
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          mkdir -p ~/.bubblewrap
-          cat > ~/.bubblewrap/config.json <<EOF
-          {
-            "jdkPath": "${JAVA_HOME}",
-            "androidSdkPath": "${ANDROID_HOME}"
-          }
-          EOF
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty or unavailable."
+            exit 1
+          fi
+
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is empty or unavailable."
+            exit 1
+          fi
+
+          echo "Signing secrets are available."
 
       - name: Create CRIC YUVA signing key
         env:
@@ -61,13 +68,14 @@ jobs:
           keytool -genkeypair \
             -v \
             -keystore cric-yuva.keystore \
+            -storetype JKS \
+            -storepass "${KEYSTORE_PASSWORD}" \
+            -keypass "${KEY_PASSWORD}" \
             -alias cricyuva \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEY_PASSWORD" \
-            -dname "CN=CRIC YUVA, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+            -dname "CN=CRIC YUVA, OU=YASHWIN, O=YASHWIN, L=Maharashtra, ST=Maharashtra, C=IN"
 
       - name: Create CRIC YUVA TWA manifest
         run: |
@@ -104,14 +112,30 @@ jobs:
           EOF
 
       - name: Prepare Bubblewrap project
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd twa-cric-yuva
-          bubblewrap update --appVersionName="1.0" --skipVersionUpgrade
+
+          bubblewrap update \
+            --manifest=twa-manifest.json \
+            --appVersionName="1.0" \
+            --skipVersionUpgrade
 
       - name: Build CRIC YUVA APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           cd twa-cric-yuva
-          bubblewrap build --skipPwaValidation
+
+          bubblewrap build \
+            --skipPwaValidation \
+            --signingKeyPath="cric-yuva.keystore" \
+            --signingKeyAlias="cricyuva" \
+            --signingKeyPassword="${KEY_PASSWORD}" \
+            --signingStorePassword="${KEYSTORE_PASSWORD}"
 
       - name: Rename CRIC YUVA APK
         run: |
