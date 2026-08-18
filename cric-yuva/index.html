@@ -7561,95 +7561,19 @@ function loadSavedScore(){
    UPDATE CHECK
 ========================================= */
 
-function checkForUpdate(){
+function checkForUpdate() {
+  const status = document.querySelector("#updateStatus");
+  const progress = document.querySelector("#updateProgress");
 
-  const status =
-    $("#updateStatus");
-
-
-  const progress =
-    $("#updateProgress");
-
-
-  if(status){
-
-    status.textContent =
-      "Checking for updates...";
-
+  if (status) {
+    status.textContent = navigator.onLine
+      ? "Online • Current version 1.0 is ready to use."
+      : "Offline mode • Current version 1.0 is ready to use.";
   }
 
-
-  if(progress){
-
-    progress.style.width =
-      "25%";
-
+  if (progress) {
+    progress.style.width = "100%";
   }
-
-
-  if(!navigator.onLine){
-
-    if(status){
-
-      status.textContent =
-        "You are offline. Current version 1.0 is ready to use.";
-
-    }
-
-
-    if(progress){
-
-      progress.style.width =
-        "100%";
-
-    }
-
-
-    showToast(
-      "Offline: update check unavailable."
-    );
-
-    return;
-
-  }
-
-
-  setTimeout(function(){
-
-    if(progress){
-
-      progress.style.width =
-        "70%";
-
-    }
-
-  },400);
-
-
-  setTimeout(function(){
-
-    if(status){
-
-      status.textContent =
-        "You are using the latest available Version 1.0.";
-
-    }
-
-
-    if(progress){
-
-      progress.style.width =
-        "100%";
-
-    }
-
-
-    showToast(
-      "No new update available."
-    );
-
-  },1000);
-
 }
 
 
