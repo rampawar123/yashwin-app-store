@@ -52,7 +52,7 @@ jobs:
           }
           EOF
 
-      - name: Check Bubblewrap configuration
+      - name: Check Bubblewrap
         run: |
           bubblewrap doctor
 
@@ -75,7 +75,7 @@ jobs:
             -validity 10000 \
             -dname "CN=CRIC YUVA, OU=YASHWIN, O=YASHWIN, L=Maharashtra, ST=Maharashtra, C=IN"
 
-      - name: Create CRIC YUVA TWA manifest
+      - name: Create CRIC YUVA TWA project
         run: |
           rm -rf twa-cric-yuva
           mkdir -p twa-cric-yuva
@@ -112,31 +112,42 @@ jobs:
       - name: Prepare Bubblewrap project
         run: |
           cd twa-cric-yuva
+
           bubblewrap update \
             --manifest=twa-manifest.json \
             --skipVersionUpgrade
 
-      - name: Build CRIC YUVA APK
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+      - name: Build unsigned CRIC YUVA APK
         run: |
           cd twa-cric-yuva
 
           bubblewrap build \
             --skipPwaValidation \
-            --signingKeyPath="cric-yuva.keystore" \
-            --signingKeyAlias="cricyuva" \
-            --signingKeyPassword="$KEY_PASSWORD" \
-            --signingStorePassword="$KEYSTORE_PASSWORD"
+            --skipSigning
 
-      - name: Rename CRIC YUVA APK
+      - name: Sign CRIC YUVA APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          cp twa-cric-yuva/app-release-signed.apk \
-             twa-cric-yuva/CRIC-YUVA.apk
+          mkdir -p output
+
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign \
+            --ks "twa-cric-yuva/cric-yuva.keystore" \
+            --ks-key-alias "cricyuva" \
+            --ks-pass "pass:$KEYSTORE_PASSWORD" \
+            --key-pass "pass:$KEY_PASSWORD" \
+            --out "output/CRIC-YUVA.apk" \
+            "twa-cric-yuva/app-release-unsigned.apk"
+
+      - name: Verify CRIC YUVA APK
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
+            --verbose \
+            output/CRIC-YUVA.apk
 
       - name: Upload CRIC YUVA APK
         uses: actions/upload-artifact@v4
         with:
           name: CRIC-YUVA-APK
-          path: twa-cric-yuva/CRIC-YUVA.apk
+          path: output/CRIC-YUVA.apk
