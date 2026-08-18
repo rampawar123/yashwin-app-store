@@ -1,1 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>CRIC YUVA</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #080808;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 680px;
+      background: #151515;
+      border: 2px solid #ff9800;
+      border-radius: 28px;
+      padding: 28px 20px;
+      box-shadow: 0 0 30px rgba(255, 152, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      width: 135px;
+      height: 135px;
+      border-radius: 28px;
+      border: 2px solid #ff9800;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #050505;
+      font-size: 60px;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      color: #ff9800;
+      font-size: 38px;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .version {
+      color: #888;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 5px;
+      margin-bottom: 35px;
+    }
+
+    .welcome {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .welcome h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .welcome p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .free-box {
+      width: 100%;
+      background: #20170b;
+      border: 1px solid #ff9800;
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .free-box strong {
+      display: block;
+      color: #ff9800;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .free-box span {
+      color: #bbb;
+      font-size: 12px;
+    }
+
+    .login-box {
+      width: 100%;
+    }
+
+    .label {
+      display: block;
+      color: #ddd;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .phone-row {
+      display: flex;
+      width: 100%;
+      height: 58px;
+      margin-bottom: 15px;
+    }
+
+    .country {
+      width: 75px;
+      background: #292929;
+      border: 1px solid #444;
+      border-radius: 14px 0 0 14px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    #mobile {
+      flex: 1;
+      min-width: 0;
+      background: #050505;
+      border: 1px solid #444;
+      border-left: 0;
+      border-radius: 0 14px 14px 0;
+      color: white;
+      padding: 0 15px;
+      font-size: 17px;
+      outline: none;
+    }
+
+    #mobile:focus {
+      border-color: #ff9800;
+    }
+
+    .continue-btn {
+      width: 100%;
+      height: 58px;
+      border: none;
+      border-radius: 15px;
+      background: #ff9800;
+      color: #111;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .continue-btn:active {
+      transform: scale(0.98);
+    }
+
+    .message {
+      display: none;
+      width: 100%;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #222;
+      color: #ddd;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding-top: 30px;
+      color: #666;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    @media (max-width: 380px) {
+      .title {
+        font-size: 32px;
+      }
+
+      .logo {
+        width: 115px;
+        height: 115px;
+      }
+
+      .app {
+        padding: 24px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <div class="logo">🏏</div>
+
+    <div class="title">CRIC YUVA</div>
+
+    <div class="version">VERSION 1.0</div>
+
+    <div class="welcome">
+      <h2>Welcome to CRIC YUVA</h2>
+      <p>
+        Cricket Tournament, Live Score,<br>
+        Auction &amp; More
+      </p>
+    </div>
+
+    <div class="free-box">
+      <strong>3 MONTHS FREE</strong>
+      <span>New users get free access for 3 months</span>
+    </div>
+
+    <div class="login-box">
+
+      <label class="label" for="mobile">
+        Login with Mobile Number
+      </label>
+
+      <div class="phone-row">
+        <div class="country">+91</div>
+
+        <input
+          type="tel"
+          id="mobile"
+          maxlength="10"
+          inputmode="numeric"
+          placeholder="Enter mobile number"
+          autocomplete="tel"
+        >
+      </div>
+
+      <button class="continue-btn" onclick="continueLogin()">
+        CONTINUE
+      </button>
+
+      <div class="message" id="message"></div>
+
+    </div>
+
+    <div class="footer">
+      CRIC YUVA • VERSION 1.0<br>
+      Cricket Community Platform
+    </div>
+
+  </div>
+
+  <script>
+
+    function continueLogin() {
+
+      const mobileInput = document.getElementById("mobile");
+      const message = document.getElementById("message");
+
+      const mobile = mobileInput.value.trim();
+
+      if (!/^[0-9]{10}$/.test(mobile)) {
+
+        message.style.display = "block";
+        message.innerHTML =
+          "Please enter a valid 10-digit mobile number.";
+
+        return;
+      }
+
+      message.style.display = "block";
+      message.innerHTML =
+        "Mobile number accepted.<br>" +
+        "OTP login will be connected in the next part.";
+
+    }
+
+    document.getElementById("mobile").addEventListener("input", function () {
+
+      this.value = this.value.replace(/[^0-9]/g, "");
+
+    });
+
+  </script>
+
+</body>
+</html>
