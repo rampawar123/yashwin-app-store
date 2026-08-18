@@ -44,7 +44,6 @@ jobs:
       - name: Configure Bubblewrap
         run: |
           mkdir -p ~/.bubblewrap
-
           cat > ~/.bubblewrap/config.json <<EOF
           {
             "jdkPath": "${JAVA_HOME}",
@@ -89,7 +88,7 @@ jobs:
             "name": "CRIC YUVA",
             "launcherName": "CRIC YUVA",
             "display": "standalone",
-            "themeColor": "#ff9800",
+            "themeColor": "#f98000",
             "navigationColor": "#101010",
             "navigationColorDark": "#101010",
             "navigationDividerColor": "#101010",
@@ -115,7 +114,9 @@ jobs:
 
           bubblewrap update \
             --manifest=twa-manifest.json \
-            --skipVersionUpgrade
+            --skipVersionUpgrade \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
 
       - name: Build unsigned CRIC YUVA APK
         run: |
@@ -125,6 +126,25 @@ jobs:
             --skipPwaValidation \
             --skipSigning
 
+      - name: Find generated APK
+        id: find_apk
+        run: |
+          echo "Searching for generated APK..."
+
+          APK_PATH=$(find twa-cric-yuva -type f -name "*.apk" | head -n 1)
+
+          if [ -z "$APK_PATH" ]; then
+            echo "ERROR: APK was not generated."
+            echo "Files inside twa-cric-yuva:"
+            find twa-cric-yuva -type f | sort
+            exit 1
+          fi
+
+          echo "APK found:"
+          echo "$APK_PATH"
+
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
       - name: Sign CRIC YUVA APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -132,13 +152,18 @@ jobs:
         run: |
           mkdir -p output
 
+          APK="${{ steps.find_apk.outputs.apk_path }}"
+
+          echo "Signing:"
+          echo "$APK"
+
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign \
-            --ks "twa-cric-yuva/cric-yuva.keystore" \
-            --ks-key-alias "cricyuva" \
-            --ks-pass "pass:$KEYSTORE_PASSWORD" \
-            --key-pass "pass:$KEY_PASSWORD" \
-            --out "output/CRIC-YUVA.apk" \
-            "twa-cric-yuva/app-release-unsigned.apk"
+            --ks twa-cric-yuva/cric-yuva.keystore \
+            --ks-key-alias cricyuva \
+            --ks-pass env:KEYSTORE_PASSWORD \
+            --key-pass env:KEY_PASSWORD \
+            --out output/CRIC-YUVA.apk \
+            "$APK"
 
       - name: Verify CRIC YUVA APK
         run: |
@@ -151,3 +176,4 @@ jobs:
         with:
           name: CRIC-YUVA-APK
           path: output/CRIC-YUVA.apk
+          if-no-files-found: error
