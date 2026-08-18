@@ -299,4 +299,574 @@ input:focus{
       <p>
         Cricket Tournament, Live Score,<br>
         Auction & More
-      </
+      </p>
+    </div>
+
+    <button class="btn primary" onclick="downloadApp()">
+      📥 DOWNLOAD APK
+    </button>
+
+    <button class="btn secondary" onclick="openApp()">
+      ▶️ OPEN APP
+    </button>
+
+    <button class="btn secondary" onclick="shareApp()">
+      🔗 SHARE APP
+    </button>
+
+  </section>
+
+
+  <!-- LOGIN / CREATE ACCOUNT SCREEN -->
+  <section id="authScreen" class="screen">
+
+    <div class="login-card">
+
+      <h2 id="authTitle">LOGIN</h2>
+
+      <label for="mobile">Mobile Number</label>
+
+      <div class="phone-row">
+        <div class="country">+91</div>
+        <input
+          id="mobile"
+          type="tel"
+          maxlength="10"
+          inputmode="numeric"
+          placeholder="Enter mobile number">
+      </div>
+
+
+      <div id="emailArea">
+
+        <label for="email">Email ID</label>
+
+        <input
+          id="email"
+          type="email"
+          placeholder="Enter email address">
+
+      </div>
+
+
+      <button
+        id="sendCodeBtn"
+        class="btn primary"
+        onclick="sendVerificationCode()">
+        SEND CODE
+      </button>
+
+
+      <div id="codeBox" class="code-box">
+
+        <div style="text-align:center;color:#ccc;">
+          Verification Code
+        </div>
+
+        <div id="demoCode" class="demo-code">
+          ------
+        </div>
+
+        <label for="verifyCode">
+          Enter Verification Code
+        </label>
+
+        <input
+          id="verifyCode"
+          type="tel"
+          maxlength="6"
+          inputmode="numeric"
+          placeholder="Enter 6 digit code">
+
+        <button
+          class="btn primary"
+          onclick="verifyCode()">
+          VERIFY & CONTINUE
+        </button>
+
+      </div>
+
+
+      <div id="message" class="message"></div>
+
+
+      <button
+        id="switchModeBtn"
+        class="btn secondary"
+        onclick="switchAuthMode()">
+        CREATE NEW ACCOUNT
+      </button>
+
+      <button
+        class="back"
+        onclick="showScreen('startScreen')">
+        ← Back
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- MAIN PAGE -->
+  <section id="mainScreen" class="screen">
+
+    <div class="home-description">
+      <h2>Welcome to CRIC YUVA</h2>
+      <p id="welcomeText">
+        Your cricket community
+      </p>
+    </div>
+
+
+    <div class="profile">
+
+      <h2>MY ACCOUNT</h2>
+
+      <div class="profile-row">
+        <strong>Mobile:</strong>
+        <span id="profileMobile"></span>
+      </div>
+
+      <div class="profile-row">
+        <strong>Email:</strong>
+        <span id="profileEmail"></span>
+      </div>
+
+    </div>
+
+
+    <div class="main-menu">
+
+      <button class="btn secondary">
+        🏏 SINGLE MATCH
+      </button>
+
+      <button class="btn secondary">
+        🏆 PRIVATE TOURNAMENT
+      </button>
+
+      <button class="btn secondary">
+        🔨 AUCTION TOURNAMENT
+      </button>
+
+      <button class="btn secondary">
+        📊 LIVE SCORE
+      </button>
+
+      <button class="btn secondary">
+        👤 MY PROFILE
+      </button>
+
+      <button class="btn primary" onclick="logout()">
+        🚪 LOGOUT
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <div class="footer">
+    CRIC YUVA • VERSION 1.0<br>
+    Cricket Tournament • Live Score • Auction
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   CRIC YUVA - PART 1
+   LOGIN / ACCOUNT / SESSION FLOW
+   ========================================= */
+
+let authMode = "login";
+let generatedCode = "";
+
+
+/* -----------------------------------------
+   CHECK SAVED LOGIN
+   ----------------------------------------- */
+
+window.addEventListener("load", function(){
+
+  const savedUser = localStorage.getItem("cricYuvaUser");
+
+  if(savedUser){
+
+    try{
+
+      const user = JSON.parse(savedUser);
+
+      showMainPage(user);
+
+    }catch(error){
+
+      localStorage.removeItem("cricYuvaUser");
+
+    }
+
+  }
+
+});
+
+
+/* -----------------------------------------
+   OPEN APP
+   ----------------------------------------- */
+
+function openApp(){
+
+  const savedUser = localStorage.getItem("cricYuvaUser");
+
+  if(savedUser){
+
+    try{
+
+      const user = JSON.parse(savedUser);
+
+      showMainPage(user);
+
+    }catch(error){
+
+      localStorage.removeItem("cricYuvaUser");
+
+      showScreen("authScreen");
+
+    }
+
+  }else{
+
+    showScreen("authScreen");
+
+  }
+
+}
+
+
+/* -----------------------------------------
+   SWITCH LOGIN / CREATE ACCOUNT
+   ----------------------------------------- */
+
+function switchAuthMode(){
+
+  if(authMode === "login"){
+
+    authMode = "create";
+
+    document.getElementById("authTitle").textContent =
+      "CREATE NEW ACCOUNT";
+
+    document.getElementById("switchModeBtn").textContent =
+      "LOGIN";
+
+    document.getElementById("emailArea").style.display =
+      "block";
+
+  }else{
+
+    authMode = "login";
+
+    document.getElementById("authTitle").textContent =
+      "LOGIN";
+
+    document.getElementById("switchModeBtn").textContent =
+      "CREATE NEW ACCOUNT";
+
+    document.getElementById("emailArea").style.display =
+      "none";
+
+  }
+
+  resetVerification();
+
+}
+
+
+/* -----------------------------------------
+   SEND VERIFICATION CODE
+   DEMO ONLY - REAL OTP WILL BE BACKEND
+   ----------------------------------------- */
+
+function sendVerificationCode(){
+
+  const mobile =
+    document.getElementById("mobile").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const message =
+    document.getElementById("message");
+
+
+  if(!/^[0-9]{10}$/.test(mobile)){
+
+    message.textContent =
+      "Please enter a valid 10 digit mobile number.";
+
+    return;
+
+  }
+
+
+  if(authMode === "create"){
+
+    if(!email || !email.includes("@")){
+
+      message.textContent =
+        "Please enter a valid Email ID.";
+
+      return;
+
+    }
+
+  }
+
+
+  /*
+    Temporary local verification code.
+    Later this will be replaced with
+    real SMS OTP + Email verification.
+  */
+
+  generatedCode =
+    Math.floor(100000 + Math.random() * 900000)
+    .toString();
+
+
+  document.getElementById("demoCode").textContent =
+    generatedCode;
+
+  document.getElementById("codeBox")
+    .classList.add("show");
+
+
+  message.textContent =
+    "Verification code generated. Enter the code below.";
+
+}
+
+
+/* -----------------------------------------
+   VERIFY CODE
+   ----------------------------------------- */
+
+function verifyCode(){
+
+  const enteredCode =
+    document.getElementById("verifyCode")
+      .value.trim();
+
+  const mobile =
+    document.getElementById("mobile")
+      .value.trim();
+
+  const email =
+    document.getElementById("email")
+      .value.trim();
+
+  const message =
+    document.getElementById("message");
+
+
+  if(enteredCode !== generatedCode){
+
+    message.textContent =
+      "Incorrect verification code.";
+
+    return;
+
+  }
+
+
+  const user = {
+
+    mobile: "+91" + mobile,
+
+    email: email || "",
+
+    createdAt: new Date().toISOString(),
+
+    accountType:
+      authMode === "create"
+        ? "account"
+        : "login"
+
+  };
+
+
+  /*
+    Save login session.
+
+    This allows OPEN APP to go directly
+    to Main Page on the same browser/device.
+  */
+
+  localStorage.setItem(
+    "cricYuvaUser",
+    JSON.stringify(user)
+  );
+
+
+  showMainPage(user);
+
+}
+
+
+/* -----------------------------------------
+   SHOW MAIN PAGE
+   ----------------------------------------- */
+
+function showMainPage(user){
+
+  document.getElementById("profileMobile")
+    .textContent = " " + (user.mobile || "");
+
+  document.getElementById("profileEmail")
+    .textContent = " " + (user.email || "Not added");
+
+  document.getElementById("welcomeText")
+    .textContent =
+      "Logged in as " + (user.mobile || "User");
+
+
+  showScreen("mainScreen");
+
+}
+
+
+/* -----------------------------------------
+   LOGOUT
+   ----------------------------------------- */
+
+function logout(){
+
+  localStorage.removeItem("cricYuvaUser");
+
+  generatedCode = "";
+
+  document.getElementById("mobile").value = "";
+
+  document.getElementById("email").value = "";
+
+  document.getElementById("verifyCode").value = "";
+
+  resetVerification();
+
+  authMode = "login";
+
+  document.getElementById("authTitle").textContent =
+    "LOGIN";
+
+  document.getElementById("switchModeBtn").textContent =
+    "CREATE NEW ACCOUNT";
+
+  document.getElementById("emailArea").style.display =
+    "none";
+
+  showScreen("authScreen");
+
+}
+
+
+/* -----------------------------------------
+   RESET VERIFICATION
+   ----------------------------------------- */
+
+function resetVerification(){
+
+  generatedCode = "";
+
+  document.getElementById("verifyCode").value = "";
+
+  document.getElementById("demoCode").textContent =
+    "------";
+
+  document.getElementById("codeBox")
+    .classList.remove("show");
+
+  document.getElementById("message").textContent =
+    "";
+
+}
+
+
+/* -----------------------------------------
+   SCREEN CONTROLLER
+   ----------------------------------------- */
+
+function showScreen(id){
+
+  document.querySelectorAll(".screen")
+    .forEach(function(screen){
+
+      screen.classList.remove("active");
+
+    });
+
+
+  document.getElementById(id)
+    .classList.add("active");
+
+}
+
+
+/* -----------------------------------------
+   SHARE APP
+   ----------------------------------------- */
+
+function shareApp(){
+
+  const shareUrl =
+    window.location.href;
+
+  if(navigator.share){
+
+    navigator.share({
+
+      title:"CRIC YUVA",
+
+      text:
+        "CRIC YUVA - Cricket Tournament, Live Score, Auction & More",
+
+      url:shareUrl
+
+    }).catch(function(){});
+
+  }else{
+
+    navigator.clipboard.writeText(shareUrl);
+
+    alert(
+      "CRIC YUVA link copied. You can share it."
+    );
+
+  }
+
+}
+
+
+/* -----------------------------------------
+   DOWNLOAD APK
+   ----------------------------------------- */
+
+function downloadApp(){
+
+  /*
+    APK link will be connected after
+    CRIC YUVA APK build is ready.
+  */
+
+  alert(
+    "CRIC YUVA APK download link will be connected after the APK build is ready."
+  );
+
+}
+
+</script>
+
+</body>
+</html>
