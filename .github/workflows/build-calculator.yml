@@ -2,10 +2,15 @@ name: Build VANSH CALCULATOR APK
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - main
-
+    paths:
+      - 'calculator.html'
+      - 'calculator-logo.png'
+      - 'icon-512.png'
+      - '.github/workflows/build-calculator.yml'
 permissions:
   contents: write
 
