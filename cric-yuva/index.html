@@ -1,1 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+  name="theme-color"
+  content="#ff9800"
+>
+
+<title>CRIC YUVA - Version 1.0</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#101010;
+  color:#fff;
+  min-height:100vh;
+}
+
+.app{
+  width:calc(100% - 18px);
+  max-width:650px;
+  margin:10px auto;
+  min-height:calc(100vh - 20px);
+  border:2px solid #ff9800;
+  border-radius:30px;
+  padding:22px 16px;
+  box-shadow:0 0 30px rgba(255,152,0,.12);
+}
+
+.logo{
+  width:190px;
+  height:190px;
+  margin:0 auto 18px;
+  border:3px solid #ff9800;
+  border-radius:42px;
+  overflow:hidden;
+  background:#050505;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.title{
+  text-align:center;
+  color:#ff9800;
+  font-size:38px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.version{
+  text-align:center;
+  color:#888;
+  font-size:17px;
+  font-weight:bold;
+  margin-top:7px;
+}
+
+.screen{
+  display:none;
+}
+
+.screen.active{
+  display:block;
+}
+
+.home-description{
+  text-align:center;
+  margin:32px 0 25px;
+}
+
+.home-description h2{
+  font-size:24px;
+  margin-bottom:14px;
+}
+
+.home-description p{
+  color:#aaa;
+  font-size:17px;
+  line-height:1.5;
+}
+
+.btn{
+  width:100%;
+  min-height:60px;
+  border-radius:19px;
+  border:2px solid #ff9800;
+  font-size:19px;
+  font-weight:800;
+  margin-top:13px;
+  cursor:pointer;
+}
+
+.btn:active{
+  transform:scale(.98);
+}
+
+.primary{
+  background:#ff9800;
+  color:#111;
+}
+
+.secondary{
+  background:#171717;
+  color:#fff;
+}
+
+.login-card{
+  margin-top:30px;
+  background:#171717;
+  border:1px solid #333;
+  border-radius:24px;
+  padding:20px;
+}
+
+.login-card h2{
+  color:#ff9800;
+  text-align:center;
+  margin-bottom:18px;
+}
+
+label{
+  display:block;
+  color:#ddd;
+  font-weight:bold;
+  margin:14px 0 7px;
+}
+
+input{
+  width:100%;
+  height:54px;
+  border-radius:14px;
+  border:1px solid #555;
+  background:#050505;
+  color:#fff;
+  padding:0 14px;
+  font-size:17px;
+  outline:none;
+}
+
+input:focus{
+  border-color:#ff9800;
+}
+
+.phone-row{
+  display:flex;
+  gap:8px;
+}
+
+.country{
+  width:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#292929;
+  border-radius:14px;
+  color:#fff;
+  font-weight:bold;
+}
+
+.phone-row input{
+  flex:1;
+}
+
+.message{
+  text-align:center;
+  min-height:25px;
+  margin-top:15px;
+  color:#ff9800;
+  font-weight:bold;
+  line-height:1.4;
+}
+
+.profile{
+  margin-top:28px;
+  padding:20px;
+  border-radius:22px;
+  background:#171717;
+  border:1px solid #333;
+}
+
+.profile h2{
+  color:#ff9800;
+  margin-bottom:14px;
+}
+
+.profile-row{
+  padding:12px 0;
+  border-bottom:1px solid #333;
+  color:#ccc;
+  word-break:break-word;
+}
+
+.profile-row strong{
+  color:#fff;
+}
+
+.main-menu{
+  margin-top:25px;
+}
+
+.main-menu .btn{
+  margin-top:10px;
+}
+
+.footer{
+  text-align:center;
+  color:#666;
+  font-size:13px;
+  margin-top:40px;
+  line-height:1.6;
+}
+
+.back{
+  background:transparent;
+  border:0;
+  color:#aaa;
+  font-size:16px;
+  margin-top:17px;
+  cursor:pointer;
+}
+
+#recaptcha-container{
+  margin-top:15px;
+  display:flex;
+  justify-content:center;
+}
+
+.small-note{
+  color:#777;
+  font-size:13px;
+  line-height:1.5;
+  text-align:center;
+  margin-top:12px;
+}
+
+.status-ok{
+  color:#45d483;
+}
+
+.status-error{
+  color:#ff6b6b;
+}
+
+@media(max-width:420px){
+
+  .app{
+    width:calc(100% - 12px);
+    padding:20px 13px;
+    border-radius:27px;
+  }
+
+  .logo{
+    width:175px;
+    height:175px;
+  }
+
+  .title{
+    font-size:34px;
+  }
+
+  .btn{
+    font-size:18px;
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+  <!-- ============================= -->
+  <!-- HEADER -->
+  <!-- ============================= -->
+
+  <div class="logo">
+
+    <img
+      src="cric-yuva-logo.png"
+      alt="CRIC YUVA Logo"
+    >
+
+  </div>
+
+
+  <div class="title">
+    CRIC YUVA
+  </div>
+
+
+  <div class="version">
+    VERSION 1.0
+  </div>
+
+
+
+  <!-- ============================= -->
+  <!-- START SCREEN -->
+  <!-- ============================= -->
+
+  <section
+    id="startScreen"
+    class="screen active"
+  >
+
+    <div class="home-description">
+
+      <h2>
+        Cricket Community Platform
+      </h2>
+
+      <p>
+        Cricket Tournament, Live Score,
+        <br>
+        Auction & More
+      </p>
+
+    </div>
+
+
+    <button
+      class="btn primary"
+      onclick="downloadApp()"
+    >
+      📥 DOWNLOAD APK
+    </button>
+
+
+    <button
+      class="btn secondary"
+      onclick="openApp()"
+    >
+      ▶️ OPEN APP
+    </button>
+
+
+    <button
+      class="btn secondary"
+      onclick="shareApp()"
+    >
+      🔗 SHARE APP
+    </button>
+
+  </section>
+
+
+
+  <!-- ============================= -->
+  <!-- LOGIN SCREEN -->
+  <!-- ============================= -->
+
+  <section
+    id="authScreen"
+    class="screen"
+  >
+
+    <div class="login-card">
+
+      <h2>
+        LOGIN / CREATE ACCOUNT
+      </h2>
+
+
+      <label for="mobile">
+        Mobile Number
+      </label>
+
+
+      <div class="phone-row">
+
+        <div class="country">
+          +91
+        </div>
+
+        <input
+          id="mobile"
+          type="tel"
+          maxlength="10"
+          inputmode="numeric"
+          placeholder="Enter mobile number"
+        >
+
+      </div>
+
+
+      <label for="email">
+        Email ID
+        <span style="color:#777;">
+          (Optional)
+        </span>
+      </label>
+
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter email address"
+      >
+
+
+      <button
+        id="sendCodeBtn"
+        class="btn primary"
+        onclick="sendVerificationCode()"
+      >
+        📱 SEND SMS OTP
+      </button>
+
+
+      <!-- Firebase reCAPTCHA -->
+
+      <div
+        id="recaptcha-container"
+      ></div>
+
+
+      <div
+        id="otpArea"
+        style="display:none;"
+      >
+
+        <label for="verifyCode">
+          Enter SMS Verification Code
+        </label>
+
+
+        <input
+          id="verifyCode"
+          type="tel"
+          maxlength="6"
+          inputmode="numeric"
+          placeholder="Enter 6 digit OTP"
+        >
+
+
+        <button
+          class="btn primary"
+          onclick="verifyCode()"
+        >
+          ✅ VERIFY & CONTINUE
+        </button>
+
+
+        <button
+          class="btn secondary"
+          onclick="sendVerificationCode()"
+        >
+          🔄 RESEND OTP
+        </button>
+
+      </div>
+
+
+      <div
+        id="message"
+        class="message"
+      ></div>
+
+
+      <div class="small-note">
+
+        Your mobile number will be verified
+        securely using Firebase Authentication.
+
+      </div>
+
+
+      <button
+        class="back"
+        onclick="showScreen('startScreen')"
+      >
+        ← Back
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ============================= -->
+  <!-- MAIN SCREEN -->
+  <!-- ============================= -->
+
+  <section
+    id="mainScreen"
+    class="screen"
+  >
+
+    <div class="home-description">
+
+      <h2>
+        Welcome to CRIC YUVA
+      </h2>
+
+      <p id="welcomeText">
+        Your cricket community
+      </p>
+
+    </div>
+
+
+    <div class="profile">
+
+      <h2>
+        MY ACCOUNT
+      </h2>
+
+
+      <div class="profile-row">
+
+        <strong>
+          Mobile:
+        </strong>
+
+        <span id="profileMobile">
+        </span>
+
+      </div>
+
+
+      <div class="profile-row">
+
+        <strong>
+          Email:
+        </strong>
+
+        <span id="profileEmail">
+        </span>
+
+      </div>
+
+
+      <div class="profile-row">
+
+        <strong>
+          Account:
+        </strong>
+
+        <span
+          id="profileStatus"
+          class="status-ok"
+        >
+          Firebase Verified
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="main-menu">
+
+
+      <button class="btn secondary">
+        🏏 SINGLE MATCH
+      </button>
+
+
+      <button class="btn secondary">
+        🏆 PRIVATE TOURNAMENT
+      </button>
+
+
+      <button class="btn secondary">
+        🔨 AUCTION TOURNAMENT
+      </button>
+
+
+      <button class="btn secondary">
+        📊 LIVE SCORE
+      </button>
+
+
+      <button class="btn secondary">
+        👤 MY PROFILE
+      </button>
+
+
+      <button
+        class="btn primary"
+        onclick="logout()"
+      >
+        🚪 LOGOUT
+      </button>
+
+
+    </div>
+
+  </section>
+
+
+
+  <!-- ============================= -->
+  <!-- FOOTER -->
+  <!-- ============================= -->
+
+  <div class="footer">
+
+    CRIC YUVA • VERSION 1.0
+
+    <br>
+
+    Cricket Tournament • Live Score • Auction
+
+  </div>
+
+</div>
+
+
+
+<!-- ================================================= -->
+<!-- FIREBASE -->
+<!-- ================================================= -->
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+
+import {
+  getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+
+
+/* =========================================
+   FIREBASE CONFIG
+   ========================================= */
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyC03NNjS1gZXNx9YqQytbpeRSBgJ7q1ovU",
+
+  authDomain:
+    "cric-yuva.firebaseapp.com",
+
+  projectId:
+    "cric-yuva",
+
+  storageBucket:
+    "cric-yuva.firebasestorage.app",
+
+  messagingSenderId:
+    "1066815621856",
+
+  appId:
+    "1:1066815621856:web:8ab41d35bd8f50b8381e85",
+
+  measurementId:
+    "G-7C0VXFEGPX"
+
+};
+
+
+
+/* =========================================
+   INITIALIZE FIREBASE
+   ========================================= */
+
+const app =
+  initializeApp(firebaseConfig);
+
+
+const auth =
+  getAuth(app);
+
+
+
+/* =========================================
+   GLOBAL VARIABLES
+   ========================================= */
+
+let confirmationResult = null;
+
+let recaptchaVerifier = null;
+
+
+
+/* =========================================
+   MESSAGE
+   ========================================= */
+
+function setMessage(text, type="normal"){
+
+  const message =
+    document.getElementById("message");
+
+  message.textContent = text;
+
+  message.className = "message";
+
+  if(type === "ok"){
+
+    message.classList.add("status-ok");
+
+  }
+
+  if(type === "error"){
+
+    message.classList.add("status-error");
+
+  }
+
+}
+
+
+
+/* =========================================
+   CREATE reCAPTCHA
+   ========================================= */
+
+function createRecaptcha(){
+
+  if(recaptchaVerifier){
+
+    return;
+
+  }
+
+
+  recaptchaVerifier =
+    new RecaptchaVerifier(
+      auth,
+      "recaptcha-container",
+      {
+
+        size:"invisible",
+
+        callback:function(){
+
+          setMessage(
+            "Security verification completed."
+          );
+
+        },
+
+        "expired-callback":function(){
+
+          setMessage(
+            "Security verification expired. Please try again.",
+            "error"
+          );
+
+        }
+
+      }
+    );
+
+}
+
+
+
+/* =========================================
+   OPEN APP
+   ========================================= */
+
+window.openApp = function(){
+
+  if(auth.currentUser){
+
+    showMainPage(
+      auth.currentUser
+    );
+
+  }else{
+
+    showScreen("authScreen");
+
+    setMessage("");
+
+    setTimeout(function(){
+
+      createRecaptcha();
+
+    },300);
+
+  }
+
+};
+
+
+
+/* =========================================
+   SEND REAL SMS OTP
+   ========================================= */
+
+window.sendVerificationCode = async function(){
+
+  const mobile =
+    document.getElementById("mobile")
+      .value.trim();
+
+
+  if(!/^[0-9]{10}$/.test(mobile)){
+
+    setMessage(
+      "Please enter a valid 10 digit mobile number.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const phoneNumber =
+    "+91" + mobile;
+
+
+  const button =
+    document.getElementById("sendCodeBtn");
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "⏳ SENDING OTP...";
+
+
+  try{
+
+    createRecaptcha();
+
+
+    confirmationResult =
+      await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        recaptchaVerifier
+      );
+
+
+    document.getElementById("otpArea")
+      .style.display = "block";
+
+
+    setMessage(
+      "SMS OTP sent successfully. Enter the 6 digit code.",
+      "ok"
+    );
+
+
+    button.textContent =
+      "✅ OTP SENT";
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    setMessage(
+      getFirebaseErrorMessage(error),
+      "error"
+    );
+
+
+    button.disabled = false;
+
+    button.textContent =
+      "📱 SEND SMS OTP";
+
+
+    if(recaptchaVerifier){
+
+      try{
+
+        recaptchaVerifier.clear();
+
+      }catch(e){}
+
+      recaptchaVerifier = null;
+
+      document.getElementById(
+        "recaptcha-container"
+      ).innerHTML = "";
+
+    }
+
+  }
+
+};
+
+
+
+/* =========================================
+   VERIFY REAL SMS OTP
+   ========================================= */
+
+window.verifyCode = async function(){
+
+  const code =
+    document.getElementById("verifyCode")
+      .value.trim();
+
+
+  if(!/^[0-9]{6}$/.test(code)){
+
+    setMessage(
+      "Please enter the 6 digit OTP.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if(!confirmationResult){
+
+    setMessage(
+      "Please request OTP first.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    setMessage(
+      "Verifying OTP..."
+    );
+
+
+    const result =
+      await confirmationResult.confirm(code);
+
+
+    const user =
+      result.user;
+
+
+    const email =
+      document.getElementById("email")
+        .value.trim();
+
+
+    /*
+      Email is kept locally for now.
+      Firebase Phone Authentication
+      verifies the mobile number.
+    */
+
+    localStorage.setItem(
+      "cricYuvaEmail",
+      email
+    );
+
+
+    setMessage(
+      "Mobile number verified successfully.",
+      "ok"
+    );
+
+
+    showMainPage(user);
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    setMessage(
+      getFirebaseErrorMessage(error),
+      "error"
+    );
+
+  }
+
+};
+
+
+
+/* =========================================
+   FIREBASE AUTH STATE
+   ========================================= */
+
+onAuthStateChanged(
+  auth,
+  function(user){
+
+    if(user){
+
+      showMainPage(user);
+
+    }
+
+  }
+);
+
+
+
+/* =========================================
+   SHOW MAIN PAGE
+   ========================================= */
+
+function showMainPage(user){
+
+  if(!user){
+
+    showScreen("authScreen");
+
+    return;
+
+  }
+
+
+  const email =
+    localStorage.getItem(
+      "cricYuvaEmail"
+    ) || "Not added";
+
+
+  document.getElementById(
+    "profileMobile"
+  ).textContent =
+    " " + (
+      user.phoneNumber ||
+      "Not available"
+    );
+
+
+  document.getElementById(
+    "profileEmail"
+  ).textContent =
+    " " + email;
+
+
+  document.getElementById(
+    "welcomeText"
+  ).textContent =
+    "Logged in as " +
+    (
+      user.phoneNumber ||
+      "User"
+    );
+
+
+  showScreen("mainScreen");
+
+}
+
+
+
+/* =========================================
+   LOGOUT
+   ========================================= */
+
+window.logout = async function(){
+
+  try{
+
+    await signOut(auth);
+
+
+    localStorage.removeItem(
+      "cricYuvaEmail"
+    );
+
+
+    confirmationResult = null;
+
+
+    document.getElementById(
+      "mobile"
+    ).value = "";
+
+
+    document.getElementById(
+      "email"
+    ).value = "";
+
+
+    document.getElementById(
+      "verifyCode"
+    ).value = "";
+
+
+    document.getElementById(
+      "otpArea"
+    ).style.display = "none";
+
+
+    document.getElementById(
+      "sendCodeBtn"
+    ).disabled = false;
+
+
+    document.getElementById(
+      "sendCodeBtn"
+    ).textContent =
+      "📱 SEND SMS OTP";
+
+
+    if(recaptchaVerifier){
+
+      try{
+
+        recaptchaVerifier.clear();
+
+      }catch(e){}
+
+      recaptchaVerifier = null;
+
+    }
+
+
+    document.getElementById(
+      "recaptcha-container"
+    ).innerHTML = "";
+
+
+    showScreen("startScreen");
+
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+};
+
+
+
+/* =========================================
+   SCREEN CONTROLLER
+   ========================================= */
+
+function showScreen(id){
+
+  document.querySelectorAll(
+    ".screen"
+  ).forEach(function(screen){
+
+    screen.classList.remove(
+      "active"
+    );
+
+  });
+
+
+  const target =
+    document.getElementById(id);
+
+
+  if(target){
+
+    target.classList.add(
+      "active"
+    );
+
+  }
+
+}
+
+
+
+/* =========================================
+   SHARE APP
+   ========================================= */
+
+window.shareApp = async function(){
+
+  const shareUrl =
+    window.location.href;
+
+
+  if(navigator.share){
+
+    try{
+
+      await navigator.share({
+
+        title:"CRIC YUVA",
+
+        text:
+          "CRIC YUVA - Cricket Tournament, Live Score, Auction & More",
+
+        url:shareUrl
+
+      });
+
+    }catch(error){}
+
+  }else{
+
+    try{
+
+      await navigator.clipboard
+        .writeText(shareUrl);
+
+
+      alert(
+        "CRIC YUVA link copied. You can share it."
+      );
+
+    }catch(error){
+
+      alert(
+        "Please copy the link from the browser."
+      );
+
+    }
+
+  }
+
+};
+
+
+
+/* =========================================
+   DOWNLOAD APK
+   ========================================= */
+
+window.downloadApp = function(){
+
+  alert(
+    "CRIC YUVA APK download will be connected after the APK build is ready."
+  );
+
+};
+
+
+
+/* =========================================
+   FIREBASE ERROR MESSAGE
+   ========================================= */
+
+function getFirebaseErrorMessage(error){
+
+  if(!error){
+
+    return "Something went wrong.";
+
+  }
+
+
+  const code =
+    error.code || "";
+
+
+  if(code.includes(
+    "auth/invalid-phone-number"
+  )){
+
+    return "Mobile number is invalid.";
+
+  }
+
+
+  if(code.includes(
+    "auth/too-many-requests"
+  )){
+
+    return "Too many attempts. Please try again later.";
+
+  }
+
+
+  if(code.includes(
+    "auth/quota-exceeded"
+  )){
+
+    return "SMS daily quota has been reached.";
+
+  }
+
+
+  if(code.includes(
+    "auth/invalid-verification-code"
+  )){
+
+    return "Incorrect OTP. Please enter the correct code.";
+
+  }
+
+
+  if(code.includes(
+    "auth/code-expired"
+  )){
+
+    return "OTP has expired. Please request a new OTP.";
+
+  }
+
+
+  if(code.includes(
+    "auth/captcha-check-failed"
+  )){
+
+    return "Security verification failed. Please try again.";
+
+  }
+
+
+  if(code.includes(
+    "auth/operation-not-allowed"
+  )){
+
+    return "Phone Authentication is not enabled in Firebase.";
+
+  }
+
+
+  return (
+    error.message ||
+    "Unable to complete verification."
+  );
+
+}
+
+
+</script>
+
+</body>
+</html>
