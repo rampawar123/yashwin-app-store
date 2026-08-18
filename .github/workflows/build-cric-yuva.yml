@@ -41,22 +41,20 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: Check signing secrets
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+      - name: Configure Bubblewrap
         run: |
-          if [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty or unavailable."
-            exit 1
-          fi
+          mkdir -p ~/.bubblewrap
 
-          if [ -z "$KEY_PASSWORD" ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is empty or unavailable."
-            exit 1
-          fi
+          cat > ~/.bubblewrap/config.json <<EOF
+          {
+            "jdkPath": "${JAVA_HOME}",
+            "androidSdkPath": "${ANDROID_HOME}"
+          }
+          EOF
 
-          echo "Signing secrets are available."
+      - name: Check Bubblewrap configuration
+        run: |
+          bubblewrap doctor
 
       - name: Create CRIC YUVA signing key
         env:
@@ -69,8 +67,8 @@ jobs:
             -v \
             -keystore cric-yuva.keystore \
             -storetype JKS \
-            -storepass "${KEYSTORE_PASSWORD}" \
-            -keypass "${KEY_PASSWORD}" \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
             -alias cricyuva \
             -keyalg RSA \
             -keysize 2048 \
@@ -111,17 +109,11 @@ jobs:
           }
           EOF
 
-            - name: Prepare Bubblewrap project
+      - name: Prepare Bubblewrap project
         run: |
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
-
           cd twa-cric-yuva
-
           bubblewrap update \
             --manifest=twa-manifest.json \
-            --appVersionName="1.0" \
             --skipVersionUpgrade
 
       - name: Build CRIC YUVA APK
@@ -135,8 +127,8 @@ jobs:
             --skipPwaValidation \
             --signingKeyPath="cric-yuva.keystore" \
             --signingKeyAlias="cricyuva" \
-            --signingKeyPassword="${KEY_PASSWORD}" \
-            --signingStorePassword="${KEYSTORE_PASSWORD}"
+            --signingKeyPassword="$KEY_PASSWORD" \
+            --signingStorePassword="$KEYSTORE_PASSWORD"
 
       - name: Rename CRIC YUVA APK
         run: |
