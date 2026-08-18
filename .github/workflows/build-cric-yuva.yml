@@ -111,11 +111,12 @@ jobs:
           }
           EOF
 
-      - name: Prepare Bubblewrap project
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+            - name: Prepare Bubblewrap project
         run: |
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
+
           cd twa-cric-yuva
 
           bubblewrap update \
