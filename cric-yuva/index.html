@@ -2,567 +2,790 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>CRIC YUVA</title>
 
 <style>
 *{box-sizing:border-box}
-:root{
- --bg:#061421;
- --panel:#10283d;
- --panel2:#0b2033;
- --line:#23445f;
- --text:#f4f7fb;
- --muted:#9fb2c4;
- --gold:#ffb21c;
- --blue:#2494f4;
- --green:#28d47c;
- --red:#ff5261;
-}
 body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:Arial,Helvetica,sans-serif;
+ margin:0;
+ background:#061421;
+ color:#fff;
+ font-family:Arial,sans-serif
 }
-button,input,select,textarea{font:inherit}
+button,input,select{font:inherit}
 button{cursor:pointer}
+
 .hidden{display:none!important}
 
 header{
- padding:18px 20px;
  background:#071522;
- border-bottom:1px solid var(--line);
- display:flex;justify-content:space-between;align-items:center;
- position:sticky;top:0;z-index:20;
+ border-bottom:1px solid #23445f;
+ padding:16px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ position:sticky;
+ top:0;
+ z-index:10
 }
-.logo{font-size:25px;font-weight:800}
-.sub{color:var(--muted);font-size:14px;margin-top:4px}
-.iconbtn{
- background:#102a42;color:white;border:1px solid #31516c;
- border-radius:14px;padding:11px 15px
+
+.logo{font-size:25px;font-weight:900}
+.small{font-size:12px;color:#9fb2c4;margin-top:4px}
+
+.icon{
+ background:#102a42;
+ color:#fff;
+ border:1px solid #31516c;
+ border-radius:12px;
+ padding:10px 14px
 }
 
 nav{
- display:flex;gap:8px;padding:14px;
- background:#091b2b;border-bottom:1px solid var(--line);
- overflow:auto;
+ display:flex;
+ gap:7px;
+ padding:10px;
+ background:#091b2b;
+ border-bottom:1px solid #23445f;
+ overflow:auto
 }
-nav button{
- flex:1;min-width:90px;border:0;border-radius:14px;
- padding:13px 10px;background:#10263b;color:#c4d1dc;font-weight:700;
-}
-nav button.active{background:var(--gold);color:#111}
 
-main{max-width:900px;margin:auto;padding:18px}
+nav button{
+ flex:1;
+ min-width:80px;
+ padding:12px;
+ border:0;
+ border-radius:12px;
+ background:#10263b;
+ color:#c6d3df;
+ font-weight:700
+}
+
+nav button.active{
+ background:#ffb21c;
+ color:#111
+}
+
+main{
+ max-width:950px;
+ margin:auto;
+ padding:15px
+}
+
 .card{
  background:linear-gradient(145deg,#102a40,#0b2033);
- border:1px solid #254963;border-radius:22px;
- padding:20px;margin-bottom:16px;
+ border:1px solid #254963;
+ border-radius:20px;
+ padding:18px;
+ margin-bottom:15px
 }
-h1,h2,h3{margin-top:0}
-.muted{color:var(--muted)}
-.btn{
- border:0;border-radius:14px;padding:14px 18px;
- background:var(--gold);color:#111;font-weight:800;
-}
-.btn.secondary{background:#173550;color:white}
-.btn.blue{background:var(--blue);color:white}
-.btn.red{background:var(--red);color:white}
 
-.grid{
- display:grid;grid-template-columns:repeat(2,1fr);gap:12px
+.profile{
+ display:grid;
+ grid-template-columns:145px 1fr;
+ gap:20px;
+ align-items:center
 }
-.stats{
- display:grid;grid-template-columns:repeat(3,1fr);
- border:1px solid var(--line);border-radius:18px;overflow:hidden
-}
-.stat{
- text-align:center;padding:18px 5px;border-right:1px solid var(--line)
-}
-.stat:last-child{border-right:0}
-.stat b{display:block;font-size:25px}
-.stat span{color:var(--muted);font-size:13px}
 
-label{display:block;color:#dce6ef;font-weight:700;margin:12px 0 6px}
-input,select,textarea{
- width:100%;padding:13px;border-radius:12px;
- border:1px solid #31526b;background:#071a2a;color:white;
- outline:none;
-}
-textarea{min-height:90px}
-
-.login{
- min-height:100vh;display:flex;align-items:center;justify-content:center;
- padding:20px;background:
- radial-gradient(circle at top,#173e5c,#061421 55%);
-}
-.loginbox{width:100%;max-width:450px}
-.loginlogo{text-align:center;font-size:34px;font-weight:900;margin-bottom:5px}
-.loginbox .card{margin:0}
-
-.profileTop{
- display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center
-}
 .photo{
- width:145px;height:145px;border-radius:50%;
- background:#203b52;border:4px solid #dce6ef;
- display:flex;align-items:center;justify-content:center;
- color:#dce6ef;text-align:center;overflow:hidden;
+ width:145px;
+ height:145px;
+ border-radius:50%;
+ border:4px solid #ddd;
+ background:#203b52;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ overflow:hidden;
+ text-align:center;
+ color:#b8c8d5
 }
-.photo img{width:100%;height:100%;object-fit:cover}
-.name{font-size:30px;font-weight:900}
-.badge{
- display:inline-block;background:#168be5;border-radius:50%;
- width:25px;height:25px;text-align:center;line-height:25px
+
+.photo img{
+ width:100%;
+ height:100%;
+ object-fit:cover
 }
-.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+.name{
+ font-size:30px;
+ font-weight:900
+}
+
+.verify{
+ display:inline-flex;
+ width:23px;
+ height:23px;
+ border-radius:50%;
+ background:#168be5;
+ align-items:center;
+ justify-content:center;
+ font-size:13px
+}
+
+.muted{
+ color:#9fb2c4;
+ margin-top:7px
+}
+
+.tags{
+ display:flex;
+ gap:7px;
+ flex-wrap:wrap;
+ margin-top:12px
+}
+
 .tag{
- padding:8px 12px;border-radius:20px;
- background:#173550;color:#d8e5ef;font-size:13px
+ background:#173550;
+ border-radius:20px;
+ padding:7px 11px;
+ font-size:12px
 }
 
 .jersey{
- margin-top:18px;border:1px solid #c99417;border-radius:18px;
- padding:18px;text-align:center;background:#09223a
+ margin-top:18px;
+ background:#082039;
+ border:1px solid #d09b20;
+ border-radius:17px;
+ text-align:center;
+ padding:15px
 }
-.jerseyNumber{font-size:48px;font-weight:900;color:white}
-.jerseyName{color:var(--gold);font-weight:800}
 
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.jerseyName{
+ color:#ffbf32;
+ font-weight:900
+}
+
+.jerseyNumber{
+ font-size:48px;
+ font-weight:900
+}
+
+.actions{
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ margin-top:15px
+}
+
+.btn{
+ border:0;
+ border-radius:13px;
+ padding:13px 17px;
+ background:#ffb21c;
+ color:#111;
+ font-weight:900
+}
+
+.btn.blue{
+ background:#218ff0;
+ color:#fff
+}
+
+.btn.dark{
+ background:#173550;
+ color:#fff
+}
+
+.btn.red{
+ background:#ff5261;
+ color:#fff
+}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ margin-top:17px;
+ border:1px solid #23445f;
+ border-radius:15px;
+ overflow:hidden
+}
+
+.stat{
+ text-align:center;
+ padding:15px 4px;
+ border-right:1px solid #23445f
+}
+
+.stat:nth-child(3n){border-right:0}
+
+.stat b{
+ display:block;
+ font-size:23px
+}
+
+.stat span{
+ font-size:12px;
+ color:#9fb2c4
+}
 
 .social{
- display:grid;grid-template-columns:repeat(4,1fr);
- gap:8px;margin-top:16px
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:8px
 }
+
 .social button{
- background:#122d45;color:white;border:1px solid var(--line);
- border-radius:12px;padding:11px
+ background:#122e47;
+ color:#fff;
+ border:1px solid #23445f;
+ border-radius:12px;
+ padding:11px
 }
-.social button.liked{color:#ff5261}
+
+.social button.liked{
+ color:#ff5261
+}
 
 .detailGrid{
- display:grid;grid-template-columns:repeat(2,1fr);gap:10px
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:9px
 }
-.detail{
- background:#0a1d2e;border:1px solid #1e405a;
- padding:13px;border-radius:13px
-}
-.detail small{display:block;color:var(--muted);margin-bottom:4px}
 
-.listItem{
- padding:14px 0;border-bottom:1px solid var(--line)
+.detail{
+ background:#091d2e;
+ border:1px solid #1e405a;
+ border-radius:12px;
+ padding:11px
 }
-.listItem:last-child{border-bottom:0}
+
+.detail small{
+ display:block;
+ color:#9fb2c4;
+ font-size:11px;
+ margin-bottom:5px
+}
+
+.community{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:8px
+}
+
+.communityBox{
+ background:#091d2e;
+ border:1px solid #1e405a;
+ border-radius:13px;
+ padding:14px;
+ text-align:center
+}
+
+.communityBox b{
+ display:block;
+ font-size:23px
+}
+
+.communityBox span{
+ font-size:11px;
+ color:#9fb2c4
+}
+
+.login{
+ min-height:100vh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ padding:20px;
+ background:radial-gradient(circle at top,#173e5c,#061421 60%)
+}
+
+.loginBox{
+ width:100%;
+ max-width:430px
+}
+
+.loginLogo{
+ text-align:center;
+ font-size:34px;
+ font-weight:900;
+ margin-bottom:20px
+}
+
+label{
+ display:block;
+ margin:11px 0 6px;
+ color:#dbe6ee;
+ font-weight:700
+}
+
+input,select,textarea{
+ width:100%;
+ padding:13px;
+ border-radius:11px;
+ border:1px solid #31526b;
+ background:#071a2a;
+ color:#fff
+}
+
+textarea{min-height:90px}
 
 .overlay{
- position:fixed;inset:0;background:rgba(0,0,0,.72);
- display:flex;align-items:flex-end;justify-content:center;
- z-index:100;padding:12px
+ position:fixed;
+ inset:0;
+ background:#000b;
+ z-index:100;
+ display:flex;
+ justify-content:center;
+ align-items:flex-end;
+ padding:10px
 }
+
 .modal{
- width:100%;max-width:600px;max-height:92vh;overflow:auto;
- background:#0b2033;border:1px solid #31516c;
- border-radius:22px;padding:20px
+ width:100%;
+ max-width:650px;
+ max-height:92vh;
+ overflow:auto;
+ background:#0b2033;
+ border:1px solid #31516c;
+ border-radius:22px;
+ padding:18px
 }
 
-.notice{
- padding:12px;border-radius:12px;background:#102f45;
- color:#c8d9e7;margin-bottom:12px
+.modalHead{
+ display:flex;
+ justify-content:space-between;
+ align-items:center
 }
-.success{color:var(--green)}
-.error{color:#ff7b86}
 
-.empty{text-align:center;padding:30px;color:var(--muted)}
+.list{
+ padding:13px 0;
+ border-bottom:1px solid #23445f
+}
 
-@media(max-width:600px){
- main{padding:12px}
- .profileTop{grid-template-columns:1fr;text-align:center}
- .photo{margin:auto}
- .actions{justify-content:center}
- .grid,.detailGrid{grid-template-columns:1fr}
- .stats{grid-template-columns:repeat(3,1fr)}
- .stat b{font-size:21px}
- .social{grid-template-columns:repeat(2,1fr)}
- .name{font-size:27px}
+.empty{
+ text-align:center;
+ padding:30px;
+ color:#9fb2c4
+}
+
+@media(max-width:650px){
+ .profile{
+  grid-template-columns:1fr;
+  text-align:center
+ }
+
+ .photo{
+  margin:auto
+ }
+
+ .tags{
+  justify-content:center
+ }
+
+ .actions{
+  justify-content:center
+ }
+
+ .social{
+  grid-template-columns:repeat(2,1fr)
+ }
+
+ .community{
+  grid-template-columns:repeat(2,1fr)
+ }
+
+ .detailGrid{
+  grid-template-columns:1fr
+ }
+
+ .name{
+  font-size:26px
+ }
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 
 <section id="loginScreen" class="login">
- <div class="loginbox">
 
-  <div class="loginlogo">🏏 CRIC YUVA</div>
-  <div style="text-align:center;color:#9fb2c4;margin-bottom:20px">
-   Professional Cricket Platform
-  </div>
+<div class="loginBox">
 
-  <div class="card">
+<div class="loginLogo">🏏 CRIC YUVA</div>
 
-   <h2>🔐 Login</h2>
+<div class="card">
 
-   <div id="loginMsg" class="notice hidden"></div>
+<h2>🔐 Login</h2>
 
-   <label>Mobile Number</label>
-   <input id="loginMobile" type="tel" maxlength="15"
-          placeholder="Enter mobile number">
+<p class="small">
+Mobile Number और Password से Login करें
+</p>
 
-   <label>Password</label>
-   <input id="loginPassword" type="password"
-          placeholder="Enter password">
+<label>Mobile Number</label>
+<input id="loginMobile" type="tel" placeholder="Mobile Number">
 
-   <button class="btn" style="width:100%;margin-top:18px"
-           onclick="loginUser()">
-    Login
-   </button>
+<label>Password</label>
+<input id="loginPassword" type="password" placeholder="Password">
 
-   <div style="text-align:center;margin:18px 0;color:#7890a3">
-    New player?
-   </div>
+<button class="btn" style="width:100%;margin-top:15px"
+onclick="login()">
+Login
+</button>
 
-   <button class="btn secondary" style="width:100%"
-           onclick="showRegister()">
-    Create Player Account
-   </button>
+<button class="btn dark"
+style="width:100%;margin-top:9px"
+onclick="forgotPassword()">
+Forgot Password?
+</button>
 
-  </div>
- </div>
+<button class="btn blue"
+style="width:100%;margin-top:9px"
+onclick="register()">
+Create Player Account
+</button>
+
+</div>
+
+</div>
 </section>
 
-<!-- ================= REGISTER ================= -->
+<!-- APP -->
 
-<section id="registerScreen" class="login hidden">
- <div class="loginbox">
-
-  <div class="loginlogo">🏏 CRIC YUVA</div>
-
-  <div class="card">
-
-   <h2>📝 Create Account</h2>
-
-   <div id="registerMsg" class="notice hidden"></div>
-
-   <label>Mobile Number *</label>
-   <input id="regMobile" type="tel" maxlength="15"
-          placeholder="Mobile number">
-
-   <label>Password *</label>
-   <input id="regPassword" type="password"
-          placeholder="Create password">
-
-   <label>Confirm Password *</label>
-   <input id="regPassword2" type="password"
-          placeholder="Confirm password">
-
-   <button class="btn" style="width:100%;margin-top:18px"
-           onclick="createAccount()">
-    Create Account
-   </button>
-
-   <button class="btn secondary" style="width:100%;margin-top:10px"
-           onclick="showLogin()">
-    ← Back to Login
-   </button>
-
-  </div>
- </div>
-</section>
-
-<!-- ================= APP ================= -->
-
-<section id="appScreen" class="hidden">
+<section id="app" class="hidden">
 
 <header>
- <div>
-  <div class="logo">🏏 CRIC YUVA</div>
-  <div class="sub">Professional Cricket Platform</div>
- </div>
 
- <button class="iconbtn" onclick="openSettings()">⚙️</button>
+<div>
+<div class="logo">🏏 CRIC YUVA</div>
+<div class="small">Professional Cricket Platform</div>
+</div>
+
+<button class="icon" onclick="settings()">⚙️</button>
+
 </header>
 
 <nav>
- <button id="navProfile" class="active" onclick="showPage('profile')">
-  Profile
- </button>
- <button id="navMatches" onclick="showPage('matches')">
-  Matches
- </button>
- <button id="navFriends" onclick="showPage('friends')">
-  Friends
- </button>
- <button id="navChat" onclick="showPage('chat')">
-  Chat
- </button>
- <button onclick="logoutUser()">Logout</button>
+
+<button id="profileNav"
+class="active"
+onclick="page('profile')">
+Profile
+</button>
+
+<button onclick="page('matches')">
+Matches
+</button>
+
+<button onclick="page('friends')">
+Friends
+</button>
+
+<button onclick="page('chat')">
+Chat
+</button>
+
+<button onclick="logout()">
+Logout
+</button>
+
 </nav>
 
 <main>
 
-<!-- ================= PROFILE ================= -->
+<!-- PROFILE -->
 
-<section id="pageProfile">
+<section id="profilePage">
 
- <div class="card">
+<div class="card">
 
-  <div class="profileTop">
+<div class="profile">
 
-   <div id="profilePhoto" class="photo">
-    Player Photo
-   </div>
+<div id="photo" class="photo">
+Player Photo
+</div>
 
-   <div>
+<div>
 
-    <div class="name">
-     <span id="profileName">—</span>
-     <span class="badge">✓</span>
-    </div>
+<div class="name">
+<span id="name">—</span>
+<span class="verify">✓</span>
+</div>
 
-    <div class="muted" style="margin-top:8px">
-     🆔 Player ID:
-     <b id="profileId">—</b>
-    </div>
+<div class="muted">
+🆔 Player ID:
+<b id="playerId">—</b>
+</div>
 
-    <div class="muted" style="margin-top:7px">
-     📱 <span id="profileMobile">—</span>
-    </div>
+<div class="muted">
+📱 <span id="mobile">—</span>
+</div>
 
-    <div class="muted" style="margin-top:7px">
-     ✉️ <span id="profileEmail">—</span>
-    </div>
+<div class="muted">
+✉️ <span id="email">—</span>
+</div>
 
-    <div class="muted" style="margin-top:7px">
-     🏏 Team:
-     <span id="profileTeam">—</span>
-    </div>
+<div class="muted">
+🏏 Team:
+<b id="team">—</b>
+</div>
 
-    <div class="tags">
-     <span class="tag" id="profileRole">Role</span>
-     <span class="tag" id="profileBatting">Batting</span>
-     <span class="tag" id="profileBowling">Bowling</span>
-    </div>
+<div class="tags">
 
-   </div>
+<span class="tag" id="role">Role</span>
 
-  </div>
+<span class="tag" id="batting">
+Batting
+</span>
 
-  <div class="actions">
+<span class="tag" id="bowling">
+Bowling
+</span>
 
-   <button class="btn" onclick="openEditProfile()">
-    ✏️ Edit Profile
-   </button>
+</div>
 
-   <button class="btn secondary" onclick="openFullDetails()">
-    📋 Open Full Details
-   </button>
+</div>
 
-  </div>
+</div>
 
-  <div class="jersey">
+<div class="actions">
 
-   <div class="jerseyName" id="jerseyName">
-    PLAYER
-   </div>
+<button class="btn"
+onclick="editProfile()">
+✏️ Edit Profile
+</button>
 
-   <div class="jerseyNumber" id="jerseyNumber">
-    00
-   </div>
+<button class="btn dark"
+onclick="fullDetails()">
+📋 Open Full Details
+</button>
 
-   <div id="jerseySize" class="muted">
-    Jersey Size: M
-   </div>
+<button class="btn blue"
+onclick="shareProfile()">
+↗ Share
+</button>
 
-  </div>
+</div>
 
-  <div class="stats" style="margin-top:18px">
+<div class="jersey">
 
-   <div class="stat">
-    <b id="statMatches">00</b>
-    <span>Matches</span>
-   </div>
+<div class="jerseyName" id="jerseyName">
+PLAYER
+</div>
 
-   <div class="stat">
-    <b id="statRuns">00</b>
-    <span>Runs</span>
-   </div>
+<div class="jerseyNumber" id="jerseyNumber">
+00
+</div>
 
-   <div class="stat">
-    <b id="statWickets">00</b>
-    <span>Wickets</span>
-   </div>
+<div class="small">
+Jersey Size:
+<span id="jerseySize">M</span>
+</div>
 
-   <div class="stat">
-    <b id="stat4s">00</b>
-    <span>4s</span>
-   </div>
+</div>
 
-   <div class="stat">
-    <b id="stat6s">00</b>
-    <span>6s</span>
-   </div>
+<div class="stats">
 
-   <div class="stat">
-    <b id="statCatches">00</b>
-    <span>Catches</span>
-   </div>
+<div class="stat">
+<b id="matches">00</b>
+<span>Matches</span>
+</div>
 
-  </div>
+<div class="stat">
+<b id="runs">00</b>
+<span>Runs</span>
+</div>
 
- </div>
+<div class="stat">
+<b id="wickets">00</b>
+<span>Wickets</span>
+</div>
 
- <!-- SOCIAL -->
+<div class="stat">
+<b id="fours">00</b>
+<span>4s</span>
+</div>
 
- <div class="card">
+<div class="stat">
+<b id="sixes">00</b>
+<span>6s</span>
+</div>
 
-  <h2>❤️ Player Social</h2>
+<div class="stat">
+<b id="catches">00</b>
+<span>Catches</span>
+</div>
 
-  <div class="social">
+</div>
 
-   <button id="likeBtn" onclick="toggleLike()">
-    ❤️ Like <b id="likeCount">0</b>
-   </button>
+</div>
 
-   <button onclick="dislikePlayer()">
-    👎 Dislike <b id="dislikeCount">0</b>
-   </button>
+<!-- COMMUNITY -->
 
-   <button onclick="openComments()">
-    💬 Comments <b id="commentCount">0</b>
-   </button>
+<div class="card">
 
-   <button onclick="openChat()">
-    💬 Chat
-   </button>
+<h2>👥 Cric Yuva Community</h2>
 
-  </div>
+<div class="community">
 
-  <div class="actions">
+<div class="communityBox">
+<b id="accounts">0</b>
+<span>Total Accounts</span>
+</div>
 
-   <button class="btn blue" onclick="sendFriendRequest()">
-    👥 Send Friend Request
-   </button>
+<div class="communityBox">
+<b id="logins">0</b>
+<span>Total Logins</span>
+</div>
 
-  </div>
+<div class="communityBox">
+<b id="subscribers">0</b>
+<span>Subscribers</span>
+</div>
 
- </div>
+<div class="communityBox">
+<b>v1.0.0</b>
+<span>App Version</span>
+</div>
 
- <!-- CONNECTION -->
+</div>
 
- <div class="card">
+</div>
 
-  <h2>👥 Cric Yuva Community</h2>
+<!-- SOCIAL -->
 
-  <div class="stats">
+<div class="card">
 
-   <div class="stat">
-    <b id="followersCount">0</b>
-    <span>Connected Players</span>
-   </div>
+<h2>❤️ Player Social</h2>
 
-   <div class="stat">
-    <b id="accountCount">0</b>
-    <span>Accounts</span>
-   </div>
+<div class="social">
 
-   <div class="stat">
-    <b id="subscriberCount">0</b>
-    <span>Subscribers</span>
-   </div>
+<button id="likeBtn"
+onclick="likePlayer()">
+❤️ Like <span id="likes">0</span>
+</button>
 
-  </div>
+<button onclick="dislikePlayer()">
+👎 Dislike <span id="dislikes">0</span>
+</button>
 
- </div>
+<button onclick="comments()">
+💬 Comment <span id="commentCount">0</span>
+</button>
 
- <!-- AWARDS -->
+<button onclick="sendFriend()">
+👥 Friend
+</button>
 
- <div class="card">
+</div>
 
-  <h2>🏆 Cricket Awards</h2>
+<div class="actions">
 
-  <div class="grid">
+<button class="btn blue"
+onclick="chatPage()">
+💬 Chat Player
+</button>
 
-   <div class="detail">
-    <small>Player of the Match</small>
-    <b id="awardPOM">0</b>
-   </div>
+<button class="btn dark"
+onclick="sendFriend()">
+👥 Send Friend Request
+</button>
 
-   <div class="detail">
-    <small>Tournament MVP</small>
-    <b id="awardMVP">0</b>
-   </div>
+</div>
 
-   <div class="detail">
-    <small>Best Batsman</small>
-    <b id="awardBat">0</b>
-   </div>
+</div>
 
-   <div class="detail">
-    <small>Best Bowler</small>
-    <b id="awardBowl">0</b>
-   </div>
+<!-- AWARDS -->
 
-  </div>
+<div class="card">
 
- </div>
+<h2>🏆 Awards</h2>
+
+<div class="detailGrid">
+
+<div class="detail">
+<small>Player of the Match</small>
+<b id="pom">0</b>
+</div>
+
+<div class="detail">
+<small>Tournament MVP</small>
+<b id="mvp">0</b>
+</div>
+
+<div class="detail">
+<small>Best Batsman</small>
+<b id="bestBat">0</b>
+</div>
+
+<div class="detail">
+<small>Best Bowler</small>
+<b id="bestBowl">0</b>
+</div>
+
+</div>
+
+</div>
 
 </section>
 
-<!-- ================= MATCHES ================= -->
+<!-- MATCHES -->
 
-<section id="pageMatches" class="hidden">
+<section id="matchesPage" class="hidden">
 
- <div class="card">
+<div class="card">
 
-  <h2>🏏 Matches</h2>
+<h2>🏏 Match Details</h2>
 
-  <div class="actions">
-   <button class="btn" onclick="addMatch()">
-    ➕ Add Match
-   </button>
+<button class="btn"
+onclick="addMatch()">
+➕ Add Match
+</button>
 
-   <button class="btn secondary" onclick="practiceMatch()">
-    🏏 Practice Match
-   </button>
-  </div>
+<button class="btn dark"
+onclick="practiceMatch()">
+🏏 Practice Match
+</button>
 
- </div>
+</div>
 
- <div id="matchList" class="card"></div>
-
-</section>
-
-<!-- ================= FRIENDS ================= -->
-
-<section id="pageFriends" class="hidden">
-
- <div class="card">
-
-  <h2>👥 Friends</h2>
-
-  <div id="friendList"></div>
-
- </div>
+<div id="matchList" class="card"></div>
 
 </section>
 
-<!-- ================= CHAT ================= -->
+<!-- FRIENDS -->
 
-<section id="pageChat" class="hidden">
+<section id="friendsPage" class="hidden">
 
- <div class="card">
+<div class="card">
 
-  <h2>💬 Player Chat</h2>
+<h2>👥 Friends</h2>
 
-  <div id="chatMessages" style="min-height:200px"></div>
+<div id="friendsList"
+class="empty">
+No friends yet.
+</div>
 
-  <div style="display:flex;gap:8px">
-   <input id="chatInput" placeholder="Write message...">
-   <button class="btn" onclick="sendChat()">Send</button>
-  </div>
+</div>
 
- </div>
+</section>
+
+<!-- CHAT -->
+
+<section id="chatPage" class="hidden">
+
+<div class="card">
+
+<h2>💬 Chat</h2>
+
+<div id="chatMessages"
+style="min-height:200px"></div>
+
+<div style="display:flex;gap:8px">
+
+<input id="chatInput"
+placeholder="Message...">
+
+<button class="btn"
+onclick="sendChat()">
+Send
+</button>
+
+</div>
+
+</div>
 
 </section>
 
@@ -570,789 +793,1066 @@ textarea{min-height:90px}
 
 </section>
 
-<!-- ================= MODAL ================= -->
+<!-- MODAL -->
 
-<div id="modal" class="overlay hidden">
- <div class="modal">
+<div id="modal"
+class="overlay hidden">
 
-  <div style="display:flex;justify-content:space-between;align-items:center">
-   <h2 id="modalTitle">Details</h2>
-   <button class="iconbtn" onclick="closeModal()">✕</button>
-  </div>
+<div class="modal">
 
-  <div id="modalBody"></div>
+<div class="modalHead">
 
- </div>
+<h2 id="modalTitle">
+Details
+</h2>
+
+<button class="icon"
+onclick="closeModal()">
+✕
+</button>
+
+</div>
+
+<div id="modalBody"></div>
+
+</div>
+
 </div>
 
 <script>
 
-/* =========================================================
-   CRIC YUVA
-   LOCAL PROFILE / LOGIN SYSTEM
-   ========================================================= */
+/* ================= DATA ================= */
 
-const ACCOUNT_KEY="cricYuvaAccount";
-const PROFILE_KEY="cricYuvaProfile";
-const SOCIAL_KEY="cricYuvaSocial";
-const MATCH_KEY="cricYuvaMatches";
-const FRIEND_KEY="cricYuvaFriends";
-const CHAT_KEY="cricYuvaChat";
+const ACCOUNT="CY_ACCOUNT";
+const PROFILE="CY_PROFILE";
+const STATS="CY_STATS";
+const MATCHDATA="CY_MATCHES";
+const FRIENDDATA="CY_FRIENDS";
+const CHATDATA="CY_CHAT";
 
-let account=JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null");
-let profile=JSON.parse(localStorage.getItem(PROFILE_KEY)||"null");
+let account=JSON.parse(localStorage.getItem(ACCOUNT)||"null");
 
-let social=JSON.parse(localStorage.getItem(SOCIAL_KEY)||JSON.stringify({
+let profile=JSON.parse(localStorage.getItem(PROFILE)||"null");
+
+let stats=JSON.parse(localStorage.getItem(STATS)||JSON.stringify({
+ accounts:0,
+ logins:0,
+ subscribers:0,
  likes:0,
  dislikes:0,
  comments:[],
- subscribers:0,
- connections:0
+ liked:false
 }));
 
-let matches=JSON.parse(localStorage.getItem(MATCH_KEY)||"[]");
-let friends=JSON.parse(localStorage.getItem(FRIEND_KEY)||"[]");
-let chats=JSON.parse(localStorage.getItem(CHAT_KEY)||"[]");
+let matches=JSON.parse(localStorage.getItem(MATCHDATA)||"[]");
 
-function saveAll(){
- localStorage.setItem(ACCOUNT_KEY,JSON.stringify(account));
- localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
- localStorage.setItem(SOCIAL_KEY,JSON.stringify(social));
- localStorage.setItem(MATCH_KEY,JSON.stringify(matches));
- localStorage.setItem(FRIEND_KEY,JSON.stringify(friends));
- localStorage.setItem(CHAT_KEY,JSON.stringify(chats));
+let friends=JSON.parse(localStorage.getItem(FRIENDDATA)||"[]");
+
+let chats=JSON.parse(localStorage.getItem(CHATDATA)||"[]");
+
+
+function save(){
+
+localStorage.setItem(ACCOUNT,JSON.stringify(account));
+localStorage.setItem(PROFILE,JSON.stringify(profile));
+localStorage.setItem(STATS,JSON.stringify(stats));
+localStorage.setItem(MATCHDATA,JSON.stringify(matches));
+localStorage.setItem(FRIENDDATA,JSON.stringify(friends));
+localStorage.setItem(CHATDATA,JSON.stringify(chats));
+
 }
 
-/* ---------- START ---------- */
 
-document.addEventListener("DOMContentLoaded",()=>{
- if(account){
-   if(profile){
-     showApp();
-   }else{
-     showApp();
-     openEditProfile(true);
-   }
- }else{
-   showLogin();
- }
-});
+/* ================= START ================= */
 
-/* ---------- LOGIN ---------- */
+window.onload=function(){
+
+if(account){
+
+if(profile){
+
+showApp();
+
+}else{
+
+showApp();
+
+setTimeout(editProfile,300);
+
+}
+
+}else{
+
+showLogin();
+
+}
+
+};
+
+
+/* ================= LOGIN ================= */
 
 function showLogin(){
- document.getElementById("loginScreen").classList.remove("hidden");
- document.getElementById("registerScreen").classList.add("hidden");
- document.getElementById("appScreen").classList.add("hidden");
+
+document.getElementById("loginScreen")
+.classList.remove("hidden");
+
+document.getElementById("app")
+.classList.add("hidden");
+
 }
 
-function showRegister(){
- document.getElementById("loginScreen").classList.add("hidden");
- document.getElementById("registerScreen").classList.remove("hidden");
+function register(){
+
+const mobile=prompt("Mobile Number डालें:");
+
+if(!mobile)return;
+
+const password=prompt("Password बनाएं:");
+
+if(!password)return;
+
+account={
+mobile:mobile,
+password:password
+};
+
+stats.accounts++;
+
+profile=null;
+
+save();
+
+showApp();
+
+setTimeout(editProfile,300);
+
 }
 
-function createAccount(){
 
- const mobile=document.getElementById("regMobile").value.trim();
- const pass=document.getElementById("regPassword").value;
- const pass2=document.getElementById("regPassword2").value;
+function login(){
 
- if(!mobile||!pass){
-  msg("registerMsg","Mobile and password required","error");
-  return;
- }
+const mobile=
+document.getElementById("loginMobile").value.trim();
 
- if(pass!==pass2){
-  msg("registerMsg","Passwords do not match","error");
-  return;
- }
+const password=
+document.getElementById("loginPassword").value;
 
- account={
-   mobile:mobile,
-   password:pass,
-   createdAt:new Date().toISOString()
- };
+if(!account){
 
- profile=null;
+alert("Account नहीं मिला। पहले Create Player Account करें.");
 
- saveAll();
+return;
 
- showApp();
-
- openEditProfile(true);
 }
 
-function loginUser(){
+if(
+account.mobile!==mobile||
+account.password!==password
+){
 
- const mobile=document.getElementById("loginMobile").value.trim();
- const pass=document.getElementById("loginPassword").value;
+alert("Mobile Number या Password गलत है.");
 
- const saved=JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null");
+return;
 
- if(!saved){
-  msg("loginMsg","Account not found. Create account first.","error");
-  return;
- }
-
- if(saved.mobile!==mobile||saved.password!==pass){
-  msg("loginMsg","Wrong mobile number or password.","error");
-  return;
- }
-
- account=saved;
-
- const savedProfile=JSON.parse(localStorage.getItem(PROFILE_KEY)||"null");
- profile=savedProfile;
-
- showApp();
-
- if(!profile){
-  openEditProfile(true);
- }else{
-  renderProfile();
- }
 }
 
-function logoutUser(){
+stats.logins++;
 
- if(confirm("Logout करना है?")){
-  account=null;
-  showLogin();
- }
+save();
+
+showApp();
+
 }
 
-/* ---------- APP ---------- */
+
+function forgotPassword(){
+
+const mobile=prompt(
+"अपना registered mobile number डालें:"
+);
+
+if(!mobile)return;
+
+if(!account||account.mobile!==mobile){
+
+alert(
+"यह mobile number हमारे local account में नहीं मिला."
+);
+
+return;
+
+}
+
+const newPassword=prompt(
+"नया password डालें:"
+);
+
+if(!newPassword)return;
+
+account.password=newPassword;
+
+save();
+
+alert(
+"✅ Password बदल गया.\nअब नए password से Login करें."
+);
+
+}
+
+
+/* ================= APP ================= */
 
 function showApp(){
- document.getElementById("loginScreen").classList.add("hidden");
- document.getElementById("registerScreen").classList.add("hidden");
- document.getElementById("appScreen").classList.remove("hidden");
- renderProfile();
+
+document.getElementById("loginScreen")
+.classList.add("hidden");
+
+document.getElementById("app")
+.classList.remove("hidden");
+
+render();
+
 }
 
-function showPage(page){
+function logout(){
 
- const pages=["profile","matches","friends","chat"];
+account=null;
 
- pages.forEach(p=>{
-  document.getElementById("page"+cap(p)).classList.add("hidden");
- });
+localStorage.removeItem(ACCOUNT);
+localStorage.removeItem(PROFILE);
 
- document.getElementById("page"+cap(page)).classList.remove("hidden");
+showLogin();
 
- document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
-
- const nav=document.getElementById("nav"+cap(page));
- if(nav)nav.classList.add("active");
-
- if(page==="matches")renderMatches();
- if(page==="friends")renderFriends();
- if(page==="chat")renderChat();
 }
 
-function cap(x){
- return x.charAt(0).toUpperCase()+x.slice(1);
+
+/* ================= PAGE ================= */
+
+function page(p){
+
+document.getElementById("profilePage")
+.classList.add("hidden");
+
+document.getElementById("matchesPage")
+.classList.add("hidden");
+
+document.getElementById("friendsPage")
+.classList.add("hidden");
+
+document.getElementById("chatPage")
+.classList.add("hidden");
+
+if(p==="profile")
+document.getElementById("profilePage").classList.remove("hidden");
+
+if(p==="matches"){
+document.getElementById("matchesPage").classList.remove("hidden");
+renderMatches();
 }
 
-/* ---------- PROFILE ---------- */
-
-function openEditProfile(first=false){
-
- const p=profile||{};
-
- modal(
-  "👤 "+(first?"Complete Player Profile":"Edit Profile"),
-  `
-  <div class="notice">
-  ${first
-   ?"पहली बार profile भरें। Save करने के बाद यही profile आपके account में रहेगी।"
-   :"आप अपनी player details कभी भी बदल सकते हैं।"}
-  </div>
-
-  <label>Full Name *</label>
-  <input id="f_name" value="${esc(p.name||"")}" placeholder="Player name">
-
-  <label>Date of Birth</label>
-  <input id="f_dob" type="date" value="${esc(p.dob||"")}">
-
-  <label>Email</label>
-  <input id="f_email" value="${esc(p.email||"")}" placeholder="Email">
-
-  <label>Team</label>
-  <input id="f_team" value="${esc(p.team||"")}" placeholder="Team name">
-
-  <label>Playing Role</label>
-  <select id="f_role">
-   ${opts(["Batsman","Bowler","All Rounder","Wicket Keeper Batsman"],p.role||"")}
-  </select>
-
-  <label>Batting Style</label>
-  <select id="f_bat">
-   ${opts(["Right Hand","Left Hand","Not Applicable"],p.batting||"")}
-  </select>
-
-  <label>Bowling Style</label>
-  <select id="f_bowl">
-   ${opts(["Right Arm Fast","Right Arm Medium","Right Arm Spin","Left Arm Fast","Left Arm Medium","Left Arm Spin","Not Applicable"],p.bowling||"")}
-  </select>
-
-  <label>Jersey Name</label>
-  <input id="f_jname" value="${esc(p.jerseyName||"")}" placeholder="Jersey name">
-
-  <label>Jersey Number</label>
-  <input id="f_jnumber" type="number" min="0" max="999"
-         value="${esc(p.jerseyNumber||"")}">
-
-  <label>Jersey Size</label>
-  <select id="f_size">
-   ${opts(["S","M","L","XL","XXL","XXXL"],p.jerseySize||"M")}
-  </select>
-
-  <label>Address</label>
-  <input id="f_address" value="${esc(p.address||"")}">
-
-  <label>City</label>
-  <input id="f_city" value="${esc(p.city||"")}">
-
-  <label>Profile Photo</label>
-  <input id="f_photo" type="file" accept="image/*">
-
-  <button class="btn" style="width:100%;margin-top:18px"
-          onclick="saveProfile()">
-   💾 Save Profile
-  </button>
-  `
- );
-
- const file=document.getElementById("f_photo");
-
- if(file){
-  file.addEventListener("change",function(){
-   const reader=new FileReader();
-   reader.onload=e=>{
-    window.pendingPhoto=e.target.result;
-   };
-   if(this.files[0])reader.readAsDataURL(this.files[0]);
-  });
- }
+if(p==="friends"){
+document.getElementById("friendsPage").classList.remove("hidden");
+renderFriends();
 }
+
+if(p==="chat"){
+document.getElementById("chatPage").classList.remove("hidden");
+renderChat();
+}
+
+}
+
+
+/* ================= PROFILE ================= */
+
+function editProfile(){
+
+const p=profile||{};
+
+modal(
+"👤 Player Profile",
+`
+
+<label>Full Name *</label>
+<input id="fName"
+value="${esc(p.name||"")}"
+placeholder="Player Name">
+
+<label>Date of Birth</label>
+<input id="fDob"
+type="date"
+value="${esc(p.dob||"")}">
+
+<label>Email</label>
+<input id="fEmail"
+value="${esc(p.email||"")}"
+placeholder="Email">
+
+<label>Team</label>
+<input id="fTeam"
+value="${esc(p.team||"")}"
+placeholder="Team">
+
+<label>Playing Role</label>
+
+<select id="fRole">
+${option("Batsman",p.role)}
+${option("Bowler",p.role)}
+${option("All Rounder",p.role)}
+${option("Wicket Keeper Batsman",p.role)}
+</select>
+
+<label>Batting</label>
+
+<select id="fBat">
+${option("Right Hand",p.batting)}
+${option("Left Hand",p.batting)}
+</select>
+
+<label>Bowling</label>
+
+<select id="fBowl">
+${option("Right Arm Fast",p.bowling)}
+${option("Right Arm Medium",p.bowling)}
+${option("Right Arm Spin",p.bowling)}
+${option("Left Arm Fast",p.bowling)}
+${option("Left Arm Medium",p.bowling)}
+${option("Left Arm Spin",p.bowling)}
+${option("Not Applicable",p.bowling)}
+</select>
+
+<label>Jersey Name</label>
+<input id="fJerseyName"
+value="${esc(p.jerseyName||"")}">
+
+<label>Jersey Number</label>
+<input id="fJerseyNumber"
+type="number"
+value="${esc(p.jerseyNumber||"")}">
+
+<label>Jersey Size</label>
+
+<select id="fSize">
+${option("S",p.jerseySize)}
+${option("M",p.jerseySize)}
+${option("L",p.jerseySize)}
+${option("XL",p.jerseySize)}
+${option("XXL",p.jerseySize)}
+${option("XXXL",p.jerseySize)}
+</select>
+
+<label>City</label>
+<input id="fCity"
+value="${esc(p.city||"")}">
+
+<label>Player Photo</label>
+<input id="fPhoto"
+type="file"
+accept="image/*">
+
+<button class="btn"
+style="width:100%;margin-top:18px"
+onclick="saveProfile()">
+💾 Save Profile
+</button>
+`
+);
+
+}
+
 
 function saveProfile(){
 
- const name=document.getElementById("f_name").value.trim();
+const name=document.getElementById("fName")
+.value.trim();
 
- if(!name){
-  alert("Full Name भरना जरूरी है।");
-  return;
- }
+if(!name){
 
- profile={
-  id:profile?.id||makePlayerId(),
-  name:name,
-  dob:document.getElementById("f_dob").value,
-  email:document.getElementById("f_email").value.trim(),
-  team:document.getElementById("f_team").value.trim(),
-  role:document.getElementById("f_role").value,
-  batting:document.getElementById("f_bat").value,
-  bowling:document.getElementById("f_bowl").value,
-  jerseyName:document.getElementById("f_jname").value.trim(),
-  jerseyNumber:document.getElementById("f_jnumber").value||"00",
-  jerseySize:document.getElementById("f_size").value,
-  address:document.getElementById("f_address").value.trim(),
-  city:document.getElementById("f_city").value.trim(),
-  photo:window.pendingPhoto||profile?.photo||"",
-  stats:profile?.stats||{
-   matches:0,runs:0,wickets:0,fours:0,sixes:0,catches:0
-  },
-  awards:profile?.awards||{
-   pom:0,mvp:0,bestBat:0,bestBowl:0
-  }
- };
+alert("Player Name भरना जरूरी है.");
 
- saveAll();
+return;
 
- window.pendingPhoto=null;
-
- closeModal();
- showApp();
- showPage("profile");
-
- alert("✅ Profile saved successfully!");
 }
 
-function makePlayerId(){
+const old=profile||{};
 
- const n=String(Math.floor(Math.random()*999999)).padStart(6,"0");
+profile={
 
- return "CY-"+n;
+id:old.id||makeID(),
+
+name:name,
+
+dob:document.getElementById("fDob").value,
+
+email:document.getElementById("fEmail").value,
+
+team:document.getElementById("fTeam").value,
+
+role:document.getElementById("fRole").value,
+
+batting:document.getElementById("fBat").value,
+
+bowling:document.getElementById("fBowl").value,
+
+jerseyName:document.getElementById("fJerseyName").value,
+
+jerseyNumber:
+document.getElementById("fJerseyNumber").value||"00",
+
+jerseySize:
+document.getElementById("fSize").value,
+
+city:
+document.getElementById("fCity").value,
+
+photo:old.photo||"",
+
+stats:old.stats||{
+matches:0,
+runs:0,
+wickets:0,
+fours:0,
+sixes:0,
+catches:0
+},
+
+awards:old.awards||{
+pom:0,
+mvp:0,
+bestBat:0,
+bestBowl:0
 }
 
-function renderProfile(){
+};
 
- if(!profile)return;
+const file=
+document.getElementById("fPhoto").files[0];
 
- setText("profileName",profile.name||"—");
- setText("profileId",profile.id||"—");
- setText("profileMobile",account?.mobile||"—");
- setText("profileEmail",profile.email||"—");
- setText("profileTeam",profile.team||"—");
+if(file){
 
- setText("profileRole",profile.role||"Role");
- setText("profileBatting",profile.batting||"Batting");
- setText("profileBowling",profile.bowling||"Bowling");
+const reader=new FileReader();
 
- setText("jerseyName",(profile.jerseyName||"PLAYER").toUpperCase());
- setText("jerseyNumber",profile.jerseyNumber||"00");
- setText("jerseySize","Jersey Size: "+(profile.jerseySize||"M"));
+reader.onload=function(e){
 
- const s=profile.stats||{};
+profile.photo=e.target.result;
 
- setText("statMatches",fmt(s.matches));
- setText("statRuns",fmt(s.runs));
- setText("statWickets",fmt(s.wickets));
- setText("stat4s",fmt(s.fours));
- setText("stat6s",fmt(s.sixes));
- setText("statCatches",fmt(s.catches));
+save();
 
- const a=profile.awards||{};
+closeModal();
 
- setText("awardPOM",a.pom||0);
- setText("awardMVP",a.mvp||0);
- setText("awardBat",a.bestBat||0);
- setText("awardBowl",a.bestBowl||0);
+render();
 
- setText("likeCount",social.likes||0);
- setText("dislikeCount",social.dislikes||0);
- setText("commentCount",social.comments?.length||0);
- setText("followersCount",social.connections||0);
- setText("accountCount",1);
- setText("subscriberCount",social.subscribers||0);
+};
 
- const photo=document.getElementById("profilePhoto");
+reader.readAsDataURL(file);
 
- if(profile.photo){
-  photo.innerHTML='<img src="'+profile.photo+'">';
- }else{
-  photo.innerHTML="Player Photo";
- }
+}else{
+
+save();
+
+closeModal();
+
+render();
+
 }
 
-function fmt(n){
- return String(n||0).padStart(2,"0");
 }
 
-/* ---------- FULL DETAILS ---------- */
 
-function openFullDetails(){
+function render(){
 
- if(!profile)return;
+if(!profile)return;
 
- modal(
-  "📋 Player All Details",
-  `
-  <div class="detailGrid">
+set("name",profile.name);
+set("playerId",profile.id);
+set("mobile",account.mobile);
+set("email",profile.email||"—");
+set("team",profile.team||"—");
 
-   ${detail("Player ID",profile.id)}
-   ${detail("Full Name",profile.name)}
-   ${detail("Mobile",account?.mobile)}
-   ${detail("Email",profile.email)}
-   ${detail("Date of Birth",profile.dob)}
-   ${detail("Team",profile.team)}
-   ${detail("Playing Role",profile.role)}
-   ${detail("Batting",profile.batting)}
-   ${detail("Bowling",profile.bowling)}
-   ${detail("Jersey Name",profile.jerseyName)}
-   ${detail("Jersey Number",profile.jerseyNumber)}
-   ${detail("Jersey Size",profile.jerseySize)}
-   ${detail("Address",profile.address)}
-   ${detail("City",profile.city)}
+set("role",profile.role);
+set("batting",profile.batting);
+set("bowling",profile.bowling);
 
-  </div>
+set("jerseyName",
+(profile.jerseyName||"PLAYER").toUpperCase());
 
-  <h3 style="margin-top:20px">📊 Career Statistics</h3>
+set("jerseyNumber",
+profile.jerseyNumber||"00");
 
-  <div class="detailGrid">
+set("jerseySize",
+"Jersey Size: "+(profile.jerseySize||"M"));
 
-   ${detail("Matches",profile.stats.matches)}
-   ${detail("Runs",profile.stats.runs)}
-   ${detail("Wickets",profile.stats.wickets)}
-   ${detail("4s",profile.stats.fours)}
-   ${detail("6s",profile.stats.sixes)}
-   ${detail("Catches",profile.stats.catches)}
+const s=profile.stats;
 
-  </div>
+set("matches",pad(s.matches));
+set("runs",pad(s.runs));
+set("wickets",pad(s.wickets));
+set("fours",pad(s.fours));
+set("sixes",pad(s.sixes));
+set("catches",pad(s.catches));
 
-  <h3 style="margin-top:20px">🏆 Awards</h3>
+set("accounts",stats.accounts);
+set("logins",stats.logins);
+set("subscribers",stats.subscribers);
 
-  <div class="detailGrid">
+set("likes",stats.likes);
+set("dislikes",stats.dislikes);
+set("commentCount",stats.comments.length);
 
-   ${detail("Player of the Match",profile.awards.pom)}
-   ${detail("Tournament MVP",profile.awards.mvp)}
-   ${detail("Best Batsman",profile.awards.bestBat)}
-   ${detail("Best Bowler",profile.awards.bestBowl)}
+set("pom",profile.awards.pom);
+set("mvp",profile.awards.mvp);
+set("bestBat",profile.awards.bestBat);
+set("bestBowl",profile.awards.bestBowl);
 
-  </div>
-  `
- );
+const photo=document.getElementById("photo");
+
+if(profile.photo){
+
+photo.innerHTML=
+'<img src="'+profile.photo+'">';
+
+}else{
+
+photo.innerHTML="Player Photo";
+
 }
 
-/* ---------- MATCHES ---------- */
+document.getElementById("likeBtn")
+.classList.toggle("liked",stats.liked);
 
-function addMatch(){
-
- modal(
-  "🏏 Add Match",
-  `
-  <label>Opponent Team</label>
-  <input id="m_opponent" placeholder="Opponent">
-
-  <label>Match Type</label>
-  <select id="m_type">
-   <option>Friendly Match</option>
-   <option>Practice Match</option>
-   <option>Tournament Match</option>
-   <option>League Match</option>
-  </select>
-
-  <label>Runs</label>
-  <input id="m_runs" type="number" value="0">
-
-  <label>Wickets</label>
-  <input id="m_wickets" type="number" value="0">
-
-  <label>4s</label>
-  <input id="m_4s" type="number" value="0">
-
-  <label>6s</label>
-  <input id="m_6s" type="number" value="0">
-
-  <label>Result</label>
-  <input id="m_result" placeholder="Won / Lost / Draw">
-
-  <button class="btn" style="width:100%;margin-top:18px"
-          onclick="saveMatch()">
-   Save Match
-  </button>
-  `
- );
 }
 
-function practiceMatch(){
 
- alert("🏏 Practice Match option ready.\n\nNext step में full live scoring जोड़ेंगे।");
+/* ================= DETAILS ================= */
+
+function fullDetails(){
+
+modal(
+"📋 Player All Details",
+`
+
+<div class="detailGrid">
+
+${detail("Player ID",profile.id)}
+
+${detail("Full Name",profile.name)}
+
+${detail("Mobile",account.mobile)}
+
+${detail("Email",profile.email)}
+
+${detail("Birthdate",profile.dob)}
+
+${detail("Team",profile.team)}
+
+${detail("Playing Role",profile.role)}
+
+${detail("Batting",profile.batting)}
+
+${detail("Bowling",profile.bowling)}
+
+${detail("Jersey Name",profile.jerseyName)}
+
+${detail("Jersey Number",profile.jerseyNumber)}
+
+${detail("Jersey Size",profile.jerseySize)}
+
+${detail("City",profile.city)}
+
+</div>
+
+<h3 style="margin-top:20px">
+🏏 Career Statistics
+</h3>
+
+<div class="detailGrid">
+
+${detail("Matches",profile.stats.matches)}
+
+${detail("Runs",profile.stats.runs)}
+
+${detail("Wickets",profile.stats.wickets)}
+
+${detail("4s",profile.stats.fours)}
+
+${detail("6s",profile.stats.sixes)}
+
+${detail("Catches",profile.stats.catches)}
+
+</div>
+
+`
+);
+
+
+/* ================= SOCIAL ================= */
+
+function likePlayer(){
+
+if(stats.liked){
+
+stats.likes--;
+
+stats.liked=false;
+
+}else{
+
+stats.likes++;
+
+stats.liked=true;
+
 }
 
-function saveMatch(){
+save();
 
- const match={
-  id:Date.now(),
-  opponent:document.getElementById("m_opponent").value||"Unknown",
-  type:document.getElementById("m_type").value,
-  runs:Number(document.getElementById("m_runs").value)||0,
-  wickets:Number(document.getElementById("m_wickets").value)||0,
-  fours:Number(document.getElementById("m_4s").value)||0,
-  sixes:Number(document.getElementById("m_6s").value)||0,
-  result:document.getElementById("m_result").value||"—",
-  date:new Date().toLocaleDateString()
- };
+render();
 
- matches.unshift(match);
-
- profile.stats.matches++;
- profile.stats.runs+=match.runs;
- profile.stats.wickets+=match.wickets;
- profile.stats.fours+=match.fours;
- profile.stats.sixes+=match.sixes;
-
- saveAll();
-
- closeModal();
- renderProfile();
- renderMatches();
-
- alert("✅ Match saved!");
-}
-
-function renderMatches(){
-
- const box=document.getElementById("matchList");
-
- if(!matches.length){
-  box.innerHTML='<div class="empty">🏏 अभी कोई match record नहीं है।</div>';
-  return;
- }
-
- box.innerHTML=matches.map(m=>`
-  <div class="listItem">
-
-   <h3>${esc(m.opponent)}</h3>
-
-   <div class="muted">
-    ${esc(m.type)} • ${esc(m.date)}
-   </div>
-
-   <p>
-    🏏 Runs: <b>${m.runs}</b>
-    &nbsp; | &nbsp;
-    🎯 Wickets: <b>${m.wickets}</b>
-   </p>
-
-   <p>
-    4s: ${m.fours} • 6s: ${m.sixes}
-   </p>
-
-   <b>${esc(m.result)}</b>
-
-  </div>
- `).join("");
-}
-
-/* ---------- SOCIAL ---------- */
-
-function toggleLike(){
-
- if(!social.userLiked){
-  social.likes++;
-  social.userLiked=true;
- }else{
-  social.likes--;
-  social.userLiked=false;
- }
-
- saveAll();
- renderProfile();
 }
 
 function dislikePlayer(){
 
- social.dislikes++;
- saveAll();
- renderProfile();
+stats.dislikes++;
 
- alert("👎 Dislike recorded");
+save();
+
+render();
+
+alert("👎 Dislike recorded");
+
 }
 
-function openComments(){
+function comments(){
 
- modal(
-  "💬 Comments",
-  `
-  <div id="commentsBox">
-   ${social.comments.length
-    ?social.comments.map(c=>`
-      <div class="listItem">
-       <b>${esc(c.name)}</b>
-       <div>${esc(c.text)}</div>
-      </div>
-     `).join("")
-    :'<div class="empty">No comments yet.</div>'}
-  </div>
+modal(
+"💬 Comments",
+`
 
-  <label>Add Comment</label>
-  <textarea id="commentInput" placeholder="Write comment..."></textarea>
+<div>
 
-  <button class="btn" style="width:100%;margin-top:10px"
-          onclick="addComment()">
-   Post Comment
-  </button>
-  `
- );
+${
+stats.comments.length
+?
+stats.comments.map(c=>`
+<div class="list">
+<b>${esc(c.name)}</b>
+<br>
+${esc(c.text)}
+</div>
+`).join("")
+:
+'<div class="empty">No comments yet.</div>'
+}
+
+</div>
+
+<label>Comment</label>
+
+<textarea id="commentText"
+placeholder="Write comment...">
+</textarea>
+
+<button class="btn"
+style="width:100%;margin-top:10px"
+onclick="addComment()">
+Post Comment
+</button>
+
+`
+);
+
 }
 
 function addComment(){
 
- const text=document.getElementById("commentInput").value.trim();
+const text=
+document.getElementById("commentText")
+.value.trim();
 
- if(!text)return;
+if(!text)return;
 
- social.comments.push({
-  name:profile.name,
-  text:text,
-  date:new Date().toISOString()
- });
+stats.comments.push({
+name:profile.name,
+text:text
+});
 
- saveAll();
- closeModal();
- renderProfile();
+save();
 
- alert("✅ Comment posted");
+closeModal();
+
+render();
+
 }
 
-function sendFriendRequest(){
 
- friends.push({
-  name:"New Player",
-  status:"Request Sent"
- });
+/* ================= FRIEND ================= */
 
- social.connections++;
+function sendFriend(){
 
- saveAll();
- renderProfile();
+friends.push({
+name:"Player",
+status:"Friend Request Sent"
+});
 
- alert("👥 Friend request sent!");
+save();
+
+alert(
+"👥 Friend Request भेज दी गई."
+);
+
 }
 
-/* ---------- FRIENDS ---------- */
 
-function renderFriends(){
+/* ================= CHAT ================= */
 
- const box=document.getElementById("friendList");
+function chatPage(){
 
- if(!friends.length){
-  box.innerHTML=`
-   <div class="empty">
-    👥 अभी कोई friend नहीं है।<br><br>
-    Player profile से Friend Request भेज सकते हैं।
-   </div>`;
-  return;
- }
+page("chat");
 
- box.innerHTML=friends.map((f,i)=>`
-  <div class="listItem">
-   <b>👤 ${esc(f.name)}</b>
-   <div class="muted">${esc(f.status)}</div>
-  </div>
- `).join("");
-}
-
-/* ---------- CHAT ---------- */
-
-function openChat(){
- showPage("chat");
 }
 
 function sendChat(){
 
- const input=document.getElementById("chatInput");
- const text=input.value.trim();
+const input=
+document.getElementById("chatInput");
 
- if(!text)return;
+const text=input.value.trim();
 
- chats.push({
-  sender:profile.name,
-  text:text,
-  time:new Date().toLocaleTimeString()
- });
+if(!text)return;
 
- saveAll();
+chats.push({
+name:profile.name,
+text:text,
+time:new Date().toLocaleTimeString()
+});
 
- input.value="";
- renderChat();
+save();
+
+input.value="";
+
+renderChat();
+
 }
 
 function renderChat(){
 
- const box=document.getElementById("chatMessages");
+const box=
+document.getElementById("chatMessages");
 
- if(!chats.length){
-  box.innerHTML='<div class="empty">💬 अभी कोई message नहीं है।</div>';
-  return;
- }
+if(!chats.length){
 
- box.innerHTML=chats.map(c=>`
-  <div class="listItem">
-   <b>${esc(c.sender)}</b>
-   <div>${esc(c.text)}</div>
-   <small class="muted">${esc(c.time)}</small>
-  </div>
- `).join("");
+box.innerHTML=
+'<div class="empty">💬 No messages yet.</div>';
+
+return;
+
 }
 
-/* ---------- SETTINGS ---------- */
+box.innerHTML=chats.map(c=>`
+<div class="list">
+<b>${esc(c.name)}</b>
+<br>
+${esc(c.text)}
+<br>
+<span class="small">${esc(c.time)}</span>
+</div>
+`).join("");
 
-function openSettings(){
-
- modal(
-  "⚙️ Settings",
-  `
-  <div class="listItem">
-   <b>Player ID</b>
-   <div class="muted">${esc(profile?.id||"—")}</div>
-  </div>
-
-  <div class="listItem">
-   <b>Account Mobile</b>
-   <div class="muted">${esc(account?.mobile||"—")}</div>
-  </div>
-
-  <div class="listItem">
-   <b>Storage</b>
-   <div class="muted">Local device storage</div>
-  </div>
-
-  <button class="btn red" style="width:100%;margin-top:18px"
-          onclick="clearLocalData()">
-   Delete Local Account Data
-  </button>
-  `
- );
 }
 
-function clearLocalData(){
 
- if(!confirm("सारा local profile data delete करना है?"))return;
+/* ================= MATCH ================= */
 
- localStorage.removeItem(ACCOUNT_KEY);
- localStorage.removeItem(PROFILE_KEY);
- localStorage.removeItem(SOCIAL_KEY);
- localStorage.removeItem(MATCH_KEY);
- localStorage.removeItem(FRIEND_KEY);
- localStorage.removeItem(CHAT_KEY);
+function addMatch(){
 
- location.reload();
+modal(
+"🏏 Add Match",
+`
+
+<label>Opponent Team</label>
+<input id="opponent">
+
+<label>Match Type</label>
+
+<select id="matchType">
+<option>Practice Match</option>
+<option>Friendly Match</option>
+<option>Tournament Match</option>
+</select>
+
+<label>Runs</label>
+<input id="matchRuns" type="number" value="0">
+
+<label>Wickets</label>
+<input id="matchWickets" type="number" value="0">
+
+<label>4s</label>
+<input id="match4s" type="number" value="0">
+
+<label>6s</label>
+<input id="match6s" type="number" value="0">
+
+<label>Result</label>
+<input id="matchResult">
+
+<button class="btn"
+style="width:100%;margin-top:15px"
+onclick="saveMatch()">
+Save Match
+</button>
+
+`
+);
+
 }
 
-/* ---------- MODAL ---------- */
+function practiceMatch(){
+
+alert(
+"🏏 Practice Match ready.\n\nNext phase में पूरा live scoring system जोड़ेंगे."
+);
+
+}
+
+function saveMatch(){
+
+const m={
+
+opponent:document.getElementById("opponent").value,
+
+type:document.getElementById("matchType").value,
+
+runs:+document.getElementById("matchRuns").value||0,
+
+wickets:+document.getElementById("matchWickets").value||0,
+
+fours:+document.getElementById("match4s").value||0,
+
+sixes:+document.getElementById("match6s").value||0,
+
+result:document.getElementById("matchResult").value,
+
+date:new Date().toLocaleDateString()
+
+};
+
+matches.unshift(m);
+
+profile.stats.matches++;
+
+profile.stats.runs+=m.runs;
+
+profile.stats.wickets+=m.wickets;
+
+profile.stats.fours+=m.fours;
+
+profile.stats.sixes+=m.sixes;
+
+save();
+
+closeModal();
+
+render();
+
+renderMatches();
+
+alert("✅ Match Saved");
+
+}
+
+function renderMatches(){
+
+const box=document.getElementById("matchList");
+
+if(!matches.length){
+
+box.innerHTML=
+'<div class="empty">No matches yet.</div>';
+
+return;
+
+}
+
+box.innerHTML=matches.map(m=>`
+
+<div class="list">
+
+<h3>${esc(m.opponent||"Opponent")}</h3>
+
+<div class="small">
+${esc(m.type)} • ${esc(m.date)}
+</div>
+
+<p>
+🏏 Runs:
+<b>${m.runs}</b>
+&nbsp;&nbsp;
+🎯 Wickets:
+<b>${m.wickets}</b>
+</p>
+
+<p>
+4s: ${m.fours}
+&nbsp;&nbsp;
+6s: ${m.sixes}
+</p>
+
+<b>${esc(m.result||"—")}</b>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* ================= SETTINGS ================= */
+
+function settings(){
+
+modal(
+"⚙️ Settings",
+`
+
+<div class="list">
+
+<b>App Version</b>
+
+<div class="small">
+v1.0.0
+</div>
+
+</div>
+
+<div class="list">
+
+<b>Player ID</b>
+
+<div class="small">
+${esc(profile?.id||"—")}
+</div>
+
+</div>
+
+<div class="list">
+
+<b>Account Mobile</b>
+
+<div class="small">
+${esc(account?.mobile||"—")}
+</div>
+
+</div>
+
+<button class="btn red"
+style="width:100%;margin-top:15px"
+onclick="logout()">
+Logout
+</button>
+
+`
+);
+
+}
+
+
+/* ================= SHARE ================= */
+
+async function shareProfile(){
+
+const link=
+location.href.split("#")[0]+
+"#player="+
+encodeURIComponent(profile.id);
+
+try{
+
+await navigator.clipboard.writeText(link);
+
+alert("✅ Profile link copied");
+
+}catch(e){
+
+prompt("Profile Link",link);
+
+}
+
+}
+
+
+/* ================= HELPERS ================= */
 
 function modal(title,body){
 
- document.getElementById("modalTitle").innerHTML=title;
- document.getElementById("modalBody").innerHTML=body;
- document.getElementById("modal").classList.remove("hidden");
+document.getElementById("modalTitle")
+.innerHTML=title;
+
+document.getElementById("modalBody")
+.innerHTML=body;
+
+document.getElementById("modal")
+.classList.remove("hidden");
+
 }
 
 function closeModal(){
- document.getElementById("modal").classList.add("hidden");
+
+document.getElementById("modal")
+.classList.add("hidden");
+
 }
 
 function detail(name,value){
 
- return `
- <div class="detail">
-  <small>${esc(name)}</small>
-  <b>${esc(value||"—")}</b>
- </div>`;
+return `
+<div class="detail">
+<small>${esc(name)}</small>
+<b>${esc(value||"—")}</b>
+</div>
+`;
+
 }
 
-function opts(arr,current){
+function option(value,current){
 
- return arr.map(x=>
-  `<option ${x===current?"selected":""}>${esc(x)}</option>`
- ).join("");
+return `
+<option ${value===current?"selected":""}>
+${value}
+</option>
+`;
+
 }
 
-function setText(id,value){
- const el=document.getElementById(id);
- if(el)el.textContent=value;
+function set(id,value){
+
+const el=document.getElementById(id);
+
+if(el)el.textContent=value;
+
 }
 
-function msg(id,text,type){
+function pad(n){
 
- const el=document.getElementById(id);
- el.classList.remove("hidden","error","success");
- el.classList.add(type==="error"?"error":"success");
- el.textContent=text;
+return String(n||0).padStart(2,"0");
+
+}
+
+function makeID(){
+
+return "CY-"+
+Math.floor(100000+Math.random()*900000);
+
 }
 
 function esc(v){
 
- return String(v??"")
- .replaceAll("&","&amp;")
- .replaceAll("<","&lt;")
- .replaceAll(">","&gt;")
- .replaceAll('"',"&quot;")
- .replaceAll("'","&#039;");
+return String(v??"")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
 }
 
 </script>
