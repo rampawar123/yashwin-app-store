@@ -5101,7 +5101,19 @@ display:none;
 ========================================= */
 
 "use strict";
+const firebaseConfig = {
+  apiKey: "AIzaSyC03NNjS1gZXNx9YqQytbpeRSBgJ7q1ovU",
+  authDomain: "cric-yuva.firebaseapp.com",
+  projectId: "cric-yuva",
+  storageBucket: "cric-yuva.firebasestorage.app",
+  messagingSenderId: "1066815621856",
+  appId: "1:1066815621856:web:8ab41d35bd8f50b8381e85",
+  measurementId: "G-7C0VXFEGPX"
+};
 
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+  }
 
 /* =========================================
    GLOBAL VARIABLES
