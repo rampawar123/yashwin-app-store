@@ -4,12 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#111111">
+
 <title>YASHWIN APP STORE</title>
 
 <style>
-*{box-sizing:border-box}
 
-html{scroll-behavior:smooth}
+*{
+ box-sizing:border-box;
+}
+
+html{
+ scroll-behavior:smooth;
+}
 
 body{
  margin:0;
@@ -18,15 +24,18 @@ body{
  font-family:Arial,sans-serif;
 }
 
-button{
+button,input{
  font:inherit;
+}
+
+button{
  cursor:pointer;
 }
 
 .header{
  background:#181818;
- border-bottom:2px solid #292929;
- padding:28px 34px;
+ border-bottom:2px solid #ff9800;
+ padding:22px 34px;
  display:flex;
  justify-content:space-between;
  align-items:center;
@@ -37,25 +46,25 @@ button{
 
 .logo{
  color:#ff9800;
- font-size:38px;
+ font-size:34px;
  font-weight:900;
 }
 
 .menuBtn{
- width:80px;
- height:76px;
+ width:78px;
+ height:72px;
  border:0;
  border-radius:20px;
  background:#ff9800;
  color:#111;
- font-size:42px;
+ font-size:38px;
  font-weight:bold;
 }
 
 .menu{
  display:none;
  background:#222;
- padding:18px 34px 24px;
+ padding:16px 34px 22px;
  border-bottom:2px solid #ff9800;
 }
 
@@ -65,14 +74,13 @@ button{
 
 .menu button{
  width:100%;
- margin:7px 0;
- padding:17px;
+ margin:6px 0;
+ padding:16px;
  border:0;
  border-radius:15px;
  background:#ff9800;
  color:#111;
  font-weight:900;
- font-size:20px;
 }
 
 main{
@@ -81,28 +89,84 @@ main{
  padding:28px 34px 60px;
 }
 
-.topButtons{
+.navButtons{
  display:grid;
- grid-template-columns:1fr;
- gap:16px;
- margin-bottom:28px;
+ grid-template-columns:repeat(3,1fr);
+ gap:14px;
+ margin-bottom:30px;
 }
 
-.topButtons button{
+.navButtons button{
  border:0;
- border-radius:18px;
- padding:22px;
+ border-radius:17px;
+ padding:20px 10px;
  background:#ff9800;
  color:#111;
- font-size:26px;
+ font-size:22px;
  font-weight:900;
+}
+
+.navButtons button.active{
+ background:#ffad26;
+}
+
+.hero{
+ text-align:center;
+ padding:18px 0 20px;
+}
+
+.hero h1{
+ color:#ff9800;
+ font-size:52px;
+ line-height:1.05;
+ margin:0 0 25px;
+}
+
+.hero p{
+ color:#aaa;
+ font-size:24px;
+ margin:0 0 30px;
+}
+
+.searchBox{
+ display:none;
+ margin:15px 0 30px;
+}
+
+.searchBox.show{
+ display:flex;
+}
+
+.searchBox input{
+ flex:1;
+ padding:19px;
+ border-radius:18px 0 0 18px;
+ border:1px solid #555;
+ background:#222;
+ color:#fff;
+ outline:none;
+ font-size:20px;
+}
+
+.searchBox button{
+ width:90px;
+ border:0;
+ border-radius:0 18px 18px 0;
+ background:#ff9800;
+ font-size:28px;
+}
+
+.sectionTitle{
+ color:#ff9800;
+ font-size:36px;
+ margin:20px 0;
 }
 
 .card{
  background:#1d1d1d;
  border:1px solid #383838;
  border-radius:28px;
- padding:34px;
+ padding:32px;
  margin:28px 0;
  text-align:center;
  box-shadow:0 8px 25px #0008;
@@ -114,35 +178,35 @@ main{
  object-fit:contain;
  border-radius:30px;
  background:#000;
- margin:auto;
  display:block;
+ margin:auto;
 }
 
 .card h2{
  font-size:34px;
- margin:28px 0 12px;
+ margin:25px 0 10px;
 }
 
 .card p{
  color:#aaa;
- font-size:23px;
- margin:0 0 28px;
+ font-size:22px;
+ margin:0 0 25px;
 }
 
 .actions{
  display:grid;
  grid-template-columns:1fr;
- gap:14px;
+ gap:13px;
 }
 
 .actionBtn{
  width:100%;
  border:0;
  border-radius:17px;
- padding:20px;
+ padding:19px;
  background:#ff9800;
  color:#111;
- font-size:25px;
+ font-size:24px;
  font-weight:900;
 }
 
@@ -158,11 +222,19 @@ main{
  display:block;
 }
 
+.about p{
+ line-height:1.6;
+}
+
+.version{
+ color:#ff9800;
+ font-weight:bold;
+}
+
 .footer{
  text-align:center;
- color:#888;
+ color:#777;
  padding:25px;
- font-size:15px;
 }
 
 .toast{
@@ -172,7 +244,7 @@ main{
  transform:translateX(-50%);
  background:#ff9800;
  color:#111;
- padding:15px 22px;
+ padding:14px 22px;
  border-radius:13px;
  font-weight:900;
  display:none;
@@ -181,21 +253,34 @@ main{
 
 @media(max-width:600px){
 
- .header{
-  padding:22px 34px;
- }
-
  .logo{
   font-size:30px;
  }
 
- .menuBtn{
-  width:78px;
-  height:76px;
+ .header{
+  padding:20px 34px;
  }
 
  main{
-  padding:28px 34px 50px;
+  padding:26px 34px 50px;
+ }
+
+ .navButtons{
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+ }
+
+ .navButtons button{
+  font-size:17px;
+  padding:17px 5px;
+ }
+
+ .hero h1{
+  font-size:48px;
+ }
+
+ .hero p{
+  font-size:22px;
  }
 
  .card{
@@ -206,14 +291,12 @@ main{
   font-size:30px;
  }
 
- .card p{
-  font-size:22px;
- }
-
  .actionBtn{
   font-size:23px;
  }
+
 }
+
 </style>
 </head>
 
@@ -225,151 +308,264 @@ main{
   YASHWIN APP STORE
  </div>
 
- <button class="menuBtn" onclick="toggleMenu()">
+ <button
+  class="menuBtn"
+  onclick="toggleMenu()">
   ☰
  </button>
 
 </header>
 
+
 <div id="menu" class="menu">
 
- <button onclick="goApps()">📱 Apps</button>
+ <button onclick="showApps()">
+  📱 Apps
+ </button>
 
- <button onclick="goAbout()">ℹ️ About</button>
+ <button onclick="showAbout()">
+  ℹ️ About
+ </button>
 
- <button onclick="shareStore()">🔗 Share YASHWIN APP STORE</button>
+ <button onclick="showSearch()">
+  🔍 Search
+ </button>
 
 </div>
 
-<main id="apps">
 
- <div class="topButtons">
+<main>
 
-  <button onclick="goApps()">
-   Apps
+
+<!-- 3 MAIN BUTTONS -->
+
+<div class="navButtons">
+
+ <button
+  id="appsBtn"
+  class="active"
+  onclick="showApps()">
+  Apps
+ </button>
+
+ <button
+  id="aboutBtn"
+  onclick="showAbout()">
+  About
+ </button>
+
+ <button
+  id="searchBtn"
+  onclick="showSearch()">
+  Search
+ </button>
+
+</div>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+ <h1>
+  YASHWIN APP<br>STORE
+ </h1>
+
+ <p>
+  Download useful apps made for everyone.
+ </p>
+
+</section>
+
+
+<!-- SEARCH -->
+
+<div
+ id="searchBox"
+ class="searchBox">
+
+ <input
+  id="searchInput"
+  type="search"
+  placeholder="Search apps..."
+  oninput="searchApps()">
+
+ <button onclick="searchApps()">
+  🔍
+ </button>
+
+</div>
+
+
+<h2 class="sectionTitle">
+ Available Apps
+</h2>
+
+
+<!-- ================= VANSH CALCULATOR ================= -->
+
+<section
+ class="card appCard"
+ data-name="vansh calculator calculator">
+
+ <img
+  class="appLogo"
+  src="calculator-logo.png"
+  alt="VANSH CALCULATOR">
+
+ <h2>
+  VANSH CALCULATOR
+ </h2>
+
+ <p>
+  Simple and fast calculator.
+ </p>
+
+ <div class="actions">
+
+  <button
+   class="actionBtn"
+   onclick="downloadCalculator()">
+   Download APK
   </button>
 
-  <button onclick="goAbout()">
-   About
+  <button
+   class="actionBtn"
+   onclick="openCalculator()">
+   Open App
+  </button>
+
+  <button
+   class="actionBtn"
+   onclick="shareCalculator()">
+   🔗 Share App
   </button>
 
  </div>
 
-
- <!-- VANSH CALCULATOR -->
-
- <section class="card">
-
-  <img
-   class="appLogo"
-   src="calculator-logo.png"
-   alt="VANSH CALCULATOR"
-   onerror="this.style.display='none'"
-  >
-
-  <h2>
-   VANSH CALCULATOR
-  </h2>
-
-  <p>
-   Simple and fast calculator.
-  </p>
-
-  <div class="actions">
-
-   <button
-    class="actionBtn"
-    onclick="downloadCalculator()">
-    Download APK
-   </button>
-
-   <button
-    class="actionBtn"
-    onclick="openCalculator()">
-    Open App
-   </button>
-
-   <button
-    class="actionBtn"
-    onclick="shareCalculator()">
-    🔗 Share App
-   </button>
-
-  </div>
-
- </section>
+</section>
 
 
- <!-- YASHWIN APP STORE -->
+<!-- ================= CRIC YUVA ================= -->
 
- <section class="card">
+<section
+ class="card appCard"
+ data-name="cric yuva cricket">
 
-  <img
-   class="appLogo"
-   src="yashwin-app-store-logo.png"
-   alt="YASHWIN APP STORE"
-   onerror="this.style.display='none'"
-  >
+ <img
+  class="appLogo"
+  src="cric-yuva/cric-yuva-logo.png"
+  alt="CRIC YUVA">
 
-  <h2>
-   YASHWIN APP STORE
-  </h2>
+ <h2>
+  CRIC YUVA
+ </h2>
 
-  <p>
-   Your personal app store.
-  </p>
+ <p>
+  Professional Cricket Platform.
+ </p>
 
-  <div class="actions">
+ <div class="actions">
 
-   <button
-    class="actionBtn"
-    onclick="downloadStore()">
-    Download APK
-   </button>
+  <button
+   class="actionBtn"
+   onclick="downloadCricYuva()">
+   Download APK
+  </button>
 
-   <button
-    class="actionBtn"
-    onclick="openStore()">
-    Open App
-   </button>
+  <button
+   class="actionBtn"
+   onclick="openCricYuva()">
+   Open App
+  </button>
 
-   <button
-    class="actionBtn"
-    onclick="shareStore()">
-    🔗 Share App Store
-   </button>
+  <button
+   class="actionBtn"
+   onclick="shareCricYuva()">
+   🔗 Share App
+  </button>
 
-  </div>
+ </div>
 
- </section>
+</section>
 
 
- <!-- ABOUT -->
+<!-- ================= YASHWIN APP STORE ================= -->
 
- <section id="about" class="card about">
+<section
+ class="card appCard"
+ data-name="yashwin app store">
 
-  <h2>
-   ℹ️ About YASHWIN APP STORE
-  </h2>
+ <img
+  class="appLogo"
+  src="icon-512.png"
+  alt="YASHWIN APP STORE">
 
-  <p>
-   YASHWIN APP STORE is our personal application platform.
-  </p>
+ <h2>
+  YASHWIN APP STORE
+ </h2>
 
-  <p>
-   Here you can find and open our applications.
-  </p>
+ <p>
+  Your personal app store.
+ </p>
 
-  <p>
-   Version: 1.0.0
-  </p>
+ <div class="actions">
 
- </section>
+  <button
+   class="actionBtn"
+   onclick="downloadStore()">
+   Download APK
+  </button>
+
+  <button
+   class="actionBtn"
+   onclick="openStore()">
+   Open App
+  </button>
+
+  <button
+   class="actionBtn"
+   onclick="shareStore()">
+   🔗 Share App Store
+  </button>
+
+ </div>
+
+</section>
+
+
+<!-- ================= ABOUT ================= -->
+
+<section
+ id="about"
+ class="card about">
+
+ <h2>
+  ℹ️ About YASHWIN APP STORE
+ </h2>
+
+ <p>
+  YASHWIN APP STORE is our personal application platform.
+ </p>
+
+ <p>
+  यहाँ हमारे बनाए हुए applications मिलेंगे।
+ </p>
+
+ <p>
+  Website Version:
+  <span class="version">2.0</span>
+ </p>
+
+ <p>
+  Apps:
+  VANSH CALCULATOR • CRIC YUVA • YASHWIN APP STORE
+ </p>
+
+</section>
+
 
 </main>
-
-
-<div id="toast" class="toast"></div>
 
 
 <footer class="footer">
@@ -377,7 +573,15 @@ main{
 </footer>
 
 
+<div
+ id="toast"
+ class="toast">
+</div>
+
+
 <script>
+
+/* ================= LINKS ================= */
 
 const STORE_URL =
  "https://rampawar123.github.io/yashwin-app-store/";
@@ -385,19 +589,24 @@ const STORE_URL =
 const CALCULATOR_URL =
  "https://rampawar123.github.io/yashwin-app-store/calculator.html";
 
+const CRIC_YUVA_URL =
+ "https://rampawar123.github.io/yashwin-app-store/cric-yuva/";
+
 
 /*
- IMPORTANT:
- APK file ka exact naam/path tumhare repository
- me jo hai uske hisab se yaha set karna hai.
+ GitHub Actions pages.
+ APK ko direct root me fake naam se link
+ nahi kiya gaya hai.
 */
 
-const CALCULATOR_APK =
- "calculator.apk";
+const CALCULATOR_BUILD_URL =
+ "https://github.com/rampawar123/yashwin-app-store/actions/workflows/build-calculator.yml";
 
-const STORE_APK =
- "yashwin-app-store.apk";
+const CRIC_BUILD_URL =
+ "https://github.com/rampawar123/yashwin-app-store/actions/workflows/build-apk.yml";
 
+
+/* ================= MENU ================= */
 
 function toggleMenu(){
 
@@ -409,38 +618,135 @@ function toggleMenu(){
 }
 
 
-function goApps(){
+/* ================= APPS ================= */
 
- document.getElementById("apps")
- .scrollIntoView({
-  behavior:"smooth"
- });
+function showApps(){
 
  document.getElementById("about")
  .classList.remove("show");
 
+ document.getElementById("searchBox")
+ .classList.remove("show");
+
+ document.getElementById("appsBtn")
+ .classList.add("active");
+
+ document.getElementById("aboutBtn")
+ .classList.remove("active");
+
+ document.getElementById("searchBtn")
+ .classList.remove("active");
+
  document.getElementById("menu")
  .classList.remove("show");
 
-}
-
-
-function goAbout(){
-
- const about =
- document.getElementById("about");
-
- about.classList.add("show");
-
- about.scrollIntoView({
+ window.scrollTo({
+  top:0,
   behavior:"smooth"
  });
 
+}
+
+
+/* ================= ABOUT ================= */
+
+function showAbout(){
+
+ document.getElementById("about")
+ .classList.add("show");
+
+ document.getElementById("searchBox")
+ .classList.remove("show");
+
+ document.getElementById("appsBtn")
+ .classList.remove("active");
+
+ document.getElementById("aboutBtn")
+ .classList.add("active");
+
+ document.getElementById("searchBtn")
+ .classList.remove("active");
+
  document.getElementById("menu")
  .classList.remove("show");
 
+ document.getElementById("about")
+ .scrollIntoView({
+  behavior:"smooth"
+ });
+
 }
 
+
+/* ================= SEARCH ================= */
+
+function showSearch(){
+
+ document.getElementById("searchBox")
+ .classList.add("show");
+
+ document.getElementById("about")
+ .classList.remove("show");
+
+ document.getElementById("appsBtn")
+ .classList.remove("active");
+
+ document.getElementById("aboutBtn")
+ .classList.remove("active");
+
+ document.getElementById("searchBtn")
+ .classList.add("active");
+
+ document.getElementById("menu")
+ .classList.remove("show");
+
+ document.getElementById("searchInput").focus();
+
+ document.getElementById("searchBox")
+ .scrollIntoView({
+  behavior:"smooth"
+ });
+
+}
+
+
+/* ================= SEARCH FUNCTION ================= */
+
+function searchApps(){
+
+ const text =
+ document.getElementById("searchInput")
+ .value
+ .toLowerCase()
+ .trim();
+
+ const cards =
+ document.querySelectorAll(".appCard");
+
+ cards.forEach(function(card){
+
+  const name =
+  card.dataset.name;
+
+  if(
+   text === "" ||
+   name.includes(text)
+  ){
+
+   card.style.display="block";
+
+  }else{
+
+   card.style.display="none";
+
+  }
+
+ });
+
+}
+
+
+/* ================= OPEN ================= */
 
 function openCalculator(){
 
@@ -450,10 +756,10 @@ function openCalculator(){
 }
 
 
-function downloadCalculator(){
+function openCricYuva(){
 
  window.location.href =
- CALCULATOR_APK;
+ CRIC_YUVA_URL;
 
 }
 
@@ -466,13 +772,42 @@ function openStore(){
 }
 
 
-function downloadStore(){
+/* ================= DOWNLOAD ================= */
+
+function downloadCalculator(){
 
  window.location.href =
- STORE_APK;
+ CALCULATOR_BUILD_URL;
+
+ showToast(
+  "VANSH CALCULATOR APK BUILD"
+ );
 
 }
 
+
+function downloadCricYuva(){
+
+ window.location.href =
+ CRIC_BUILD_URL;
+
+ showToast(
+  "CRIC YUVA APK BUILD"
+ );
+
+}
+
+
+function downloadStore(){
+
+ showToast(
+  "YASHWIN APP STORE APK अभी build करना है"
+ );
+
+}
+
+
+/* ================= SHARE ================= */
 
 async function shareLink(url,text){
 
@@ -522,6 +857,16 @@ function shareCalculator(){
 }
 
 
+function shareCricYuva(){
+
+ shareLink(
+  CRIC_YUVA_URL,
+  "CRIC YUVA"
+ );
+
+}
+
+
 function shareStore(){
 
  shareLink(
@@ -531,6 +876,8 @@ function shareStore(){
 
 }
 
+
+/* ================= TOAST ================= */
 
 function showToast(message){
 
@@ -548,7 +895,35 @@ function showToast(message){
   toast.style.display =
   "none";
 
- },2000);
+ },2500);
+
+}
+
+
+/* ================= UPDATE ================= */
+
+/*
+ GitHub Pages पर index.html बदलने के बाद
+ नया page reload होने पर नया code आएगा.
+ पुराने Service Worker की वजह से पुराना
+ page अटकने से बचाने के लिए unregister.
+*/
+
+if(
+ "serviceWorker" in navigator
+){
+
+ navigator.serviceWorker
+ .getRegistrations()
+ .then(function(registrations){
+
+  registrations.forEach(function(reg){
+
+   reg.unregister();
+
+  });
+
+ });
 
 }
 
