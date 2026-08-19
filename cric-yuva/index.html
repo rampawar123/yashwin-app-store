@@ -8087,20 +8087,24 @@ async function sendOTP(){
   }catch(error){
 
     console.error(
-      "OTP error:",
-      error
+        "OTP error:",
+        error
     );
 
+    let message =
+        error && error.code
+            ? error.code
+            : "unknown-error";
 
     showToast(
-      "OTP could not be sent. Try again."
+        "OTP Error: " + message
     );
 
-
     recaptchaVerifier =
-      null;
-
-  }finally{
+        null;
+  }
+  
+  finally{
 
     const button =
       $("#sendOtpButton");
