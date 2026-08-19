@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07131f">
+<title>Cric Yuva Professional V2</title>
+<style>
+:root{--bg:#07131f;--panel:#0d1f31;--panel2:#11283e;--line:#23415b;--text:#f5f8fb;--muted:#9db1c3;--accent:#f6a623;--green:#2bd576;--red:#ff5d67}
+*{box-sizing:border-box}body{margin:0;background:#020a12;color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input,select,textarea{font:inherit}.app{max-width:560px;margin:auto;min-height:100vh;background:var(--bg)}
+.top{position:sticky;top:0;z-index:10;padding:15px 16px;background:rgba(7,19,31,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:900;font-size:20px}.sub{font-size:11px;color:var(--muted);margin-top:2px}.iconbtn{border:1px solid var(--line);background:var(--panel);color:#fff;border-radius:11px;padding:9px 11px}
+.hero{padding:22px 16px 14px;background:linear-gradient(145deg,#0c2941,#0b1727)}
+.hero h1{font-size:29px;margin:0 0 7px}.hero p{color:var(--muted);margin:0;line-height:1.45}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px;background:#081725;position:sticky;top:62px;z-index:9}
+.nav button{border:0;background:var(--panel);color:#b8c8d7;border-radius:12px;padding:10px 4px;font-size:11px}.nav button.active{background:var(--accent);color:#07131f;font-weight:900}
+.page{display:none;padding-bottom:30px}.page.active{display:block}.section{margin:14px 16px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:17px}
+.section h2{font-size:17px;margin:0 0 13px}.profile{text-align:center;padding:22px 16px}.photoWrap{position:relative;width:108px;height:108px;margin:auto}.photo{width:108px;height:108px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);background:#183047}.photoEdit{position:absolute;right:-3px;bottom:1px;width:35px;height:35px;border:0;border-radius:50%;background:var(--accent);font-weight:900}
+.name{font-size:25px;font-weight:900;margin-top:13px}.id{font-size:11px;color:var(--muted);margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{background:#091a2b;border:1px solid #1d3850;border-radius:12px;padding:11px}.label{font-size:10px;color:var(--muted)}.value{font-size:13px;margin-top:4px;word-break:break-word}
+.btn{width:100%;border:0;border-radius:12px;padding:12px;background:var(--accent);color:#07131f;font-weight:900}.btn.secondary{background:#1b344b;color:#fff}.btn.green{background:var(--green)}.row{display:flex;gap:9px}.row>*{flex:1}
+.bday{display:flex;gap:12px;align-items:center}.bday img{width:55px;height:55px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#091a2b;border-radius:12px;padding:11px 5px;text-align:center}.stat b{display:block;font-size:19px}.stat span{font-size:9px;color:var(--muted)}
+.list{display:grid;gap:9px}.listItem{display:flex;align-items:center;gap:11px;padding:11px;border-radius:12px;background:#091a2b;border:1px solid #1b354c}.avatar{width:43px;height:43px;border-radius:50%;object-fit:cover;background:#1a3045}.grow{flex:1}.small{font-size:11px;color:var(--muted)}
+.badge{font-size:9px;padding:5px 8px;border-radius:20px;background:#19354d;color:#c4d8e9}.green{color:var(--green)}.orange{color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:9px 5px;border-bottom:1px solid #1e374d;text-align:left}th{color:var(--muted)}
+.empty{color:var(--muted);font-size:12px;text-align:center;padding:12px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:30;padding:18px;overflow:auto}.modal.show{display:block}.sheet{max-width:520px;margin:20px auto;background:#0d1f31;border:1px solid var(--line);border-radius:18px;padding:18px}.sheet h2{margin-top:0}
+label{display:block;font-size:11px;color:var(--muted);margin:11px 0 6px}input,select,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #29455e;background:#071725;color:#fff;outline:none}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+.chat{height:360px;overflow:auto;background:#071725;border-radius:13px;padding:12px}.msg{max-width:78%;padding:9px 11px;border-radius:13px;margin:7px 0;font-size:12px}.me{margin-left:auto;background:#235276}.them{background:#17324a}.chatbar{display:flex;gap:7px;margin-top:8px}.chatbar input{flex:1}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#102b40;border:1px solid #31536e;color:#fff;padding:11px 15px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50;font-size:12px}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:380px){.grid{grid-template-columns:1fr}.statgrid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+ <div><div class="brand">🏏 CRIC YUVA</div><div class="sub">Professional Cricket Platform</div></div>
+ <button class="iconbtn" onclick="openSettings()">⚙️</button>
+</header>
+
+<nav class="nav">
+ <button class="active" onclick="showPage('home',this)">Home</button>
+ <button onclick="showPage('profile',this)">Profile</button>
+ <button onclick="showPage('matches',this)">Matches</button>
+ <button onclick="showPage('friends',this)">Friends</button>
+</nav>
+
+<main>
+<section id="home" class="page active">
+ <div class="hero"><h1>Welcome to Cric Yuva</h1><p>Players • Teams • Tournaments • Live Scoring • Auction • Stats</p></div>
+ <div class="section"><h2>🎂 Today's Birthdays</h2><div id="homeBirthday" class="empty">No birthday today</div></div>
+ <div class="section"><h2>🏏 Quick Actions</h2><div class="row">
+  <button class="btn" onclick="openMatchDetails()">Match Details</button>
+  <button class="btn secondary" onclick="openProfileEdit()">Edit Profile</button>
+ </div></div>
+ <div class="section"><h2>💳 Subscription</h2><div id="subscriptionHome"></div></div>
+ <div class="section"><h2>📊 My Cricket</h2><div class="statgrid" id="homeStats"></div></div>
+</section>
+
+<section id="profile" class="page">
+ <div class="profile">
+  <div class="photoWrap"><img id="profilePhoto" class="photo"><button class="photoEdit" onclick="photoInput.click()">✎</button><input id="photoInput" hidden type="file" accept="image/*"></div>
+  <div id="displayName" class="name"></div><div id="displayId" class="id"></div>
+ </div>
+ <div class="section"><h2>👤 Player Details</h2><div id="profileFields" class="grid"></div><div class="row" style="margin-top:12px"><button class="btn" onclick="openProfileEdit()">✏️ Edit Profile</button><button class="btn secondary" onclick="showToast('Player ID is fixed')">🆔 ID</button></div></div>
+ <div class="section"><h2>📈 Career Statistics</h2><div class="statgrid" id="careerStats"></div></div>
+ <div class="section"><h2>🕘 Match History</h2><div id="history"></div></div>
+ <div class="section"><h2>🎂 Birthday</h2><div id="profileBirthday" class="empty"></div></div><div class="section"><h2>💳 Subscription</h2><div id="subscriptionProfile"></div></div>
+</section>
+
+<section id="matches" class="page">
+ <div class="hero"><h1>🏏 Match Details</h1><p>Played matches • Practice • Friendly • Tournament • Player performance</p></div>
+ <div class="section"><h2>📋 Selected Match Details</h2><div id="selectedMatchDetails"></div></div>
+ <div class="section"><h2>🔴 Live Match</h2><div class="listItem"><div class="grow"><b>No live match selected</b><div class="small">Live score will appear when an organizer starts a match.</div></div><span class="badge">READY</span></div><div class="row" style="margin-top:10px"><button class="btn" onclick="openScore()">Live Score</button><button class="btn secondary" onclick="showToast('YouTube link can be connected here')">▶ YouTube</button></div></div>
+ <div class="section"><h2>📅 Match Types</h2><div class="row"><button class="btn" onclick="showToast('Practice Match selected')">🏏 Practice</button><button class="btn secondary" onclick="showToast('Friendly Match selected')">🤝 Friendly</button></div></div>
+ <div class="section"><h2>📊 Previous Matches</h2><div id="matchList"></div></div>
+</section>
+
+<section id="friends" class="page">
+ <div class="hero"><h1>👥 Friends</h1><p>Connect with players and chat.</p></div>
+ <div class="section"><input id="friendSearch" placeholder="Search player name / Player ID" oninput="renderFriends()"><div id="friendList" class="list" style="margin-top:10px"></div></div>
+ <div class="section"><h2>💬 Chat</h2><div id="chat" class="chat"><div class="empty">Select a friend to start chat</div></div><div class="chatbar"><input id="chatInput" placeholder="Type message..." onkeydown="if(event.key==='Enter')sendChat()"><button class="btn" style="width:95px" onclick="sendChat()">Send</button></div></div>
+</section>
+</main>
+</div>
+
+<div id="profileModal" class="modal"><div class="sheet">
+<h2>✏️ Edit Player Profile</h2>
+<label>Player Name</label><input id="fName">
+<label>Jersey Name</label><input id="fJerseyName">
+<label>Jersey Number</label><input id="fJerseyNumber" type="number">
+<label>Jersey Size</label><select id="fJerseySize"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>XXXL</option></select>
+<label>Mobile Number</label><input id="fMobile" inputmode="tel">
+<label>Email</label><input id="fEmail" type="email">
+<label>Birthdate</label><input id="fBirthdate" type="date">
+<label>Team</label><input id="fTeam">
+<div class="actions"><button class="btn secondary" onclick="closeModal('profileModal')">Cancel</button><button class="btn" onclick="saveProfile()">Save</button></div>
+</div></div>
+
+<div id="subscriptionModal" class="modal"><div class="sheet"><h2>💳 Subscription</h2><div id="subscriptionBox"></div><label>Plan</label><select id="subPlan"><option value="1year">1 Year</option><option value="1month">1 Month</option></select><div class="actions"><button class="btn secondary" onclick="closeModal('subscriptionModal')">Close</button><button class="btn" onclick="activateDemoSubscription()">Activate Demo</button></div><p class="small">Production version में payment gateway से payment verify होने के बाद ही subscription active होगी.</p></div></div>
+
+<div id="scoreModal" class="modal"><div class="sheet">
+<h2>🔴 Live Scoring Prototype</h2><div class="statgrid"><div class="stat"><b id="runs">0</b><span>RUNS</span></div><div class="stat"><b id="wkts">0</b><span>WICKETS</span></div><div class="stat"><b id="overs">0.0</b><span>OVERS</span></div><div class="stat"><b id="balls">0</b><span>BALLS</span></div></div>
+<div class="section" style="margin:14px 0 0"><h2>Runs</h2><div class="grid" id="runButtons"></div><h2 style="margin-top:14px">Extras / Wicket</h2><div class="grid"><button class="btn secondary" onclick="scoreEvent('W')">Wide</button><button class="btn secondary" onclick="scoreEvent('NB')">No Ball</button><button class="btn secondary" onclick="scoreEvent('B')">Bye</button><button class="btn secondary" onclick="scoreEvent('LB')">Leg Bye</button><button class="btn" onclick="scoreEvent('WK')">Wicket</button><button class="btn secondary" onclick="scoreEvent('UNDO')">Undo</button></div></div>
+<div class="section" style="margin:14px 0 0"><h2>🗺️ Shot Direction / Wagon Wheel</h2><p class="small">Tap an area after a scoring shot. The production version will save this to the ball event and player statistics.</p><div class="grid"><button class="btn secondary" onclick="direction('Cover')">Cover</button><button class="btn secondary" onclick="direction('Point')">Point</button><button class="btn secondary" onclick="direction('Mid-Off')">Mid-Off</button><button class="btn secondary" onclick="direction('Straight')">Straight</button><button class="btn secondary" onclick="direction('Mid-On')">Mid-On</button><button class="btn secondary" onclick="direction('Mid-Wicket')">Mid-Wicket</button><button class="btn secondary" onclick="direction('Square Leg')">Square Leg</button><button class="btn secondary" onclick="direction('Fine Leg')">Fine Leg</button></div></div>
+<button class="btn secondary" onclick="closeModal('scoreModal')">Close</button>
+</div></div>
+
+<div id="settingsModal" class="modal"><div class="sheet"><h2>⚙️ Cric Yuva Settings</h2>
+<div class="list"><div class="listItem"><div class="grow"><b>Account & Privacy</b><div class="small">Profile visibility, contact privacy</div></div></div><div class="listItem"><div class="grow"><b>Notifications</b><div class="small">Friends, matches, tournaments</div></div></div><div class="listItem"><div class="grow"><b>Roles & Permissions</b><div class="small">Admin • Organizer • Scorer • Team • Player • Viewer</div></div></div><div class="listItem"><div class="grow"><b>Live & YouTube</b><div class="small">Authorized stream connection</div></div></div><div class="listItem" onclick="openSubscription()"><div class="grow"><b>💳 Subscription</b><div class="small">Plan, status, expiry and renewal</div></div><span class="badge">Manage</span></div><div class="listItem"><div class="grow"><b>Auction & Tournament</b><div class="small">Teams, points, registration</div></div></div></div>
+<button class="btn secondary" onclick="closeModal('settingsModal')">Close</button></div></div>
+
+<div id="toast" class="toast"></div>
+<script>
+const PROFILE_KEY='cricYuvaProfileV2', CHAT_KEY='cricYuvaChatV2';
+const fallback='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="100%" height="100%" fill="#17304a"/><text x="50%" y="55%" text-anchor="middle" fill="#9db1c3" font-size="32">PLAYER</text></svg>');
+let profile=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')||{id:'',name:'',jerseyName:'',jerseyNumber:'',jerseySize:'M',mobile:'',email:'',birthdate:'',team:'',photo:'',profileSaved:false};
+let history=JSON.parse(localStorage.getItem('cricYuvaHistoryV2')||'null')||[];
+let friends=[{name:'Rahul Sharma',id:'CY-0012',online:true},{name:'Amit Patil',id:'CY-0024',online:false},{name:'Vikas Jadhav',id:'CY-0031',online:true}];
+let selectedFriend=null,chat=JSON.parse(localStorage.getItem(CHAT_KEY)||'null')||[]; let subscription=JSON.parse(localStorage.getItem('cricYuvaSubscriptionV2')||'null')||{status:'Not Active',plan:'1 Year',start:'',expiry:'',paymentStatus:'Pending'};
+let score={runs:0,wkts:0,balls:0,events:[]};
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function render(){
+ profilePhoto.src=profile.photo||fallback; displayName.textContent=profile.name||'PLAYER NAME'; displayId.textContent=profile.id?'Player ID: '+profile.id:'Player ID: —';
+ const rows=[['Jersey Name',profile.jerseyName],['Jersey Number',profile.jerseyNumber],['Jersey Size',profile.jerseySize],['Mobile',profile.mobile],['Email',profile.email],['Birthdate',profile.birthdate],['Team',profile.team]];
+ profileFields.innerHTML=rows.map(r=>`<div class="field"><div class="label">${r[0]}</div><div class="value">${esc(r[1]||'—')}</div></div>`).join('');
+ const stats=calcStats(); renderStats(careerStats,stats); renderStats(homeStats,stats); renderHistory(); renderMatches(); renderBirthday(); renderFriends(); renderSubscription(); renderSelectedMatch();
+}
+function calcStats(){
+ let r=0,b=0,w=0,f=0,s=0;
+ history.forEach(x=>{r+=Number(x.runs)||0;b+=Number(x.balls)||0;w+=Number(x.wickets)||0;f+=Number(x.fours)||0;s+=Number(x.sixes)||0});
+ return {m:history.length,r,b,w,f,s,hs:Math.max(0,...history.map(x=>Number(x.runs)||0)),sr:b?((r/b)*100).toFixed(1):'0.0'};
+}
+function renderStats(el,s){el.innerHTML=[['m','Matches'],['r','Runs'],['w','Wickets'],['f','4s'],['s','6s'],['hs','Best'],['sr','SR']].map(x=>`<div class="stat"><b>${s[x[0]]}</b><span>${x[1]}</span></div>`).join('')}
+function renderHistory(){historyEl=document.getElementById('history');historyEl.innerHTML=`<table><tr><th>Date</th><th>Opponent</th><th>Type</th><th>Runs</th><th>Wkts</th><th>Result</th></tr>`+history.map(x=>`<tr><td>${x.date}</td><td>${esc(x.opponent)}</td><td>${x.type}</td><td>${x.runs}</td><td>${x.wickets}</td><td>${x.result}</td></tr>`).join('')+'</table>'}
+function renderMatches(){
+ const el=document.getElementById('matchList');
+ if(!history.length){el.innerHTML='<div class="empty">No match history yet. Profile save करने के बाद यहाँ match details आएंगे.</div>';return;}
+ el.innerHTML=history.map((x,i)=>`<div class="listItem" onclick="showMatch(${i})"><div class="grow"><b>${esc(x.type||'Match')} • ${esc(x.date||'')}</b><div class="small">vs ${esc(x.opponent||'Opponent')} • ${esc(x.result||'')}</div><div class="small">Runs: ${Number(x.runs)||0} • Wickets: ${Number(x.wickets)||0} • 4s: ${Number(x.fours)||0} • 6s: ${Number(x.sixes)||0}</div></div><span class="badge">Details</span></div>`).join('');
+}
+function renderBirthday(){let out='No birthday today';if(profile.birthdate){let d=new Date(profile.birthdate+'T00:00:00'),n=new Date();if(d.getMonth()===n.getMonth()&&d.getDate()===n.getDate())out=`<div class="bday"><img src="${profile.photo||fallback}"><div><b>${esc(profile.name)}</b><div class="small">Player ID: ${esc(profile.id)}</div><div>🎉 Happy Birthday!</div></div></div>`}homeBirthday.innerHTML=out;profileBirthday.innerHTML=out}
+function renderFriends(){let q=(friendSearch.value||'').toLowerCase();friendList.innerHTML=friends.filter(f=>(f.name+f.id).toLowerCase().includes(q)).map((f,i)=>`<div class="listItem" onclick="selectFriend(${i})"><img class="avatar" src="${fallback}"><div class="grow"><b>${esc(f.name)}</b><div class="small">${f.id} • <span class="${f.online?'green':''}">${f.online?'Online':'Offline'}</span></div></div><span class="badge">Chat</span></div>`).join('')}
+function selectFriend(i){selectedFriend=friends[i];renderChat();showToast('Chat opened with '+selectedFriend.name)}
+function renderChat(){if(!selectedFriend)return;let msgs=chat.filter(m=>m.to===selectedFriend.id||m.from===selectedFriend.id);document.getElementById('chat').innerHTML=msgs.length?msgs.map(m=>`<div class="msg ${m.from==='me'?'me':'them'}">${esc(m.text)}</div>`).join(''):'<div class="empty">No messages yet</div>'}
+function sendChat(){if(!selectedFriend)return showToast('Select a friend first');let t=chatInput.value.trim();if(!t)return;chat.push({from:'me',to:selectedFriend.id,text:t});localStorage.setItem(CHAT_KEY,JSON.stringify(chat));chatInput.value='';renderChat()}
+function openMatchDetails(){showPage('matches',document.querySelectorAll('.nav button')[2]);renderSelectedMatch();}
+function renderSelectedMatch(){const el=document.getElementById('selectedMatchDetails');if(!el)return;if(!history.length){el.innerHTML=`<div class="empty"><b>No match details yet</b><br>Profile save हो गया है. यहाँ opponent, runs, wickets, 4s, 6s और result आएंगे.<div style="margin-top:12px"><button class="btn" onclick="createDemoMatch()">Add First Match</button></div></div>`;return;}showMatch(0,false);}
+function showMatch(i,toastIt=true){const x=history[i];if(!x)return;document.getElementById('selectedMatchDetails').innerHTML=`<div class="grid"><div class="field"><div class="label">Match</div><div class="value">${esc(x.type||'Match')} • ${esc(x.date||'')}</div></div><div class="field"><div class="label">Opponent</div><div class="value">${esc(x.opponent||'—')}</div></div><div class="field"><div class="label">Runs</div><div class="value">${Number(x.runs)||0}</div></div><div class="field"><div class="label">Wickets</div><div class="value">${Number(x.wickets)||0}</div></div><div class="field"><div class="label">4s</div><div class="value">${Number(x.fours)||0}</div></div><div class="field"><div class="label">6s</div><div class="value">${Number(x.sixes)||0}</div></div><div class="field"><div class="label">Result</div><div class="value">${esc(x.result||'—')}</div></div><div class="field"><div class="label">Player of Match</div><div class="value">${x.playerOfMatch?'🏆 Yes':'No'}</div></div></div><div class="small" style="margin-top:10px">Awards: ${esc(x.awards||'—')}</div>`;if(toastIt)showToast('Match details opened');}
+function createDemoMatch(){history=[{date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),opponent:'Demo Team',type:'Practice',runs:0,balls:0,fours:0,sixes:0,wickets:0,result:'Pending',playerOfMatch:false,awards:''}];localStorage.setItem('cricYuvaHistoryV2',JSON.stringify(history));render();showToast('First match created');}
+function renderSubscription(){const active=subscription.status==='Active';const text=active?`<div class="field"><div class="label">Status</div><div class="value green">ACTIVE</div></div><div class="grid" style="margin-top:9px"><div class="field"><div class="label">Plan</div><div class="value">${esc(subscription.plan)}</div></div><div class="field"><div class="label">Expiry</div><div class="value">${esc(subscription.expiry)}</div></div></div>`:`<div class="empty">Subscription: <b>${esc(subscription.status)}</b></div>`;document.getElementById('subscriptionHome').innerHTML=text+`<button class="btn" style="margin-top:10px" onclick="openSubscription()">💳 Subscription</button>`;document.getElementById('subscriptionProfile').innerHTML=text+`<button class="btn" style="margin-top:10px" onclick="openSubscription()">Manage Subscription</button>`;document.getElementById('subscriptionBox').innerHTML=text;}
+function openSubscription(){renderSubscription();subscriptionModal.classList.add('show');}
+function activateDemoSubscription(){const now=new Date(),expiry=new Date(now);expiry.setFullYear(expiry.getFullYear()+1);subscription={status:'Active',plan:subPlan.value==='1year'?'1 Year':'1 Month',start:now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),expiry:expiry.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),paymentStatus:'Demo Verified'};localStorage.setItem('cricYuvaSubscriptionV2',JSON.stringify(subscription));closeModal('subscriptionModal');render();showToast('Subscription activated');}
+function openProfileEdit(){['Name','JerseyName','JerseyNumber','JerseySize','Mobile','Email','Birthdate','Team'].forEach(k=>{let id='f'+k;document.getElementById(id).value=profile[k.charAt(0).toLowerCase()+k.slice(1)]||''});profileModal.classList.add('show')}
+function saveProfile(){
+ profile.name=fName.value.trim(); profile.jerseyName=fJerseyName.value.trim(); profile.jerseyNumber=fJerseyNumber.value; profile.jerseySize=fJerseySize.value; profile.mobile=fMobile.value.trim(); profile.email=fEmail.value.trim(); profile.birthdate=fBirthdate.value; profile.team=fTeam.value.trim();
+ if(!profile.name){showToast('Player Name भरना जरूरी है');return;}
+ if(!profile.id)profile.id='CY-'+String(Date.now()).slice(-6);
+ profile.profileSaved=true; localStorage.setItem(PROFILE_KEY,JSON.stringify(profile)); closeModal('profileModal'); render(); showToast('Profile saved — Match Details opened'); setTimeout(()=>openMatchDetails(),250);
+}
+photoInput.onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{profile.photo=r.result;localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));render();showToast('Photo updated')};r.readAsDataURL(f)}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');window.scrollTo(0,0)}
+function openScore(){scoreModal.classList.add('show')}
+function scoreEvent(type){if(type==='UNDO'){let e=score.events.pop();if(!e)return;score.runs-=e.runs;score.wkts-=e.wkts;score.balls-=e.ball;return updateScore()}let runs=0,wk=0,ball=1;if(type==='W')runs=1;if(type==='NB')runs=1; if(type==='B'||type==='LB')runs=1;if(type==='WK')wk=1;score.runs+=runs;score.wkts+=wk;score.balls+=ball;score.events.push({runs,wkts:wk,ball});updateScore()}
+function addRuns(n){score.runs+=n;score.balls++;score.events.push({runs:n,wkts:0,ball:1});updateScore()}
+function updateScore(){runs.textContent=score.runs;wkts.textContent=score.wkts;balls.textContent=score.balls;overs.textContent=Math.floor(score.balls/6)+'.'+score.balls%6}
+function direction(x){showToast('Shot direction: '+x+' recorded for next ball event')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function openSettings(){settingsModal.classList.add('show')}
+function showToast(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)}
+document.getElementById('runButtons').innerHTML=[0,1,2,3,4,5,6].map(n=>`<button class="btn ${n===4||n===6?'':'secondary'}" onclick="addRuns(${n})">${n}</button>`).join('');
+render();
+</script>
+</body>
+</html>
