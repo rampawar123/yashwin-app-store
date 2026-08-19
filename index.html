@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>YASHWIN APP STORE</title>
 
@@ -21,19 +21,23 @@ body{
 
 /* HEADER */
 header{
-  height:86px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  min-height:72px;
   background:#171717;
   border-bottom:3px solid #ff9800;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 15px;
+  padding:10px 15px;
 }
 
 .storeName{
   color:#ff9800;
-  font-size:25px;
+  font-size:24px;
   font-weight:900;
+  line-height:1.05;
 }
 
 .smallVersion{
@@ -42,7 +46,7 @@ header{
   margin-top:4px;
 }
 
-/* MENU */
+/* MENU BUTTON */
 .menuButton{
   width:55px;
   height:55px;
@@ -52,8 +56,10 @@ header{
   color:#111;
   font-size:29px;
   font-weight:bold;
+  cursor:pointer;
 }
 
+/* MENU */
 .menu{
   display:none;
   background:#242424;
@@ -70,41 +76,43 @@ header{
   border:0;
   background:#ff9800;
   color:#111;
-  padding:12px;
-  margin-bottom:8px;
+  padding:11px;
+  margin-bottom:7px;
   border-radius:10px;
-  font-size:16px;
+  font-size:15px;
   font-weight:bold;
+  cursor:pointer;
 }
 
 /* MAIN */
 main{
   max-width:700px;
   margin:auto;
-  padding:18px 12px 40px;
+  padding:16px 12px 40px;
 }
 
 /* TITLE */
 .mainTitle{
   text-align:center;
   color:#ff9800;
-  font-size:35px;
+  font-size:32px;
   font-weight:900;
   line-height:1.05;
+  margin:8px 0 8px;
 }
 
 .subtitle{
   text-align:center;
   color:#aaa;
-  font-size:15px;
-  margin:9px 0 18px;
+  font-size:14px;
+  margin:0 0 14px;
 }
 
 /* SEARCH */
 .search{
-  height:52px;
+  height:48px;
   display:flex;
-  margin-bottom:18px;
+  margin-bottom:14px;
 }
 
 .search input{
@@ -112,37 +120,39 @@ main{
   background:#242424;
   border:1px solid #555;
   color:#fff;
-  padding:0 15px;
-  font-size:16px;
+  padding:0 14px;
+  font-size:15px;
   border-radius:14px 0 0 14px;
   outline:none;
 }
 
 .search button{
-  width:62px;
+  width:58px;
   border:0;
   background:#ff9800;
   border-radius:0 14px 14px 0;
-  font-size:23px;
+  font-size:21px;
+  cursor:pointer;
 }
 
 /* APPS TITLE */
 .appsTitle{
   color:#ff9800;
-  font-size:25px;
-  margin-bottom:10px;
+  font-size:24px;
+  font-weight:900;
+  margin:5px 0 10px;
 }
 
 /* APP CARD */
 .app{
   background:#202020;
-  border:1px solid #3c3c3c;
+  border:1px solid #3a3a3a;
   border-radius:16px;
-  padding:12px;
+  padding:10px;
   margin-bottom:10px;
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:10px;
 }
 
 /* ICON */
@@ -161,7 +171,7 @@ main{
 }
 
 .appName{
-  font-size:18px;
+  font-size:17px;
   font-weight:900;
   white-space:nowrap;
   overflow:hidden;
@@ -170,9 +180,9 @@ main{
 
 .appVersion{
   color:#aaa;
-  font-size:10px;
+  font-size:11px;
   margin-top:3px;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
 /* BUTTONS */
@@ -188,7 +198,7 @@ main{
   color:#111;
   border-radius:7px;
   padding:8px 3px;
-  font-size:10px;
+  font-size:9px;
   font-weight:bold;
   text-decoration:none;
   text-align:center;
@@ -202,8 +212,8 @@ main{
   background:#202020;
   border:1px solid #444;
   border-radius:14px;
-  padding:18px;
-  margin-bottom:15px;
+  padding:15px;
+  margin-bottom:12px;
 }
 
 #about.show{
@@ -212,16 +222,16 @@ main{
 
 #about h2{
   color:#ff9800;
-  margin-bottom:8px;
+  margin-bottom:7px;
 }
 
 #about p{
   color:#aaa;
   line-height:1.5;
-  font-size:14px;
+  font-size:13px;
 }
 
-/* HIDE SEARCH RESULT */
+/* SEARCH HIDE */
 .hide{
   display:none;
 }
@@ -229,17 +239,40 @@ main{
 /* MOBILE */
 @media(max-width:420px){
 
+  header{
+    min-height:70px;
+    padding:9px 12px;
+  }
+
   .storeName{
-    font-size:23px;
+    font-size:22px;
+  }
+
+  .smallVersion{
+    font-size:9px;
+  }
+
+  .menuButton{
+    width:52px;
+    height:52px;
+    font-size:27px;
+  }
+
+  main{
+    padding:12px 10px 35px;
   }
 
   .mainTitle{
-    font-size:32px;
+    font-size:29px;
+  }
+
+  .subtitle{
+    font-size:13px;
   }
 
   .app{
-    padding:10px;
-    gap:9px;
+    padding:9px;
+    gap:8px;
   }
 
   .appIcon{
@@ -249,17 +282,20 @@ main{
   }
 
   .appName{
-    font-size:16px;
+    font-size:15px;
+  }
+
+  .appVersion{
+    font-size:10px;
   }
 
   .btn{
-    font-size:9px;
+    font-size:8px;
     padding:8px 2px;
   }
 }
 </style>
 </head>
-
 
 <body>
 
@@ -276,16 +312,14 @@ main{
     </div>
   </div>
 
-  <button
-    class="menuButton"
-    onclick="toggleMenu()">
+  <button class="menuButton" onclick="toggleMenu()">
     ☰
   </button>
 
 </header>
 
 
-<!-- MENU: ☰ DABANE PAR HI DIKHEGA -->
+<!-- MENU -->
 <div id="menu" class="menu">
 
   <button onclick="showApps()">
@@ -301,7 +335,7 @@ main{
 
 <main>
 
-  <!-- MAIN TITLE -->
+  <!-- TITLE -->
   <div class="mainTitle">
     YASHWIN APP STORE
   </div>
@@ -318,7 +352,8 @@ main{
       id="searchBox"
       type="text"
       placeholder="Search apps..."
-      oninput="searchApps()">
+      oninput="searchApps()"
+    >
 
     <button onclick="searchApps()">
       🔍
@@ -333,8 +368,8 @@ main{
     <h2>About</h2>
 
     <p>
-      YASHWIN APP STORE is our personal app
-      store for useful applications.
+      YASHWIN APP STORE is our personal app store
+      for useful applications.
     </p>
 
     <br>
@@ -358,12 +393,14 @@ main{
 
   <div
     class="app"
-    data-name="vansh calculator">
+    data-name="vansh calculator calculator"
+  >
 
     <img
       class="appIcon"
-      src="icon-512.png"
-      alt="VANSH CALCULATOR">
+      src="calculator-logo.png"
+      alt="VANSH CALCULATOR"
+    >
 
     <div class="appInfo">
 
@@ -372,28 +409,31 @@ main{
       </div>
 
       <div class="appVersion">
-        Version 2.0
+        Version 1.0
       </div>
 
       <div class="buttons">
 
         <a
           class="btn"
-          href="apks/vansh-calculator.apk"
-          download>
+          href="VANSH-CALCULATOR.apk"
+          download
+        >
           Download APK
         </a>
 
         <a
           class="btn"
-          href="calculator.html">
+          href="calculator.html"
+        >
           Open App
         </a>
 
         <button
           class="btn"
-          onclick="shareApp('VANSH CALCULATOR')">
-          🔗 Share
+          onclick="shareApp('VANSH CALCULATOR')"
+        >
+          🔗 Share App
         </button>
 
       </div>
@@ -409,12 +449,14 @@ main{
 
   <div
     class="app"
-    data-name="cric yuva cricket">
+    data-name="cric yuva cricket"
+  >
 
     <img
       class="appIcon"
       src="cric-yuva/cric-yuva-logo.png"
-      alt="CRIC YUVA">
+      alt="CRIC YUVA"
+    >
 
     <div class="appInfo">
 
@@ -430,21 +472,24 @@ main{
 
         <a
           class="btn"
-          href="apks/cric-yuva.apk"
-          download>
+          href="CRIC-YUVA.apk"
+          download
+        >
           Download APK
         </a>
 
         <a
           class="btn"
-          href="cric-yuva/intex.html">
+          href="cric-yuva/index.html"
+        >
           Open App
         </a>
 
         <button
           class="btn"
-          onclick="shareApp('CRIC YUVA')">
-          🔗 Share
+          onclick="shareApp('CRIC YUVA')"
+        >
+          🔗 Share App
         </button>
 
       </div>
@@ -460,12 +505,14 @@ main{
 
   <div
     class="app"
-    data-name="yashwin app store">
+    data-name="yashwin app store"
+  >
 
     <img
       class="appIcon"
       src="icon-512.png"
-      alt="YASHWIN APP STORE">
+      alt="YASHWIN APP STORE"
+    >
 
     <div class="appInfo">
 
@@ -481,21 +528,24 @@ main{
 
         <a
           class="btn"
-          href="apks/yashwin-app-store.apk"
-          download>
+          href="#"
+          onclick="alert('YASHWIN APP STORE APK will be added after the final build.'); return false;"
+        >
           Download APK
         </a>
 
         <a
           class="btn"
-          href="./">
+          href="./"
+        >
           Open App
         </a>
 
         <button
           class="btn"
-          onclick="shareApp('YASHWIN APP STORE')">
-          🔗 Share
+          onclick="shareApp('YASHWIN APP STORE')"
+        >
+          🔗 Share App
         </button>
 
       </div>
@@ -509,6 +559,7 @@ main{
 
 <script>
 
+/* MENU */
 function toggleMenu(){
 
   document
@@ -518,6 +569,7 @@ function toggleMenu(){
 }
 
 
+/* SHOW APPS */
 function showApps(){
 
   document
@@ -531,6 +583,7 @@ function showApps(){
 }
 
 
+/* SHOW ABOUT */
 function showAbout(){
 
   document
@@ -544,6 +597,7 @@ function showAbout(){
 }
 
 
+/* SEARCH */
 function searchApps(){
 
   const text =
@@ -580,10 +634,10 @@ function searchApps(){
 }
 
 
+/* SHARE */
 function shareApp(name){
 
-  const url =
-    window.location.href;
+  const url = window.location.href;
 
   if(navigator.share){
 
@@ -603,9 +657,12 @@ function shareApp(name){
   }else{
 
     navigator.clipboard
-      .writeText(url);
+      .writeText(url)
+      .then(function(){
 
-    alert("App link copied!");
+        alert("App link copied");
+
+      });
 
   }
 
