@@ -3,927 +3,611 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#111111">
 
 <title>YASHWIN APP STORE</title>
 
 <style>
-
 *{
- box-sizing:border-box;
-}
-
-html{
- scroll-behavior:smooth;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
 body{
- margin:0;
- background:#111;
- color:#fff;
- font-family:Arial,sans-serif;
+  font-family:Arial,sans-serif;
+  background:#101010;
+  color:#fff;
 }
 
-button,input{
- font:inherit;
+/* HEADER */
+header{
+  height:86px;
+  background:#171717;
+  border-bottom:3px solid #ff9800;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 15px;
 }
 
-button{
- cursor:pointer;
+.storeName{
+  color:#ff9800;
+  font-size:25px;
+  font-weight:900;
 }
 
-.header{
- background:#181818;
- border-bottom:2px solid #ff9800;
- padding:22px 34px;
- display:flex;
- justify-content:space-between;
- align-items:center;
- position:sticky;
- top:0;
- z-index:20;
+.smallVersion{
+  color:#999;
+  font-size:10px;
+  margin-top:4px;
 }
 
-.logo{
- color:#ff9800;
- font-size:34px;
- font-weight:900;
-}
-
-.menuBtn{
- width:78px;
- height:72px;
- border:0;
- border-radius:20px;
- background:#ff9800;
- color:#111;
- font-size:38px;
- font-weight:bold;
+/* MENU */
+.menuButton{
+  width:55px;
+  height:55px;
+  border:0;
+  border-radius:15px;
+  background:#ff9800;
+  color:#111;
+  font-size:29px;
+  font-weight:bold;
 }
 
 .menu{
- display:none;
- background:#222;
- padding:16px 34px 22px;
- border-bottom:2px solid #ff9800;
+  display:none;
+  background:#242424;
+  padding:10px 15px;
+  border-bottom:3px solid #ff9800;
 }
 
 .menu.show{
- display:block;
+  display:block;
 }
 
 .menu button{
- width:100%;
- margin:6px 0;
- padding:16px;
- border:0;
- border-radius:15px;
- background:#ff9800;
- color:#111;
- font-weight:900;
+  width:100%;
+  border:0;
+  background:#ff9800;
+  color:#111;
+  padding:12px;
+  margin-bottom:8px;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:bold;
 }
 
+/* MAIN */
 main{
- max-width:900px;
- margin:auto;
- padding:28px 34px 60px;
+  max-width:700px;
+  margin:auto;
+  padding:18px 12px 40px;
 }
 
-.navButtons{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:14px;
- margin-bottom:30px;
+/* TITLE */
+.mainTitle{
+  text-align:center;
+  color:#ff9800;
+  font-size:35px;
+  font-weight:900;
+  line-height:1.05;
 }
 
-.navButtons button{
- border:0;
- border-radius:17px;
- padding:20px 10px;
- background:#ff9800;
- color:#111;
- font-size:22px;
- font-weight:900;
+.subtitle{
+  text-align:center;
+  color:#aaa;
+  font-size:15px;
+  margin:9px 0 18px;
 }
 
-.navButtons button.active{
- background:#ffad26;
+/* SEARCH */
+.search{
+  height:52px;
+  display:flex;
+  margin-bottom:18px;
 }
 
-.hero{
- text-align:center;
- padding:18px 0 20px;
+.search input{
+  flex:1;
+  background:#242424;
+  border:1px solid #555;
+  color:#fff;
+  padding:0 15px;
+  font-size:16px;
+  border-radius:14px 0 0 14px;
+  outline:none;
 }
 
-.hero h1{
- color:#ff9800;
- font-size:52px;
- line-height:1.05;
- margin:0 0 25px;
-}
-
-.hero p{
- color:#aaa;
- font-size:24px;
- margin:0 0 30px;
-}
-
-.searchBox{
- display:none;
- margin:15px 0 30px;
-}
-
-.searchBox.show{
- display:flex;
-}
-
-.searchBox input{
- flex:1;
- padding:19px;
- border-radius:18px 0 0 18px;
- border:1px solid #555;
- background:#222;
- color:#fff;
- outline:none;
- font-size:20px;
-}
-
-.searchBox button{
- width:90px;
- border:0;
- border-radius:0 18px 18px 0;
- background:#ff9800;
- font-size:28px;
-}
-
-.sectionTitle{
- color:#ff9800;
- font-size:36px;
- margin:20px 0;
-}
-
-.card{
- background:#1d1d1d;
- border:1px solid #383838;
- border-radius:28px;
- padding:32px;
- margin:28px 0;
- text-align:center;
- box-shadow:0 8px 25px #0008;
-}
-
-.appLogo{
- width:155px;
- height:155px;
- object-fit:contain;
- border-radius:30px;
- background:#000;
- display:block;
- margin:auto;
-}
-
-.card h2{
- font-size:34px;
- margin:25px 0 10px;
-}
-
-.card p{
- color:#aaa;
- font-size:22px;
- margin:0 0 25px;
-}
-
-.actions{
- display:grid;
- grid-template-columns:1fr;
- gap:13px;
-}
-
-.actionBtn{
- width:100%;
- border:0;
- border-radius:17px;
- padding:19px;
- background:#ff9800;
- color:#111;
- font-size:24px;
- font-weight:900;
-}
-
-.actionBtn:active{
- transform:scale(.98);
-}
-
-.about{
- display:none;
-}
-
-.about.show{
- display:block;
-}
-
-.about p{
- line-height:1.6;
-}
-
-.version{
- color:#ff9800;
- font-weight:bold;
-}
-
-.footer{
- text-align:center;
- color:#777;
- padding:25px;
-}
-
-.toast{
- position:fixed;
- left:50%;
- bottom:25px;
- transform:translateX(-50%);
- background:#ff9800;
- color:#111;
- padding:14px 22px;
- border-radius:13px;
- font-weight:900;
- display:none;
- z-index:100;
-}
-
-@media(max-width:600px){
-
- .logo{
-  font-size:30px;
- }
-
- .header{
-  padding:20px 34px;
- }
-
- main{
-  padding:26px 34px 50px;
- }
-
- .navButtons{
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
- }
-
- .navButtons button{
-  font-size:17px;
-  padding:17px 5px;
- }
-
- .hero h1{
-  font-size:48px;
- }
-
- .hero p{
-  font-size:22px;
- }
-
- .card{
-  padding:28px 20px;
- }
-
- .card h2{
-  font-size:30px;
- }
-
- .actionBtn{
+.search button{
+  width:62px;
+  border:0;
+  background:#ff9800;
+  border-radius:0 14px 14px 0;
   font-size:23px;
- }
-
 }
 
+/* APPS TITLE */
+.appsTitle{
+  color:#ff9800;
+  font-size:25px;
+  margin-bottom:10px;
+}
+
+/* APP CARD */
+.app{
+  background:#202020;
+  border:1px solid #3c3c3c;
+  border-radius:16px;
+  padding:12px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+/* ICON */
+.appIcon{
+  width:68px;
+  height:68px;
+  min-width:68px;
+  object-fit:contain;
+  border-radius:14px;
+}
+
+/* DETAILS */
+.appInfo{
+  flex:1;
+  min-width:0;
+}
+
+.appName{
+  font-size:18px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.appVersion{
+  color:#aaa;
+  font-size:10px;
+  margin-top:3px;
+  margin-bottom:8px;
+}
+
+/* BUTTONS */
+.buttons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+}
+
+.btn{
+  border:0;
+  background:#ff9800;
+  color:#111;
+  border-radius:7px;
+  padding:8px 3px;
+  font-size:10px;
+  font-weight:bold;
+  text-decoration:none;
+  text-align:center;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+/* ABOUT */
+#about{
+  display:none;
+  background:#202020;
+  border:1px solid #444;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:15px;
+}
+
+#about.show{
+  display:block;
+}
+
+#about h2{
+  color:#ff9800;
+  margin-bottom:8px;
+}
+
+#about p{
+  color:#aaa;
+  line-height:1.5;
+  font-size:14px;
+}
+
+/* HIDE SEARCH RESULT */
+.hide{
+  display:none;
+}
+
+/* MOBILE */
+@media(max-width:420px){
+
+  .storeName{
+    font-size:23px;
+  }
+
+  .mainTitle{
+    font-size:32px;
+  }
+
+  .app{
+    padding:10px;
+    gap:9px;
+  }
+
+  .appIcon{
+    width:62px;
+    height:62px;
+    min-width:62px;
+  }
+
+  .appName{
+    font-size:16px;
+  }
+
+  .btn{
+    font-size:9px;
+    padding:8px 2px;
+  }
+}
 </style>
 </head>
 
+
 <body>
 
-<header class="header">
+<!-- HEADER -->
+<header>
 
- <div class="logo">
-  YASHWIN APP STORE
- </div>
+  <div>
+    <div class="storeName">
+      YASHWIN APP STORE
+    </div>
 
- <button
-  class="menuBtn"
-  onclick="toggleMenu()">
-  ☰
- </button>
+    <div class="smallVersion">
+      Version 1.0 • Official
+    </div>
+  </div>
+
+  <button
+    class="menuButton"
+    onclick="toggleMenu()">
+    ☰
+  </button>
 
 </header>
 
 
+<!-- MENU: ☰ DABANE PAR HI DIKHEGA -->
 <div id="menu" class="menu">
 
- <button onclick="showApps()">
-  📱 Apps
- </button>
+  <button onclick="showApps()">
+    📱 Apps
+  </button>
 
- <button onclick="showAbout()">
-  ℹ️ About
- </button>
-
- <button onclick="showSearch()">
-  🔍 Search
- </button>
+  <button onclick="showAbout()">
+    ℹ️ About
+  </button>
 
 </div>
 
 
 <main>
 
+  <!-- MAIN TITLE -->
+  <div class="mainTitle">
+    YASHWIN APP STORE
+  </div>
 
-<!-- 3 MAIN BUTTONS -->
+  <div class="subtitle">
+    Download useful apps made for everyone.
+  </div>
 
-<div class="navButtons">
 
- <button
-  id="appsBtn"
-  class="active"
-  onclick="showApps()">
-  Apps
- </button>
+  <!-- SEARCH -->
+  <div class="search">
 
- <button
-  id="aboutBtn"
-  onclick="showAbout()">
-  About
- </button>
+    <input
+      id="searchBox"
+      type="text"
+      placeholder="Search apps..."
+      oninput="searchApps()">
 
- <button
-  id="searchBtn"
-  onclick="showSearch()">
-  Search
- </button>
+    <button onclick="searchApps()">
+      🔍
+    </button>
 
-</div>
+  </div>
 
 
-<!-- HERO -->
+  <!-- ABOUT -->
+  <div id="about">
 
-<section class="hero">
+    <h2>About</h2>
 
- <h1>
-  YASHWIN APP<br>STORE
- </h1>
+    <p>
+      YASHWIN APP STORE is our personal app
+      store for useful applications.
+    </p>
 
- <p>
-  Download useful apps made for everyone.
- </p>
+    <br>
 
-</section>
+    <p>
+      Apps can be updated when a new version
+      is published.
+    </p>
 
+  </div>
 
-<!-- SEARCH -->
 
-<div
- id="searchBox"
- class="searchBox">
+  <div class="appsTitle">
+    Available Apps
+  </div>
 
- <input
-  id="searchInput"
-  type="search"
-  placeholder="Search apps..."
-  oninput="searchApps()">
 
- <button onclick="searchApps()">
-  🔍
- </button>
+  <!-- ========================= -->
+  <!-- VANSH CALCULATOR -->
+  <!-- ========================= -->
 
-</div>
+  <div
+    class="app"
+    data-name="vansh calculator">
 
+    <img
+      class="appIcon"
+      src="icon-512.png"
+      alt="VANSH CALCULATOR">
 
-<h2 class="sectionTitle">
- Available Apps
-</h2>
+    <div class="appInfo">
 
+      <div class="appName">
+        VANSH CALCULATOR
+      </div>
 
-<!-- ================= VANSH CALCULATOR ================= -->
+      <div class="appVersion">
+        Version 2.0
+      </div>
 
-<section
- class="card appCard"
- data-name="vansh calculator calculator">
+      <div class="buttons">
 
- <img
-  class="appLogo"
-  src="calculator-logo.png"
-  alt="VANSH CALCULATOR">
+        <a
+          class="btn"
+          href="apks/vansh-calculator.apk"
+          download>
+          Download APK
+        </a>
 
- <h2>
-  VANSH CALCULATOR
- </h2>
+        <a
+          class="btn"
+          href="calculator.html">
+          Open App
+        </a>
 
- <p>
-  Simple and fast calculator.
- </p>
+        <button
+          class="btn"
+          onclick="shareApp('VANSH CALCULATOR')">
+          🔗 Share
+        </button>
 
- <div class="actions">
+      </div>
 
-  <button
-   class="actionBtn"
-   onclick="downloadCalculator()">
-   Download APK
-  </button>
+    </div>
 
-  <button
-   class="actionBtn"
-   onclick="openCalculator()">
-   Open App
-  </button>
+  </div>
 
-  <button
-   class="actionBtn"
-   onclick="shareCalculator()">
-   🔗 Share App
-  </button>
 
- </div>
+  <!-- ========================= -->
+  <!-- CRIC YUVA -->
+  <!-- ========================= -->
 
-</section>
+  <div
+    class="app"
+    data-name="cric yuva cricket">
 
+    <img
+      class="appIcon"
+      src="cric-yuva/cric-yuva-logo.png"
+      alt="CRIC YUVA">
 
-<!-- ================= CRIC YUVA ================= -->
+    <div class="appInfo">
 
-<section
- class="card appCard"
- data-name="cric yuva cricket">
+      <div class="appName">
+        CRIC YUVA
+      </div>
 
- <img
-  class="appLogo"
-  src="cric-yuva/cric-yuva-logo.png"
-  alt="CRIC YUVA">
+      <div class="appVersion">
+        Version 1.0
+      </div>
 
- <h2>
-  CRIC YUVA
- </h2>
+      <div class="buttons">
 
- <p>
-  Professional Cricket Platform.
- </p>
+        <a
+          class="btn"
+          href="apks/cric-yuva.apk"
+          download>
+          Download APK
+        </a>
 
- <div class="actions">
+        <a
+          class="btn"
+          href="cric-yuva/intex.html">
+          Open App
+        </a>
 
-  <button
-   class="actionBtn"
-   onclick="downloadCricYuva()">
-   Download APK
-  </button>
+        <button
+          class="btn"
+          onclick="shareApp('CRIC YUVA')">
+          🔗 Share
+        </button>
 
-  <button
-   class="actionBtn"
-   onclick="openCricYuva()">
-   Open App
-  </button>
+      </div>
 
-  <button
-   class="actionBtn"
-   onclick="shareCricYuva()">
-   🔗 Share App
-  </button>
+    </div>
 
- </div>
+  </div>
 
-</section>
 
+  <!-- ========================= -->
+  <!-- YASHWIN APP STORE -->
+  <!-- ========================= -->
 
-<!-- ================= YASHWIN APP STORE ================= -->
+  <div
+    class="app"
+    data-name="yashwin app store">
 
-<section
- class="card appCard"
- data-name="yashwin app store">
+    <img
+      class="appIcon"
+      src="icon-512.png"
+      alt="YASHWIN APP STORE">
 
- <img
-  class="appLogo"
-  src="icon-512.png"
-  alt="YASHWIN APP STORE">
+    <div class="appInfo">
 
- <h2>
-  YASHWIN APP STORE
- </h2>
+      <div class="appName">
+        YASHWIN APP STORE
+      </div>
 
- <p>
-  Your personal app store.
- </p>
+      <div class="appVersion">
+        Version 1.0
+      </div>
 
- <div class="actions">
+      <div class="buttons">
 
-  <button
-   class="actionBtn"
-   onclick="downloadStore()">
-   Download APK
-  </button>
+        <a
+          class="btn"
+          href="apks/yashwin-app-store.apk"
+          download>
+          Download APK
+        </a>
 
-  <button
-   class="actionBtn"
-   onclick="openStore()">
-   Open App
-  </button>
+        <a
+          class="btn"
+          href="./">
+          Open App
+        </a>
 
-  <button
-   class="actionBtn"
-   onclick="shareStore()">
-   🔗 Share App Store
-  </button>
+        <button
+          class="btn"
+          onclick="shareApp('YASHWIN APP STORE')">
+          🔗 Share
+        </button>
 
- </div>
+      </div>
 
-</section>
+    </div>
 
-
-<!-- ================= ABOUT ================= -->
-
-<section
- id="about"
- class="card about">
-
- <h2>
-  ℹ️ About YASHWIN APP STORE
- </h2>
-
- <p>
-  YASHWIN APP STORE is our personal application platform.
- </p>
-
- <p>
-  यहाँ हमारे बनाए हुए applications मिलेंगे।
- </p>
-
- <p>
-  Website Version:
-  <span class="version">2.0</span>
- </p>
-
- <p>
-  Apps:
-  VANSH CALCULATOR • CRIC YUVA • YASHWIN APP STORE
- </p>
-
-</section>
-
+  </div>
 
 </main>
 
 
-<footer class="footer">
- YASHWIN APP STORE © 2026
-</footer>
-
-
-<div
- id="toast"
- class="toast">
-</div>
-
-
 <script>
-
-/* ================= LINKS ================= */
-
-const STORE_URL =
- "https://rampawar123.github.io/yashwin-app-store/";
-
-const CALCULATOR_URL =
- "https://rampawar123.github.io/yashwin-app-store/calculator.html";
-
-const CRIC_YUVA_URL =
- "https://rampawar123.github.io/yashwin-app-store/cric-yuva/";
-
-
-/*
- GitHub Actions pages.
- APK ko direct root me fake naam se link
- nahi kiya gaya hai.
-*/
-
-const CALCULATOR_BUILD_URL =
- "https://github.com/rampawar123/yashwin-app-store/actions/workflows/build-calculator.yml";
-
-const CRIC_BUILD_URL =
- "https://github.com/rampawar123/yashwin-app-store/actions/workflows/build-apk.yml";
-
-
-/* ================= MENU ================= */
 
 function toggleMenu(){
 
- const menu =
- document.getElementById("menu");
-
- menu.classList.toggle("show");
+  document
+    .getElementById("menu")
+    .classList.toggle("show");
 
 }
 
-
-/* ================= APPS ================= */
 
 function showApps(){
 
- document.getElementById("about")
- .classList.remove("show");
+  document
+    .getElementById("menu")
+    .classList.remove("show");
 
- document.getElementById("searchBox")
- .classList.remove("show");
-
- document.getElementById("appsBtn")
- .classList.add("active");
-
- document.getElementById("aboutBtn")
- .classList.remove("active");
-
- document.getElementById("searchBtn")
- .classList.remove("active");
-
- document.getElementById("menu")
- .classList.remove("show");
-
- window.scrollTo({
-  top:0,
-  behavior:"smooth"
- });
+  document
+    .getElementById("about")
+    .classList.remove("show");
 
 }
 
-
-/* ================= ABOUT ================= */
 
 function showAbout(){
 
- document.getElementById("about")
- .classList.add("show");
+  document
+    .getElementById("menu")
+    .classList.remove("show");
 
- document.getElementById("searchBox")
- .classList.remove("show");
-
- document.getElementById("appsBtn")
- .classList.remove("active");
-
- document.getElementById("aboutBtn")
- .classList.add("active");
-
- document.getElementById("searchBtn")
- .classList.remove("active");
-
- document.getElementById("menu")
- .classList.remove("show");
-
- document.getElementById("about")
- .scrollIntoView({
-  behavior:"smooth"
- });
+  document
+    .getElementById("about")
+    .classList.toggle("show");
 
 }
 
-
-/* ================= SEARCH ================= */
-
-function showSearch(){
-
- document.getElementById("searchBox")
- .classList.add("show");
-
- document.getElementById("about")
- .classList.remove("show");
-
- document.getElementById("appsBtn")
- .classList.remove("active");
-
- document.getElementById("aboutBtn")
- .classList.remove("active");
-
- document.getElementById("searchBtn")
- .classList.add("active");
-
- document.getElementById("menu")
- .classList.remove("show");
-
- document.getElementById("searchInput").focus();
-
- document.getElementById("searchBox")
- .scrollIntoView({
-  behavior:"smooth"
- });
-
-}
-
-
-/* ================= SEARCH FUNCTION ================= */
 
 function searchApps(){
 
- const text =
- document.getElementById("searchInput")
- .value
- .toLowerCase()
- .trim();
+  const text =
+    document
+      .getElementById("searchBox")
+      .value
+      .toLowerCase()
+      .trim();
 
- const cards =
- document.querySelectorAll(".appCard");
+  document
+    .querySelectorAll(".app")
+    .forEach(function(app){
 
- cards.forEach(function(card){
+      const name =
+        app
+          .getAttribute("data-name")
+          .toLowerCase();
 
-  const name =
-  card.dataset.name;
+      if(
+        text === "" ||
+        name.includes(text)
+      ){
 
-  if(
-   text === "" ||
-   name.includes(text)
-  ){
+        app.classList.remove("hide");
 
-   card.style.display="block";
+      }else{
+
+        app.classList.add("hide");
+
+      }
+
+    });
+
+}
+
+
+function shareApp(name){
+
+  const url =
+    window.location.href;
+
+  if(navigator.share){
+
+    navigator.share({
+
+      title:name,
+
+      text:
+        "Open " +
+        name +
+        " from YASHWIN APP STORE",
+
+      url:url
+
+    });
 
   }else{
 
-   card.style.display="none";
+    navigator.clipboard
+      .writeText(url);
+
+    alert("App link copied!");
 
   }
-
- });
-
-}
-
-
-/* ================= OPEN ================= */
-
-function openCalculator(){
-
- window.location.href =
- CALCULATOR_URL;
-
-}
-
-
-function openCricYuva(){
-
- window.location.href =
- CRIC_YUVA_URL;
-
-}
-
-
-function openStore(){
-
- window.location.href =
- STORE_URL;
-
-}
-
-
-/* ================= DOWNLOAD ================= */
-
-function downloadCalculator(){
-
- window.location.href =
- CALCULATOR_BUILD_URL;
-
- showToast(
-  "VANSH CALCULATOR APK BUILD"
- );
-
-}
-
-
-function downloadCricYuva(){
-
- window.location.href =
- CRIC_BUILD_URL;
-
- showToast(
-  "CRIC YUVA APK BUILD"
- );
-
-}
-
-
-function downloadStore(){
-
- showToast(
-  "YASHWIN APP STORE APK अभी build करना है"
- );
-
-}
-
-
-/* ================= SHARE ================= */
-
-async function shareLink(url,text){
-
- if(navigator.share){
-
-  try{
-
-   await navigator.share({
-    title:"YASHWIN APP STORE",
-    text:text,
-    url:url
-   });
-
-  }catch(e){}
-
- }else{
-
-  try{
-
-   await navigator.clipboard.writeText(url);
-
-   showToast(
-    "🔗 Link copied"
-   );
-
-  }catch(e){
-
-   prompt(
-    "Share this link:",
-    url
-   );
-
-  }
-
- }
-
-}
-
-
-function shareCalculator(){
-
- shareLink(
-  CALCULATOR_URL,
-  "VANSH CALCULATOR"
- );
-
-}
-
-
-function shareCricYuva(){
-
- shareLink(
-  CRIC_YUVA_URL,
-  "CRIC YUVA"
- );
-
-}
-
-
-function shareStore(){
-
- shareLink(
-  STORE_URL,
-  "YASHWIN APP STORE"
- );
-
-}
-
-
-/* ================= TOAST ================= */
-
-function showToast(message){
-
- const toast =
- document.getElementById("toast");
-
- toast.innerText =
- message;
-
- toast.style.display =
- "block";
-
- setTimeout(function(){
-
-  toast.style.display =
-  "none";
-
- },2500);
-
-}
-
-
-/* ================= UPDATE ================= */
-
-/*
- GitHub Pages पर index.html बदलने के बाद
- नया page reload होने पर नया code आएगा.
- पुराने Service Worker की वजह से पुराना
- page अटकने से बचाने के लिए unregister.
-*/
-
-if(
- "serviceWorker" in navigator
-){
-
- navigator.serviceWorker
- .getRegistrations()
- .then(function(registrations){
-
-  registrations.forEach(function(reg){
-
-   reg.unregister();
-
-  });
-
- });
 
 }
 
