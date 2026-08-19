@@ -3,394 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>CRIC YUVA</title>
+<meta name="theme-color" content="#111111">
+<title>YASHWIN APP STORE</title>
 
 <style>
 *{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
 body{
  margin:0;
- background:#061421;
+ background:#111;
  color:#fff;
- font-family:Arial,sans-serif
+ font-family:Arial,sans-serif;
 }
-button,input,select{font:inherit}
-button{cursor:pointer}
 
-.hidden{display:none!important}
+button{
+ font:inherit;
+ cursor:pointer;
+}
 
-header{
- background:#071522;
- border-bottom:1px solid #23445f;
- padding:16px;
+.header{
+ background:#181818;
+ border-bottom:2px solid #292929;
+ padding:28px 34px;
  display:flex;
  justify-content:space-between;
  align-items:center;
  position:sticky;
  top:0;
- z-index:10
+ z-index:20;
 }
 
-.logo{font-size:25px;font-weight:900}
-.small{font-size:12px;color:#9fb2c4;margin-top:4px}
-
-.icon{
- background:#102a42;
- color:#fff;
- border:1px solid #31516c;
- border-radius:12px;
- padding:10px 14px
+.logo{
+ color:#ff9800;
+ font-size:38px;
+ font-weight:900;
 }
 
-nav{
- display:flex;
- gap:7px;
- padding:10px;
- background:#091b2b;
- border-bottom:1px solid #23445f;
- overflow:auto
-}
-
-nav button{
- flex:1;
- min-width:80px;
- padding:12px;
+.menuBtn{
+ width:80px;
+ height:76px;
  border:0;
- border-radius:12px;
- background:#10263b;
- color:#c6d3df;
- font-weight:700
+ border-radius:20px;
+ background:#ff9800;
+ color:#111;
+ font-size:42px;
+ font-weight:bold;
 }
 
-nav button.active{
- background:#ffb21c;
- color:#111
+.menu{
+ display:none;
+ background:#222;
+ padding:18px 34px 24px;
+ border-bottom:2px solid #ff9800;
+}
+
+.menu.show{
+ display:block;
+}
+
+.menu button{
+ width:100%;
+ margin:7px 0;
+ padding:17px;
+ border:0;
+ border-radius:15px;
+ background:#ff9800;
+ color:#111;
+ font-weight:900;
+ font-size:20px;
 }
 
 main{
- max-width:950px;
+ max-width:900px;
  margin:auto;
- padding:15px
+ padding:28px 34px 60px;
+}
+
+.topButtons{
+ display:grid;
+ grid-template-columns:1fr;
+ gap:16px;
+ margin-bottom:28px;
+}
+
+.topButtons button{
+ border:0;
+ border-radius:18px;
+ padding:22px;
+ background:#ff9800;
+ color:#111;
+ font-size:26px;
+ font-weight:900;
 }
 
 .card{
- background:linear-gradient(145deg,#102a40,#0b2033);
- border:1px solid #254963;
- border-radius:20px;
- padding:18px;
- margin-bottom:15px
-}
-
-.profile{
- display:grid;
- grid-template-columns:145px 1fr;
- gap:20px;
- align-items:center
-}
-
-.photo{
- width:145px;
- height:145px;
- border-radius:50%;
- border:4px solid #ddd;
- background:#203b52;
- display:flex;
- justify-content:center;
- align-items:center;
- overflow:hidden;
+ background:#1d1d1d;
+ border:1px solid #383838;
+ border-radius:28px;
+ padding:34px;
+ margin:28px 0;
  text-align:center;
- color:#b8c8d5
+ box-shadow:0 8px 25px #0008;
 }
 
-.photo img{
- width:100%;
- height:100%;
- object-fit:cover
+.appLogo{
+ width:155px;
+ height:155px;
+ object-fit:contain;
+ border-radius:30px;
+ background:#000;
+ margin:auto;
+ display:block;
 }
 
-.name{
- font-size:30px;
- font-weight:900
+.card h2{
+ font-size:34px;
+ margin:28px 0 12px;
 }
 
-.verify{
- display:inline-flex;
- width:23px;
- height:23px;
- border-radius:50%;
- background:#168be5;
- align-items:center;
- justify-content:center;
- font-size:13px
-}
-
-.muted{
- color:#9fb2c4;
- margin-top:7px
-}
-
-.tags{
- display:flex;
- gap:7px;
- flex-wrap:wrap;
- margin-top:12px
-}
-
-.tag{
- background:#173550;
- border-radius:20px;
- padding:7px 11px;
- font-size:12px
-}
-
-.jersey{
- margin-top:18px;
- background:#082039;
- border:1px solid #d09b20;
- border-radius:17px;
- text-align:center;
- padding:15px
-}
-
-.jerseyName{
- color:#ffbf32;
- font-weight:900
-}
-
-.jerseyNumber{
- font-size:48px;
- font-weight:900
+.card p{
+ color:#aaa;
+ font-size:23px;
+ margin:0 0 28px;
 }
 
 .actions{
- display:flex;
- flex-wrap:wrap;
- gap:8px;
- margin-top:15px
+ display:grid;
+ grid-template-columns:1fr;
+ gap:14px;
 }
 
-.btn{
+.actionBtn{
+ width:100%;
  border:0;
- border-radius:13px;
- padding:13px 17px;
- background:#ffb21c;
- color:#111;
- font-weight:900
-}
-
-.btn.blue{
- background:#218ff0;
- color:#fff
-}
-
-.btn.dark{
- background:#173550;
- color:#fff
-}
-
-.btn.red{
- background:#ff5261;
- color:#fff
-}
-
-.stats{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- margin-top:17px;
- border:1px solid #23445f;
- border-radius:15px;
- overflow:hidden
-}
-
-.stat{
- text-align:center;
- padding:15px 4px;
- border-right:1px solid #23445f
-}
-
-.stat:nth-child(3n){border-right:0}
-
-.stat b{
- display:block;
- font-size:23px
-}
-
-.stat span{
- font-size:12px;
- color:#9fb2c4
-}
-
-.social{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:8px
-}
-
-.social button{
- background:#122e47;
- color:#fff;
- border:1px solid #23445f;
- border-radius:12px;
- padding:11px
-}
-
-.social button.liked{
- color:#ff5261
-}
-
-.detailGrid{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:9px
-}
-
-.detail{
- background:#091d2e;
- border:1px solid #1e405a;
- border-radius:12px;
- padding:11px
-}
-
-.detail small{
- display:block;
- color:#9fb2c4;
- font-size:11px;
- margin-bottom:5px
-}
-
-.community{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:8px
-}
-
-.communityBox{
- background:#091d2e;
- border:1px solid #1e405a;
- border-radius:13px;
- padding:14px;
- text-align:center
-}
-
-.communityBox b{
- display:block;
- font-size:23px
-}
-
-.communityBox span{
- font-size:11px;
- color:#9fb2c4
-}
-
-.login{
- min-height:100vh;
- display:flex;
- justify-content:center;
- align-items:center;
+ border-radius:17px;
  padding:20px;
- background:radial-gradient(circle at top,#173e5c,#061421 60%)
-}
-
-.loginBox{
- width:100%;
- max-width:430px
-}
-
-.loginLogo{
- text-align:center;
- font-size:34px;
+ background:#ff9800;
+ color:#111;
+ font-size:25px;
  font-weight:900;
- margin-bottom:20px
 }
 
-label{
+.actionBtn:active{
+ transform:scale(.98);
+}
+
+.about{
+ display:none;
+}
+
+.about.show{
  display:block;
- margin:11px 0 6px;
- color:#dbe6ee;
- font-weight:700
 }
 
-input,select,textarea{
- width:100%;
- padding:13px;
- border-radius:11px;
- border:1px solid #31526b;
- background:#071a2a;
- color:#fff
-}
-
-textarea{min-height:90px}
-
-.overlay{
- position:fixed;
- inset:0;
- background:#000b;
- z-index:100;
- display:flex;
- justify-content:center;
- align-items:flex-end;
- padding:10px
-}
-
-.modal{
- width:100%;
- max-width:650px;
- max-height:92vh;
- overflow:auto;
- background:#0b2033;
- border:1px solid #31516c;
- border-radius:22px;
- padding:18px
-}
-
-.modalHead{
- display:flex;
- justify-content:space-between;
- align-items:center
-}
-
-.list{
- padding:13px 0;
- border-bottom:1px solid #23445f
-}
-
-.empty{
+.footer{
  text-align:center;
- padding:30px;
- color:#9fb2c4
+ color:#888;
+ padding:25px;
+ font-size:15px;
 }
 
-@media(max-width:650px){
- .profile{
-  grid-template-columns:1fr;
-  text-align:center
+.toast{
+ position:fixed;
+ left:50%;
+ bottom:25px;
+ transform:translateX(-50%);
+ background:#ff9800;
+ color:#111;
+ padding:15px 22px;
+ border-radius:13px;
+ font-weight:900;
+ display:none;
+ z-index:100;
+}
+
+@media(max-width:600px){
+
+ .header{
+  padding:22px 34px;
  }
 
- .photo{
-  margin:auto
+ .logo{
+  font-size:30px;
  }
 
- .tags{
-  justify-content:center
+ .menuBtn{
+  width:78px;
+  height:76px;
  }
 
- .actions{
-  justify-content:center
+ main{
+  padding:28px 34px 50px;
  }
 
- .social{
-  grid-template-columns:repeat(2,1fr)
+ .card{
+  padding:28px 20px;
  }
 
- .community{
-  grid-template-columns:repeat(2,1fr)
+ .card h2{
+  font-size:30px;
  }
 
- .detailGrid{
-  grid-template-columns:1fr
+ .card p{
+  font-size:22px;
  }
 
- .name{
-  font-size:26px
+ .actionBtn{
+  font-size:23px;
  }
 }
 </style>
@@ -398,1461 +219,336 @@ textarea{min-height:90px}
 
 <body>
 
-<!-- LOGIN -->
+<header class="header">
 
-<section id="loginScreen" class="login">
+ <div class="logo">
+  YASHWIN APP STORE
+ </div>
 
-<div class="loginBox">
-
-<div class="loginLogo">🏏 CRIC YUVA</div>
-
-<div class="card">
-
-<h2>🔐 Login</h2>
-
-<p class="small">
-Mobile Number और Password से Login करें
-</p>
-
-<label>Mobile Number</label>
-<input id="loginMobile" type="tel" placeholder="Mobile Number">
-
-<label>Password</label>
-<input id="loginPassword" type="password" placeholder="Password">
-
-<button class="btn" style="width:100%;margin-top:15px"
-onclick="login()">
-Login
-</button>
-
-<button class="btn dark"
-style="width:100%;margin-top:9px"
-onclick="forgotPassword()">
-Forgot Password?
-</button>
-
-<button class="btn blue"
-style="width:100%;margin-top:9px"
-onclick="register()">
-Create Player Account
-</button>
-
-</div>
-
-</div>
-</section>
-
-<!-- APP -->
-
-<section id="app" class="hidden">
-
-<header>
-
-<div>
-<div class="logo">🏏 CRIC YUVA</div>
-<div class="small">Professional Cricket Platform</div>
-</div>
-
-<button class="icon" onclick="settings()">⚙️</button>
+ <button class="menuBtn" onclick="toggleMenu()">
+  ☰
+ </button>
 
 </header>
 
-<nav>
+<div id="menu" class="menu">
 
-<button id="profileNav"
-class="active"
-onclick="page('profile')">
-Profile
-</button>
+ <button onclick="goApps()">📱 Apps</button>
 
-<button onclick="page('matches')">
-Matches
-</button>
+ <button onclick="goAbout()">ℹ️ About</button>
 
-<button onclick="page('friends')">
-Friends
-</button>
-
-<button onclick="page('chat')">
-Chat
-</button>
-
-<button onclick="logout()">
-Logout
-</button>
-
-</nav>
-
-<main>
-
-<!-- PROFILE -->
-
-<section id="profilePage">
-
-<div class="card">
-
-<div class="profile">
-
-<div id="photo" class="photo">
-Player Photo
-</div>
-
-<div>
-
-<div class="name">
-<span id="name">—</span>
-<span class="verify">✓</span>
-</div>
-
-<div class="muted">
-🆔 Player ID:
-<b id="playerId">—</b>
-</div>
-
-<div class="muted">
-📱 <span id="mobile">—</span>
-</div>
-
-<div class="muted">
-✉️ <span id="email">—</span>
-</div>
-
-<div class="muted">
-🏏 Team:
-<b id="team">—</b>
-</div>
-
-<div class="tags">
-
-<span class="tag" id="role">Role</span>
-
-<span class="tag" id="batting">
-Batting
-</span>
-
-<span class="tag" id="bowling">
-Bowling
-</span>
+ <button onclick="shareStore()">🔗 Share YASHWIN APP STORE</button>
 
 </div>
 
-</div>
+<main id="apps">
 
-</div>
+ <div class="topButtons">
 
-<div class="actions">
+  <button onclick="goApps()">
+   Apps
+  </button>
 
-<button class="btn"
-onclick="editProfile()">
-✏️ Edit Profile
-</button>
+  <button onclick="goAbout()">
+   About
+  </button>
 
-<button class="btn dark"
-onclick="fullDetails()">
-📋 Open Full Details
-</button>
+ </div>
 
-<button class="btn blue"
-onclick="shareProfile()">
-↗ Share
-</button>
 
-</div>
+ <!-- VANSH CALCULATOR -->
 
-<div class="jersey">
+ <section class="card">
 
-<div class="jerseyName" id="jerseyName">
-PLAYER
-</div>
+  <img
+   class="appLogo"
+   src="calculator-logo.png"
+   alt="VANSH CALCULATOR"
+   onerror="this.style.display='none'"
+  >
 
-<div class="jerseyNumber" id="jerseyNumber">
-00
-</div>
+  <h2>
+   VANSH CALCULATOR
+  </h2>
 
-<div class="small">
-Jersey Size:
-<span id="jerseySize">M</span>
-</div>
+  <p>
+   Simple and fast calculator.
+  </p>
 
-</div>
+  <div class="actions">
 
-<div class="stats">
+   <button
+    class="actionBtn"
+    onclick="downloadCalculator()">
+    Download APK
+   </button>
 
-<div class="stat">
-<b id="matches">00</b>
-<span>Matches</span>
-</div>
+   <button
+    class="actionBtn"
+    onclick="openCalculator()">
+    Open App
+   </button>
 
-<div class="stat">
-<b id="runs">00</b>
-<span>Runs</span>
-</div>
+   <button
+    class="actionBtn"
+    onclick="shareCalculator()">
+    🔗 Share App
+   </button>
 
-<div class="stat">
-<b id="wickets">00</b>
-<span>Wickets</span>
-</div>
+  </div>
 
-<div class="stat">
-<b id="fours">00</b>
-<span>4s</span>
-</div>
+ </section>
 
-<div class="stat">
-<b id="sixes">00</b>
-<span>6s</span>
-</div>
 
-<div class="stat">
-<b id="catches">00</b>
-<span>Catches</span>
-</div>
+ <!-- YASHWIN APP STORE -->
 
-</div>
+ <section class="card">
 
-</div>
+  <img
+   class="appLogo"
+   src="yashwin-app-store-logo.png"
+   alt="YASHWIN APP STORE"
+   onerror="this.style.display='none'"
+  >
 
-<!-- COMMUNITY -->
+  <h2>
+   YASHWIN APP STORE
+  </h2>
 
-<div class="card">
+  <p>
+   Your personal app store.
+  </p>
 
-<h2>👥 Cric Yuva Community</h2>
+  <div class="actions">
 
-<div class="community">
+   <button
+    class="actionBtn"
+    onclick="downloadStore()">
+    Download APK
+   </button>
 
-<div class="communityBox">
-<b id="accounts">0</b>
-<span>Total Accounts</span>
-</div>
+   <button
+    class="actionBtn"
+    onclick="openStore()">
+    Open App
+   </button>
 
-<div class="communityBox">
-<b id="logins">0</b>
-<span>Total Logins</span>
-</div>
+   <button
+    class="actionBtn"
+    onclick="shareStore()">
+    🔗 Share App Store
+   </button>
 
-<div class="communityBox">
-<b id="subscribers">0</b>
-<span>Subscribers</span>
-</div>
+  </div>
 
-<div class="communityBox">
-<b>v1.0.0</b>
-<span>App Version</span>
-</div>
+ </section>
 
-</div>
 
-</div>
+ <!-- ABOUT -->
 
-<!-- SOCIAL -->
+ <section id="about" class="card about">
 
-<div class="card">
+  <h2>
+   ℹ️ About YASHWIN APP STORE
+  </h2>
 
-<h2>❤️ Player Social</h2>
+  <p>
+   YASHWIN APP STORE is our personal application platform.
+  </p>
 
-<div class="social">
+  <p>
+   Here you can find and open our applications.
+  </p>
 
-<button id="likeBtn"
-onclick="likePlayer()">
-❤️ Like <span id="likes">0</span>
-</button>
+  <p>
+   Version: 1.0.0
+  </p>
 
-<button onclick="dislikePlayer()">
-👎 Dislike <span id="dislikes">0</span>
-</button>
-
-<button onclick="comments()">
-💬 Comment <span id="commentCount">0</span>
-</button>
-
-<button onclick="sendFriend()">
-👥 Friend
-</button>
-
-</div>
-
-<div class="actions">
-
-<button class="btn blue"
-onclick="chatPage()">
-💬 Chat Player
-</button>
-
-<button class="btn dark"
-onclick="sendFriend()">
-👥 Send Friend Request
-</button>
-
-</div>
-
-</div>
-
-<!-- AWARDS -->
-
-<div class="card">
-
-<h2>🏆 Awards</h2>
-
-<div class="detailGrid">
-
-<div class="detail">
-<small>Player of the Match</small>
-<b id="pom">0</b>
-</div>
-
-<div class="detail">
-<small>Tournament MVP</small>
-<b id="mvp">0</b>
-</div>
-
-<div class="detail">
-<small>Best Batsman</small>
-<b id="bestBat">0</b>
-</div>
-
-<div class="detail">
-<small>Best Bowler</small>
-<b id="bestBowl">0</b>
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- MATCHES -->
-
-<section id="matchesPage" class="hidden">
-
-<div class="card">
-
-<h2>🏏 Match Details</h2>
-
-<button class="btn"
-onclick="addMatch()">
-➕ Add Match
-</button>
-
-<button class="btn dark"
-onclick="practiceMatch()">
-🏏 Practice Match
-</button>
-
-</div>
-
-<div id="matchList" class="card"></div>
-
-</section>
-
-<!-- FRIENDS -->
-
-<section id="friendsPage" class="hidden">
-
-<div class="card">
-
-<h2>👥 Friends</h2>
-
-<div id="friendsList"
-class="empty">
-No friends yet.
-</div>
-
-</div>
-
-</section>
-
-<!-- CHAT -->
-
-<section id="chatPage" class="hidden">
-
-<div class="card">
-
-<h2>💬 Chat</h2>
-
-<div id="chatMessages"
-style="min-height:200px"></div>
-
-<div style="display:flex;gap:8px">
-
-<input id="chatInput"
-placeholder="Message...">
-
-<button class="btn"
-onclick="sendChat()">
-Send
-</button>
-
-</div>
-
-</div>
-
-</section>
+ </section>
 
 </main>
 
-</section>
 
-<!-- MODAL -->
+<div id="toast" class="toast"></div>
 
-<div id="modal"
-class="overlay hidden">
 
-<div class="modal">
+<footer class="footer">
+ YASHWIN APP STORE © 2026
+</footer>
 
-<div class="modalHead">
-
-<h2 id="modalTitle">
-Details
-</h2>
-
-<button class="icon"
-onclick="closeModal()">
-✕
-</button>
-
-</div>
-
-<div id="modalBody"></div>
-
-</div>
-
-</div>
 
 <script>
 
-/* ================= DATA ================= */
+const STORE_URL =
+ "https://rampawar123.github.io/yashwin-app-store/";
 
-const ACCOUNT="CY_ACCOUNT";
-const PROFILE="CY_PROFILE";
-const STATS="CY_STATS";
-const MATCHDATA="CY_MATCHES";
-const FRIENDDATA="CY_FRIENDS";
-const CHATDATA="CY_CHAT";
-
-let account=JSON.parse(localStorage.getItem(ACCOUNT)||"null");
-
-let profile=JSON.parse(localStorage.getItem(PROFILE)||"null");
-
-let stats=JSON.parse(localStorage.getItem(STATS)||JSON.stringify({
- accounts:0,
- logins:0,
- subscribers:0,
- likes:0,
- dislikes:0,
- comments:[],
- liked:false
-}));
-
-let matches=JSON.parse(localStorage.getItem(MATCHDATA)||"[]");
-
-let friends=JSON.parse(localStorage.getItem(FRIENDDATA)||"[]");
-
-let chats=JSON.parse(localStorage.getItem(CHATDATA)||"[]");
+const CALCULATOR_URL =
+ "https://rampawar123.github.io/yashwin-app-store/calculator.html";
 
 
-function save(){
+/*
+ IMPORTANT:
+ APK file ka exact naam/path tumhare repository
+ me jo hai uske hisab se yaha set karna hai.
+*/
 
-localStorage.setItem(ACCOUNT,JSON.stringify(account));
-localStorage.setItem(PROFILE,JSON.stringify(profile));
-localStorage.setItem(STATS,JSON.stringify(stats));
-localStorage.setItem(MATCHDATA,JSON.stringify(matches));
-localStorage.setItem(FRIENDDATA,JSON.stringify(friends));
-localStorage.setItem(CHATDATA,JSON.stringify(chats));
+const CALCULATOR_APK =
+ "calculator.apk";
+
+const STORE_APK =
+ "yashwin-app-store.apk";
+
+
+function toggleMenu(){
+
+ const menu =
+ document.getElementById("menu");
+
+ menu.classList.toggle("show");
 
 }
 
 
-/* ================= START ================= */
+function goApps(){
 
-window.onload=function(){
+ document.getElementById("apps")
+ .scrollIntoView({
+  behavior:"smooth"
+ });
 
-if(account){
+ document.getElementById("about")
+ .classList.remove("show");
 
-if(profile){
-
-showApp();
-
-}else{
-
-showApp();
-
-setTimeout(editProfile,300);
-
-}
-
-}else{
-
-showLogin();
-
-}
-
-};
-
-
-/* ================= LOGIN ================= */
-
-function showLogin(){
-
-document.getElementById("loginScreen")
-.classList.remove("hidden");
-
-document.getElementById("app")
-.classList.add("hidden");
-
-}
-
-function register(){
-
-const mobile=prompt("Mobile Number डालें:");
-
-if(!mobile)return;
-
-const password=prompt("Password बनाएं:");
-
-if(!password)return;
-
-account={
-mobile:mobile,
-password:password
-};
-
-stats.accounts++;
-
-profile=null;
-
-save();
-
-showApp();
-
-setTimeout(editProfile,300);
+ document.getElementById("menu")
+ .classList.remove("show");
 
 }
 
 
-function login(){
+function goAbout(){
 
-const mobile=
-document.getElementById("loginMobile").value.trim();
+ const about =
+ document.getElementById("about");
 
-const password=
-document.getElementById("loginPassword").value;
+ about.classList.add("show");
 
-if(!account){
+ about.scrollIntoView({
+  behavior:"smooth"
+ });
 
-alert("Account नहीं मिला। पहले Create Player Account करें.");
-
-return;
-
-}
-
-if(
-account.mobile!==mobile||
-account.password!==password
-){
-
-alert("Mobile Number या Password गलत है.");
-
-return;
-
-}
-
-stats.logins++;
-
-save();
-
-showApp();
+ document.getElementById("menu")
+ .classList.remove("show");
 
 }
 
 
-function forgotPassword(){
+function openCalculator(){
 
-const mobile=prompt(
-"अपना registered mobile number डालें:"
-);
-
-if(!mobile)return;
-
-if(!account||account.mobile!==mobile){
-
-alert(
-"यह mobile number हमारे local account में नहीं मिला."
-);
-
-return;
-
-}
-
-const newPassword=prompt(
-"नया password डालें:"
-);
-
-if(!newPassword)return;
-
-account.password=newPassword;
-
-save();
-
-alert(
-"✅ Password बदल गया.\nअब नए password से Login करें."
-);
+ window.location.href =
+ CALCULATOR_URL;
 
 }
 
 
-/* ================= APP ================= */
+function downloadCalculator(){
 
-function showApp(){
-
-document.getElementById("loginScreen")
-.classList.add("hidden");
-
-document.getElementById("app")
-.classList.remove("hidden");
-
-render();
-
-}
-
-function logout(){
-
-account=null;
-
-localStorage.removeItem(ACCOUNT);
-localStorage.removeItem(PROFILE);
-
-showLogin();
+ window.location.href =
+ CALCULATOR_APK;
 
 }
 
 
-/* ================= PAGE ================= */
+function openStore(){
 
-function page(p){
-
-document.getElementById("profilePage")
-.classList.add("hidden");
-
-document.getElementById("matchesPage")
-.classList.add("hidden");
-
-document.getElementById("friendsPage")
-.classList.add("hidden");
-
-document.getElementById("chatPage")
-.classList.add("hidden");
-
-if(p==="profile")
-document.getElementById("profilePage").classList.remove("hidden");
-
-if(p==="matches"){
-document.getElementById("matchesPage").classList.remove("hidden");
-renderMatches();
-}
-
-if(p==="friends"){
-document.getElementById("friendsPage").classList.remove("hidden");
-renderFriends();
-}
-
-if(p==="chat"){
-document.getElementById("chatPage").classList.remove("hidden");
-renderChat();
-}
+ window.location.href =
+ STORE_URL;
 
 }
 
 
-/* ================= PROFILE ================= */
+function downloadStore(){
 
-function editProfile(){
-
-const p=profile||{};
-
-modal(
-"👤 Player Profile",
-`
-
-<label>Full Name *</label>
-<input id="fName"
-value="${esc(p.name||"")}"
-placeholder="Player Name">
-
-<label>Date of Birth</label>
-<input id="fDob"
-type="date"
-value="${esc(p.dob||"")}">
-
-<label>Email</label>
-<input id="fEmail"
-value="${esc(p.email||"")}"
-placeholder="Email">
-
-<label>Team</label>
-<input id="fTeam"
-value="${esc(p.team||"")}"
-placeholder="Team">
-
-<label>Playing Role</label>
-
-<select id="fRole">
-${option("Batsman",p.role)}
-${option("Bowler",p.role)}
-${option("All Rounder",p.role)}
-${option("Wicket Keeper Batsman",p.role)}
-</select>
-
-<label>Batting</label>
-
-<select id="fBat">
-${option("Right Hand",p.batting)}
-${option("Left Hand",p.batting)}
-</select>
-
-<label>Bowling</label>
-
-<select id="fBowl">
-${option("Right Arm Fast",p.bowling)}
-${option("Right Arm Medium",p.bowling)}
-${option("Right Arm Spin",p.bowling)}
-${option("Left Arm Fast",p.bowling)}
-${option("Left Arm Medium",p.bowling)}
-${option("Left Arm Spin",p.bowling)}
-${option("Not Applicable",p.bowling)}
-</select>
-
-<label>Jersey Name</label>
-<input id="fJerseyName"
-value="${esc(p.jerseyName||"")}">
-
-<label>Jersey Number</label>
-<input id="fJerseyNumber"
-type="number"
-value="${esc(p.jerseyNumber||"")}">
-
-<label>Jersey Size</label>
-
-<select id="fSize">
-${option("S",p.jerseySize)}
-${option("M",p.jerseySize)}
-${option("L",p.jerseySize)}
-${option("XL",p.jerseySize)}
-${option("XXL",p.jerseySize)}
-${option("XXXL",p.jerseySize)}
-</select>
-
-<label>City</label>
-<input id="fCity"
-value="${esc(p.city||"")}">
-
-<label>Player Photo</label>
-<input id="fPhoto"
-type="file"
-accept="image/*">
-
-<button class="btn"
-style="width:100%;margin-top:18px"
-onclick="saveProfile()">
-💾 Save Profile
-</button>
-`
-);
+ window.location.href =
+ STORE_APK;
 
 }
 
 
-function saveProfile(){
+async function shareLink(url,text){
 
-const name=document.getElementById("fName")
-.value.trim();
+ if(navigator.share){
 
-if(!name){
+  try{
 
-alert("Player Name भरना जरूरी है.");
+   await navigator.share({
+    title:"YASHWIN APP STORE",
+    text:text,
+    url:url
+   });
 
-return;
+  }catch(e){}
 
-}
+ }else{
 
-const old=profile||{};
+  try{
 
-profile={
+   await navigator.clipboard.writeText(url);
 
-id:old.id||makeID(),
+   showToast(
+    "🔗 Link copied"
+   );
 
-name:name,
+  }catch(e){
 
-dob:document.getElementById("fDob").value,
+   prompt(
+    "Share this link:",
+    url
+   );
 
-email:document.getElementById("fEmail").value,
+  }
 
-team:document.getElementById("fTeam").value,
-
-role:document.getElementById("fRole").value,
-
-batting:document.getElementById("fBat").value,
-
-bowling:document.getElementById("fBowl").value,
-
-jerseyName:document.getElementById("fJerseyName").value,
-
-jerseyNumber:
-document.getElementById("fJerseyNumber").value||"00",
-
-jerseySize:
-document.getElementById("fSize").value,
-
-city:
-document.getElementById("fCity").value,
-
-photo:old.photo||"",
-
-stats:old.stats||{
-matches:0,
-runs:0,
-wickets:0,
-fours:0,
-sixes:0,
-catches:0
-},
-
-awards:old.awards||{
-pom:0,
-mvp:0,
-bestBat:0,
-bestBowl:0
-}
-
-};
-
-const file=
-document.getElementById("fPhoto").files[0];
-
-if(file){
-
-const reader=new FileReader();
-
-reader.onload=function(e){
-
-profile.photo=e.target.result;
-
-save();
-
-closeModal();
-
-render();
-
-};
-
-reader.readAsDataURL(file);
-
-}else{
-
-save();
-
-closeModal();
-
-render();
-
-}
+ }
 
 }
 
 
-function render(){
+function shareCalculator(){
 
-if(!profile)return;
-
-set("name",profile.name);
-set("playerId",profile.id);
-set("mobile",account.mobile);
-set("email",profile.email||"—");
-set("team",profile.team||"—");
-
-set("role",profile.role);
-set("batting",profile.batting);
-set("bowling",profile.bowling);
-
-set("jerseyName",
-(profile.jerseyName||"PLAYER").toUpperCase());
-
-set("jerseyNumber",
-profile.jerseyNumber||"00");
-
-set("jerseySize",
-"Jersey Size: "+(profile.jerseySize||"M"));
-
-const s=profile.stats;
-
-set("matches",pad(s.matches));
-set("runs",pad(s.runs));
-set("wickets",pad(s.wickets));
-set("fours",pad(s.fours));
-set("sixes",pad(s.sixes));
-set("catches",pad(s.catches));
-
-set("accounts",stats.accounts);
-set("logins",stats.logins);
-set("subscribers",stats.subscribers);
-
-set("likes",stats.likes);
-set("dislikes",stats.dislikes);
-set("commentCount",stats.comments.length);
-
-set("pom",profile.awards.pom);
-set("mvp",profile.awards.mvp);
-set("bestBat",profile.awards.bestBat);
-set("bestBowl",profile.awards.bestBowl);
-
-const photo=document.getElementById("photo");
-
-if(profile.photo){
-
-photo.innerHTML=
-'<img src="'+profile.photo+'">';
-
-}else{
-
-photo.innerHTML="Player Photo";
-
-}
-
-document.getElementById("likeBtn")
-.classList.toggle("liked",stats.liked);
+ shareLink(
+  CALCULATOR_URL,
+  "VANSH CALCULATOR"
+ );
 
 }
 
 
-/* ================= DETAILS ================= */
+function shareStore(){
 
-function fullDetails(){
-
-modal(
-"📋 Player All Details",
-`
-
-<div class="detailGrid">
-
-${detail("Player ID",profile.id)}
-
-${detail("Full Name",profile.name)}
-
-${detail("Mobile",account.mobile)}
-
-${detail("Email",profile.email)}
-
-${detail("Birthdate",profile.dob)}
-
-${detail("Team",profile.team)}
-
-${detail("Playing Role",profile.role)}
-
-${detail("Batting",profile.batting)}
-
-${detail("Bowling",profile.bowling)}
-
-${detail("Jersey Name",profile.jerseyName)}
-
-${detail("Jersey Number",profile.jerseyNumber)}
-
-${detail("Jersey Size",profile.jerseySize)}
-
-${detail("City",profile.city)}
-
-</div>
-
-<h3 style="margin-top:20px">
-🏏 Career Statistics
-</h3>
-
-<div class="detailGrid">
-
-${detail("Matches",profile.stats.matches)}
-
-${detail("Runs",profile.stats.runs)}
-
-${detail("Wickets",profile.stats.wickets)}
-
-${detail("4s",profile.stats.fours)}
-
-${detail("6s",profile.stats.sixes)}
-
-${detail("Catches",profile.stats.catches)}
-
-</div>
-
-`
-);
-
-}
-
-/* ================= SOCIAL ================= */
-
-function likePlayer(){
-
-if(stats.liked){
-
-stats.likes--;
-
-stats.liked=false;
-
-}else{
-
-stats.likes++;
-
-stats.liked=true;
-
-}
-
-save();
-
-render();
-
-}
-
-function dislikePlayer(){
-
-stats.dislikes++;
-
-save();
-
-render();
-
-alert("👎 Dislike recorded");
-
-}
-
-function comments(){
-
-modal(
-"💬 Comments",
-`
-
-<div>
-
-${
-stats.comments.length
-?
-stats.comments.map(c=>`
-<div class="list">
-<b>${esc(c.name)}</b>
-<br>
-${esc(c.text)}
-</div>
-`).join("")
-:
-'<div class="empty">No comments yet.</div>'
-}
-
-</div>
-
-<label>Comment</label>
-
-<textarea id="commentText"
-placeholder="Write comment...">
-</textarea>
-
-<button class="btn"
-style="width:100%;margin-top:10px"
-onclick="addComment()">
-Post Comment
-</button>
-
-`
-);
-
-}
-
-function addComment(){
-
-const text=
-document.getElementById("commentText")
-.value.trim();
-
-if(!text)return;
-
-stats.comments.push({
-name:profile.name,
-text:text
-});
-
-save();
-
-closeModal();
-
-render();
+ shareLink(
+  STORE_URL,
+  "YASHWIN APP STORE"
+ );
 
 }
 
 
-/* ================= FRIEND ================= */
+function showToast(message){
 
-function sendFriend(){
+ const toast =
+ document.getElementById("toast");
 
-friends.push({
-name:"Player",
-status:"Friend Request Sent"
-});
+ toast.innerText =
+ message;
 
-save();
+ toast.style.display =
+ "block";
 
-alert(
-"👥 Friend Request भेज दी गई."
-);
+ setTimeout(function(){
 
-}
+  toast.style.display =
+  "none";
 
-
-/* ================= CHAT ================= */
-
-function chatPage(){
-
-page("chat");
-
-}
-
-function sendChat(){
-
-const input=
-document.getElementById("chatInput");
-
-const text=input.value.trim();
-
-if(!text)return;
-
-chats.push({
-name:profile.name,
-text:text,
-time:new Date().toLocaleTimeString()
-});
-
-save();
-
-input.value="";
-
-renderChat();
-
-}
-
-function renderChat(){
-
-const box=
-document.getElementById("chatMessages");
-
-if(!chats.length){
-
-box.innerHTML=
-'<div class="empty">💬 No messages yet.</div>';
-
-return;
-
-}
-
-box.innerHTML=chats.map(c=>`
-<div class="list">
-<b>${esc(c.name)}</b>
-<br>
-${esc(c.text)}
-<br>
-<span class="small">${esc(c.time)}</span>
-</div>
-`).join("");
-
-}
-
-
-/* ================= MATCH ================= */
-
-function addMatch(){
-
-modal(
-"🏏 Add Match",
-`
-
-<label>Opponent Team</label>
-<input id="opponent">
-
-<label>Match Type</label>
-
-<select id="matchType">
-<option>Practice Match</option>
-<option>Friendly Match</option>
-<option>Tournament Match</option>
-</select>
-
-<label>Runs</label>
-<input id="matchRuns" type="number" value="0">
-
-<label>Wickets</label>
-<input id="matchWickets" type="number" value="0">
-
-<label>4s</label>
-<input id="match4s" type="number" value="0">
-
-<label>6s</label>
-<input id="match6s" type="number" value="0">
-
-<label>Result</label>
-<input id="matchResult">
-
-<button class="btn"
-style="width:100%;margin-top:15px"
-onclick="saveMatch()">
-Save Match
-</button>
-
-`
-);
-
-}
-
-function practiceMatch(){
-
-alert(
-"🏏 Practice Match ready.\n\nNext phase में पूरा live scoring system जोड़ेंगे."
-);
-
-}
-
-function saveMatch(){
-
-const m={
-
-opponent:document.getElementById("opponent").value,
-
-type:document.getElementById("matchType").value,
-
-runs:+document.getElementById("matchRuns").value||0,
-
-wickets:+document.getElementById("matchWickets").value||0,
-
-fours:+document.getElementById("match4s").value||0,
-
-sixes:+document.getElementById("match6s").value||0,
-
-result:document.getElementById("matchResult").value,
-
-date:new Date().toLocaleDateString()
-
-};
-
-matches.unshift(m);
-
-profile.stats.matches++;
-
-profile.stats.runs+=m.runs;
-
-profile.stats.wickets+=m.wickets;
-
-profile.stats.fours+=m.fours;
-
-profile.stats.sixes+=m.sixes;
-
-save();
-
-closeModal();
-
-render();
-
-renderMatches();
-
-alert("✅ Match Saved");
-
-}
-
-function renderMatches(){
-
-const box=document.getElementById("matchList");
-
-if(!matches.length){
-
-box.innerHTML=
-'<div class="empty">No matches yet.</div>';
-
-return;
-
-}
-
-box.innerHTML=matches.map(m=>`
-
-<div class="list">
-
-<h3>${esc(m.opponent||"Opponent")}</h3>
-
-<div class="small">
-${esc(m.type)} • ${esc(m.date)}
-</div>
-
-<p>
-🏏 Runs:
-<b>${m.runs}</b>
-&nbsp;&nbsp;
-🎯 Wickets:
-<b>${m.wickets}</b>
-</p>
-
-<p>
-4s: ${m.fours}
-&nbsp;&nbsp;
-6s: ${m.sixes}
-</p>
-
-<b>${esc(m.result||"—")}</b>
-
-</div>
-
-`).join("");
-
-}
-
-
-/* ================= SETTINGS ================= */
-
-function settings(){
-
-modal(
-"⚙️ Settings",
-`
-
-<div class="list">
-
-<b>App Version</b>
-
-<div class="small">
-v1.0.0
-</div>
-
-</div>
-
-<div class="list">
-
-<b>Player ID</b>
-
-<div class="small">
-${esc(profile?.id||"—")}
-</div>
-
-</div>
-
-<div class="list">
-
-<b>Account Mobile</b>
-
-<div class="small">
-${esc(account?.mobile||"—")}
-</div>
-
-</div>
-
-<button class="btn red"
-style="width:100%;margin-top:15px"
-onclick="logout()">
-Logout
-</button>
-
-`
-);
-
-}
-
-
-/* ================= SHARE ================= */
-
-async function shareProfile(){
-
-const link=
-location.href.split("#")[0]+
-"#player="+
-encodeURIComponent(profile.id);
-
-try{
-
-await navigator.clipboard.writeText(link);
-
-alert("✅ Profile link copied");
-
-}catch(e){
-
-prompt("Profile Link",link);
-
-}
-
-}
-
-
-/* ================= HELPERS ================= */
-
-function modal(title,body){
-
-document.getElementById("modalTitle")
-.innerHTML=title;
-
-document.getElementById("modalBody")
-.innerHTML=body;
-
-document.getElementById("modal")
-.classList.remove("hidden");
-
-}
-
-function closeModal(){
-
-document.getElementById("modal")
-.classList.add("hidden");
-
-}
-
-function detail(name,value){
-
-return `
-<div class="detail">
-<small>${esc(name)}</small>
-<b>${esc(value||"—")}</b>
-</div>
-`;
-
-}
-
-function option(value,current){
-
-return `
-<option ${value===current?"selected":""}>
-${value}
-</option>
-`;
-
-}
-
-function set(id,value){
-
-const el=document.getElementById(id);
-
-if(el)el.textContent=value;
-
-}
-
-function pad(n){
-
-return String(n||0).padStart(2,"0");
-
-}
-
-function makeID(){
-
-return "CY-"+
-Math.floor(100000+Math.random()*900000);
-
-}
-
-function esc(v){
-
-return String(v??"")
-.replaceAll("&","&amp;")
-.replaceAll("<","&lt;")
-.replaceAll(">","&gt;")
-.replaceAll('"',"&quot;")
-.replaceAll("'","&#039;");
+ },2000);
 
 }
 
