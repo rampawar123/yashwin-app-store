@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1856,6 +1856,864 @@ return String(v??"")
 
 }
 
+/* =========================================================
+   CRIC YUVA - PROFESSIONAL LIVE SCORING ENGINE
+   Wide / No Ball / 6 Legal Balls / Wicket / Correction
+========================================================= */
+
+let liveMatch = {
+  team: "Team A",
+  opponent: "Team B",
+
+  totalRuns: 0,
+  wickets: 0,
+
+  legalBalls: 0,
+  overNumber: 1,
+
+  striker: "Batsman 1",
+  nonStriker: "Batsman 2",
+  bowler: "Bowler 1",
+
+  balls: [],
+
+  batsmen: {
+    "Batsman 1": {
+      runs: 0,
+      balls: 0,
+      fours: 0,
+      sixes: 0,
+      out: false
+    },
+
+    "Batsman 2": {
+      runs: 0,
+      balls: 0,
+      fours: 0,
+      sixes: 0,
+      out: false
+    }
+  },
+
+  bowlers: {
+    "Bowler 1": {
+      runs: 0,
+      wickets: 0,
+      balls: 0
+    }
+  }
+};
+
+
+/* ================= SAVE ================= */
+
+function saveLiveMatch(){
+
+  localStorage.setItem(
+    "CRIC_YUVA_LIVE_MATCH",
+    JSON.stringify(liveMatch)
+  );
+
+}
+
+
+/* ================= LOAD ================= */
+
+function loadLiveMatch(){
+
+  const saved =
+    localStorage.getItem(
+      "CRIC_YUVA_LIVE_MATCH"
+    );
+
+  if(saved){
+
+    try{
+
+      liveMatch =
+        JSON.parse(saved);
+
+    }catch(e){
+
+      console.log(
+        "Live match data error"
+      );
+
+    }
+
+  }
+
+}
+
+
+/* ================= SCORE NORMAL RUN ================= */
+
+function scoreRun(runs){
+
+  if(
+    ![0,1,2,3,4,6].includes(runs)
+  ){
+    return;
+  }
+
+  const striker =
+    liveMatch.striker;
+
+  ensureBatsman(striker);
+
+  /* TEAM RUN */
+  liveMatch.totalRuns += runs;
+
+  /* BATSMAN RUN */
+  liveMatch.batsmen[striker].runs += runs;
+
+  /* LEGAL BALL */
+  liveMatch.legalBalls++;
+
+  liveMatch.batsmen[striker].balls++;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].runs += runs;
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].balls++;
+
+  if(runs === 4){
+
+    liveMatch.batsmen[striker].fours++;
+
+  }
+
+  if(runs === 6){
+
+    liveMatch.batsmen[striker].sixes++;
+
+  }
+
+  addBall({
+
+    type:"RUN",
+
+    runs:runs,
+
+    legal:true,
+
+    batsman:striker,
+
+    bowler:liveMatch.bowler
+
+  });
+
+  /* STRIKE CHANGE */
+
+  if(runs % 2 === 1){
+
+    swapStrike();
+
+  }
+
+  finishBall();
+
+}
+
+
+/* ================= WIDE ================= */
+
+function wideRun(extraRuns){
+
+  if(extraRuns < 1){
+    extraRuns = 1;
+  }
+
+  /*
+    Wide = minimum 1 run
+    Wide legal ball nahi hai
+  */
+
+  liveMatch.totalRuns += extraRuns;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].runs += extraRuns;
+
+  addBall({
+
+    type:"WIDE",
+
+    runs:extraRuns,
+
+    legal:false,
+
+    batsman:null,
+
+    bowler:liveMatch.bowler
+
+  });
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+}
+
+
+/* ================= NO BALL ================= */
+
+function noBallRun(runs){
+
+  /*
+    No Ball ka minimum 1 extra run
+  */
+
+  let total =
+    Math.max(1, runs);
+
+  liveMatch.totalRuns += total;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].runs += total;
+
+  addBall({
+
+    type:"NO BALL",
+
+    runs:total,
+
+    legal:false,
+
+    batsman:null,
+
+    bowler:liveMatch.bowler
+
+  });
+
+  /*
+    IMPORTANT:
+    No Ball legal ball nahi hai.
+    Isliye legalBalls increase nahi hoga.
+  */
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+}
+
+
+/* ================= WICKET ================= */
+
+function wicketRunOut(runsBeforeOut = 0){
+
+  const striker =
+    liveMatch.striker;
+
+  ensureBatsman(striker);
+
+  /*
+    Run-out par is delivery ke runs
+    team score me add honge.
+  */
+
+  if(runsBeforeOut > 0){
+
+    liveMatch.totalRuns +=
+      runsBeforeOut;
+
+    liveMatch.batsmen[striker].runs +=
+      runsBeforeOut;
+
+  }
+
+  liveMatch.wickets++;
+
+  liveMatch.batsmen[striker].out =
+    true;
+
+  liveMatch.legalBalls++;
+
+  liveMatch.batsmen[striker].balls++;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].balls++;
+
+  addBall({
+
+    type:"WICKET",
+
+    wicketType:"RUN OUT",
+
+    runs:runsBeforeOut,
+
+    legal:true,
+
+    batsman:striker,
+
+    bowler:liveMatch.bowler,
+
+    scoreAtWicket:
+      liveMatch.totalRuns
+
+  });
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+  alert(
+    "OUT!\n\n" +
+    striker +
+    "\n" +
+    "Score: " +
+    liveMatch.totalRuns +
+    "/" +
+    liveMatch.wickets
+  );
+
+}
+
+
+/* ================= BALL RECORD ================= */
+
+function addBall(ball){
+
+  liveMatch.balls.push({
+
+    ...ball,
+
+    over:liveMatch.overNumber,
+
+    legalBallNumber:
+      ball.legal
+      ? liveMatch.legalBalls
+      : liveMatch.legalBalls,
+
+    teamScore:
+      liveMatch.totalRuns,
+
+    wickets:
+      liveMatch.wickets,
+
+    time:
+      new Date().toLocaleTimeString()
+
+  });
+
+}
+
+
+/* ================= BALL FINISH ================= */
+
+function finishBall(){
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+  /*
+    6 LEGAL BALLS COMPLETE
+  */
+
+  if(liveMatch.legalBalls >= 6){
+
+    overComplete();
+
+  }
+
+}
+
+
+/* ================= OVER COMPLETE ================= */
+
+function overComplete(){
+
+  /*
+    6 legal balls ke baad hi
+    over complete hoga.
+
+    Wide/No Ball legal ball nahi hain.
+  */
+
+  const completedOver =
+    liveMatch.overNumber;
+
+  alert(
+    "🏏 OVER " +
+    completedOver +
+    " COMPLETE\n\n" +
+    "Score: " +
+    liveMatch.totalRuns +
+    "/" +
+    liveMatch.wickets
+  );
+
+  liveMatch.overNumber++;
+
+  liveMatch.legalBalls = 0;
+
+  /*
+    Over complete hone par strike change
+    hoti hai.
+  */
+
+  swapStrike();
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+}
+
+
+/* ================= STRIKE ================= */
+
+function swapStrike(){
+
+  const temp =
+    liveMatch.striker;
+
+  liveMatch.striker =
+    liveMatch.nonStriker;
+
+  liveMatch.nonStriker =
+    temp;
+
+}
+
+
+/* ================= BATSMAN ================= */
+
+function ensureBatsman(name){
+
+  if(!liveMatch.batsmen[name]){
+
+    liveMatch.batsmen[name] = {
+
+      runs:0,
+      balls:0,
+      fours:0,
+      sixes:0,
+      out:false
+
+    };
+
+  }
+
+}
+
+
+/* ================= BOWLER ================= */
+
+function ensureBowler(){
+
+  if(
+    !liveMatch.bowlers[
+      liveMatch.bowler
+    ]
+  ){
+
+    liveMatch.bowlers[
+      liveMatch.bowler
+    ] = {
+
+      runs:0,
+      wickets:0,
+      balls:0
+
+    };
+
+  }
+
+}
+
+
+/* ================= CORRECTION ================= */
+
+function editLastBall(){
+
+  if(!liveMatch.balls.length){
+
+    alert(
+      "Correction ke liye ball history nahi hai."
+    );
+
+    return;
+
+  }
+
+  const last =
+    liveMatch.balls[
+      liveMatch.balls.length - 1
+    ];
+
+  if(
+    !confirm(
+      "Last ball delete karke score correct karna hai?"
+    )
+  ){
+
+    return;
+
+  }
+
+  /*
+    Last ball remove karke
+    complete score ko history se
+    dobara calculate karenge.
+  */
+
+  liveMatch.balls.pop();
+
+  rebuildScoreFromHistory();
+
+}
+
+
+/* ================= REBUILD SCORE ================= */
+
+function rebuildScoreFromHistory(){
+
+  liveMatch.totalRuns = 0;
+
+  liveMatch.wickets = 0;
+
+  liveMatch.legalBalls = 0;
+
+  liveMatch.overNumber = 1;
+
+  Object.keys(
+    liveMatch.batsmen
+  ).forEach(function(name){
+
+    liveMatch.batsmen[name] = {
+
+      runs:0,
+      balls:0,
+      fours:0,
+      sixes:0,
+      out:false
+
+    };
+
+  });
+
+  Object.keys(
+    liveMatch.bowlers
+  ).forEach(function(name){
+
+    liveMatch.bowlers[name] = {
+
+      runs:0,
+      wickets:0,
+      balls:0
+
+    };
+
+  });
+
+  const history =
+    [...liveMatch.balls];
+
+  liveMatch.balls = [];
+
+  history.forEach(function(ball){
+
+    if(ball.type === "RUN"){
+
+      scoreRunRebuild(ball.runs);
+
+    }
+
+    else if(ball.type === "WIDE"){
+
+      wideRunRebuild(ball.runs);
+
+    }
+
+    else if(ball.type === "NO BALL"){
+
+      noBallRunRebuild(ball.runs);
+
+    }
+
+    else if(ball.type === "WICKET"){
+
+      wicketRebuild(
+        ball.runs
+      );
+
+    }
+
+  });
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+  alert(
+    "✅ Score correction complete"
+  );
+
+}
+
+
+/* ================= REBUILD RUN ================= */
+
+function scoreRunRebuild(runs){
+
+  const batsman =
+    liveMatch.striker;
+
+  ensureBatsman(batsman);
+
+  liveMatch.totalRuns += runs;
+
+  liveMatch.batsmen[
+    batsman
+  ].runs += runs;
+
+  liveMatch.batsmen[
+    batsman
+  ].balls++;
+
+  liveMatch.legalBalls++;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].runs += runs;
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].balls++;
+
+  if(runs === 4){
+
+    liveMatch.batsmen[
+      batsman
+    ].fours++;
+
+  }
+
+  if(runs === 6){
+
+    liveMatch.batsmen[
+      batsman
+    ].sixes++;
+
+  }
+
+  if(runs % 2){
+
+    swapStrike();
+
+  }
+
+  if(
+    liveMatch.legalBalls >= 6
+  ){
+
+    liveMatch.overNumber++;
+
+    liveMatch.legalBalls = 0;
+
+    swapStrike();
+
+  }
+
+}
+
+
+/* ================= REBUILD WIDE ================= */
+
+function wideRunRebuild(runs){
+
+  liveMatch.totalRuns += runs;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].runs += runs;
+
+}
+
+
+/* ================= REBUILD NO BALL ================= */
+
+function noBallRunRebuild(runs){
+
+  liveMatch.totalRuns +=
+    Math.max(1,runs);
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].runs +=
+    Math.max(1,runs);
+
+}
+
+
+/* ================= REBUILD WICKET ================= */
+
+function wicketRebuild(runs){
+
+  const batsman =
+    liveMatch.striker;
+
+  ensureBatsman(batsman);
+
+  liveMatch.totalRuns += runs;
+
+  liveMatch.batsmen[
+    batsman
+  ].runs += runs;
+
+  liveMatch.batsmen[
+    batsman
+  ].balls++;
+
+  liveMatch.batsmen[
+    batsman
+  ].out = true;
+
+  liveMatch.wickets++;
+
+  liveMatch.legalBalls++;
+
+  ensureBowler();
+
+  liveMatch.bowlers[
+    liveMatch.bowler
+  ].balls++;
+
+  if(
+    liveMatch.legalBalls >= 6
+  ){
+
+    liveMatch.overNumber++;
+
+    liveMatch.legalBalls = 0;
+
+    swapStrike();
+
+  }
+
+}
+
+
+/* ================= RENDER SCORE ================= */
+
+function renderLiveScore(){
+
+  console.log(
+    "SCORE:",
+    liveMatch.totalRuns +
+    "/" +
+    liveMatch.wickets,
+
+    "OVER:",
+    liveMatch.overNumber +
+    "." +
+    liveMatch.legalBalls
+  );
+
+}
+
+
+/* ================= NEW MATCH ================= */
+
+function resetLiveMatch(){
+
+  if(
+    !confirm(
+      "New match start karna hai?"
+    )
+  ){
+
+    return;
+
+  }
+
+  liveMatch = {
+
+    team:"Team A",
+
+    opponent:"Team B",
+
+    totalRuns:0,
+
+    wickets:0,
+
+    legalBalls:0,
+
+    overNumber:1,
+
+    striker:"Batsman 1",
+
+    nonStriker:"Batsman 2",
+
+    bowler:"Bowler 1",
+
+    balls:[],
+
+    batsmen:{
+
+      "Batsman 1":{
+        runs:0,
+        balls:0,
+        fours:0,
+        sixes:0,
+        out:false
+      },
+
+      "Batsman 2":{
+        runs:0,
+        balls:0,
+        fours:0,
+        sixes:0,
+        out:false
+      }
+
+    },
+
+    bowlers:{
+
+      "Bowler 1":{
+        runs:0,
+        wickets:0,
+        balls:0
+      }
+
+    }
+
+  };
+
+  saveLiveMatch();
+
+  renderLiveScore();
+
+}
+
+
+/* LOAD SAVED LIVE MATCH */
+
+loadLiveMatch();
+ 
 </script>
 
 </body>
