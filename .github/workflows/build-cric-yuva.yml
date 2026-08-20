@@ -171,9 +171,12 @@ jobs:
             --verbose \
             output/CRIC-YUVA.apk
 
-      - name: Upload CRIC YUVA APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: CRIC-YUVA-APK
-          path: output/CRIC-YUVA.apk
-          if-no-files-found: error
+          - name: Upload CRIC YUVA APK to repository
+      run: |
+        cp output/CRIC-YUVA.apk CRIC-YUVA.apk
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add CRIC-YUVA.apk
+        git commit -m "Update CRIC YUVA APK [skip ci]" || echo "No changes to commit"
+        git push
+        
