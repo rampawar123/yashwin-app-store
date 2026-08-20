@@ -41,20 +41,6 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
 
-      - name: Configure Bubblewrap
-        run: |
-          mkdir -p ~/.bubblewrap
-          cat > ~/.bubblewrap/config.json <<EOF
-          {
-            "jdkPath": "${JAVA_HOME}",
-            "androidSdkPath": "${ANDROID_HOME}"
-          }
-          EOF
-
-      - name: Check Bubblewrap
-        run: |
-          bubblewrap doctor
-
       - name: Create CRIC YUVA signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -118,7 +104,7 @@ jobs:
             --jdkPath="$JAVA_HOME" \
             --androidSdkPath="$ANDROID_HOME"
 
-      - name: Build unsigned CRIC YUVA APK
+      - name: Build CRIC YUVA APK
         run: |
           cd twa-cric-yuva
 
@@ -135,7 +121,6 @@ jobs:
 
           if [ -z "$APK_PATH" ]; then
             echo "ERROR: APK was not generated."
-            echo "Files inside twa-cric-yuva:"
             find twa-cric-yuva -type f | sort
             exit 1
           fi
@@ -154,9 +139,6 @@ jobs:
 
           APK="${{ steps.find_apk.outputs.apk_path }}"
 
-          echo "Signing:"
-          echo "$APK"
-
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign \
             --ks twa-cric-yuva/cric-yuva.keystore \
             --ks-key-alias cricyuva \
@@ -170,13 +152,23 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
             --verbose \
             output/CRIC-YUVA.apk
-            
-       - name: Upload CRIC YUVA APK to repository
-         run: |
-       cp output/CRIC-YUVA.apk CRIC-YUVA.apk
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add CRIC-YUVA.apk
-        git commit -m "Update CRIC YUVA APK [skip ci]" || echo "No changes to commit"
-        git push
-        
+
+      - name: Upload CRIC YUVA APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRIC-YUVA-APK
+          path: output/CRIC-YUVA.apk
+          if-no-files-found: error
+
+      - name: Upload APK to repository
+        run: |
+          cp output/CRIC-YUVA.apk CRIC-YUVA.apk
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add CRIC-YUVA.apk
+
+          git commit -m "Update CRIC YUVA APK" || echo "No changes to commit"
+
+          git push
