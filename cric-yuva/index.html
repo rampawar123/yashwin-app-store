@@ -2713,6 +2713,1288 @@ function resetLiveMatch(){
 /* LOAD SAVED LIVE MATCH */
 
 loadLiveMatch();
+
+/* =========================================================
+   CRIC YUVA
+   TEAM + TOURNAMENT + SINGLE MATCH SYSTEM
+========================================================= */
+
+const CY_TEAMS = "CY_TEAMS";
+const CY_TOURNAMENTS = "CY_TOURNAMENTS";
+const CY_SINGLE_MATCHES = "CY_SINGLE_MATCHES";
+
+let cyTeams = JSON.parse(
+  localStorage.getItem(CY_TEAMS) || "[]"
+);
+
+let cyTournaments = JSON.parse(
+  localStorage.getItem(CY_TOURNAMENTS) || "[]"
+);
+
+let cySingleMatches = JSON.parse(
+  localStorage.getItem(CY_SINGLE_MATCHES) || "[]"
+);
+
+
+/* ================= SAVE ================= */
+
+function saveCompetitionData(){
+
+  localStorage.setItem(
+    CY_TEAMS,
+    JSON.stringify(cyTeams)
+  );
+
+  localStorage.setItem(
+    CY_TOURNAMENTS,
+    JSON.stringify(cyTournaments)
+  );
+
+  localStorage.setItem(
+    CY_SINGLE_MATCHES,
+    JSON.stringify(cySingleMatches)
+  );
+
+}
+
+
+/* =========================================================
+   PLAYER SEARCH
+========================================================= */
+
+function searchRegisteredPlayer(){
+
+  const value =
+    document
+      .getElementById("playerSearch")
+      .value
+      .trim()
+      .toLowerCase();
+
+  if(!value){
+
+    document.getElementById("playerSearchResult")
+      .innerHTML =
+      '<div class="empty">Mobile / Player ID / Name डालें.</div>';
+
+    return;
+  }
+
+  /*
+    Current logged-in player + future registered players.
+    आगे server/database आने पर यही search database में होगा.
+  */
+
+  let players = [];
+
+  if(profile){
+
+    players.push({
+
+      id:profile.id,
+
+      name:profile.name,
+
+      mobile:account ? account.mobile : "",
+
+      photo:profile.photo || "",
+
+      role:profile.role || "",
+
+      batting:profile.batting || "",
+
+      bowling:profile.bowling || "",
+
+      jerseyNumber:profile.jerseyNumber || "00"
+
+    });
+
+  }
+
+  const found = players.filter(function(player){
+
+    return (
+
+      String(player.id)
+        .toLowerCase()
+        .includes(value)
+
+      ||
+
+      String(player.name)
+        .toLowerCase()
+        .includes(value)
+
+      ||
+
+      String(player.mobile)
+        .toLowerCase()
+        .includes(value)
+
+    );
+
+  });
+
+  if(!found.length){
+
+    document.getElementById("playerSearchResult")
+      .innerHTML =
+      '<div class="empty">❌ Player नहीं मिला.</div>';
+
+    return;
+
+  }
+
+  document.getElementById("playerSearchResult")
+    .innerHTML = found.map(function(player){
+
+      return `
+
+      <div class="card">
+
+        <div class="profile">
+
+          <div class="photo">
+
+            ${
+              player.photo
+              ?
+              `<img src="${player.photo}">`
+              :
+              "Player"
+            }
+
+          </div>
+
+          <div>
+
+            <h2>${esc(player.name)}</h2>
+
+            <div class="muted">
+              🆔 ${esc(player.id)}
+            </div>
+
+            <div class="muted">
+              📱 ${esc(player.mobile)}
+            </div>
+
+            <div class="muted">
+              🏏 ${esc(player.role)}
+            </div>
+
+            <div class="muted">
+              Batting: ${esc(player.batting)}
+            </div>
+
+            <div class="muted">
+              Bowling: ${esc(player.bowling)}
+            </div>
+
+          </div>
+
+        </div>
+
+        <button
+          class="btn"
+          style="width:100%;margin-top:15px"
+          onclick='selectPlayer(${JSON.stringify(player)})'
+        >
+          ➕ Add Player
+        </button>
+
+      </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   SELECT PLAYER
+========================================================= */
+
+let selectedCompetitionPlayers = [];
+
+
+function selectPlayer(player){
+
+  const exists =
+    selectedCompetitionPlayers.some(function(p){
+
+      return p.id === player.id;
+
+    });
+
+  if(exists){
+
+    alert("यह player पहले से team में है.");
+
+    return;
+
+  }
+
+  if(selectedCompetitionPlayers.length >= 15){
+
+    alert(
+      "एक Team में maximum 15 Players रखे जा सकते हैं."
+    );
+
+    return;
+
+  }
+
+  selectedCompetitionPlayers.push(player);
+
+  renderSelectedPlayers();
+
+}
+
+
+/* =========================================================
+   PLAYER LIST
+========================================================= */
+
+function renderSelectedPlayers(){
+
+  const box =
+    document.getElementById(
+      "selectedPlayers"
+    );
+
+  if(!box)return;
+
+  if(!selectedCompetitionPlayers.length){
+
+    box.innerHTML =
+      '<div class="empty">अभी कोई player add नहीं है.</div>';
+
+    return;
+
+  }
+
+  box.innerHTML =
+    selectedCompetitionPlayers
+      .map(function(player,index){
+
+        return `
+
+        <div class="list">
+
+          <b>
+            ${index+1}. ${esc(player.name)}
+          </b>
+
+          <div class="small">
+            ID: ${esc(player.id)}
+            • ${esc(player.role)}
+          </div>
+
+          <button
+            class="btn red"
+            style="margin-top:8px"
+            onclick="removeCompetitionPlayer(${index})"
+          >
+            ❌ Remove
+          </button>
+
+        </div>
+
+        `;
+
+      })
+      .join("");
+
+}
+
+
+/* =========================================================
+   REMOVE PLAYER
+========================================================= */
+
+function removeCompetitionPlayer(index){
+
+  selectedCompetitionPlayers
+    .splice(index,1);
+
+  renderSelectedPlayers();
+
+}
+
+
+/* =========================================================
+   ADD TEAM
+========================================================= */
+
+function createTeam(){
+
+  selectedCompetitionPlayers = [];
+
+  modal(
+    "🏏 Create Team",
+    `
+
+    <label>Team Name *</label>
+
+    <input
+      id="newTeamName"
+      placeholder="Team Name"
+    >
+
+    <label>Team Logo</label>
+
+    <input
+      id="newTeamLogo"
+      type="file"
+      accept="image/*"
+    >
+
+    <div class="card" style="margin-top:15px">
+
+      <h3>👥 Players</h3>
+
+      <p class="small">
+        Maximum 15 Players
+      </p>
+
+      <label>
+        Mobile Number / Player ID / Name
+      </label>
+
+      <input
+        id="playerSearch"
+        placeholder="Search registered player"
+        oninput="searchRegisteredPlayer()"
+      >
+
+      <div
+        id="playerSearchResult"
+        style="margin-top:10px"
+      >
+      </div>
+
+      <div
+        id="selectedPlayers"
+        style="margin-top:10px"
+      >
+        <div class="empty">
+          अभी कोई player add नहीं है.
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>🧑‍💼 Support Team</h3>
+
+      <p class="small">
+        Maximum 5 Support Members
+      </p>
+
+      <input
+        id="support1"
+        placeholder="Coach"
+      >
+
+      <input
+        id="support2"
+        placeholder="Manager"
+        style="margin-top:7px"
+      >
+
+      <input
+        id="support3"
+        placeholder="Assistant Coach"
+        style="margin-top:7px"
+      >
+
+      <input
+        id="support4"
+        placeholder="Trainer"
+        style="margin-top:7px"
+      >
+
+      <input
+        id="support5"
+        placeholder="Team Member"
+        style="margin-top:7px"
+      >
+
+    </div>
+
+
+    <button
+      class="btn"
+      style="width:100%"
+      onclick="saveNewTeam()"
+    >
+      💾 Save Team
+    </button>
+
+    `
+  );
+
+}
+
+
+/* =========================================================
+   SAVE TEAM
+========================================================= */
+
+function saveNewTeam(){
+
+  const name =
+    document
+      .getElementById("newTeamName")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert("Team Name जरूरी है.");
+
+    return;
+
+  }
+
+  if(selectedCompetitionPlayers.length > 15){
+
+    alert("Maximum 15 players.");
+
+    return;
+
+  }
+
+  const support = [
+
+    document.getElementById("support1").value.trim(),
+
+    document.getElementById("support2").value.trim(),
+
+    document.getElementById("support3").value.trim(),
+
+    document.getElementById("support4").value.trim(),
+
+    document.getElementById("support5").value.trim()
+
+  ].filter(Boolean);
+
+
+  const team = {
+
+    id:
+      "TEAM-" +
+      Date.now(),
+
+    name:name,
+
+    logo:"",
+
+    players:
+      [...selectedCompetitionPlayers],
+
+    support:support,
+
+    created:
+      new Date().toLocaleDateString()
+
+  };
+
+
+  const logoInput =
+    document.getElementById("newTeamLogo");
+
+  const file =
+    logoInput.files[0];
+
+
+  if(file){
+
+    const reader =
+      new FileReader();
+
+    reader.onload =
+      function(e){
+
+        team.logo =
+          e.target.result;
+
+        cyTeams.push(team);
+
+        saveCompetitionData();
+
+        closeModal();
+
+        alert(
+          "✅ Team successfully created"
+        );
+
+      };
+
+    reader.readAsDataURL(file);
+
+  }else{
+
+    cyTeams.push(team);
+
+    saveCompetitionData();
+
+    closeModal();
+
+    alert(
+      "✅ Team successfully created"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CREATE TOURNAMENT
+========================================================= */
+
+function createTournament(){
+
+  modal(
+    "🏆 Create Tournament",
+    `
+
+    <label>Tournament Name *</label>
+
+    <input
+      id="tournamentName"
+      placeholder="Tournament Name"
+    >
+
+    <label>Date</label>
+
+    <input
+      id="tournamentDate"
+      type="date"
+    >
+
+    <label>Location</label>
+
+    <input
+      id="tournamentLocation"
+      placeholder="Ground / City"
+    >
+
+    <label>Number of Grounds</label>
+
+    <select id="groundCount">
+
+      <option value="1">1 Ground</option>
+      <option value="2">2 Grounds</option>
+      <option value="3">3 Grounds</option>
+      <option value="4">4 Grounds</option>
+
+    </select>
+
+    <button
+      class="btn"
+      style="width:100%;margin-top:15px"
+      onclick="saveTournament()"
+    >
+      🏆 Create Tournament
+    </button>
+
+    `
+  );
+
+}
+
+
+/* =========================================================
+   SAVE TOURNAMENT
+========================================================= */
+
+function saveTournament(){
+
+  const name =
+    document
+      .getElementById("tournamentName")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert(
+      "Tournament Name जरूरी है."
+    );
+
+    return;
+
+  }
+
+  const tournament = {
+
+    id:
+      "TOUR-" +
+      Date.now(),
+
+    name:name,
+
+    date:
+      document.getElementById(
+        "tournamentDate"
+      ).value,
+
+    location:
+      document.getElementById(
+        "tournamentLocation"
+      ).value,
+
+    grounds:
+      Number(
+        document.getElementById(
+          "groundCount"
+        ).value
+      ),
+
+    teams:[],
+
+    created:
+      new Date().toLocaleDateString()
+
+  };
+
+
+  cyTournaments.push(
+    tournament
+  );
+
+  saveCompetitionData();
+
+  closeModal();
+
+  alert(
+    "🏆 Tournament created successfully."
+  );
+
+}
+
+
+/* =========================================================
+   ADD TEAM TO TOURNAMENT
+========================================================= */
+
+function addTeamToTournament(tournamentId){
+
+  const tournament =
+    cyTournaments.find(function(t){
+
+      return t.id === tournamentId;
+
+    });
+
+  if(!tournament)return;
+
+  if(!cyTeams.length){
+
+    alert(
+      "पहले Team create करें."
+    );
+
+    return;
+
+  }
+
+  modal(
+    "➕ Add Team to Tournament",
+    `
+
+    <p class="small">
+      Tournament:
+      <b>${esc(tournament.name)}</b>
+    </p>
+
+    ${
+      cyTeams.map(function(team){
+
+        return `
+
+        <div class="list">
+
+          <h3>
+            ${esc(team.name)}
+          </h3>
+
+          <div class="small">
+            ${team.players.length}/15 Players
+            • ${team.support.length}/5 Support
+          </div>
+
+          <button
+            class="btn"
+            style="margin-top:8px"
+            onclick="attachTeamToTournament('${tournament.id}','${team.id}')"
+          >
+            ➕ Add This Team
+          </button>
+
+        </div>
+
+        `;
+
+      }).join("")
+    }
+
+    `
+  );
+
+}
+
+
+/* =========================================================
+   ATTACH TEAM
+========================================================= */
+
+function attachTeamToTournament(
+  tournamentId,
+  teamId
+){
+
+  const tournament =
+    cyTournaments.find(
+      t => t.id === tournamentId
+    );
+
+  const team =
+    cyTeams.find(
+      t => t.id === teamId
+    );
+
+  if(!tournament || !team)return;
+
+  const already =
+    tournament.teams.some(
+      id => id === teamId
+    );
+
+  if(already){
+
+    alert(
+      "Team already added."
+    );
+
+    return;
+
+  }
+
+  tournament.teams.push(
+    teamId
+  );
+
+  saveCompetitionData();
+
+  closeModal();
+
+  alert(
+    "✅ Team added to tournament."
+  );
+
+}
+
+
+/* =========================================================
+   SINGLE MATCH
+========================================================= */
+
+function createSingleMatch(){
+
+  selectedCompetitionPlayers = [];
+
+  modal(
+    "🏏 Single Match",
+    `
+
+    <label>Match Type</label>
+
+    <select id="singleMatchType">
+
+      <option>Practice Match</option>
+      <option>Friendly Match</option>
+      <option>Series Match</option>
+      <option>Tournament Match</option>
+
+    </select>
+
+
+    <label>Team A</label>
+
+    <select id="singleTeamA">
+
+      <option value="">
+        Select Team
+      </option>
+
+      ${
+        cyTeams.map(function(team){
+
+          return `
+          <option value="${team.id}">
+            ${esc(team.name)}
+          </option>
+          `;
+
+        }).join("")
+      }
+
+    </select>
+
+
+    <label>Team B</label>
+
+    <select id="singleTeamB">
+
+      <option value="">
+        Select Team
+      </option>
+
+      ${
+        cyTeams.map(function(team){
+
+          return `
+          <option value="${team.id}">
+            ${esc(team.name)}
+          </option>
+          `;
+
+        }).join("")
+      }
+
+    </select>
+
+
+    <div class="card"
+         style="margin-top:15px">
+
+      <h3>👥 Match Player List</h3>
+
+      <p class="small">
+        Team में player को remove करके
+        दूसरा registered player add कर सकते हैं.
+      </p>
+
+    </div>
+
+
+    <button
+      class="btn"
+      style="width:100%;margin-top:10px"
+      onclick="saveSingleMatch()"
+    >
+      🏏 Create Match
+    </button>
+
+    `
+  );
+
+}
+
+
+/* =========================================================
+   SAVE SINGLE MATCH
+========================================================= */
+
+function saveSingleMatch(){
+
+  const teamA =
+    document.getElementById(
+      "singleTeamA"
+    ).value;
+
+  const teamB =
+    document.getElementById(
+      "singleTeamB"
+    ).value;
+
+  if(!teamA || !teamB){
+
+    alert(
+      "Team A और Team B दोनों चुनें."
+    );
+
+    return;
+
+  }
+
+  if(teamA === teamB){
+
+    alert(
+      "Team A और Team B अलग होने चाहिए."
+    );
+
+    return;
+
+  }
+
+  const match = {
+
+    id:
+      "MATCH-" +
+      Date.now(),
+
+    type:
+      document.getElementById(
+        "singleMatchType"
+      ).value,
+
+    teamA:teamA,
+
+    teamB:teamB,
+
+    teamAPlayers:
+      getTeamPlayers(teamA),
+
+    teamBPlayers:
+      getTeamPlayers(teamB),
+
+    created:
+      new Date().toLocaleDateString()
+
+  };
+
+
+  cySingleMatches.push(match);
+
+  saveCompetitionData();
+
+  closeModal();
+
+  alert(
+    "✅ Match created successfully."
+  );
+
+}
+
+
+/* =========================================================
+   TEAM PLAYERS
+========================================================= */
+
+function getTeamPlayers(teamId){
+
+  const team =
+    cyTeams.find(
+      t => t.id === teamId
+    );
+
+  if(!team)return[];
+
+  return team.players.map(
+    p => ({...p})
+  );
+
+}
+
+
+/* =========================================================
+   EDIT MATCH PLAYER
+========================================================= */
+
+function replaceMatchPlayer(
+  matchId,
+  teamSide,
+  playerIndex
+){
+
+  const match =
+    cySingleMatches.find(
+      m => m.id === matchId
+    );
+
+  if(!match)return;
+
+  const newPlayer =
+    prompt(
+      "New Player का Mobile / ID / Name डालें:"
+    );
+
+  if(!newPlayer)return;
+
+  const value =
+    newPlayer.trim().toLowerCase();
+
+  let players =
+    teamSide === "A"
+    ?
+    match.teamAPlayers
+    :
+    match.teamBPlayers;
+
+  const found =
+    players.find(function(p){
+
+      return (
+
+        String(p.id)
+          .toLowerCase()
+          .includes(value)
+
+        ||
+
+        String(p.name)
+          .toLowerCase()
+          .includes(value)
+
+        ||
+
+        String(p.mobile)
+          .toLowerCase()
+          .includes(value)
+
+      );
+
+    });
+
+
+  if(!found){
+
+    alert(
+      "Registered player नहीं मिला."
+    );
+
+    return;
+
+  }
+
+  players[playerIndex] =
+    {...found};
+
+  saveCompetitionData();
+
+  alert(
+    "✅ Match player replaced."
+  );
+
+}
+
+
+/* =========================================================
+   RENDER COMPETITION LIST
+========================================================= */
+
+function renderCompetitionList(){
+
+  const box =
+    document.getElementById(
+      "matchList"
+    );
+
+  if(!box)return;
+
+  let html = `
+
+    <button
+      class="btn"
+      onclick="createTournament()"
+    >
+      🏆 Create Tournament
+    </button>
+
+    <button
+      class="btn blue"
+      onclick="createTeam()"
+      style="margin-left:5px"
+    >
+      ➕ Add Team
+    </button>
+
+    <button
+      class="btn dark"
+      onclick="createSingleMatch()"
+      style="margin-left:5px"
+    >
+      🏏 Single Match
+    </button>
+
+    <hr
+      style="border-color:#23445f;margin:15px 0"
+    >
+
+  `;
+
+
+  html += `
+    <h3>🏆 Tournaments</h3>
+  `;
+
+
+  if(!cyTournaments.length){
+
+    html +=
+      '<div class="empty">No tournaments yet.</div>';
+
+  }else{
+
+    cyTournaments.forEach(
+      function(tournament){
+
+        html += `
+
+        <div class="list">
+
+          <h3>
+            🏆 ${esc(tournament.name)}
+          </h3>
+
+          <div class="small">
+
+            ${esc(tournament.date || "Date not set")}
+            •
+            ${esc(tournament.location || "Location not set")}
+            •
+            ${tournament.grounds} Ground(s)
+
+          </div>
+
+          <button
+            class="btn"
+            style="margin-top:8px"
+            onclick="addTeamToTournament('${tournament.id}')"
+          >
+            ➕ Add Team
+          </button>
+
+        </div>
+
+        `;
+
+      }
+    );
+
+  }
+
+
+  html += `
+    <h3 style="margin-top:20px">
+      👥 Teams
+    </h3>
+  `;
+
+
+  if(!cyTeams.length){
+
+    html +=
+      '<div class="empty">No teams yet.</div>';
+
+  }else{
+
+    cyTeams.forEach(
+      function(team){
+
+        html += `
+
+        <div class="list">
+
+          <h3>
+            ${esc(team.name)}
+          </h3>
+
+          <div class="small">
+
+            👥 Players:
+            ${team.players.length}/15
+
+            •
+
+            🧑‍💼 Support:
+            ${team.support.length}/5
+
+          </div>
+
+        </div>
+
+        `;
+
+      }
+    );
+
+  }
+
+
+  html += `
+    <h3 style="margin-top:20px">
+      🏏 Single Matches
+    </h3>
+  `;
+
+
+  if(!cySingleMatches.length){
+
+    html +=
+      '<div class="empty">No single matches yet.</div>';
+
+  }else{
+
+    cySingleMatches.forEach(
+      function(match){
+
+        const teamA =
+          cyTeams.find(
+            t => t.id === match.teamA
+          );
+
+        const teamB =
+          cyTeams.find(
+            t => t.id === match.teamB
+          );
+
+        html += `
+
+        <div class="list">
+
+          <h3>
+
+            ${esc(teamA?.name || "Team A")}
+
+            🆚
+
+            ${esc(teamB?.name || "Team B")}
+
+          </h3>
+
+          <div class="small">
+            ${esc(match.type)}
+            •
+            ${esc(match.created)}
+          </div>
+
+        </div>
+
+        `;
+
+      }
+    );
+
+  }
+
+
+  box.innerHTML = html;
+
+}
+
+
+/* =========================================================
+   REPLACE MATCH PAGE
+========================================================= */
+
+function openCompetitionPage(){
+
+  page("matches");
+
+  setTimeout(
+    renderCompetitionList,
+    50
+  );
+
+}
  
 </script>
 
