@@ -170,10 +170,10 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
             --verbose \
             output/CRIC-YUVA.apk
-
-          - name: Upload CRIC YUVA APK to repository
-      run: |
-        cp output/CRIC-YUVA.apk CRIC-YUVA.apk
+            
+       - name: Upload CRIC YUVA APK to repository
+         run: |
+       cp output/CRIC-YUVA.apk CRIC-YUVA.apk
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git add CRIC-YUVA.apk
