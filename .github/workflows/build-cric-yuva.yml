@@ -98,11 +98,20 @@ jobs:
         run: |
           cd twa-cric-yuva
 
+          mkdir -p ~/.bubblewrap
+
+          cat > ~/.bubblewrap/config.json <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
+          bubblewrap doctor
+
           bubblewrap update \
             --manifest=twa-manifest.json \
-            --skipVersionUpgrade \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
+            --skipVersionUpgrade
 
       - name: Build CRIC YUVA APK
         run: |
