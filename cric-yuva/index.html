@@ -1441,16 +1441,24 @@ Help & Information
    SPLASH SCREEN
 ========================================================= */
 window.addEventListener("load", function(){
-  openHome();
+
   setTimeout(function(){
-    const splash = document.getElementById("splashScreen");
+
+    const splash =
+      document.getElementById("splashScreen");
+
     if(splash){
+
       splash.classList.add("hide");
+
       setTimeout(function(){
         splash.remove();
       }, 500);
+
     }
-  }, 3000);
+
+  }, 2500);
+
 });
 
 /* =========================================================
