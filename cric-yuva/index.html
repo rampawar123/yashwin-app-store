@@ -833,22 +833,22 @@ body{
 
   <div class="pageGrid">
 
-    <button class="pageOption">
-      <span>➕</span>
-      Create Match
+    <button class="pageOption" onclick="createSingleMatch()">
+  <span>➕</span>
+  Create Match
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" onclick="showMyMatches()">
       <span>📋</span>
       My Matches
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" onclick="startSingleMatch()">
       <span>🏏</span>
       Start Match
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" onclick="showScorecards()">
       <span>📊</span>
       Scorecards
     </button>
@@ -1687,6 +1687,26 @@ window.addEventListener(
   }
 );
 
+/* ===============================
+   SINGLE MATCH BUTTON FUNCTIONS
+================================ */
+
+function createSingleMatch(){
+  alert("Create Match page abhi next step me banayenge.");
+   } 
+
+   function showMyMatches(){
+  alert("My Matches page abhi next step me banayenge.");
+   }
+
+   function startSingleMatch(){
+  alert("Start Match page abhi next step me banayenge.");
+   }
+
+   function showScorecards(){
+  alert("Scorecards page abhi next step me banayenge.");
+   }
+   
 </script>
 
 </body>
