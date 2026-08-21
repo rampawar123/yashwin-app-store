@@ -242,3 +242,129 @@ footer{
     object-fit:contain;
     display:block;
 }
+
+/* ================= SETTINGS PAGE ================= */
+
+.settingsProfile{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  margin-bottom:16px;
+  border:1px solid #31516c;
+  border-radius:16px;
+  background:#0c263b;
+}
+
+.settingsAvatar{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  overflow:hidden;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  background:#142f47;
+}
+
+.settingsAvatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.settingsProfileInfo{
+  flex:1;
+  min-width:0;
+}
+
+.settingsProfileInfo b{
+  display:block;
+  font-size:16px;
+  margin-bottom:4px;
+}
+
+.smallBtn{
+  padding:8px 12px;
+  font-size:12px;
+}
+
+.settingsSectionTitle{
+  margin:20px 4px 7px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.8px;
+  color:#91a8bb;
+}
+
+.dangerTitle{
+  color:#ff8a8a;
+}
+
+.settingsItem{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 8px;
+  border:0;
+  border-bottom:1px solid #23445f;
+  background:transparent;
+  color:#fff;
+  text-align:left;
+}
+
+.settingsItem:active{
+  transform:scale(.99);
+}
+
+.settingsIcon{
+  width:38px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  background:#14334d;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.settingsText{
+  flex:1;
+  min-width:0;
+}
+
+.settingsText b{
+  display:block;
+  font-size:14px;
+}
+
+.settingsText span{
+  display:block;
+  margin-top:3px;
+  color:#91a8bb;
+  font-size:11px;
+  line-height:1.35;
+}
+
+.settingsArrow{
+  font-size:28px;
+  color:#91a8bb;
+  line-height:1;
+}
+
+.settingsDangerBtn{
+  width:100%;
+  margin-top:8px;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #7c3030;
+  background:#3b161b;
+  color:#ffb3b3;
+  font-weight:800;
+}
+
+
