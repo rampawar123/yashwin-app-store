@@ -1698,20 +1698,49 @@ document.getElementById("singleMatch").innerHTML = `
 
 <h2 class="createMatchTitle">🏏 Create Match</h2>
 
-<div class="teamVsWrap">
+<div class="teamWrap">
 
+  <!-- TEAM A -->
   <div class="teamBox teamABox">
     <div class="teamLabel">TEAM A</div>
-    <div class="teamLogo">🏏</div>
-    <input type="text" id="teamA" placeholder="Enter Team A Name">
+
+    <div class="teamLogo">
+      <img id="teamALogo"
+           src="https://via.placeholder.com/140?text=TEAM+A"
+           alt="Team A Logo">
+    </div>
+
+    <div class="teamName" id="teamAName">
+      Select Team A
+    </div>
+
+    <select id="teamASelect" onchange="selectMatchTeam('A')">
+      <option value="">Select Team A</option>
+    </select>
   </div>
 
-  <div class="vsBox">VS</div>
+  <!-- VS -->
+  <div class="vsBox">
+    <span>VS</span>
+  </div>
 
+  <!-- TEAM B -->
   <div class="teamBox teamBBox">
     <div class="teamLabel">TEAM B</div>
-    <div class="teamLogo">🏏</div>
-    <input type="text" id="teamB" placeholder="Enter Team B Name">
+
+    <div class="teamLogo">
+      <img id="teamBLogo"
+           src="https://via.placeholder.com/140?text=TEAM+B"
+           alt="Team B Logo">
+    </div>
+
+    <div class="teamName" id="teamBName">
+      Select Team B
+    </div>
+
+    <select id="teamBSelect" onchange="selectMatchTeam('B')">
+      <option value="">Select Team B</option>
+    </select>
   </div>
 
 </div>
@@ -1781,6 +1810,114 @@ document.getElementById("singleMatch").innerHTML = `
    function showScorecards(){
   alert("Scorecards page abhi next step me banayenge.");
    }
+   
+/* =========================================
+   CREATE MATCH TEAM AUTO SELECT
+========================================= */
+
+function loadMatchTeams() {
+
+  const teamASelect = document.getElementById("teamASelect");
+  const teamBSelect = document.getElementById("teamBSelect");
+
+  if (!teamASelect || !teamBSelect) return;
+
+  let teams = [];
+
+  try {
+    teams = JSON.parse(localStorage.getItem("cricYuvaTeams")) || [];
+  } catch (error) {
+    teams = [];
+  }
+
+  teams.forEach((team, index) => {
+
+    const teamName =
+      team.name ||
+      team.teamName ||
+      "Team " + (index + 1);
+
+    const teamLogo =
+      team.logo ||
+      team.logoUrl ||
+      "";
+
+    const optionA = document.createElement("option");
+    optionA.value = index;
+    optionA.textContent = teamName;
+
+    const optionB = document.createElement("option");
+    optionB.value = index;
+    optionB.textContent = teamName;
+
+    teamASelect.appendChild(optionA);
+    teamBSelect.appendChild(optionB);
+  });
+}
+
+function selectMatchTeam(side) {
+
+  let teams = [];
+
+  try {
+    teams = JSON.parse(localStorage.getItem("cricYuvaTeams")) || [];
+  } catch (error) {
+    teams = [];
+  }
+
+  const select = document.getElementById(
+    side === "A" ? "teamASelect" : "teamBSelect"
+  );
+
+  const logo = document.getElementById(
+    side === "A" ? "teamALogo" : "teamBLogo"
+  );
+
+  const name = document.getElementById(
+    side === "A" ? "teamAName" : "teamBName"
+  );
+
+  const selectedIndex = select.value;
+
+  if (selectedIndex === "") {
+
+    name.textContent =
+      side === "A" ? "Select Team A" : "Select Team B";
+
+    logo.src =
+      side === "A"
+        ? "https://via.placeholder.com/140?text=TEAM+A"
+        : "https://via.placeholder.com/140?text=TEAM+B";
+
+    return;
+  }
+
+  const team = teams[selectedIndex];
+
+  if (!team) return;
+
+  name.textContent =
+    team.name ||
+    team.teamName ||
+    "Selected Team";
+
+  logo.src =
+    team.logo ||
+    team.logoUrl ||
+    "https://via.placeholder.com/140?text=TEAM";
+}
+
+/* Create Match page khulte hi teams load hongi */
+const oldCreateSingleMatch = createSingleMatch;
+
+createSingleMatch = function () {
+
+  oldCreateSingleMatch();
+
+  setTimeout(function () {
+    loadMatchTeams();
+  }, 100);
+};   
    
 </script>
 
