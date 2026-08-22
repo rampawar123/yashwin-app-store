@@ -2458,6 +2458,65 @@ function showScorecards(){
   );
 
 }
+
+    function saveSingleMatch() {
+    const teamA = document.getElementById("teamASelect").value;
+    const teamB = document.getElementById("teamBSelect").value;
+    const overs = document.getElementById("matchOvers").value;
+    const customOvers = document.getElementById("customOvers");
+    const matchDate = document.getElementById("matchDate").value;
+    const groundName = document.getElementById("groundName").value;
+
+    let finalOvers = overs;
+
+    if (overs === "custom" && customOvers) {
+        finalOvers = customOvers.value;
+    }
+
+    if (!teamA || !teamB) {
+        alert("Please select Team A and Team B");
+        return;
+    }
+
+    if (teamA === teamB) {
+        alert("Team A and Team B cannot be the same");
+        return;
+    }
+
+    if (!finalOvers) {
+        alert("Please select match overs");
+        return;
+    }
+
+    if (!matchDate) {
+        alert("Please select match date");
+        return;
+    }
+
+    if (!groundName.trim()) {
+        alert("Please enter ground name");
+        return;
+    }
+
+    const match = {
+        id: Date.now(),
+        teamA: teamA,
+        teamB: teamB,
+        overs: finalOvers,
+        date: matchDate,
+        ground: groundName,
+        status: "upcoming",
+        createdAt: new Date().toISOString()
+    };
+
+    const matches = JSON.parse(localStorage.getItem("cricYuvaMatches") || "[]");
+    matches.push(match);
+    localStorage.setItem("cricYuvaMatches", JSON.stringify(matches));
+
+    alert("🏆 Match Created Successfully!");
+
+    location.reload();
+ }  
    
 </script>
 
