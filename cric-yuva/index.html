@@ -2221,162 +2221,109 @@ function selectMatchTeam(side) {
 
 function startSingleMatch(){
 
-  const matches =
-    JSON.parse(
-      localStorage.getItem(
-        "CY_SINGLE_MATCHES"
-      ) || "[]"
-    );
+  let matches = JSON.parse(
+    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  );
 
   if(!matches.length){
-
-    alert(
-      "Pehle Create Match se match banao."
-    );
-
+    alert("Pehle Create Match se match banao.");
     return;
   }
-
 
   const match =
     matches.find(function(item){
-
-      return item.status !== "Completed";
-
+      return item.status === "upcoming";
     }) || matches[0];
 
-
-  const box =
-    document.getElementById(
-      "singleMatch"
-    );
-
+  const box = document.getElementById("singleMatch");
 
   if(!box){
-
-    alert("Match page box nahi mila.");
-
+    alert("Match page nahi mila.");
     return;
-
   }
 
-
   box.innerHTML = `
-
     <button
       class="backBtn"
-      onclick="createSingleMatch()"
+      onclick="location.reload()"
     >
       ← Back
     </button>
-
 
     <h2 class="createMatchTitle">
       🏏 Start Match
     </h2>
 
-
     <div class="modernMatchCard">
 
-      <h3>
-        🏆 Match Ready
-      </h3>
-
+      <h3>🏆 Match Ready</h3>
 
       <div class="matchNote">
+        <b>${match.teamA || "Team A"}</b>
 
-        <b>
-          ${match.teamAName || "Team A"}
-        </b>
+        <br><br>
 
         🆚
 
-        <b>
-          ${match.teamBName || "Team B"}
-        </b>
+        <br><br>
 
-      </div>
+        <b>${match.teamB || "Team B"}</b>
 
+        <br><br>
 
-      <br>
+        🏏 ${match.overs || "--"} Overs
 
-
-      <div class="matchNote">
-
-        🏏 ${match.overs || "-"} Overs
-
-        <br>
+        <br><br>
 
         📅 ${match.date || "Date not set"}
 
-        <br>
+        <br><br>
 
         📍 ${match.ground || "Ground not set"}
-
       </div>
 
-
       <br>
-
 
       <button
         class="createMatchBtn"
         onclick="beginMatch('${match.id}')"
       >
-        ▶️ START MATCH
+        ▶ START MATCH
       </button>
 
     </div>
-
   `;
-
 }
 
- function beginMatch(matchId){
 
-  let matches =
-    JSON.parse(
-      localStorage.getItem(
-        "CY_SINGLE_MATCHES"
-      ) || "[]"
-    );
+function beginMatch(matchId){
 
+  let matches = JSON.parse(
+    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  );
 
-  const match =
-    matches.find(function(item){
-
-      return item.id === matchId;
-
-    });
-
+  const match = matches.find(function(item){
+    return String(item.id) === String(matchId);
+  });
 
   if(!match){
-
     alert("Match nahi mila.");
-
     return;
-
   }
 
-
-  match.status = "Live";
-
+  match.status = "live";
 
   localStorage.setItem(
     "CY_SINGLE_MATCHES",
     JSON.stringify(matches)
   );
 
-
   alert(
     "🏏 Match Start Ho Gaya!"
   );
 
-
   showScorecards();
-
-   }
-
+}
 
 function showScorecards(){
 
