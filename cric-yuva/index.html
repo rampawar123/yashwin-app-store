@@ -1691,9 +1691,48 @@ window.addEventListener(
    SINGLE MATCH BUTTON FUNCTIONS
 ================================ */
 
-function createSingleMatch(){
-  alert("Create Match page abhi next step me banayenge.");
-   } 
+   function createSingleMatch(){
+  document.getElementById("singleMatch").innerHTML = `
+    <button class="backBtn" onclick="location.reload()">← Back</button>
+
+    <h2>🏏 Create Match</h2>
+
+    <div class="pageCard">
+      <b>Match Details</b>
+      <div class="smallText">Naye match ki details bharein.</div>
+    </div>
+
+    <div class="pageCard">
+      <label>Team A Name</label>
+      <input type="text" id="teamA" placeholder="Enter Team A name">
+
+      <label>Team B Name</label>
+      <input type="text" id="teamB" placeholder="Enter Team B name">
+
+      <label>Match Overs</label>
+      <select id="matchOvers">
+        <option value="">Select Overs</option>
+        <option>5</option>
+        <option>10</option>
+        <option>15</option>
+        <option>20</option>
+        <option>50</option>
+      </select>
+
+      <label>Match Date</label>
+      <input type="date" id="matchDate">
+
+      <label>Ground Name</label>
+      <input type="text" id="groundName" placeholder="Enter Ground name">
+
+      <br><br>
+
+      <button class="pageOption" onclick="saveSingleMatch()">
+        💾 Create Match
+      </button>
+    </div>
+  `;
+}
 
    function showMyMatches(){
   alert("My Matches page abhi next step me banayenge.");
