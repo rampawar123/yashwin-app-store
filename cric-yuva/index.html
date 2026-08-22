@@ -2058,6 +2058,83 @@ function getSavedMatchTeams(){
 
 function loadMatchTeams(){
 
+    const teamASelect = document.getElementById("teamASelect");
+    const teamBSelect = document.getElementById("teamBSelect");
+
+    if(!teamASelect || !teamBSelect){
+        return;
+    }
+
+    let teams = getSavedMatchTeams();
+
+    // TEST KE LIYE 2 PROPER TEAMS - 11 PLAYER EACH
+    if(!Array.isArray(teams) || teams.length < 2){
+
+        teams = [
+            {
+                id: "test-team-a",
+                name: "Cric Yuva Warriors",
+                players: [
+                    "Hussy (Captain)",
+                    "Player 2",
+                    "Player 3",
+                    "Player 4",
+                    "Player 5",
+                    "Player 6",
+                    "Player 7",
+                    "Player 8",
+                    "Player 9",
+                    "Player 10",
+                    "Player 11"
+                ]
+            },
+            {
+                id: "test-team-b",
+                name: "Cric Yuva Kings",
+                players: [
+                    "Captain 1",
+                    "Player 2",
+                    "Player 3",
+                    "Player 4",
+                    "Player 5",
+                    "Player 6",
+                    "Player 7",
+                    "Player 8",
+                    "Player 9",
+                    "Player 10",
+                    "Player 11"
+                ]
+            }
+        ];
+    }
+
+    teamASelect.innerHTML = `<option value="">Select Team A</option>`;
+    teamBSelect.innerHTML = `<option value="">Select Team B</option>`;
+
+    teams.forEach(function(team, index){
+
+        const teamId = team.id || String(index);
+
+        const teamName =
+            team.name ||
+            team.teamName ||
+            "Team " + (index + 1);
+
+        const optionA = document.createElement("option");
+        optionA.value = teamId;
+        optionA.textContent = teamName;
+
+        const optionB = document.createElement("option");
+        optionB.value = teamId;
+        optionB.textContent = teamName;
+
+        teamASelect.appendChild(optionA);
+        teamBSelect.appendChild(optionB);
+
+    });
+
+}
+
   const teamASelect =
     document.getElementById(
       "teamASelect"
