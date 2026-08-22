@@ -2290,22 +2290,163 @@ function selectMatchTeam(side){
    OTHER MATCH BUTTONS
 ========================================= */
 
-function showMyMatches(){
-
-  alert(
-    "My Matches page abhi next step me banayenge."
-  );
-
-}
-
-
 function startSingleMatch(){
 
-  alert(
-    "Start Match page abhi next step me banayenge."
-  );
+  const matches =
+    JSON.parse(
+      localStorage.getItem(
+        "CY_SINGLE_MATCHES"
+      ) || "[]"
+    );
+
+  if(!matches.length){
+
+    alert(
+      "Pehle Create Match se match banao."
+    );
+
+    return;
+  }
+
+
+  const match =
+    matches.find(function(item){
+
+      return item.status !== "Completed";
+
+    }) || matches[0];
+
+
+  const box =
+    document.getElementById(
+      "singleMatch"
+    );
+
+
+  if(!box){
+
+    alert("Match page box nahi mila.");
+
+    return;
+
+  }
+
+
+  box.innerHTML = `
+
+    <button
+      class="backBtn"
+      onclick="createSingleMatch()"
+    >
+      ← Back
+    </button>
+
+
+    <h2 class="createMatchTitle">
+      🏏 Start Match
+    </h2>
+
+
+    <div class="modernMatchCard">
+
+      <h3>
+        🏆 Match Ready
+      </h3>
+
+
+      <div class="matchNote">
+
+        <b>
+          ${match.teamAName || "Team A"}
+        </b>
+
+        🆚
+
+        <b>
+          ${match.teamBName || "Team B"}
+        </b>
+
+      </div>
+
+
+      <br>
+
+
+      <div class="matchNote">
+
+        🏏 ${match.overs || "-"} Overs
+
+        <br>
+
+        📅 ${match.date || "Date not set"}
+
+        <br>
+
+        📍 ${match.ground || "Ground not set"}
+
+      </div>
+
+
+      <br>
+
+
+      <button
+        class="createMatchBtn"
+        onclick="beginMatch('${match.id}')"
+      >
+        ▶️ START MATCH
+      </button>
+
+    </div>
+
+  `;
 
 }
+
+ function beginMatch(matchId){
+
+  let matches =
+    JSON.parse(
+      localStorage.getItem(
+        "CY_SINGLE_MATCHES"
+      ) || "[]"
+    );
+
+
+  const match =
+    matches.find(function(item){
+
+      return item.id === matchId;
+
+    });
+
+
+  if(!match){
+
+    alert("Match nahi mila.");
+
+    return;
+
+  }
+
+
+  match.status = "Live";
+
+
+  localStorage.setItem(
+    "CY_SINGLE_MATCHES",
+    JSON.stringify(matches)
+  );
+
+
+  alert(
+    "🏏 Match Start Ho Gaya!"
+  );
+
+
+  showScorecards();
+
+   }
 
 
 function showScorecards(){
