@@ -2108,11 +2108,6 @@ function loadMatchTeams(){
         ];
     }
 
-    teamASelect.innerHTML = `<option value="">Select Team A</option>`;
-    teamBSelect.innerHTML = `<option value="">Select Team B</option>`;
-
-    teams.forEach(function(team, index){
-
         const teamId = team.id || String(index);
 
         const teamName =
@@ -2132,92 +2127,6 @@ function loadMatchTeams(){
         teamBSelect.appendChild(optionB);
 
     });
-
-}
-
-  const teamASelect =
-    document.getElementById(
-      "teamASelect"
-    );
-
-  const teamBSelect =
-    document.getElementById(
-      "teamBSelect"
-    );
-
-
-  if(
-    !teamASelect ||
-    !teamBSelect
-  ){
-    return;
-  }
-
-
-  const teams =
-    getSavedMatchTeams();
-
-
-  teamASelect.innerHTML =
-    `<option value="">
-      Select Team A
-    </option>`;
-
-
-  teamBSelect.innerHTML =
-    `<option value="">
-      Select Team B
-    </option>`;
-
-
-  teams.forEach(
-    function(team,index){
-
-      const teamId =
-        team.id ||
-        String(index);
-
-
-      const teamName =
-        team.name ||
-        team.teamName ||
-        "Team " + (index + 1);
-
-
-      const optionA =
-        document.createElement(
-          "option"
-        );
-
-      optionA.value =
-        teamId;
-
-      optionA.textContent =
-        teamName;
-
-
-      const optionB =
-        document.createElement(
-          "option"
-        );
-
-      optionB.value =
-        teamId;
-
-      optionB.textContent =
-        teamName;
-
-
-      teamASelect.appendChild(
-        optionA
-      );
-
-      teamBSelect.appendChild(
-        optionB
-      );
-
-    }
-  );
 
 }
 
