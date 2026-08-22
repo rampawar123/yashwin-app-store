@@ -1,737 +1,420 @@
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
+/* =========================================================
+   CREATE MATCH - FINAL MODERN DESIGN
+========================================================= */
 
-body{
-  font-family:Arial,sans-serif;
-  background:#101010;
-  color:#fff;
-  min-height:100vh;
-}
-
-header{
-  background:#181818;
-  border-bottom:3px solid #ff9800;
-  position:sticky;
-  top:0;
-  z-index:1000;
-}
-
-.header{
-  max-width:1100px;
-  margin:auto;
-  padding:15px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.logo{
-  color:#ff9800;
-  font-size:24px;
-  font-weight:bold;
-}
-
-.menu-btn{
-  background:#ff9800;
-  color:#111;
-  border:0;
-  border-radius:10px;
-  font-size:22px;
-  padding:8px 14px;
-  cursor:pointer;
-}
-
-nav{
-  display:none;
-  background:#222;
-  padding:12px 20px;
-}
-
-nav.show{
-  display:block;
-}
-
-nav button{
-  width:100%;
-  padding:13px;
-  margin:5px 0;
-  border:0;
-  border-radius:10px;
-  background:#ff9800;
-  color:#111;
-  font-size:16px;
-  font-weight:bold;
-}
-
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:40px 20px;
-}
-
-.hero{
-  text-align:center;
-  padding:25px 10px;
-}
-
-.hero h1{
-  color:#ff9800;
-  font-size:42px;
-  margin-bottom:15px;
-}
-
-.hero p{
-  color:#ccc;
-  font-size:18px;
-}
-
-.search{
-  display:flex;
-  max-width:700px;
-  margin:30px auto;
-}
-
-.search input{
-  flex:1;
-  padding:15px;
-  border:1px solid #444;
-  border-radius:12px 0 0 12px;
-  background:#222;
-  color:#fff;
-  font-size:16px;
-  outline:none;
-}
-
-.search button{
-  width:80px;
-  border:0;
-  border-radius:0 12px 12px 0;
-  background:#ff9800;
-  font-size:18px;
-}
-
-.share-btn {
-  margin-top: 10px;
-}
-
-.section-title{
-  color:#ff9800;
-  font-size:30px;
-  margin:30px 0 20px;
-}
-
-.apps{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:20px;
-}
-
-.app{
-  background:#1b1b1b;
-  border:1px solid #333;
-  border-radius:18px;
-  padding:20px;
-  text-align:center;
-  box-shadow:0 5px 20px rgba(0,0,0,.35);
-}
-
-.app img{
-  width:90px;
-  height:90px;
-  object-fit:cover;
-  border-radius:20px;
-  margin-bottom:15px;
-}
-
-.app h3{
-  font-size:21px;
-  margin-bottom:8px;
-}
-
-.app p{
-  color:#aaa;
-  margin-bottom:18px;
-}
-
-.app button{
-  width:100%;
-  padding:13px;
-  border:0;
-  border-radius:10px;
-  background:#ff9800;
-  color:#111;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.empty{
-  display:none;
-  text-align:center;
-  color:#aaa;
-  padding:30px;
-}
-
-footer{
-  margin-top:50px;
-  padding:25px;
-  text-align:center;
-  background:#181818;
-  color:#888;
-}
-
-@media(max-width:600px){
-
-  .logo{
-    font-size:19px;
-  }
-
-  .hero h1{
-    font-size:30px;
-  }
-
-  .hero p{
-    font-size:16px;
-  }
-
-  .container{
-    padding:25px 15px;
-  }
-
-  .apps{
-    grid-template-columns:1fr;
-  }
-
-  .search input{
-    font-size:15px;
-  }
-}
-.calculator-logo {
-  display: block;
-  width: 90px;
-  height: 90px;
-  object-fit: contain;
-  margin: 0 auto 12px;
-  border-radius: 20px;
-}
-.share-btn {
-  display: block;
-  margin-top: 25px;
-}
-
-.brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.logoBox{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    overflow:hidden;
-    flex-shrink:0;
-}
-
-.logoBox img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    display:block;
-}
-
-/* ================= SETTINGS PAGE ================= */
-
-.settingsProfile{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:14px;
-  margin-bottom:16px;
-  border:1px solid #31516c;
-  border-radius:16px;
-  background:#0c263b;
-}
-
-.settingsAvatar{
-  width:58px;
-  height:58px;
-  border-radius:50%;
-  overflow:hidden;
-  flex-shrink:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  background:#142f47;
-}
-
-.settingsAvatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.settingsProfileInfo{
-  flex:1;
-  min-width:0;
-}
-
-.settingsProfileInfo b{
-  display:block;
-  font-size:16px;
-  margin-bottom:4px;
-}
-
-.smallBtn{
-  padding:8px 12px;
-  font-size:12px;
-}
-
-.settingsSectionTitle{
-  margin:20px 4px 7px;
-  font-size:12px;
+.createMatchTitle{
+  margin:10px 0 20px;
+  font-size:32px;
   font-weight:900;
-  letter-spacing:.8px;
-  color:#91a8bb;
-}
-
-.dangerTitle{
-  color:#ff8a8a;
-}
-
-.settingsItem{
-  width:100%;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:14px 8px;
-  border:0;
-  border-bottom:1px solid #23445f;
-  background:transparent;
   color:#fff;
-  text-align:left;
+  letter-spacing:.3px;
 }
 
-.settingsItem:active{
-  transform:scale(.99);
-}
-
-.settingsIcon{
-  width:38px;
-  height:38px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:12px;
-  background:#14334d;
-  font-size:18px;
-  flex-shrink:0;
-}
-
-.settingsText{
-  flex:1;
-  min-width:0;
-}
-
-.settingsText b{
-  display:block;
-  font-size:14px;
-}
-
-.settingsText span{
-  display:block;
-  margin-top:3px;
-  color:#91a8bb;
-  font-size:11px;
-  line-height:1.35;
-}
-
-.settingsArrow{
-  font-size:28px;
-  color:#91a8bb;
-  line-height:1;
-}
-
-.settingsDangerBtn{
-  width:100%;
-  margin-top:8px;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid #7c3030;
-  background:#3b161b;
-  color:#ffb3b3;
-  font-weight:800;
-}
-
-/* CREATE MATCH FORM */
-
-#createMatchForm,
-#createMatchForm label{
-  width:100%;
-}
-
-#createMatchForm input,
-#createMatchForm select{
-  width:100%;
-  box-sizing:border-box;
-  padding:14px;
-  margin:8px 0 16px;
-  border-radius:10px;
-  border:1px solid #4a3a62;
-  background:#1c1426;
-  color:#fff;
-  font-size:16px;
-}
-
-#createMatchForm label{
-  display:block;
-  font-size:15px;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-#createMatchForm .pageOption{
-  width:100%;
-  margin-top:10px;
-}
-
-/* ================================
-   MODERN CREATE MATCH DESIGN
-================================ */
-
-#createMatchTitle{
-  text-align:center;
-  margin:20px 0 25px;
-}
+/* ================= TEAM A VS TEAM B ================= */
 
 .teamWrap{
   display:flex;
   align-items:center;
   justify-content:center;
   gap:12px;
-  margin:20px 0;
+  margin:20px 0 26px;
+  padding:0;
 }
 
 .teamBox{
   flex:1;
-  min-height:150px;
-  padding:16px 10px;
-  border:1px solid #4b3565;
-  border-radius:20px;
-  background:linear-gradient(145deg,#24182f,#33213f);
+  min-width:0;
+  min-height:185px;
+  padding:16px 12px;
+  box-sizing:border-box;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #352044,
+      #201527
+    );
+
+  border:1px solid #62447a;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.35);
+
   text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,.25);
 }
 
 .teamLabel{
-  font-size:12px;
-  font-weight:bold;
-  color:#bfa8d9;
-  letter-spacing:1px;
-  margin-bottom:12px;
+  display:block;
+
+  margin-bottom:13px;
+
+  color:#eadcff;
+
+  font-size:14px;
+  font-weight:900;
+
+  letter-spacing:1.2px;
 }
+
+/* Team logo circle */
 
 .teamLogo{
-  width:58px;
-  height:58px;
-  margin:0 auto 12px;
+  width:62px;
+  height:62px;
+
+  margin:0 auto 14px;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   border-radius:50%;
-  background:#4a3063;
+
+  background:
+    linear-gradient(
+      145deg,
+      #74469a,
+      #3d2355
+    );
+
+  border:2px solid #b987e0;
+
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.28);
+
   font-size:28px;
-  border:2px solid #6b4b86;
 }
+
+/* Team name input */
 
 .teamBox input{
+  display:block;
+
   width:100%;
   box-sizing:border-box;
+
   padding:12px 8px;
-  border:none;
-  border-radius:10px;
-  background:#ffffff;
-  color:#222;
-  text-align:center;
-  font-size:14px;
+
+  border:1px solid #7b5794;
+  border-radius:12px;
+
   outline:none;
+
+  background:#fff;
+  color:#242424;
+
+  text-align:center;
+
+  font-size:14px;
+  font-weight:700;
 }
 
+.teamBox input:focus{
+  border-color:#ffb300;
+
+  box-shadow:
+    0 0 0 3px rgba(255,179,0,.18);
+}
+
+/* ================= VS CIRCLE ================= */
+
 .vsBox{
-  min-width:52px;
-  height:52px;
+  flex:0 0 58px;
+
+  width:58px;
+  height:58px;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   border-radius:50%;
-  background:linear-gradient(145deg,#ff8c00,#ffb300);
+
+  background:
+    linear-gradient(
+      145deg,
+      #ff8500,
+      #ffb300
+    );
+
+  border:3px solid #ffe0a3;
+
   color:#fff;
+
   font-size:16px;
   font-weight:900;
-  box-shadow:0 5px 15px rgba(255,140,0,.35);
+
+  box-shadow:
+    0 7px 20px rgba(255,140,0,.42);
+
+  z-index:2;
 }
 
+/* ================= MATCH DETAILS CARD ================= */
+
 .modernMatchCard{
+  margin:10px 0 25px;
+
   padding:20px;
-  margin:15px 0;
-  border:1px solid #4b3565;
+
+  box-sizing:border-box;
+
   border-radius:22px;
-  background:#261d31;
+
+  background:
+    linear-gradient(
+      145deg,
+      #2b1c38,
+      #1b1323
+    );
+
+  border:1px solid #5b3b70;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.28);
 }
 
 .modernMatchCard h3{
   margin:0 0 18px;
+
+  padding-bottom:13px;
+
+  border-bottom:
+    1px solid #523765;
+
   text-align:center;
+
   color:#fff;
+
+  font-size:21px;
+  font-weight:900;
 }
+
+/* Labels */
 
 .modernMatchCard label{
   display:block;
-  margin:14px 0 7px;
-  font-weight:bold;
-  color:#ddd;
+
+  margin:16px 0 7px;
+
+  color:#eadff0;
+
+  font-size:14px;
+  font-weight:800;
 }
+
+/* Input and Select */
 
 .modernMatchCard input,
 .modernMatchCard select{
   width:100%;
+
   box-sizing:border-box;
-  padding:13px;
-  border:1px solid #5a4270;
-  border-radius:12px;
-  background:#1a1322;
+
+  min-height:48px;
+
+  padding:12px 14px;
+
+  border:1px solid #67497c;
+  border-radius:13px;
+
+  outline:none;
+
+  background:#17111e;
   color:#fff;
+
   font-size:15px;
 }
 
-.matchNote{
-  margin:15px 0;
-  padding:12px;
-  border-radius:12px;
-  background:#1c1525;
-  color:#cbbbd8;
-  font-size:13px;
-  text-align:center;
+.modernMatchCard input:focus,
+.modernMatchCard select:focus{
+  border-color:#ffb300;
+
+  box-shadow:
+    0 0 0 3px rgba(255,179,0,.14);
 }
+
+/* Date field */
+
+.modernMatchCard input[type="date"]{
+  color-scheme:dark;
+}
+
+/* Custom overs */
+
+#customOversBox{
+  margin-top:12px;
+}
+
+#customOversBox input{
+  background:#21182b;
+}
+
+/* ================= MATCH NOTE ================= */
+
+.matchNote{
+  margin:18px 0;
+
+  padding:14px 15px;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #251c31,
+      #1b1424
+    );
+
+  border-left:4px solid #ffb300;
+
+  color:#dacde5;
+
+  font-size:14px;
+
+  line-height:1.5;
+
+  text-align:left;
+}
+
+/* ================= CREATE MATCH BUTTON ================= */
 
 .createMatchBtn{
   width:100%;
-  padding:16px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,#ff8c00,#ffb300);
+
+  min-height:54px;
+
+  padding:15px;
+
+  border:0;
+  border-radius:15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff8500,
+      #ffb300
+    );
+
   color:#fff;
+
   font-size:16px;
-  font-weight:bold;
+  font-weight:900;
+
+  letter-spacing:.4px;
+
   cursor:pointer;
-  box-shadow:0 6px 18px rgba(255,140,0,.25);
+
+  box-shadow:
+    0 8px 22px rgba(255,140,0,.30);
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease;
 }
 
 .createMatchBtn:active{
   transform:scale(.98);
+
+  box-shadow:
+    0 4px 12px rgba(255,140,0,.22);
 }
 
-/* Mobile */
+/* ================= MOBILE FIX ================= */
+
 @media(max-width:480px){
+
+  .createMatchTitle{
+    font-size:29px;
+  }
+
   .teamWrap{
-    gap:7px;
+    gap:8px;
+    margin:16px 0 22px;
   }
 
   .teamBox{
-    padding:12px 7px;
-    min-height:135px;
+    min-height:165px;
+    padding:13px 8px;
+
+    border-radius:19px;
+  }
+
+  .teamLabel{
+    font-size:12px;
+    margin-bottom:10px;
   }
 
   .teamLogo{
-    width:48px;
-    height:48px;
-    font-size:23px;
-  }
+    width:52px;
+    height:52px;
 
-  .vsBox{
-    min-width:42px;
-    height:42px;
-    font-size:13px;
-  }
-}
+    margin-bottom:11px;
 
-/* =========================================
-   CREATE MATCH - FINAL MOBILE MODERN FIX
-   ========================================= */
-
-/* Team A / Team B ko modern cards */
-.teamWrap{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:10px !important;
-  margin:20px 0 25px !important;
-  padding:0 5px !important;
-}
-
-.teamBox{
-  flex:1 !important;
-  min-width:0 !important;
-  min-height:160px !important;
-  padding:15px 10px !important;
-  box-sizing:border-box !important;
-  border-radius:22px !important;
-  background:linear-gradient(145deg,#2d1b3d,#201527) !important;
-  border:1px solid #62447a !important;
-  box-shadow:0 8px 20px rgba(0,0,0,.30) !important;
-  text-align:center !important;
-}
-
-.teamLabel{
-  display:block !important;
-  font-size:13px !important;
-  font-weight:800 !important;
-  color:#d9c2ed !important;
-  letter-spacing:1px !important;
-  margin-bottom:12px !important;
-}
-
-.teamLogo{
-  width:56px !important;
-  height:56px !important;
-  margin:0 auto 12px !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  border-radius:50% !important;
-  background:linear-gradient(145deg,#6b3f8c,#3d2355) !important;
-  border:2px solid #9a70ba !important;
-  font-size:25px !important;
-}
-
-.teamBox input{
-  display:block !important;
-  width:100% !important;
-  box-sizing:border-box !important;
-  padding:11px 7px !important;
-  border-radius:10px !important;
-  border:1px solid #74518d !important;
-  background:#fff !important;
-  color:#222 !important;
-  text-align:center !important;
-  font-size:13px !important;
-}
-
-.vsBox{
-  flex:0 0 50px !important;
-  width:50px !important;
-  height:50px !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  border-radius:50% !important;
-  background:linear-gradient(145deg,#ff8a00,#ffb300) !important;
-  border:2px solid #ffd08a !important;
-  color:#fff !important;
-  font-size:16px !important;
-  font-weight:900 !important;
-  box-shadow:0 5px 18px rgba(255,140,0,.40) !important;
-}
-
-/* Match Details ka modern card */
-.modernMatchCard{
-  margin:15px 0 25px !important;
-  padding:20px !important;
-  box-sizing:border-box !important;
-  border-radius:22px !important;
-  background:linear-gradient(145deg,#261a31,#1b1323) !important;
-  border:1px solid #56376b !important;
-  box-shadow:0 8px 22px rgba(0,0,0,.28) !important;
-}
-
-.modernMatchCard h3{
-  margin:0 0 18px !important;
-  padding-bottom:12px !important;
-  border-bottom:1px solid #4c355c !important;
-  text-align:center !important;
-  color:#fff !important;
-  font-size:20px !important;
-}
-
-.modernMatchCard label{
-  display:block !important;
-  margin:15px 0 7px !important;
-  color:#e8dced !important;
-  font-size:14px !important;
-  font-weight:700 !important;
-}
-
-.modernMatchCard input,
-.modernMatchCard select{
-  display:block !important;
-  width:100% !important;
-  height:48px !important;
-  box-sizing:border-box !important;
-  padding:0 12px !important;
-  border:1px solid #67477d !important;
-  border-radius:12px !important;
-  background:#160f1d !important;
-  color:#fff !important;
-  font-size:15px !important;
-}
-
-/* Toss note */
-.matchNote{
-  margin:18px 0 14px !important;
-  padding:13px !important;
-  box-sizing:border-box !important;
-  border-radius:12px !important;
-  background:#30213d !important;
-  border-left:4px solid #ff9d00 !important;
-  color:#eee !important;
-  text-align:center !important;
-  font-size:14px !important;
-}
-
-/* Create Match button */
-.createMatchBtn{
-  display:block !important;
-  width:100% !important;
-  min-height:52px !important;
-  padding:14px !important;
-  border:0 !important;
-  border-radius:14px !important;
-  background:linear-gradient(135deg,#ff7a00,#ffb000) !important;
-  color:#fff !important;
-  font-size:16px !important;
-  font-weight:900 !important;
-  letter-spacing:.5px !important;
-  box-shadow:0 7px 18px rgba(255,128,0,.30) !important;
-}
-
-/* Extra small mobile screen */
-@media(max-width:380px){
-  .teamWrap{
-    gap:6px !important;
-  }
-
-  .teamBox{
-    padding:12px 6px !important;
-  }
-
-  .teamLogo{
-    width:46px !important;
-    height:46px !important;
-    font-size:21px !important;
-  }
-
-  .vsBox{
-    flex-basis:42px !important;
-    width:42px !important;
-    height:42px !important;
-    font-size:13px !important;
+    font-size:24px;
   }
 
   .teamBox input{
-    font-size:12px !important;
+    padding:10px 5px;
+
+    font-size:12px;
+  }
+
+  .vsBox{
+    flex:0 0 48px;
+
+    width:48px;
+    height:48px;
+
+    border-width:2px;
+
+    font-size:13px;
+  }
+
+  .modernMatchCard{
+    padding:16px;
+
+    border-radius:19px;
+  }
+
+  .modernMatchCard h3{
+    font-size:19px;
+  }
+
+  .modernMatchCard input,
+  .modernMatchCard select{
+    min-height:46px;
+    font-size:14px;
+  }
+}
+
+/* Very small mobile */
+
+@media(max-width:360px){
+
+  .teamWrap{
+    gap:5px;
+  }
+
+  .teamBox{
+    padding:10px 6px;
+  }
+
+  .teamLogo{
+    width:46px;
+    height:46px;
+
+    font-size:21px;
+  }
+
+  .vsBox{
+    flex:0 0 42px;
+
+    width:42px;
+    height:42px;
+
+    font-size:11px;
   }
 }
