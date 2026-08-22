@@ -1692,13 +1692,12 @@ window.addEventListener(
 ================================ */
 
 /* =========================================
-   CRIC YUVA - COMPLETE START MATCH SYSTEM
+   CRIC YUVA - COMPLETE CREATE MATCH SYSTEM
 ========================================= */
 
 function createSingleMatch(){
 
-  const box =
-    document.getElementById("singleMatch");
+  const box = document.getElementById("singleMatch");
 
   if(!box){
     console.log("singleMatch box not found");
@@ -1714,22 +1713,22 @@ function createSingleMatch(){
       ← Back
     </button>
 
-    <h2 class="createTitle">
+    <h2 class="createMatchTitle">
       🏏 Create Match
     </h2>
 
+    <div class="teamWrap">
 
-    <div class="modernMatchCard">
-
-      <div class="teamBox teamABox">
+      <!-- TEAM A -->
+      <div class="teamBox">
 
         <div class="teamLabel">
           TEAM A
         </div>
 
         <div
+          class="teamLogo"
           id="teamAPlaceholder"
-          class="teamPlaceholder"
         >
           🏏
         </div>
@@ -1738,7 +1737,6 @@ function createSingleMatch(){
           id="teamALogo"
           class="teamLogo"
           style="display:none"
-          alt="Team A Logo"
         >
 
         <div
@@ -1760,20 +1758,22 @@ function createSingleMatch(){
       </div>
 
 
+      <!-- VS -->
       <div class="vsBox">
-        <span>VS</span>
+        VS
       </div>
 
 
-      <div class="teamBox teamBBox">
+      <!-- TEAM B -->
+      <div class="teamBox teamB">
 
         <div class="teamLabel">
           TEAM B
         </div>
 
         <div
+          class="teamLogo"
           id="teamBPlaceholder"
-          class="teamPlaceholder"
         >
           🏏
         </div>
@@ -1782,7 +1782,6 @@ function createSingleMatch(){
           id="teamBLogo"
           class="teamLogo"
           style="display:none"
-          alt="Team B Logo"
         >
 
         <div
@@ -1806,6 +1805,7 @@ function createSingleMatch(){
     </div>
 
 
+    <!-- MATCH DETAILS -->
     <div class="modernMatchCard">
 
       <h3>
@@ -1813,48 +1813,96 @@ function createSingleMatch(){
       </h3>
 
 
-      <div class="matchField">
+      <label>
+        🏏 Match Overs
+      </label>
 
-        <label>
-          🏏 Match Overs
-        </label>
+      <select
+        id="matchOvers"
+        onchange="toggleCustomOvers()"
+      >
 
-        <select
-          id="matchOvers"
-          onchange="toggleCustomOvers()"
-        >
+        <option value="">
+          Select Overs
+        </option>
 
-          <option value="">
-            Select Overs
-          </option>
+        <option value="1">
+          1 Over
+        </option>
 
-          <option value="1">1 Over</option>
-          <option value="2">2 Overs</option>
-          <option value="3">3 Overs</option>
-          <option value="4">4 Overs</option>
-          <option value="5">5 Overs</option>
-          <option value="6">6 Overs</option>
-          <option value="7">7 Overs</option>
-          <option value="8">8 Overs</option>
-          <option value="9">9 Overs</option>
-          <option value="10">10 Overs</option>
-          <option value="11">11 Overs</option>
-          <option value="12">12 Overs</option>
-          <option value="13">13 Overs</option>
-          <option value="14">14 Overs</option>
-          <option value="15">15 Overs</option>
-          <option value="20">20 Overs</option>
-          <option value="25">25 Overs</option>
-          <option value="30">30 Overs</option>
-          <option value="40">40 Overs</option>
-          <option value="50">50 Overs</option>
-          <option value="custom">
-            Custom Overs
-          </option>
+        <option value="2">
+          2 Overs
+        </option>
 
-        </select>
+        <option value="3">
+          3 Overs
+        </option>
 
-      </div>
+        <option value="4">
+          4 Overs
+        </option>
+
+        <option value="5">
+          5 Overs
+        </option>
+
+        <option value="6">
+          6 Overs
+        </option>
+
+        <option value="7">
+          7 Overs
+        </option>
+
+        <option value="8">
+          8 Overs
+        </option>
+
+        <option value="9">
+          9 Overs
+        </option>
+
+        <option value="10">
+          10 Overs
+        </option>
+
+        <option value="11">
+          11 Overs
+        </option>
+
+        <option value="12">
+          12 Overs
+        </option>
+
+        <option value="15">
+          15 Overs
+        </option>
+
+        <option value="20">
+          20 Overs
+        </option>
+
+        <option value="25">
+          25 Overs
+        </option>
+
+        <option value="30">
+          30 Overs
+        </option>
+
+        <option value="40">
+          40 Overs
+        </option>
+
+        <option value="50">
+          50 Overs
+        </option>
+
+        <option value="custom">
+          Custom Overs
+        </option>
+
+      </select>
 
 
       <div
@@ -1877,39 +1925,29 @@ function createSingleMatch(){
       </div>
 
 
-      <div class="matchField">
+      <label>
+        📅 Match Date
+      </label>
 
-        <label>
-          📅 Match Date
-        </label>
-
-        <input
-          type="date"
-          id="matchDate"
-        >
-
-      </div>
+      <input
+        type="date"
+        id="matchDate"
+      >
 
 
-      <div class="matchField">
+      <label>
+        📍 Ground Name
+      </label>
 
-        <label>
-          📍 Ground Name
-        </label>
-
-        <input
-          type="text"
-          id="groundName"
-          placeholder="Enter Ground Name"
-        >
-
-      </div>
+      <input
+        type="text"
+        id="groundName"
+        placeholder="Enter Ground Name"
+      >
 
 
       <div class="matchNote">
-
         ℹ️ Toss hoga match create hone ke baad.
-
       </div>
 
 
@@ -1917,9 +1955,7 @@ function createSingleMatch(){
         class="createMatchBtn"
         onclick="saveSingleMatch()"
       >
-
         🏆 CREATE MATCH
-
       </button>
 
     </div>
@@ -1932,7 +1968,38 @@ function createSingleMatch(){
 
 
 /* =========================================
-   LOAD SAVED TEAMS
+   CUSTOM OVERS
+========================================= */
+
+function toggleCustomOvers(){
+
+  const overs =
+    document.getElementById("matchOvers");
+
+  const customBox =
+    document.getElementById("customOversBox");
+
+  if(!overs || !customBox){
+    return;
+  }
+
+  if(overs.value === "custom"){
+
+    customBox.style.display =
+      "block";
+
+  }else{
+
+    customBox.style.display =
+      "none";
+
+  }
+
+}
+
+
+/* =========================================
+   GET SAVED TEAMS
 ========================================= */
 
 function getSavedMatchTeams(){
@@ -1984,16 +2051,20 @@ function getSavedMatchTeams(){
 
 
 /* =========================================
-   LOAD TEAMS IN DROPDOWN
+   LOAD TEAMS
 ========================================= */
 
 function loadMatchTeams(){
 
   const teamASelect =
-    document.getElementById("teamASelect");
+    document.getElementById(
+      "teamASelect"
+    );
 
   const teamBSelect =
-    document.getElementById("teamBSelect");
+    document.getElementById(
+      "teamBSelect"
+    );
 
 
   if(
@@ -2009,11 +2080,15 @@ function loadMatchTeams(){
 
 
   teamASelect.innerHTML =
-    '<option value="">Select Team A</option>';
+    `<option value="">
+      Select Team A
+    </option>`;
 
 
   teamBSelect.innerHTML =
-    '<option value="">Select Team B</option>';
+    `<option value="">
+      Select Team B
+    </option>`;
 
 
   teams.forEach(
@@ -2031,7 +2106,9 @@ function loadMatchTeams(){
 
 
       const optionA =
-        document.createElement("option");
+        document.createElement(
+          "option"
+        );
 
       optionA.value =
         teamId;
@@ -2041,7 +2118,9 @@ function loadMatchTeams(){
 
 
       const optionB =
-        document.createElement("option");
+        document.createElement(
+          "option"
+        );
 
       optionB.value =
         teamId;
@@ -2138,6 +2217,7 @@ function selectMatchTeam(side){
     placeholder.style.display =
       "flex";
 
+
     return;
 
   }
@@ -2159,9 +2239,7 @@ function selectMatchTeam(side){
 
 
   if(!team){
-
     return;
-
   }
 
 
@@ -2209,321 +2287,7 @@ function selectMatchTeam(side){
 
 
 /* =========================================
-   CUSTOM OVERS
-========================================= */
-
-function toggleCustomOvers(){
-
-  const overs =
-    document.getElementById("matchOvers");
-
-  const customBox =
-    document.getElementById(
-      "customOversBox"
-    );
-
-
-  if(
-    !overs ||
-    !customBox
-  ){
-    return;
-  }
-
-
-  customBox.style.display =
-    overs.value === "custom"
-      ? "block"
-      : "none";
-
-}
-
-
-/* =========================================
-   SAVE SINGLE MATCH
-========================================= */
-
-function saveSingleMatch(){
-
-  const teamASelect =
-    document.getElementById("teamASelect");
-
-  const teamBSelect =
-    document.getElementById("teamBSelect");
-
-  const matchOvers =
-    document.getElementById("matchOvers");
-
-  const customOvers =
-    document.getElementById("customOvers");
-
-  const matchDate =
-    document.getElementById("matchDate");
-
-  const groundName =
-    document.getElementById("groundName");
-
-
-  if(
-    !teamASelect.value ||
-    !teamBSelect.value
-  ){
-
-    alert(
-      "Team A aur Team B select karein."
-    );
-
-    return;
-
-  }
-
-
-  if(
-    teamASelect.value ===
-    teamBSelect.value
-  ){
-
-    alert(
-      "Team A aur Team B alag honi chahiye."
-    );
-
-    return;
-
-  }
-
-
-  let finalOvers =
-    matchOvers.value;
-
-
-  if(
-    finalOvers === "custom"
-  ){
-
-    finalOvers =
-      customOvers.value;
-
-  }
-
-
-  if(
-    !finalOvers ||
-    Number(finalOvers) < 1
-  ){
-
-    alert(
-      "Match Overs select karein."
-    );
-
-    return;
-
-  }
-
-
-  if(
-    !matchDate.value
-  ){
-
-    alert(
-      "Match Date select karein."
-    );
-
-    return;
-
-  }
-
-
-  if(
-    !groundName.value.trim()
-  ){
-
-    alert(
-      "Ground Name enter karein."
-    );
-
-    return;
-
-  }
-
-
-  const teams =
-    getSavedMatchTeams();
-
-
-  const teamA =
-    teams.find(
-      function(team,index){
-
-        return String(
-          team.id || index
-        ) === String(
-          teamASelect.value
-        );
-
-      }
-    );
-
-
-  const teamB =
-    teams.find(
-      function(team,index){
-
-        return String(
-          team.id || index
-        ) === String(
-          teamBSelect.value
-        );
-
-      }
-    );
-
-
-  if(
-    !teamA ||
-    !teamB
-  ){
-
-    alert(
-      "Selected team data nahi mila."
-    );
-
-    return;
-
-  }
-
-
-  const newMatch = {
-
-    id:
-      "MATCH-" +
-      Date.now(),
-
-    type:
-      "Single Match",
-
-    teamA:
-      teamA.id ||
-      teamASelect.value,
-
-    teamB:
-      teamB.id ||
-      teamBSelect.value,
-
-    teamAName:
-      teamA.name ||
-      teamA.teamName ||
-      "Team A",
-
-    teamBName:
-      teamB.name ||
-      teamB.teamName ||
-      "Team B",
-
-    teamALogo:
-      teamA.logo ||
-      teamA.logoUrl ||
-      teamA.teamLogo ||
-      "",
-
-    teamBLogo:
-      teamB.logo ||
-      teamB.logoUrl ||
-      teamB.teamLogo ||
-      "",
-
-    overs:
-      Number(finalOvers),
-
-    date:
-      matchDate.value,
-
-    ground:
-      groundName.value.trim(),
-
-    status:
-      "Scheduled",
-
-    created:
-      new Date().toLocaleDateString(),
-
-    teamAPlayers:
-      Array.isArray(teamA.players)
-        ? teamA.players.map(
-            function(player){
-              return {
-                ...player
-              };
-            }
-          )
-        : [],
-
-    teamBPlayers:
-      Array.isArray(teamB.players)
-        ? teamB.players.map(
-            function(player){
-              return {
-                ...player
-              };
-            }
-          )
-        : []
-
-  };
-
-
-  let matches = [];
-
-
-  try{
-
-    matches =
-      JSON.parse(
-        localStorage.getItem(
-          "CY_SINGLE_MATCHES"
-        ) || "[]"
-      );
-
-  }catch(error){
-
-    matches = [];
-
-  }
-
-
-  matches.push(
-    newMatch
-  );
-
-
-  localStorage.setItem(
-    "CY_SINGLE_MATCHES",
-    JSON.stringify(matches)
-  );
-
-
-  if(
-    typeof cySingleMatches !==
-    "undefined"
-  ){
-
-    cySingleMatches =
-      matches;
-
-  }
-
-
-  alert(
-    "🏆 Match created successfully!"
-  );
-
-
-  createSingleMatch();
-
-}
-
-
-/* =========================================
-   TEMPORARY MATCH BUTTONS
+   OTHER MATCH BUTTONS
 ========================================= */
 
 function showMyMatches(){
