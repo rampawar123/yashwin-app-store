@@ -1691,233 +1691,866 @@ window.addEventListener(
    SINGLE MATCH BUTTON FUNCTIONS
 ================================ */
 
-   function createSingleMatch(){
-
-document.getElementById("singleMatch").innerHTML = `
-<button class="backBtn" onclick="location.reload()">← Back</button>
-
-<h2 class="createMatchTitle">🏏 Create Match</h2>
-
-<div class="teamWrap">
-
-  <!-- TEAM A -->
-  <div class="teamBox teamABox">
-    <div class="teamLabel">TEAM A</div>
-
-    <div class="teamLogo">
-      <img id="teamALogo"
-           src="https://via.placeholder.com/140?text=TEAM+A"
-           alt="Team A Logo">
-    </div>
-
-    <div class="teamName" id="teamAName">
-      Select Team A
-    </div>
-
-    <select id="teamASelect" onchange="selectMatchTeam('A')">
-      <option value="">Select Team A</option>
-    </select>
-  </div>
-
-  <!-- VS -->
-  <div class="vsBox">
-    <span>VS</span>
-  </div>
-
-  <!-- TEAM B -->
-  <div class="teamBox teamBBox">
-    <div class="teamLabel">TEAM B</div>
-
-    <div class="teamLogo">
-      <img id="teamBLogo"
-           src="https://via.placeholder.com/140?text=TEAM+B"
-           alt="Team B Logo">
-    </div>
-
-    <div class="teamName" id="teamBName">
-      Select Team B
-    </div>
-
-    <select id="teamBSelect" onchange="selectMatchTeam('B')">
-      <option value="">Select Team B</option>
-    </select>
-  </div>
-
-</div>
-
-<div class="modernMatchCard">
-
-  <h3>📋 Match Details</h3>
-
-  <label>🏏 Match Overs</label>
-  <select id="matchOvers" onchange="toggleCustomOvers()">
-    <option value="">Select Overs</option>
-    <option value="1">1 Over</option>
-    <option value="2">2 Overs</option>
-    <option value="3">3 Overs</option>
-    <option value="4">4 Overs</option>
-    <option value="5">5 Overs</option>
-    <option value="6">6 Overs</option>
-    <option value="7">7 Overs</option>
-    <option value="8">8 Overs</option>
-    <option value="9">9 Overs</option>
-    <option value="10">10 Overs</option>
-    <option value="11">11 Overs</option>
-    <option value="12">12 Overs</option>
-    <option value="13">13 Overs</option>
-    <option value="14">14 Overs</option>
-    <option value="15">15 Overs</option>
-    <option value="20">20 Overs</option>
-    <option value="25">25 Overs</option>
-    <option value="30">30 Overs</option>
-    <option value="40">40 Overs</option>
-    <option value="50">50 Overs</option>
-    <option value="custom">Custom Overs</option>
-  </select>
-
-  <div id="customOversBox" style="display:none;">
-    <label>✏️ Custom Overs</label>
-    <input type="number" id="customOvers" min="1" max="100"
-    placeholder="Enter custom overs">
-  </div>
-
-  <label>📅 Match Date</label>
-  <input type="date" id="matchDate">
-
-  <label>📍 Ground Name</label>
-  <input type="text" id="groundName" placeholder="Enter Ground Name">
-
-  <div class="matchNote">
-    ℹ️ Toss hoga match create hone ke baad.
-  </div>
-
-  <button class="createMatchBtn" onclick="saveSingleMatch()">
-    🏆 CREATE MATCH
-  </button>
-
-</div>
-`;
-   }
-
-   function showMyMatches(){
-  alert("My Matches page abhi next step me banayenge.");
-   }
-
-   function startSingleMatch(){
-  alert("Start Match page abhi next step me banayenge.");
-   }
-
-   function showScorecards(){
-  alert("Scorecards page abhi next step me banayenge.");
-   }
-   
 /* =========================================
-   CREATE MATCH TEAM AUTO SELECT
+   CRIC YUVA - COMPLETE START MATCH SYSTEM
 ========================================= */
 
-function loadMatchTeams() {
+function createSingleMatch(){
 
-  const teamASelect = document.getElementById("teamASelect");
-  const teamBSelect = document.getElementById("teamBSelect");
+  const box =
+    document.getElementById("singleMatch");
 
-  if (!teamASelect || !teamBSelect) return;
-
-  let teams = [];
-
-  try {
-    teams = JSON.parse(localStorage.getItem("cricYuvaTeams")) || [];
-  } catch (error) {
-    teams = [];
-  }
-
-  teams.forEach((team, index) => {
-
-    const teamName =
-      team.name ||
-      team.teamName ||
-      "Team " + (index + 1);
-
-    const teamLogo =
-      team.logo ||
-      team.logoUrl ||
-      "";
-
-    const optionA = document.createElement("option");
-    optionA.value = index;
-    optionA.textContent = teamName;
-
-    const optionB = document.createElement("option");
-    optionB.value = index;
-    optionB.textContent = teamName;
-
-    teamASelect.appendChild(optionA);
-    teamBSelect.appendChild(optionB);
-  });
-}
-
-function selectMatchTeam(side) {
-
-  let teams = [];
-
-  try {
-    teams = JSON.parse(localStorage.getItem("cricYuvaTeams")) || [];
-  } catch (error) {
-    teams = [];
-  }
-
-  const select = document.getElementById(
-    side === "A" ? "teamASelect" : "teamBSelect"
-  );
-
-  const logo = document.getElementById(
-    side === "A" ? "teamALogo" : "teamBLogo"
-  );
-
-  const name = document.getElementById(
-    side === "A" ? "teamAName" : "teamBName"
-  );
-
-  const selectedIndex = select.value;
-
-  if (selectedIndex === "") {
-
-    name.textContent =
-      side === "A" ? "Select Team A" : "Select Team B";
-
-    logo.src =
-      side === "A"
-        ? "https://via.placeholder.com/140?text=TEAM+A"
-        : "https://via.placeholder.com/140?text=TEAM+B";
-
+  if(!box){
+    console.log("singleMatch box not found");
     return;
   }
 
-  const team = teams[selectedIndex];
+  box.innerHTML = `
 
-  if (!team) return;
+    <button
+      class="backBtn"
+      onclick="location.reload()"
+    >
+      ← Back
+    </button>
 
-  name.textContent =
+    <h2 class="createTitle">
+      🏏 Create Match
+    </h2>
+
+
+    <div class="modernMatchCard">
+
+      <div class="teamBox teamABox">
+
+        <div class="teamLabel">
+          TEAM A
+        </div>
+
+        <div
+          id="teamAPlaceholder"
+          class="teamPlaceholder"
+        >
+          🏏
+        </div>
+
+        <img
+          id="teamALogo"
+          class="teamLogo"
+          style="display:none"
+          alt="Team A Logo"
+        >
+
+        <div
+          class="teamName"
+          id="teamAName"
+        >
+          Select Team A
+        </div>
+
+        <select
+          id="teamASelect"
+          onchange="selectMatchTeam('A')"
+        >
+          <option value="">
+            Select Team A
+          </option>
+        </select>
+
+      </div>
+
+
+      <div class="vsBox">
+        <span>VS</span>
+      </div>
+
+
+      <div class="teamBox teamBBox">
+
+        <div class="teamLabel">
+          TEAM B
+        </div>
+
+        <div
+          id="teamBPlaceholder"
+          class="teamPlaceholder"
+        >
+          🏏
+        </div>
+
+        <img
+          id="teamBLogo"
+          class="teamLogo"
+          style="display:none"
+          alt="Team B Logo"
+        >
+
+        <div
+          class="teamName"
+          id="teamBName"
+        >
+          Select Team B
+        </div>
+
+        <select
+          id="teamBSelect"
+          onchange="selectMatchTeam('B')"
+        >
+          <option value="">
+            Select Team B
+          </option>
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="modernMatchCard">
+
+      <h3>
+        📋 Match Details
+      </h3>
+
+
+      <div class="matchField">
+
+        <label>
+          🏏 Match Overs
+        </label>
+
+        <select
+          id="matchOvers"
+          onchange="toggleCustomOvers()"
+        >
+
+          <option value="">
+            Select Overs
+          </option>
+
+          <option value="1">1 Over</option>
+          <option value="2">2 Overs</option>
+          <option value="3">3 Overs</option>
+          <option value="4">4 Overs</option>
+          <option value="5">5 Overs</option>
+          <option value="6">6 Overs</option>
+          <option value="7">7 Overs</option>
+          <option value="8">8 Overs</option>
+          <option value="9">9 Overs</option>
+          <option value="10">10 Overs</option>
+          <option value="11">11 Overs</option>
+          <option value="12">12 Overs</option>
+          <option value="13">13 Overs</option>
+          <option value="14">14 Overs</option>
+          <option value="15">15 Overs</option>
+          <option value="20">20 Overs</option>
+          <option value="25">25 Overs</option>
+          <option value="30">30 Overs</option>
+          <option value="40">40 Overs</option>
+          <option value="50">50 Overs</option>
+          <option value="custom">
+            Custom Overs
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        id="customOversBox"
+        style="display:none"
+      >
+
+        <label>
+          ✏️ Custom Overs
+        </label>
+
+        <input
+          type="number"
+          id="customOvers"
+          min="1"
+          max="100"
+          placeholder="Enter custom overs"
+        >
+
+      </div>
+
+
+      <div class="matchField">
+
+        <label>
+          📅 Match Date
+        </label>
+
+        <input
+          type="date"
+          id="matchDate"
+        >
+
+      </div>
+
+
+      <div class="matchField">
+
+        <label>
+          📍 Ground Name
+        </label>
+
+        <input
+          type="text"
+          id="groundName"
+          placeholder="Enter Ground Name"
+        >
+
+      </div>
+
+
+      <div class="matchNote">
+
+        ℹ️ Toss hoga match create hone ke baad.
+
+      </div>
+
+
+      <button
+        class="createMatchBtn"
+        onclick="saveSingleMatch()"
+      >
+
+        🏆 CREATE MATCH
+
+      </button>
+
+    </div>
+
+  `;
+
+  loadMatchTeams();
+
+}
+
+
+/* =========================================
+   LOAD SAVED TEAMS
+========================================= */
+
+function getSavedMatchTeams(){
+
+  let savedTeams = [];
+
+  try{
+
+    savedTeams =
+      JSON.parse(
+        localStorage.getItem("CY_TEAMS") || "[]"
+      );
+
+  }catch(error){
+
+    savedTeams = [];
+
+  }
+
+
+  if(
+    !Array.isArray(savedTeams) ||
+    savedTeams.length === 0
+  ){
+
+    try{
+
+      savedTeams =
+        JSON.parse(
+          localStorage.getItem(
+            "cricYuvaTeams"
+          ) || "[]"
+        );
+
+    }catch(error){
+
+      savedTeams = [];
+
+    }
+
+  }
+
+
+  return Array.isArray(savedTeams)
+    ? savedTeams
+    : [];
+
+}
+
+
+/* =========================================
+   LOAD TEAMS IN DROPDOWN
+========================================= */
+
+function loadMatchTeams(){
+
+  const teamASelect =
+    document.getElementById("teamASelect");
+
+  const teamBSelect =
+    document.getElementById("teamBSelect");
+
+
+  if(
+    !teamASelect ||
+    !teamBSelect
+  ){
+    return;
+  }
+
+
+  const teams =
+    getSavedMatchTeams();
+
+
+  teamASelect.innerHTML =
+    '<option value="">Select Team A</option>';
+
+
+  teamBSelect.innerHTML =
+    '<option value="">Select Team B</option>';
+
+
+  teams.forEach(
+    function(team,index){
+
+      const teamId =
+        team.id ||
+        String(index);
+
+
+      const teamName =
+        team.name ||
+        team.teamName ||
+        "Team " + (index + 1);
+
+
+      const optionA =
+        document.createElement("option");
+
+      optionA.value =
+        teamId;
+
+      optionA.textContent =
+        teamName;
+
+
+      const optionB =
+        document.createElement("option");
+
+      optionB.value =
+        teamId;
+
+      optionB.textContent =
+        teamName;
+
+
+      teamASelect.appendChild(
+        optionA
+      );
+
+      teamBSelect.appendChild(
+        optionB
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================
+   TEAM SELECT
+   NAME + LOGO AUTOMATIC
+========================================= */
+
+function selectMatchTeam(side){
+
+  const teams =
+    getSavedMatchTeams();
+
+
+  const select =
+    document.getElementById(
+      side === "A"
+        ? "teamASelect"
+        : "teamBSelect"
+    );
+
+
+  const logo =
+    document.getElementById(
+      side === "A"
+        ? "teamALogo"
+        : "teamBLogo"
+    );
+
+
+  const placeholder =
+    document.getElementById(
+      side === "A"
+        ? "teamAPlaceholder"
+        : "teamBPlaceholder"
+    );
+
+
+  const nameBox =
+    document.getElementById(
+      side === "A"
+        ? "teamAName"
+        : "teamBName"
+    );
+
+
+  if(
+    !select ||
+    !logo ||
+    !placeholder ||
+    !nameBox
+  ){
+    return;
+  }
+
+
+  const selectedId =
+    select.value;
+
+
+  if(!selectedId){
+
+    nameBox.textContent =
+      side === "A"
+        ? "Select Team A"
+        : "Select Team B";
+
+
+    logo.src = "";
+
+    logo.style.display =
+      "none";
+
+
+    placeholder.style.display =
+      "flex";
+
+    return;
+
+  }
+
+
+  const team =
+    teams.find(
+      function(item,index){
+
+        const itemId =
+          item.id ||
+          String(index);
+
+        return String(itemId) ===
+          String(selectedId);
+
+      }
+    );
+
+
+  if(!team){
+
+    return;
+
+  }
+
+
+  const teamName =
     team.name ||
     team.teamName ||
     "Selected Team";
 
-  logo.src =
+
+  const teamLogo =
     team.logo ||
     team.logoUrl ||
-    "https://via.placeholder.com/140?text=TEAM";
+    team.teamLogo ||
+    "";
+
+
+  nameBox.textContent =
+    teamName;
+
+
+  if(teamLogo){
+
+    logo.src =
+      teamLogo;
+
+    logo.style.display =
+      "block";
+
+    placeholder.style.display =
+      "none";
+
+  }else{
+
+    logo.src = "";
+
+    logo.style.display =
+      "none";
+
+    placeholder.style.display =
+      "flex";
+
+  }
+
 }
 
-/* Create Match page khulte hi teams load hongi */
-const oldCreateSingleMatch = createSingleMatch;
 
-createSingleMatch = function () {
+/* =========================================
+   CUSTOM OVERS
+========================================= */
 
-  oldCreateSingleMatch();
+function toggleCustomOvers(){
 
-  setTimeout(function () {
-    loadMatchTeams();
-  }, 100);
-};   
+  const overs =
+    document.getElementById("matchOvers");
+
+  const customBox =
+    document.getElementById(
+      "customOversBox"
+    );
+
+
+  if(
+    !overs ||
+    !customBox
+  ){
+    return;
+  }
+
+
+  customBox.style.display =
+    overs.value === "custom"
+      ? "block"
+      : "none";
+
+}
+
+
+/* =========================================
+   SAVE SINGLE MATCH
+========================================= */
+
+function saveSingleMatch(){
+
+  const teamASelect =
+    document.getElementById("teamASelect");
+
+  const teamBSelect =
+    document.getElementById("teamBSelect");
+
+  const matchOvers =
+    document.getElementById("matchOvers");
+
+  const customOvers =
+    document.getElementById("customOvers");
+
+  const matchDate =
+    document.getElementById("matchDate");
+
+  const groundName =
+    document.getElementById("groundName");
+
+
+  if(
+    !teamASelect.value ||
+    !teamBSelect.value
+  ){
+
+    alert(
+      "Team A aur Team B select karein."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    teamASelect.value ===
+    teamBSelect.value
+  ){
+
+    alert(
+      "Team A aur Team B alag honi chahiye."
+    );
+
+    return;
+
+  }
+
+
+  let finalOvers =
+    matchOvers.value;
+
+
+  if(
+    finalOvers === "custom"
+  ){
+
+    finalOvers =
+      customOvers.value;
+
+  }
+
+
+  if(
+    !finalOvers ||
+    Number(finalOvers) < 1
+  ){
+
+    alert(
+      "Match Overs select karein."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !matchDate.value
+  ){
+
+    alert(
+      "Match Date select karein."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !groundName.value.trim()
+  ){
+
+    alert(
+      "Ground Name enter karein."
+    );
+
+    return;
+
+  }
+
+
+  const teams =
+    getSavedMatchTeams();
+
+
+  const teamA =
+    teams.find(
+      function(team,index){
+
+        return String(
+          team.id || index
+        ) === String(
+          teamASelect.value
+        );
+
+      }
+    );
+
+
+  const teamB =
+    teams.find(
+      function(team,index){
+
+        return String(
+          team.id || index
+        ) === String(
+          teamBSelect.value
+        );
+
+      }
+    );
+
+
+  if(
+    !teamA ||
+    !teamB
+  ){
+
+    alert(
+      "Selected team data nahi mila."
+    );
+
+    return;
+
+  }
+
+
+  const newMatch = {
+
+    id:
+      "MATCH-" +
+      Date.now(),
+
+    type:
+      "Single Match",
+
+    teamA:
+      teamA.id ||
+      teamASelect.value,
+
+    teamB:
+      teamB.id ||
+      teamBSelect.value,
+
+    teamAName:
+      teamA.name ||
+      teamA.teamName ||
+      "Team A",
+
+    teamBName:
+      teamB.name ||
+      teamB.teamName ||
+      "Team B",
+
+    teamALogo:
+      teamA.logo ||
+      teamA.logoUrl ||
+      teamA.teamLogo ||
+      "",
+
+    teamBLogo:
+      teamB.logo ||
+      teamB.logoUrl ||
+      teamB.teamLogo ||
+      "",
+
+    overs:
+      Number(finalOvers),
+
+    date:
+      matchDate.value,
+
+    ground:
+      groundName.value.trim(),
+
+    status:
+      "Scheduled",
+
+    created:
+      new Date().toLocaleDateString(),
+
+    teamAPlayers:
+      Array.isArray(teamA.players)
+        ? teamA.players.map(
+            function(player){
+              return {
+                ...player
+              };
+            }
+          )
+        : [],
+
+    teamBPlayers:
+      Array.isArray(teamB.players)
+        ? teamB.players.map(
+            function(player){
+              return {
+                ...player
+              };
+            }
+          )
+        : []
+
+  };
+
+
+  let matches = [];
+
+
+  try{
+
+    matches =
+      JSON.parse(
+        localStorage.getItem(
+          "CY_SINGLE_MATCHES"
+        ) || "[]"
+      );
+
+  }catch(error){
+
+    matches = [];
+
+  }
+
+
+  matches.push(
+    newMatch
+  );
+
+
+  localStorage.setItem(
+    "CY_SINGLE_MATCHES",
+    JSON.stringify(matches)
+  );
+
+
+  if(
+    typeof cySingleMatches !==
+    "undefined"
+  ){
+
+    cySingleMatches =
+      matches;
+
+  }
+
+
+  alert(
+    "🏆 Match created successfully!"
+  );
+
+
+  createSingleMatch();
+
+}
+
+
+/* =========================================
+   TEMPORARY MATCH BUTTONS
+========================================= */
+
+function showMyMatches(){
+
+  alert(
+    "My Matches page abhi next step me banayenge."
+  );
+
+}
+
+
+function startSingleMatch(){
+
+  alert(
+    "Start Match page abhi next step me banayenge."
+  );
+
+}
+
+
+function showScorecards(){
+
+  alert(
+    "Scorecards page abhi next step me banayenge."
+  );
+
+}
    
 </script>
 
