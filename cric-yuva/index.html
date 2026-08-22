@@ -2770,40 +2770,65 @@ function loadMatchTeams() {
 
 function selectMatchTeam(side) {
 
-  let teams = [];
-
-  try {
-    teams = JSON.parse(localStorage.getItem("cricYuvaTeams")) || [];
-  } catch (error) {
-    teams = [];
-  }
+  const teams =
+    JSON.parse(
+      localStorage.getItem("CY_TEAMS") || "[]"
+    );
 
   const select = document.getElementById(
-    side === "A" ? "teamASelect" : "teamBSelect"
+    side === "A"
+      ? "teamASelect"
+      : "teamBSelect"
   );
 
   const logo = document.getElementById(
-    side === "A" ? "teamALogo" : "teamBLogo"
+    side === "A"
+      ? "teamALogo"
+      : "teamBLogo"
   );
 
   const name = document.getElementById(
-    side === "A" ? "teamAName" : "teamBName"
+    side === "A"
+      ? "teamAName"
+      : "teamBName"
   );
 
-  const selectedIndex = select.value;
+  const selectedId = select.value;
 
-  if (selectedIndex === "") {
+  if (selectedId === "") {
 
     name.textContent =
-      side === "A" ? "Select Team A" : "Select Team B";
-
-    logo.src =
       side === "A"
-        ? "https://via.placeholder.com/140?text=TEAM+A"
-        : "https://via.placeholder.com/140?text=TEAM+B";
+        ? "Select Team A"
+        : "Select Team B";
+
+    logo.style.display = "none";
 
     return;
   }
+
+  const team = teams.find(function(t) {
+    return String(t.id) === String(selectedId);
+  });
+
+  if (!team) return;
+
+  name.textContent =
+    team.name || "Selected Team";
+
+  const teamLogo =
+    team.logo ||
+    team.logoUrl ||
+    team.teamLogo ||
+    "";
+
+  if (teamLogo) {
+    logo.src = teamLogo;
+    logo.style.display = "block";
+  } else {
+    logo.style.display = "none";
+  }
+}
 
   const team = teams[selectedIndex];
 
