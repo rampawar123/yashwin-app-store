@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRIC YUVA</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="appHeader"><b>🏏 CRIC YUVA</b><span>START MATCH</span></header>
+<main id="app"></main>
+<nav><button onclick="home()">🏠 Home</button><button onclick="createMatch()">➕ Create</button><button onclick="myMatches()">📋 Matches</button></nav>
+
+<script>
+const TK='CY_TEAMS', MK='CY_SINGLE_MATCHES';
+const $=id=>document.getElementById(id);
+const get=(k)=>{try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}};
+const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const teams=()=>get(TK).length?get(TK):get('cricYuvaTeams');
+const matches=()=>get(MK);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tname=(t,i)=>t?.name||t?.teamName||`Team ${i+1}`;
+const tid=(t,i)=>String(t?.id??i);
+const tlogo=t=>t?.logo||t?.logoUrl||t?.teamLogo||'';
+
+function home(){
+ app.innerHTML=`<section class="hero"><h1>🏏 CRIC YUVA</h1><p>Complete Start Match system</p></section>
+ <div class="grid"><button class="cardBtn" onclick="createMatch()">➕<b>Create Match</b></button><button class="cardBtn" onclick="myMatches()">📋<b>My Matches</b></button><button class="cardBtn" onclick="startMatch()">▶️<b>Start Match</b></button><button class="cardBtn" onclick="scorecards()">📊<b>Scorecards</b></button></div>`;
+}
+function createMatch(){
+ const ts=teams();
+ app.innerHTML=`<button class="back" onclick="home()">← Back</button><h2>🏏 Create Match</h2>
+ ${ts.length?'':'<div class="warning">⚠️ Pehle Teams section me teams create/save karo.</div>'}
+ <div class="teamWrap"><div class="teamBox"><b>🏏 TEAM A</b><div class="teamLogo" id="logoA">🏏</div><strong id="nameA">Select Team A</strong><select id="teamA" onchange="preview('A')"><option value="">Select Team A</option>${opts(ts)}</select></div>
+ <div class="vsBox">VS</div>
+ <div class="teamBox"><b>TEAM B 🏏</b><div class="teamLogo" id="logoB">🏏</div><strong id="nameB">Select Team B</strong><select id="teamB" onchange="preview('B')"><option value="">Select Team B</option>${opts(ts)}</select></div></div>
+ <div class="modernMatchCard"><h3>📋 Match Details</h3>
+ <label>🏏 Match Overs</label><select id="overs"><option value="">Select Overs</option>${[1,2,3,4,5,6,7,8,9,10,12,15,20,25,30,40,50].map(x=>`<option value="${x}">${x} Overs</option>`).join('')}<option value="custom">Custom</option></select>
+ <input id="custom" class="hidden" type="number" min="1" max="100" placeholder="Custom Overs">
+ <label>📅 Match Date</label><input id="date" type="date">
+ <label>📍 Ground Name</label><input id="ground" placeholder="Enter Ground Name">
+ <p class="note">ℹ️ Toss match create hone ke baad hoga.</p>
+ <button class="primary" onclick="saveMatch()">🏆 CREATE MATCH</button></div>`;
+ $('overs').onchange=()=>$('custom').classList.toggle('hidden',$('overs').value!=='custom');
+}
+function opts(ts){return ts.map((t,i)=>`<option value="${esc(tid(t,i))}">${esc(tname(t,i))}</option>`).join('')}
+function find(id){return teams().find((t,i)=>tid(t,i)===String(id))}
+function preview(side){
+ const id=$(side==='A'?'teamA':'teamB').value,t=find(id),logo=$(side==='A'?'logoA':'logoB'),name=$(side==='A'?'nameA':'nameB');
+ if(!t){logo.textContent='🏏';name.textContent='Select Team '+side;return}
+ const other=$(side==='A'?'teamB':'teamA'); if(other.value===id){alert('Team A aur Team B alag hone chahiye.');$(side==='A'?'teamA':'teamB').value='';return preview(side)}
+ name.textContent=tname(t,0); const l=tlogo(t); logo.innerHTML=l?`<img src="${esc(l)}" onerror="this.remove();this.parentNode.textContent='🏏'">`:'🏏';
+}
+function saveMatch(){
+ const a=$('teamA').value,b=$('teamB').value;let o=$('overs').value;if(o==='custom')o=$('custom').value;
+ if(!a||!b||!o)return alert('Team A, Team B aur Overs select karo.');
+ const A=find(a),B=find(b),ms=matches();
+ ms.push({id:'MATCH-'+Date.now(),teamA:a,teamB:b,teamAName:tname(A,0),teamBName:tname(B,0),teamALogo:tlogo(A),teamBLogo:tlogo(B),overs:+o,date:$('date').value,ground:$('ground').value,status:'Scheduled',innings:[],created:new Date().toLocaleString()});
+ put(MK,ms);alert('🏆 Match created successfully!');myMatches();
+}
+function myMatches(){
+ const ms=matches();app.innerHTML=`<button class="back" onclick="home()">← Back</button><h2>📋 My Matches</h2>${ms.length?ms.map(card).join(''):'<div class="empty">No matches yet.</div>'}`;
+}
+function card(m){return `<div class="matchCard"><span class="status">${esc(m.status)}</span><div class="teams"><div>${mini(m.teamALogo)}<b>${esc(m.teamAName)}</b></div><strong>VS</strong><div>${mini(m.teamBLogo)}<b>${esc(m.teamBName)}</b></div></div><p>${m.overs} Overs • ${esc(m.ground||'Ground not set')}</p><button class="primary" onclick="toss('${m.id}')">${m.status==='Scheduled'?'🪙 TOSS / START':'▶ OPEN MATCH'}</button></div>`}
+function mini(l){return l?`<img class="mini" src="${esc(l)}">`:'🏏'}
+function startMatch(){const ms=matches();if(!ms.length)return myMatches();myMatches()}
+function getMatch(id){return matches().find(x=>x.id===id)}
+function update(m){const ms=matches(),i=ms.findIndex(x=>x.id===m.id);ms[i]=m;put(MK,ms)}
+function toss(id){
+ const m=getMatch(id);app.innerHTML=`<button class="back" onclick="myMatches()">← Back</button><h2>🪙 Toss</h2><div class="modernMatchCard"><h3>${esc(m.teamAName)} vs ${esc(m.teamBName)}</h3><label>Toss Winner</label><select id="winner"><option value="${esc(m.teamA)}">${esc(m.teamAName)}</option><option value="${esc(m.teamB)}">${esc(m.teamBName)}</option></select><label>Decision</label><select id="decision"><option>Bat</option><option>Bowl</option></select><button class="primary" onclick="finishToss('${m.id}')">CONTINUE</button></div>`;
+}
+function finishToss(id){
+ const m=getMatch(id),w=$('winner').value,d=$('decision').value,bat=d==='Bat'?w:(w===m.teamA?m.teamB:m.teamA),bowl=bat===m.teamA?m.teamB:m.teamA;
+ m.toss={winner:w,decision:d};m.status='Live';m.innings=[{batting:bat,bowling:bowl,runs:0,wickets:0,balls:0,history:[]}];update(m);openLive(id);
+}
+function openLive(id){
+ const m=getMatch(id),inn=m.innings.at(-1),bn=inn.batting===m.teamA?m.teamAName:m.teamBName;
+ app.innerHTML=`<button class="back" onclick="myMatches()">← Matches</button><section class="scoreHero"><span>🔴 LIVE</span><h2>${esc(bn)}</h2><div class="score">${inn.runs}/${inn.wickets}</div><p>${Math.floor(inn.balls/6)}.${inn.balls%6} / ${m.overs} Overs</p></section>
+ <div class="ballList">${inn.history.slice(-12).map(x=>`<i>${esc(x)}</i>`).join('')||'<i>Start</i>'}</div>
+ <div class="scorePad">${[0,1,2,3,4,6].map(n=>`<button onclick="ball(${n})">${n}</button>`).join('')}<button onclick="extra('WD')">WD</button><button onclick="extra('NB')">NB</button><button class="wicket" onclick="wicket()">W</button></div>
+ <div class="row"><button class="secondary" onclick="undo()">↩ Undo</button><button class="primary" onclick="endInnings('${id}')">🏁 End Innings</button></div>`;
+ window.activeId=id;
+}
+function ball(r){const m=getMatch(activeId),i=m.innings.at(-1);i.runs+=r;i.balls++;i.history.push(String(r));if(i.balls>=m.overs*6)i.done=true;update(m);openLive(activeId)}
+function extra(x){const m=getMatch(activeId),i=m.innings.at(-1);i.runs++;i.history.push(x);update(m);openLive(activeId)}
+function wicket(){const m=getMatch(activeId),i=m.innings.at(-1);i.wickets++;i.balls++;i.history.push('W');if(i.wickets>=10)i.done=true;update(m);openLive(activeId)}
+function undo(){const m=getMatch(activeId),i=m.innings.at(-1),x=i.history.pop();if(!x)return;if(x==='W'){i.wickets--;i.balls--}else if(x==='WD'||x==='NB'){i.runs--}else{i.runs-=+x;i.balls--}update(m);openLive(activeId)}
+function endInnings(id){
+ const m=getMatch(id),i=m.innings.at(-1);i.done=true;
+ if(m.innings.length===1){m.innings.push({batting:i.bowling,bowling:i.batting,runs:0,wickets:0,balls:0,history:[]});update(m);openLive(id)}
+ else{m.status='Completed';m.result='Match Completed';update(m);scorecards()}
+}
+function scorecards(){const ms=matches();app.innerHTML=`<button class="back" onclick="home()">← Back</button><h2>📊 Scorecards</h2>${ms.filter(m=>m.innings?.length).map(m=>`<div class="matchCard"><b>${esc(m.teamAName)} vs ${esc(m.teamBName)}</b>${m.innings.map((i,n)=>`<p>Innings ${n+1}: <b>${i.runs}/${i.wickets}</b> (${Math.floor(i.balls/6)}.${i.balls%6})</p>`).join('')}</div>`).join('')||'<div class="empty">No scorecards yet.</div>'}`}
+home();
+</script>
+</body>
+</html>
