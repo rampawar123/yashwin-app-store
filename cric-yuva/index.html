@@ -1692,74 +1692,83 @@ window.addEventListener(
 ================================ */
 
    function createSingleMatch(){
-  document.getElementById("singleMatch").innerHTML = `
-    <button class="backBtn" onclick="location.reload()">← Back</button>
 
-    <h2>🏏 Create Match</h2>
+document.getElementById("singleMatch").innerHTML = `
+<button class="backBtn" onclick="location.reload()">← Back</button>
 
-    <div class="pageCard">
-      <b>Match Details</b>
-      <div class="smallText">Naye match ki details bharein.</div>
-    </div>
+<h2 class="createMatchTitle">🏏 Create Match</h2>
 
-    <div class="pageCard">
-      <label>Team A Name</label>
-      <input type="text" id="teamA" placeholder="Enter Team A name">
+<div class="teamVsWrap">
 
-      <label>Team B Name</label>
-      <input type="text" id="teamB" placeholder="Enter Team B name">
+  <div class="teamBox teamABox">
+    <div class="teamLabel">TEAM A</div>
+    <div class="teamLogo">🏏</div>
+    <input type="text" id="teamA" placeholder="Enter Team A Name">
+  </div>
 
-      <label>Match Overs</label>
+  <div class="vsBox">VS</div>
 
-<select id="matchOvers" onchange="toggleCustomOvers()">
-  <option value="">Select Overs</option>
+  <div class="teamBox teamBBox">
+    <div class="teamLabel">TEAM B</div>
+    <div class="teamLogo">🏏</div>
+    <input type="text" id="teamB" placeholder="Enter Team B Name">
+  </div>
 
-  <option value="1">1 Over</option>
-  <option value="2">2 Overs</option>
-  <option value="3">3 Overs</option>
-  <option value="4">4 Overs</option>
-  <option value="5">5 Overs</option>
-  <option value="6">6 Overs</option>
-  <option value="7">7 Overs</option>
-  <option value="8">8 Overs</option>
-  <option value="9">9 Overs</option>
-  <option value="10">10 Overs</option>
-  <option value="11">11 Overs</option>
-  <option value="12">12 Overs</option>
-  <option value="13">13 Overs</option>
-  <option value="14">14 Overs</option>
-  <option value="15">15 Overs</option>
-
-  <option value="20">20 Overs</option>
-  <option value="25">25 Overs</option>
-  <option value="30">30 Overs</option>
-  <option value="40">40 Overs</option>
-  <option value="50">50 Overs</option>
-
-  <option value="custom">Custom Overs</option>
-</select>
-
-<div id="customOversBox" style="display:none;">
-  <label>Custom Overs</label>
-  <input type="number" id="customOvers"
-         min="1" max="100"
-         placeholder="Enter custom overs">
 </div>
 
-      <label>Match Date</label>
-      <input type="date" id="matchDate">
+<div class="modernMatchCard">
 
-      <label>Ground Name</label>
-      <input type="text" id="groundName" placeholder="Enter Ground name">
+  <h3>📋 Match Details</h3>
 
-      <br><br>
+  <label>🏏 Match Overs</label>
+  <select id="matchOvers" onchange="toggleCustomOvers()">
+    <option value="">Select Overs</option>
+    <option value="1">1 Over</option>
+    <option value="2">2 Overs</option>
+    <option value="3">3 Overs</option>
+    <option value="4">4 Overs</option>
+    <option value="5">5 Overs</option>
+    <option value="6">6 Overs</option>
+    <option value="7">7 Overs</option>
+    <option value="8">8 Overs</option>
+    <option value="9">9 Overs</option>
+    <option value="10">10 Overs</option>
+    <option value="11">11 Overs</option>
+    <option value="12">12 Overs</option>
+    <option value="13">13 Overs</option>
+    <option value="14">14 Overs</option>
+    <option value="15">15 Overs</option>
+    <option value="20">20 Overs</option>
+    <option value="25">25 Overs</option>
+    <option value="30">30 Overs</option>
+    <option value="40">40 Overs</option>
+    <option value="50">50 Overs</option>
+    <option value="custom">Custom Overs</option>
+  </select>
 
-      <button class="pageOption" onclick="saveSingleMatch()">
-        💾 Create Match
-      </button>
-    </div>
-  `;
-}
+  <div id="customOversBox" style="display:none;">
+    <label>✏️ Custom Overs</label>
+    <input type="number" id="customOvers" min="1" max="100"
+    placeholder="Enter custom overs">
+  </div>
+
+  <label>📅 Match Date</label>
+  <input type="date" id="matchDate">
+
+  <label>📍 Ground Name</label>
+  <input type="text" id="groundName" placeholder="Enter Ground Name">
+
+  <div class="matchNote">
+    ℹ️ Toss hoga match create hone ke baad.
+  </div>
+
+  <button class="createMatchBtn" onclick="saveSingleMatch()">
+    🏆 CREATE MATCH
+  </button>
+
+</div>
+`;
+   }
 
    function showMyMatches(){
   alert("My Matches page abhi next step me banayenge.");
