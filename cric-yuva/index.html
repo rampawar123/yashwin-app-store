@@ -1693,111 +1693,1022 @@ window.addEventListener(
 
    function createSingleMatch(){
 
-document.getElementById("singleMatch").innerHTML = `
-<button class="backBtn" onclick="location.reload()">← Back</button>
+  const page = document.getElementById("singleMatch");
 
-<h2 class="createMatchTitle">🏏 Create Match</h2>
+  if(!page) return;
 
-<div class="teamWrap">
+  page.innerHTML = `
 
-  <!-- TEAM A -->
-  <div class="teamBox teamABox">
-    <div class="teamLabel">TEAM A</div>
+    <button class="backBtn" onclick="location.reload()">
+      ← Back
+    </button>
 
-    <div class="teamLogo">
-      <img id="teamALogo"
-           src="https://via.placeholder.com/140?text=TEAM+A"
-           alt="Team A Logo">
+    <h2 class="createMatchTitle">🏏 Create Match</h2>
+
+    <div class="teamWrap">
+
+      <!-- TEAM A -->
+
+      <div class="matchTeamCard teamACard">
+
+        <div class="matchTeamLabel">
+          TEAM A
+        </div>
+
+        <div class="matchTeamLogo">
+          <img
+            id="teamALogo"
+            src=""
+            alt="Team A Logo"
+            style="display:none"
+          >
+
+          <div
+            id="teamAPlaceholder"
+            class="teamPlaceholder"
+          >
+            🏏
+          </div>
+        </div>
+
+        <div
+          id="teamAName"
+          class="matchTeamName"
+        >
+          Select Team A
+        </div>
+
+        <select
+          id="teamASelect"
+          class="matchTeamSelect"
+          onchange="selectMatchTeam('A')"
+        >
+          <option value="">
+            Select Team A
+          </option>
+        </select>
+
+      </div>
+
+
+      <!-- VS -->
+
+      <div class="matchVS">
+        VS
+      </div>
+
+
+      <!-- TEAM B -->
+
+      <div class="matchTeamCard teamBCard">
+
+        <div class="matchTeamLabel">
+          TEAM B
+        </div>
+
+        <div class="matchTeamLogo">
+          <img
+            id="teamBLogo"
+            src=""
+            alt="Team B Logo"
+            style="display:none"
+          >
+
+          <div
+            id="teamBPlaceholder"
+            class="teamPlaceholder"
+          >
+            🏏
+          </div>
+        </div>
+
+        <div
+          id="teamBName"
+          class="matchTeamName"
+        >
+          Select Team B
+        </div>
+
+        <select
+          id="teamBSelect"
+          class="matchTeamSelect"
+          onchange="selectMatchTeam('B')"
+        >
+          <option value="">
+            Select Team B
+          </option>
+        </select>
+
+      </div>
+
     </div>
 
-    <div class="teamName" id="teamAName">
+
+    <!-- MATCH DETAILS -->
+
+    <div class="modernMatchCard">
+
+      <h3>
+        📋 Match Details
+      </h3>
+
+
+      <div class="matchField">
+
+        <label>
+          🏏 Match Overs
+        </label>
+
+        <select
+          id="matchOvers"
+          onchange="toggleCustomOvers()"
+        >
+
+          <option value="">
+            Select Overs
+          </option>
+
+          <option value="1">
+            1 Over
+          </option>
+
+          <option value="2">
+            2 Overs
+          </option>
+
+          <option value="3">
+            3 Overs
+          </option>
+
+          <option value="4">
+            4 Overs
+          </option>
+
+          <option value="5">
+            5 Overs
+          </option>
+
+          <option value="6">
+            6 Overs
+          </option>
+
+          <option value="7">
+            7 Overs
+          </option>
+
+          <option value="8">
+            8 Overs
+          </option>
+
+          <option value="9">
+            9 Overs
+          </option>
+
+          <option value="10">
+            10 Overs
+          </option>
+
+          <option value="11">
+            11 Overs
+          </option>
+
+          <option value="12">
+            12 Overs
+          </option>
+
+          <option value="13">
+            13 Overs
+          </option>
+
+          <option value="14">
+            14 Overs
+          </option>
+
+          <option value="15">
+            15 Overs
+          </option>
+
+          <option value="20">
+            20 Overs
+          </option>
+
+          <option value="25">
+            25 Overs
+          </option>
+
+          <option value="30">
+            30 Overs
+          </option>
+
+          <option value="40">
+            40 Overs
+          </option>
+
+          <option value="50">
+            50 Overs
+          </option>
+
+          <option value="custom">
+            Custom Overs
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        id="customOversBox"
+        style="display:none"
+      >
+
+        <label>
+          ✏️ Custom Overs
+        </label>
+
+        <input
+          type="number"
+          id="customOvers"
+          min="1"
+          max="100"
+          placeholder="Enter custom overs"
+        >
+
+      </div>
+
+
+      <div class="matchField">
+
+        <label>
+          📅 Match Date
+        </label>
+
+        <input
+          type="date"
+          id="matchDate"
+        >
+
+      </div>
+
+
+      <div class="matchField">
+
+        <label>
+          📍 Ground Name
+        </label>
+
+        <input
+          type="text"
+          id="groundName"
+          placeholder="Enter Ground Name"
+        >
+
+      </div>
+
+
+      <div class="matchNote">
+
+        ℹ️ Toss hoga match create hone ke baad.
+
+      </div>
+
+
+      <button
+        class="createMatchBtn"
+        onclick="saveSingleMatch()"
+      >
+
+        🏆 CREATE MATCH
+
+      </button>
+
+    </div>
+
+  `;
+
+  loadMatchTeams();
+
+}
+
+
+
+/* =========================================
+   LOAD SAVED TEAMS
+========================================= */
+
+function getSavedMatchTeams(){
+
+  let savedTeams = [];
+
+  try{
+
+    /*
+      Main system CY_TEAMS use karta hai
+    */
+
+    savedTeams =
+      JSON.parse(
+        localStorage.getItem("CY_TEAMS") || "[]"
+      );
+
+  }catch(error){
+
+    savedTeams = [];
+
+  }
+
+
+  /*
+    Extra safety:
+    Agar purane version me
+    cricYuvaTeams se data saved hai
+  */
+
+  if(
+    !Array.isArray(savedTeams) ||
+    savedTeams.length === 0
+  ){
+
+    try{
+
+      savedTeams =
+        JSON.parse(
+          localStorage.getItem("cricYuvaTeams") || "[]"
+        );
+
+    }catch(error){
+
+      savedTeams = [];
+
+    }
+
+  }
+
+
+  return Array.isArray(savedTeams)
+    ? savedTeams
+    : [];
+
+}
+
+
+
+/* =========================================
+   LOAD TEAMS IN DROPDOWN
+========================================= */
+
+function loadMatchTeams(){
+
+  const teamASelect =
+    document.getElementById("teamASelect");
+
+  const teamBSelect =
+    document.getElementById("teamBSelect");
+
+
+  if(
+    !teamASelect ||
+    !teamBSelect
+  ){
+    return;
+  }
+
+
+  const teams =
+    getSavedMatchTeams();
+
+
+  /*
+    Pehle dropdown clean karo
+    taki duplicate teams na aaye
+  */
+
+  teamASelect.innerHTML = `
+    <option value="">
       Select Team A
-    </div>
+    </option>
+  `;
 
-    <select id="teamASelect" onchange="selectMatchTeam('A')">
-      <option value="">Select Team A</option>
-    </select>
-  </div>
 
-  <!-- VS -->
-  <div class="vsBox">
-    <span>VS</span>
-  </div>
-
-  <!-- TEAM B -->
-  <div class="teamBox teamBBox">
-    <div class="teamLabel">TEAM B</div>
-
-    <div class="teamLogo">
-      <img id="teamBLogo"
-           src="https://via.placeholder.com/140?text=TEAM+B"
-           alt="Team B Logo">
-    </div>
-
-    <div class="teamName" id="teamBName">
+  teamBSelect.innerHTML = `
+    <option value="">
       Select Team B
-    </div>
+    </option>
+  `;
 
-    <select id="teamBSelect" onchange="selectMatchTeam('B')">
-      <option value="">Select Team B</option>
-    </select>
-  </div>
 
-</div>
+  teams.forEach(function(team,index){
 
-<div class="modernMatchCard">
+    const teamId =
+      team.id ||
+      String(index);
 
-  <h3>📋 Match Details</h3>
 
-  <label>🏏 Match Overs</label>
-  <select id="matchOvers" onchange="toggleCustomOvers()">
-    <option value="">Select Overs</option>
-    <option value="1">1 Over</option>
-    <option value="2">2 Overs</option>
-    <option value="3">3 Overs</option>
-    <option value="4">4 Overs</option>
-    <option value="5">5 Overs</option>
-    <option value="6">6 Overs</option>
-    <option value="7">7 Overs</option>
-    <option value="8">8 Overs</option>
-    <option value="9">9 Overs</option>
-    <option value="10">10 Overs</option>
-    <option value="11">11 Overs</option>
-    <option value="12">12 Overs</option>
-    <option value="13">13 Overs</option>
-    <option value="14">14 Overs</option>
-    <option value="15">15 Overs</option>
-    <option value="20">20 Overs</option>
-    <option value="25">25 Overs</option>
-    <option value="30">30 Overs</option>
-    <option value="40">40 Overs</option>
-    <option value="50">50 Overs</option>
-    <option value="custom">Custom Overs</option>
-  </select>
+    const teamName =
+      team.name ||
+      team.teamName ||
+      "Team " + (index + 1);
 
-  <div id="customOversBox" style="display:none;">
-    <label>✏️ Custom Overs</label>
-    <input type="number" id="customOvers" min="1" max="100"
-    placeholder="Enter custom overs">
-  </div>
 
-  <label>📅 Match Date</label>
-  <input type="date" id="matchDate">
+    const optionA =
+      document.createElement("option");
 
-  <label>📍 Ground Name</label>
-  <input type="text" id="groundName" placeholder="Enter Ground Name">
+    optionA.value =
+      teamId;
 
-  <div class="matchNote">
-    ℹ️ Toss hoga match create hone ke baad.
-  </div>
+    optionA.textContent =
+      teamName;
 
-  <button class="createMatchBtn" onclick="saveSingleMatch()">
-    🏆 CREATE MATCH
-  </button>
 
-</div>
-`;
-   }
+    const optionB =
+      document.createElement("option");
+
+    optionB.value =
+      teamId;
+
+    optionB.textContent =
+      teamName;
+
+
+    teamASelect.appendChild(
+      optionA
+    );
+
+    teamBSelect.appendChild(
+      optionB
+    );
+
+  });
+
+
+  if(teams.length === 0){
+
+    console.log(
+      "No teams found in CY_TEAMS"
+    );
+
+  }
+
+}
+
+
+
+/* =========================================
+   TEAM SELECT
+   NAME + LOGO AUTOMATIC
+========================================= */
+
+function selectMatchTeam(side){
+
+  const teams =
+    getSavedMatchTeams();
+
+
+  const select =
+    document.getElementById(
+      side === "A"
+        ? "teamASelect"
+        : "teamBSelect"
+    );
+
+
+  const logo =
+    document.getElementById(
+      side === "A"
+        ? "teamALogo"
+        : "teamBLogo"
+    );
+
+
+  const placeholder =
+    document.getElementById(
+      side === "A"
+        ? "teamAPlaceholder"
+        : "teamBPlaceholder"
+    );
+
+
+  const nameBox =
+    document.getElementById(
+      side === "A"
+        ? "teamAName"
+        : "teamBName"
+    );
+
+
+  if(
+    !select ||
+    !logo ||
+    !placeholder ||
+    !nameBox
+  ){
+    return;
+  }
+
+
+  const selectedId =
+    select.value;
+
+
+  /*
+    Agar team select nahi hai
+  */
+
+  if(!selectedId){
+
+    nameBox.textContent =
+      side === "A"
+        ? "Select Team A"
+        : "Select Team B";
+
+
+    logo.src = "";
+
+    logo.style.display =
+      "none";
+
+
+    placeholder.style.display =
+      "flex";
+
+
+    return;
+
+  }
+
+
+  /*
+    ID se actual team find karo
+  */
+
+  const team =
+    teams.find(function(item,index){
+
+      const itemId =
+        item.id ||
+        String(index);
+
+      return String(itemId) ===
+        String(selectedId);
+
+    });
+
+
+  if(!team){
+
+    return;
+
+  }
+
+
+  /*
+    TEAM NAME
+  */
+
+  const teamName =
+    team.name ||
+    team.teamName ||
+    "Selected Team";
+
+
+  nameBox.textContent =
+    teamName;
+
+
+  /*
+    TEAM LOGO
+    Alag-alag purane data format bhi support
+  */
+
+  const teamLogo =
+    team.logo ||
+    team.logoUrl ||
+    team.teamLogo ||
+    team.image ||
+    "";
+
+
+  if(teamLogo){
+
+    logo.src =
+      teamLogo;
+
+
+    logo.style.display =
+      "block";
+
+
+    placeholder.style.display =
+      "none";
+
+
+    logo.onerror =
+      function(){
+
+        logo.style.display =
+          "none";
+
+        placeholder.style.display =
+          "flex";
+
+      };
+
+  }else{
+
+    logo.src = "";
+
+    logo.style.display =
+      "none";
+
+    placeholder.style.display =
+      "flex";
+
+  }
+
+
+  /*
+    Same team A aur B me select
+    hone se roko
+  */
+
+  const otherSelect =
+    document.getElementById(
+      side === "A"
+        ? "teamBSelect"
+        : "teamASelect"
+    );
+
+
+  if(
+    otherSelect &&
+    otherSelect.value === selectedId
+  ){
+
+    alert(
+      "Team A aur Team B alag hone chahiye."
+    );
+
+
+    select.value = "";
+
+
+    nameBox.textContent =
+      side === "A"
+        ? "Select Team A"
+        : "Select Team B";
+
+
+    logo.src = "";
+
+    logo.style.display =
+      "none";
+
+
+    placeholder.style.display =
+      "flex";
+
+  }
+
+}
+
+
+
+/* =========================================
+   CUSTOM OVERS
+========================================= */
+
+function toggleCustomOvers(){
+
+  const overs =
+    document.getElementById(
+      "matchOvers"
+    );
+
+
+  const customBox =
+    document.getElementById(
+      "customOversBox"
+    );
+
+
+  if(
+    !overs ||
+    !customBox
+  ){
+    return;
+  }
+
+
+  if(overs.value === "custom"){
+
+    customBox.style.display =
+      "block";
+
+  }else{
+
+    customBox.style.display =
+      "none";
+
+  }
+
+}
+
+
+
+/* =========================================
+   SAVE SINGLE MATCH
+========================================= */
+
+function saveSingleMatch(){
+
+  const teamASelect =
+    document.getElementById(
+      "teamASelect"
+    );
+
+
+  const teamBSelect =
+    document.getElementById(
+      "teamBSelect"
+    );
+
+
+  const matchOvers =
+    document.getElementById(
+      "matchOvers"
+    );
+
+
+  const customOvers =
+    document.getElementById(
+      "customOvers"
+    );
+
+
+  const matchDate =
+    document.getElementById(
+      "matchDate"
+    );
+
+
+  const groundName =
+    document.getElementById(
+      "groundName"
+    );
+
+
+  if(
+    !teamASelect.value ||
+    !teamBSelect.value
+  ){
+
+    alert(
+      "Please Team A aur Team B select karein."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    teamASelect.value ===
+    teamBSelect.value
+  ){
+
+    alert(
+      "Team A aur Team B alag hone chahiye."
+    );
+
+    return;
+
+  }
+
+
+  let finalOvers =
+    matchOvers.value;
+
+
+  if(
+    finalOvers === "custom"
+  ){
+
+    finalOvers =
+      customOvers.value;
+
+  }
+
+
+  if(!finalOvers){
+
+    alert(
+      "Please Match Overs select karein."
+    );
+
+    return;
+
+  }
+
+
+  const teams =
+    getSavedMatchTeams();
+
+
+  const teamA =
+    teams.find(function(team,index){
+
+      return String(
+        team.id || index
+      ) ===
+      String(
+        teamASelect.value
+      );
+
+    });
+
+
+  const teamB =
+    teams.find(function(team,index){
+
+      return String(
+        team.id || index
+      ) ===
+      String(
+        teamBSelect.value
+      );
+
+    });
+
+
+  if(
+    !teamA ||
+    !teamB
+  ){
+
+    alert(
+      "Selected team data nahi mila."
+    );
+
+    return;
+
+  }
+
+
+  const newMatch = {
+
+    id:
+      "MATCH-" +
+      Date.now(),
+
+
+    type:
+      "Single Match",
+
+
+    teamA:
+      teamA.id ||
+      teamASelect.value,
+
+
+    teamB:
+      teamB.id ||
+      teamBSelect.value,
+
+
+    teamAName:
+      teamA.name ||
+      teamA.teamName ||
+      "Team A",
+
+
+    teamBName:
+      teamB.name ||
+      teamB.teamName ||
+      "Team B",
+
+
+    teamALogo:
+      teamA.logo ||
+      teamA.logoUrl ||
+      teamA.teamLogo ||
+      "",
+
+
+    teamBLogo:
+      teamB.logo ||
+      teamB.logoUrl ||
+      teamB.teamLogo ||
+      "",
+
+
+    overs:
+      Number(finalOvers),
+
+
+    date:
+      matchDate.value,
+
+
+    ground:
+      groundName.value.trim(),
+
+
+    status:
+      "Scheduled",
+
+
+    created:
+      new Date().toLocaleDateString(),
+
+
+    teamAPlayers:
+      Array.isArray(teamA.players)
+        ? teamA.players.map(function(player){
+
+            return {
+              ...player
+            };
+
+          })
+        : [],
+
+
+    teamBPlayers:
+      Array.isArray(teamB.players)
+        ? teamB.players.map(function(player){
+
+            return {
+              ...player
+            };
+
+          })
+        : []
+
+  };
+
+
+  /*
+    Purana CY_SINGLE_MATCHES data preserve
+  */
+
+  let matches = [];
+
+
+  try{
+
+    matches =
+      JSON.parse(
+        localStorage.getItem(
+          "CY_SINGLE_MATCHES"
+        ) || "[]"
+      );
+
+  }catch(error){
+
+    matches = [];
+
+  }
+
+
+  matches.push(
+    newMatch
+  );
+
+
+  localStorage.setItem(
+    "CY_SINGLE_MATCHES",
+    JSON.stringify(matches)
+  );
+
+
+  /*
+    Agar cySingleMatches variable
+    app me available hai to update
+  */
+
+  if(
+    typeof cySingleMatches !==
+    "undefined"
+  ){
+
+    cySingleMatches =
+      matches;
+
+  }
+
+
+  alert(
+    "🏆 Match created successfully!"
+  );
+
+
+  /*
+    Create Match page reload
+  */
+
+  createSingleMatch();
+
+}
 
    function showMyMatches(){
   alert("My Matches page abhi next step me banayenge.");
