@@ -1710,14 +1710,41 @@ window.addEventListener(
       <input type="text" id="teamB" placeholder="Enter Team B name">
 
       <label>Match Overs</label>
-      <select id="matchOvers">
-        <option value="">Select Overs</option>
-        <option>5</option>
-        <option>10</option>
-        <option>15</option>
-        <option>20</option>
-        <option>50</option>
-      </select>
+
+<select id="matchOvers" onchange="toggleCustomOvers()">
+  <option value="">Select Overs</option>
+
+  <option value="1">1 Over</option>
+  <option value="2">2 Overs</option>
+  <option value="3">3 Overs</option>
+  <option value="4">4 Overs</option>
+  <option value="5">5 Overs</option>
+  <option value="6">6 Overs</option>
+  <option value="7">7 Overs</option>
+  <option value="8">8 Overs</option>
+  <option value="9">9 Overs</option>
+  <option value="10">10 Overs</option>
+  <option value="11">11 Overs</option>
+  <option value="12">12 Overs</option>
+  <option value="13">13 Overs</option>
+  <option value="14">14 Overs</option>
+  <option value="15">15 Overs</option>
+
+  <option value="20">20 Overs</option>
+  <option value="25">25 Overs</option>
+  <option value="30">30 Overs</option>
+  <option value="40">40 Overs</option>
+  <option value="50">50 Overs</option>
+
+  <option value="custom">Custom Overs</option>
+</select>
+
+<div id="customOversBox" style="display:none;">
+  <label>Custom Overs</label>
+  <input type="number" id="customOvers"
+         min="1" max="100"
+         placeholder="Enter custom overs">
+</div>
 
       <label>Match Date</label>
       <input type="date" id="matchDate">
