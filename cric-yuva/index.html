@@ -2436,9 +2436,9 @@ function showScorecards(){
         createdAt: new Date().toISOString()
     };
 
-    const matches = JSON.parse(localStorage.getItem("cricYuvaMatches") || "[]");
-    matches.push(match);
-    localStorage.setItem("cricYuvaMatches", JSON.stringify(matches));
+    const matches = JSON.parse(localStorage.getItem("CY_SINGLE_MATCHES") || "[]");
+matches.push(match);
+localStorage.setItem("CY_SINGLE_MATCHES", JSON.stringify(matches));
 
     alert("🏆 Match Created Successfully!");
 
