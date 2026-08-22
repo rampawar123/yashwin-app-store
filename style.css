@@ -367,4 +367,35 @@ footer{
   font-weight:800;
 }
 
+/* CREATE MATCH FORM */
+
+#createMatchForm,
+#createMatchForm label{
+  width:100%;
+}
+
+#createMatchForm input,
+#createMatchForm select{
+  width:100%;
+  box-sizing:border-box;
+  padding:14px;
+  margin:8px 0 16px;
+  border-radius:10px;
+  border:1px solid #4a3a62;
+  background:#1c1426;
+  color:#fff;
+  font-size:16px;
+}
+
+#createMatchForm label{
+  display:block;
+  font-size:15px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+#createMatchForm .pageOption{
+  width:100%;
+  margin-top:10px;
+}
 
