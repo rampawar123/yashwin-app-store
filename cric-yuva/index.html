@@ -2136,143 +2136,81 @@ function loadMatchTeams(){
    NAME + LOGO AUTOMATIC
 ========================================= */
 
-function selectMatchTeam(side){
+function selectMatchTeam(side) {
+    const teams = getSavedMatchTeams();
 
-  const teams =
-    getSavedMatchTeams();
-
-
-  const select =
-    document.getElementById(
-      side === "A"
-        ? "teamASelect"
-        : "teamBSelect"
+    const select = document.getElementById(
+        side === "A" ? "teamASelect" : "teamBSelect"
     );
 
-
-  const logo =
-    document.getElementById(
-      side === "A"
-        ? "teamALogo"
-        : "teamBLogo"
+    const logo = document.getElementById(
+        side === "A" ? "teamALogo" : "teamBLogo"
     );
 
-
-  const placeholder =
-    document.getElementById(
-      side === "A"
-        ? "teamAPlaceholder"
-        : "teamBPlaceholder"
+    const placeholder = document.getElementById(
+        side === "A" ? "teamAPlaceholder" : "teamBPlaceholder"
     );
 
-
-  const nameBox =
-    document.getElementById(
-      side === "A"
-        ? "teamAName"
-        : "teamBName"
+    const nameBox = document.getElementById(
+        side === "A" ? "teamAName" : "teamBName"
     );
 
+    if (!select || !logo || !placeholder || !nameBox) {
+        return;
+    }
 
-  if(
-    !select ||
-    !logo ||
-    !placeholder ||
-    !nameBox
-  ){
-    return;
-  }
+    const selectedId = select.value;
 
+    if (!selectedId) {
+        nameBox.textContent = side === "A"
+            ? "Select Team A"
+            : "Select Team B";
 
-  const selectedId =
-    select.value;
+        logo.src = "";
+        logo.style.display = "none";
+        placeholder.style.display = "flex";
+        return;
+    }
 
+    const team = teams.find(function(item, index) {
+        const itemId = item.id || String(index);
+        return String(itemId) === String(selectedId);
+    });
 
-  if(!selectedId){
+    if (!team) {
+        nameBox.textContent = side === "A"
+            ? "Select Team A"
+            : "Select Team B";
 
-    nameBox.textContent =
-      side === "A"
-        ? "Select Team A"
-        : "Select Team B";
+        logo.src = "";
+        logo.style.display = "none";
+        placeholder.style.display = "flex";
+        return;
+    }
 
+    const teamName =
+        team.name ||
+        team.teamName ||
+        "Selected Team";
 
-    logo.src = "";
+    const teamLogo =
+        team.logoUrl ||
+        team.logo ||
+        team.teamLogo ||
+        "";
 
-    logo.style.display =
-      "none";
+    nameBox.textContent = teamName;
 
-
-    placeholder.style.display =
-      "flex";
-
-
-    return;
-
-  }
-
-
-  const team =
-    teams.find(
-      function(item,index){
-
-        const itemId =
-          item.id ||
-          String(index);
-
-        return String(itemId) ===
-          String(selectedId);
-
-      }
-    );
-
-
-  if(!team){
-    return;
-  }
-
-
-  const teamName =
-    team.name ||
-    team.teamName ||
-    "Selected Team";
-
-
-  const teamLogo =
-    team.logo ||
-    team.logoUrl ||
-    team.teamLogo ||
-    "";
-
-
-  nameBox.textContent =
-    teamName;
-
-
-  if(teamLogo){
-
-    logo.src =
-      teamLogo;
-
-    logo.style.display =
-      "block";
-
-    placeholder.style.display =
-      "none";
-
-  }else{
-
-    logo.src = "";
-
-    logo.style.display =
-      "none";
-
-    placeholder.style.display =
-      "flex";
-
-  }
-
+    if (teamLogo) {
+        logo.src = teamLogo;
+        logo.style.display = "block";
+        placeholder.style.display = "none";
+    } else {
+        logo.src = "";
+        logo.style.display = "none";
+        placeholder.style.display = "flex";
+    }
 }
-
 
 /* =========================================
    OTHER MATCH BUTTONS
