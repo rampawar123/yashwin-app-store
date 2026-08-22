@@ -2108,7 +2108,10 @@ function loadMatchTeams(){
         ];
     }
 
-        const teamId = team.id || String(index);
+   
+        teams.forEach(function(team,index){
+       
+           const teamId = team.id || String(index);
 
         const teamName =
             team.name ||
