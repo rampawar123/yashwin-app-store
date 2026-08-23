@@ -1108,44 +1108,25 @@
 
 
 /* =========================
-   SPLASH
+   SPLASH FIX
 ========================= */
 
-window.addEventListener(
-  "load",
-  function(){
+setTimeout(function(){
 
-    setTimeout(
-      function(){
+  const splash =
+    document.getElementById("splashScreen");
 
-        const splash =
-          document.getElementById(
-            "splashScreen"
-          );
+  if(splash){
 
-        if(splash){
+    splash.classList.add("hide");
 
-          splash.classList.add("hide");
-
-          setTimeout(
-            function(){
-
-              splash.remove();
-
-            },
-            500
-          );
-
-        }
-
-      },
-      2200
-    );
-
-    updateHomeMatch();
+    setTimeout(function(){
+      splash.style.display = "none";
+    }, 600);
 
   }
-);
+
+}, 2500);
 
 
 /* =========================
