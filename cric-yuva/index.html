@@ -1175,79 +1175,9 @@ function openPage(pageName){
 
 }
 
+</aside>
 
-function goBack(){
-
-  if(pageHistory.length > 1){
-
-    pageHistory.pop();
-
-    const previousPage =
-      pageHistory[
-        pageHistory.length - 1
-      ];
-
-    document
-      .querySelectorAll(".page")
-      .forEach(function(page){
-
-        page.classList.remove("active");
-
-      });
-
-    const previous =
-      document.getElementById(
-        previousPage
-      );
-
-    if(previous){
-
-      previous.classList.add("active");
-
-      currentPage = previousPage;
-
-      updateNavigation(
-        previousPage
-      );
-
-    }
-
-  }else{
-
-    openPage("home");
-
-  }
-
-}
-
-
-function updateNavigation(pageName){
-
-  document
-    .querySelectorAll(".navBtn")
-    .forEach(function(button){
-
-      button.classList.remove("active");
-
-    });
-
-  const activeButton =
-    document.querySelector(
-      '.navBtn[data-page="' +
-      pageName +
-      '"]'
-    );
-
-  if(activeButton){
-
-    activeButton.classList.add("active");
-
-  }
-
-}
-
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
