@@ -327,16 +327,9 @@
   }
 
   function handleLogin() {
-    const mob = document.getElementById('authMobile').value;
-    const pass = document.getElementById('authPassword').value;
-    if(!mob || !pass) { alert("Enter credentials!"); return; }
-    const savedPassword = localStorage.getItem('cy_user_pass_' + mob);
-    if (savedPassword && pass === savedPassword) {
-      proceedToApp();
-    } else {
-      alert("❌ Invalid account or password! Register first if new.");
-    }
-  }
+  // Bina kisi lock ke direct dashboard khulega!
+  proceedToApp();
+}
 
   function generateDummyMobile() {
     const randomMob = "9" + Math.floor(100000000 + Math.random() * 900000000);
