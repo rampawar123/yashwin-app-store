@@ -1,1050 +1,1427 @@
-:root{
-  --purple:#7c3aed;
-  --purple2:#a855f7;
-  --dark:#0d0716;
-  --dark2:#171022;
-  --card:#21162f;
-  --line:#38244f;
-  --text:#ffffff;
-  --muted:#b7aac4;
-  --green:#22c55e;
-  --red:#ef4444;
-  --gold:#ffbf3f;
-}
-
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-html{
-  background:var(--dark);
-}
-
-body{
-  margin:0;
-  min-height:100vh;
-  background:
-    radial-gradient(circle at top,#211034 0%,#0d0716 55%);
-  color:var(--text);
-  font-family:Arial,sans-serif;
-}
-
-button,
-input,
-select{
-  font-family:inherit;
-}
-
-button{
-  -webkit-tap-highlight-color:transparent;
-}
-
 /* =========================
-   HEADER
+   SPLASH
 ========================= */
 
-.appHeader{
-  height:68px;
-  position:sticky;
-  top:0;
-  z-index:100;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:8px 12px;
-  background:linear-gradient(90deg,#180d27,#211235);
-  border-bottom:1px solid var(--line);
-}
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    const splash = document.getElementById("splashScreen");
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
+    if (splash) {
+      splash.classList.add("hide");
 
-.logoBox{
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  overflow:hidden;
-  flex-shrink:0;
-  background:linear-gradient(135deg,var(--purple2),var(--purple));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 5px 20px #0008;
-}
+      setTimeout(function () {
+        splash.style.display = "none";
+      }, 500);
+    }
+  }, 2500);
 
-.logoBox img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  display:block;
-}
+  updateHomeMatch();
+});
 
-.appName{
-  font-size:19px;
-  font-weight:900;
-  letter-spacing:.5px;
-}
-
-.version{
-  margin-top:2px;
-  color:var(--muted);
-  font-size:10px;
-}
-
-.headerButtons{
-  display:flex;
-  gap:5px;
-}
-
-.headerBtn{
-  width:37px;
-  height:37px;
-  border:1px solid var(--line);
-  border-radius:11px;
-  background:#281a3a;
-  color:#fff;
-  font-size:17px;
-  cursor:pointer;
-}
 
 /* =========================
-   MAIN
+   PAGE SYSTEM
 ========================= */
 
-.main{
-  max-width:900px;
-  margin:auto;
-  padding:12px;
-  padding-bottom:95px;
+let currentPage = "home";
+let pageHistory = ["home"];
+
+function openPage(pageName) {
+  const selectedPage = document.getElementById(pageName);
+
+  if (!selectedPage) return;
+
+  document.querySelectorAll(".page").forEach(function (page) {
+    page.classList.remove("active");
+  });
+
+  selectedPage.classList.add("active");
+
+  if (currentPage !== pageName) {
+    pageHistory.push(pageName);
+  }
+
+  currentPage = pageName;
+  updateNavigation(pageName);
+  closeDrawer();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
-.page{
-  display:none;
-}
+function goBack() {
+  if (pageHistory.length > 1) {
+    pageHistory.pop();
 
-.page.active{
-  display:block;
-}
+    const previousPage = pageHistory[pageHistory.length - 1];
+    const previous = document.getElementById(previousPage);
 
-.backBtn{
-  border:0;
-  border-radius:12px;
-  padding:10px 14px;
-  background:#2a1b3c;
-  color:#fff;
-  cursor:pointer;
-  margin-bottom:12px;
-  font-weight:bold;
-}
+    document.querySelectorAll(".page").forEach(function (page) {
+      page.classList.remove("active");
+    });
 
-/* =========================
-   HERO
-========================= */
-
-.hero{
-  position:relative;
-  overflow:hidden;
-  border-radius:24px;
-  padding:22px 17px;
-  margin-bottom:16px;
-  background:
-    radial-gradient(circle at 80% 15%,#ffffff55 0 2%,transparent 3%),
-    linear-gradient(135deg,#5b21b6,#7c3aed,#a855f7);
-  box-shadow:0 10px 30px #0006;
-}
-
-.hero::after{
-  content:"🏏";
-  position:absolute;
-  right:-8px;
-  bottom:-20px;
-  font-size:100px;
-  opacity:.15;
-  transform:rotate(-20deg);
-}
-
-.hero h1{
-  position:relative;
-  z-index:1;
-  margin:0 0 7px;
-  font-size:25px;
-}
-
-.hero p{
-  position:relative;
-  z-index:1;
-  margin:0;
-  max-width:520px;
-  font-size:13px;
-  line-height:1.5;
-  color:#f1e9ff;
-}
-
-/* =========================
-   SECTION
-========================= */
-
-.sectionTitle{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:20px 2px 10px;
-}
-
-.sectionTitle h2{
-  margin:0;
-  font-size:18px;
-}
-
-.moreBtn{
-  border:0;
-  background:transparent;
-  color:#c7a5ff;
-  font-size:12px;
-  cursor:pointer;
-}
-
-/* =========================
-   SUNNY LIVE MATCH
-========================= */
-
-.sunnyMatchCard{
-  position:relative;
-  min-height:265px;
-  overflow:hidden;
-  border-radius:24px;
-  border:1px solid #ffffff30;
-  background:
-    linear-gradient(to bottom,
-      #55c8ff 0%,
-      #8be1ff 34%,
-      #dff8ff 35%,
-      #6fbf3c 36%,
-      #3f982e 100%);
-  box-shadow:0 12px 35px #0007;
-}
-
-.sunnyMatchCard::before{
-  content:"☀";
-  position:absolute;
-  top:7px;
-  right:13px;
-  font-size:42px;
-  filter:drop-shadow(0 0 10px #fff8);
-}
-
-.cloud{
-  position:absolute;
-  top:22px;
-  left:35px;
-  width:70px;
-  height:20px;
-  border-radius:30px;
-  background:#fff8;
-  filter:blur(1px);
-}
-
-.cloud::before,
-.cloud::after{
-  content:"";
-  position:absolute;
-  background:#fff8;
-  border-radius:50%;
-}
-
-.cloud::before{
-  width:25px;
-  height:25px;
-  left:12px;
-  top:-10px;
-}
-
-.cloud::after{
-  width:30px;
-  height:30px;
-  left:31px;
-  top:-14px;
-}
-
-.liveRibbon{
-  position:absolute;
-  top:12px;
-  left:12px;
-  z-index:10;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:7px 10px;
-  border-radius:9px;
-  background:#d71920;
-  color:#fff;
-  font-size:10px;
-  font-weight:900;
-  box-shadow:0 4px 10px #0005;
-}
-
-.liveDot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#fff;
-  animation:livePulse 1s infinite;
-}
-
-@keyframes livePulse{
-  50%{
-    opacity:.3;
-    transform:scale(.7);
+    if (previous) {
+      previous.classList.add("active");
+      currentPage = previousPage;
+      updateNavigation(previousPage);
+    }
+  } else {
+    openPage("home");
   }
 }
 
-.stadium{
-  position:absolute;
-  left:0;
-  right:0;
-  top:72px;
-  height:54px;
-  opacity:.8;
+function updateNavigation(pageName) {
+  document.querySelectorAll(".navBtn").forEach(function (button) {
+    button.classList.remove("active");
+  });
+
+  const activeButton = document.querySelector(
+    '.navBtn[data-page="' + pageName + '"]'
+  );
+
+  if (activeButton) {
+    activeButton.classList.add("active");
+  }
 }
 
-.stand{
-  position:absolute;
-  bottom:0;
-  width:100%;
-  height:34px;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      #25354a 0 5px,
-      #e5e5e5 6px 8px,
-      #1d2938 9px 14px
-    );
-  clip-path:polygon(0 40%,10% 20%,20% 35%,30% 10%,40% 30%,50% 5%,60% 30%,70% 15%,80% 32%,90% 10%,100% 35%,100% 100%,0 100%);
-}
-
-.pitch{
-  position:absolute;
-  width:44%;
-  height:112px;
-  left:28%;
-  bottom:18px;
-  border-radius:50%;
-  background:
-    linear-gradient(90deg,
-      transparent 0 20%,
-      #c6a25d 21% 79%,
-      transparent 80%),
-    radial-gradient(ellipse,#6fbd3b 0%,#41962c 65%);
-  box-shadow:inset 0 0 30px #0003;
-}
-
-.pitchStrip{
-  position:absolute;
-  width:42px;
-  height:94px;
-  left:calc(50% - 21px);
-  bottom:28px;
-  border-radius:5px;
-  background:linear-gradient(90deg,#c69a52,#e5c579,#b88b47);
-}
-
-.player{
-  position:absolute;
-  z-index:4;
-  width:17px;
-  height:17px;
-  border-radius:50%;
-  background:#ffffff;
-  box-shadow:0 12px 0 -4px #263a57;
-}
-
-.player.a{bottom:95px;left:48%}
-.player.b{bottom:70px;left:56%}
-.player.c{bottom:60px;left:30%}
-.player.d{bottom:45px;right:22%}
-.player.e{bottom:78px;right:34%}
-.player.f{bottom:32px;left:19%}
-.player.g{bottom:100px;right:15%}
-
-.scoreOverlay{
-  position:absolute;
-  left:10px;
-  right:10px;
-  bottom:9px;
-  z-index:8;
-  padding:10px;
-  border-radius:16px;
-  background:linear-gradient(135deg,#10091ae8,#211033e8);
-  border:1px solid #ffffff24;
-  backdrop-filter:blur(7px);
-}
-
-.matchTeamsRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:7px;
-}
-
-.previewTeam{
-  flex:1;
-  min-width:0;
-  text-align:center;
-}
-
-.previewTeamName{
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-  font-size:11px;
-  font-weight:900;
-}
-
-.previewScore{
-  margin-top:4px;
-  font-size:18px;
-  font-weight:900;
-}
-
-.previewVS{
-  flex:0 0 auto;
-  padding:6px 8px;
-  border-radius:10px;
-  background:#ffffff16;
-  color:var(--gold);
-  font-size:11px;
-  font-weight:bold;
-}
-
-.previewStatus{
-  margin-top:7px;
-  padding-top:7px;
-  border-top:1px solid #ffffff1f;
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  font-size:10px;
-  color:#ddd2ea;
-}
-
-.previewOpenBtn{
-  width:100%;
-  margin-top:9px;
-  border:0;
-  border-radius:10px;
-  padding:9px;
-  background:linear-gradient(135deg,#ffb000,#ff6a00);
-  color:#fff;
-  font-weight:900;
-  cursor:pointer;
-}
-
-/* =========================
-   QUICK CARDS
-========================= */
-
-.quickGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:9px;
-}
-
-.quickCard{
-  min-height:110px;
-  border:1px solid var(--line);
-  border-radius:19px;
-  padding:12px 6px;
-  background:linear-gradient(145deg,#281b38,#1b1228);
-  color:#fff;
-  font-size:12px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.quickIcon{
-  display:block;
-  margin-bottom:9px;
-  font-size:28px;
-}
-
-/* =========================
-   PAGE CARDS
-========================= */
-
-.pageCard,
-.modernMatchCard{
-  margin-bottom:11px;
-  padding:15px;
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:linear-gradient(145deg,#251830,#1b1228);
-}
-
-.pageCard b{
-  font-size:15px;
-}
-
-.pageGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:9px;
-}
-
-.pageOption{
-  min-height:95px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#21162f;
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.pageOption span{
-  display:block;
-  margin-bottom:7px;
-  font-size:25px;
-}
-
-.smallText{
-  margin-top:6px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.5;
-}
-
-.emptyBox{
-  padding:22px 12px;
-  border:1px dashed #51376b;
-  border-radius:17px;
-  color:var(--muted);
-  text-align:center;
-}
-
-/* =========================
-   CREATE MATCH
-========================= */
-
-.createMatchTitle{
-  margin:5px 0 20px;
-  text-align:center;
-  font-size:27px;
-}
-
-.teamWrap{
-  display:flex;
-  align-items:stretch;
-  justify-content:center;
-  gap:10px;
-  margin:0 0 18px;
-}
-
-.teamBox{
-  flex:1;
-  min-width:0;
-  padding:16px 10px;
-  border:1px solid #5c4077;
-  border-radius:22px;
-  text-align:center;
-  background:linear-gradient(145deg,#2a193d,#171020);
-}
-
-.teamLabel{
-  margin-bottom:10px;
-  color:#d6b7ff;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:1px;
-}
-
-.teamLogo{
-  width:72px;
-  height:72px;
-  margin:0 auto 12px;
-  border:2px solid #9b72ba;
-  border-radius:50%;
-  background:#323545;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  object-fit:cover;
-  font-size:30px;
-}
-
-.teamName{
-  min-height:40px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-bottom:12px;
-  color:#fff;
-  font-size:14px;
-  font-weight:900;
-  word-break:break-word;
-}
-
-.teamBox select{
-  width:100%;
-  padding:10px 7px;
-  border:1px solid #65477c;
-  border-radius:11px;
-  outline:none;
-  background:#17111e;
-  color:#fff;
-  font-size:12px;
-}
-
-.vsBox{
-  align-self:center;
-  flex:0 0 48px;
-  width:48px;
-  height:48px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  background:linear-gradient(145deg,#ff8500,#ffbd00);
-  color:#fff;
-  font-size:15px;
-  font-weight:900;
-  box-shadow:0 5px 20px rgba(255,153,0,.25);
-}
-
-.modernMatchCard h3{
-  margin:0 0 16px;
-  font-size:20px;
-}
-
-.modernMatchCard label{
-  display:block;
-  margin:16px 0 7px;
-  color:#d8bfdc;
-  font-size:13px;
-  font-weight:bold;
-}
-
-.modernMatchCard input,
-.modernMatchCard select{
-  width:100%;
-  min-height:48px;
-  padding:12px;
-  border:1px solid #65477c;
-  border-radius:12px;
-  outline:none;
-  background:#17111e;
-  color:#fff;
-  font-size:15px;
-}
-
-.modernMatchCard input:focus,
-.modernMatchCard select:focus{
-  border-color:#ba85ff;
-}
-
-.matchNote{
-  margin-top:14px;
-  padding:13px;
-  border-radius:12px;
-  background:#2a1c36;
-  color:#d6c5e2;
-  font-size:13px;
-  line-height:1.5;
-}
-
-.createMatchBtn{
-  width:100%;
-  margin-top:18px;
-  padding:15px;
-  border:0;
-  border-radius:14px;
-  background:linear-gradient(135deg,#ff8500,#ffb300);
-  color:#fff;
-  font-size:15px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-/* =========================
-   LIVE SCORE
-========================= */
-
-.liveScoreHeader{
-  text-align:center;
-  padding:18px 12px;
-  border-radius:20px;
-  background:linear-gradient(145deg,#2c1940,#160d21);
-  border:1px solid var(--line);
-}
-
-.liveScoreTeams{
-  font-size:14px;
-  font-weight:900;
-  line-height:1.5;
-}
-
-.bigScore{
-  margin:12px 0 4px;
-  color:#fff;
-  font-size:42px;
-  font-weight:900;
-}
-
-.overText{
-  color:#cdb9da;
-  font-size:14px;
-}
-
-.liveInfoGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-  margin-top:12px;
-}
-
-.infoMini{
-  padding:10px;
-  border-radius:12px;
-  background:#24182e;
-  color:#d9c8e4;
-  font-size:11px;
-}
-
-.infoMini b{
-  display:block;
-  margin-top:3px;
-  color:#fff;
-  font-size:13px;
-}
-
-.directionGrid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-}
-
-.directionBtn{
-  min-height:68px;
-  padding:7px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#21162f;
-  color:#fff;
-  font-size:11px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.directionBtn.active{
-  border-color:#ffb300;
-  background:#4a3015;
-  color:#ffd05a;
-}
-
-.scoreButtons{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:9px;
-}
-
-.runBtn{
-  min-height:68px;
-  border:1px solid #59406e;
-  border-radius:16px;
-  background:#24172f;
-  color:#fff;
-  font-size:22px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.runBtn.boundary{
-  background:linear-gradient(145deg,#a52d00,#5b1500);
-}
-
-.runBtn.six{
-  background:linear-gradient(145deg,#7431ad,#341150);
-}
-
-.extraButtons{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-top:9px;
-}
-
-.extraBtn{
-  min-height:55px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#21162f;
-  color:#fff;
-  font-size:12px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.extraBtn.wicket{
-  background:#5c1820;
-  border-color:#8d2935;
-}
-
-/* =========================
-   BOTTOM NAV
-========================= */
-
-.bottomNav{
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  z-index:200;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  padding:6px 3px;
-  background:#181022;
-  border-top:1px solid var(--line);
-}
-
-.navBtn{
-  border:0;
-  background:transparent;
-  color:#a89bb6;
-  padding:4px 1px;
-  font-size:10px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.navBtn span{
-  display:block;
-  margin-bottom:3px;
-  font-size:19px;
-}
-
-.navBtn.active{
-  color:#c89cff;
-}
 
 /* =========================
    DRAWER
 ========================= */
 
-.drawerShade{
-  position:fixed;
-  inset:0;
-  z-index:300;
-  display:none;
-  background:#000b;
+function openDrawer() {
+  const drawer = document.getElementById("drawer");
+  const shade = document.getElementById("drawerShade");
+
+  if (drawer) drawer.classList.add("open");
+  if (shade) shade.classList.add("open");
 }
 
-.drawerShade.open{
-  display:block;
+function closeDrawer() {
+  const drawer = document.getElementById("drawer");
+  const shade = document.getElementById("drawerShade");
+
+  if (drawer) drawer.classList.remove("open");
+  if (shade) shade.classList.remove("open");
 }
 
-.drawer{
-  position:fixed;
-  top:0;
-  right:0;
-  bottom:0;
-  z-index:301;
-  width:min(390px,90vw);
-  overflow-y:auto;
-  transform:translateX(105%);
-  transition:.25s;
-  background:#181022;
-  border-left:1px solid var(--line);
+function drawerPage(pageName) {
+  closeDrawer();
+  openPage(pageName);
 }
 
-.drawer.open{
-  transform:translateX(0);
-}
-
-.drawerHead{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:17px;
-  border-bottom:1px solid var(--line);
-}
-
-.drawerClose{
-  width:38px;
-  height:38px;
-  border:0;
-  border-radius:10px;
-  background:#2b1c3d;
-  color:#fff;
-  font-size:18px;
-}
-
-.menuLabel{
-  padding:18px 17px 6px;
-  color:#a99abb;
-  font-size:10px;
-  font-weight:bold;
-}
-
-.menuBtn{
-  width:100%;
-  padding:15px 17px;
-  border:0;
-  border-bottom:1px solid #2b1d3c;
-  background:transparent;
-  color:#fff;
-  text-align:left;
-  font-size:14px;
-  cursor:pointer;
-}
 
 /* =========================
-   SPLASH
+   TEAMS
 ========================= */
 
-#splashScreen{
-  position:fixed;
-  inset:0;
-  z-index:9999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:
-    radial-gradient(circle at top,#5b21b6 0%,#170d25 48%,#0d0716 100%);
-  transition:opacity .45s ease,visibility .45s ease;
+function getTeams() {
+  let teams = [];
+
+  try {
+    teams = JSON.parse(
+      localStorage.getItem("CY_TEAMS") || "[]"
+    );
+  } catch (error) {
+    teams = [];
+  }
+
+  if (!Array.isArray(teams) || teams.length < 2) {
+    teams = [
+      {
+        id: "team-a",
+        name: "CRIC YUVA WARRIORS"
+      },
+      {
+        id: "team-b",
+        name: "CRIC YUVA KINGS"
+      }
+    ];
+  }
+
+  return teams;
 }
 
-#splashScreen.hide{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-}
-
-.splashContent{
-  padding:24px;
-  text-align:center;
-}
-
-.splashLogo{
-  width:96px;
-  height:96px;
-  margin:0 auto 20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:28px;
-  background:linear-gradient(135deg,var(--purple2),var(--purple));
-  font-size:48px;
-  box-shadow:0 12px 35px #0008;
-  animation:splashPulse 1.4s infinite ease-in-out;
-}
-
-.splashTitle{
-  margin:0 0 9px;
-  font-size:34px;
-  font-weight:900;
-}
-
-.splashSub{
-  color:#dfcff9;
-  font-size:12px;
-  letter-spacing:1.5px;
-  font-weight:bold;
-}
-
-.splashLine{
-  width:150px;
-  height:4px;
-  margin:25px auto 0;
-  overflow:hidden;
-  border-radius:10px;
-  background:#ffffff24;
-}
-
-.splashLine::after{
-  content:"";
-  display:block;
-  width:45%;
-  height:100%;
-  border-radius:10px;
-  background:#fff;
-  animation:splashLoad 2.5s linear forwards;
-}
-
-@keyframes splashPulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.07)}
-}
-
-@keyframes splashLoad{
-  from{transform:translateX(-110%)}
-  to{transform:translateX(230%)}
-}
 
 /* =========================
-   MOBILE
+   CREATE MATCH
 ========================= */
 
-@media(max-width:480px){
+function createSingleMatch() {
+  const box = document.getElementById("singleMatch");
 
-  .main{
-    padding:10px;
-    padding-bottom:92px;
+  if (!box) return;
+
+  box.innerHTML = `
+    <button class="backBtn" onclick="openSingleMatchMenu()">
+      ← Back
+    </button>
+
+    <h2 class="createMatchTitle">🏏 Create Match</h2>
+
+    <div class="teamWrap">
+
+      <div class="teamBox">
+        <div class="teamLabel">TEAM A</div>
+
+        <div class="teamLogo">🏏</div>
+
+        <div class="teamName" id="teamAName">
+          Select Team A
+        </div>
+
+        <select id="teamASelect" onchange="updateTeamNames()">
+          <option value="">Select Team A</option>
+        </select>
+      </div>
+
+      <div class="vsBox">VS</div>
+
+      <div class="teamBox">
+        <div class="teamLabel">TEAM B</div>
+
+        <div class="teamLogo">🏏</div>
+
+        <div class="teamName" id="teamBName">
+          Select Team B
+        </div>
+
+        <select id="teamBSelect" onchange="updateTeamNames()">
+          <option value="">Select Team B</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="modernMatchCard">
+
+      <h3>📋 Match Details</h3>
+
+      <label>🏏 Match Overs</label>
+
+      <select id="matchOvers">
+        <option value="">Select Overs</option>
+        <option value="1">1 Over</option>
+        <option value="2">2 Overs</option>
+        <option value="3">3 Overs</option>
+        <option value="4">4 Overs</option>
+        <option value="5">5 Overs</option>
+        <option value="6">6 Overs</option>
+        <option value="8">8 Overs</option>
+        <option value="10">10 Overs</option>
+        <option value="12">12 Overs</option>
+        <option value="15">15 Overs</option>
+        <option value="20">20 Overs</option>
+        <option value="50">50 Overs</option>
+      </select>
+
+      <label>📅 Match Date</label>
+
+      <input type="date" id="matchDate">
+
+      <label>📍 Ground Name</label>
+
+      <input
+        type="text"
+        id="groundName"
+        placeholder="Enter Ground Name"
+      >
+
+      <div class="matchNote">
+        ℹ️ Toss aur Playing XI Start Match ke baad select karenge.
+      </div>
+
+      <button
+        class="createMatchBtn"
+        onclick="saveSingleMatch()"
+      >
+        🏆 CREATE MATCH
+      </button>
+
+    </div>
+  `;
+
+  loadMatchTeams();
+}
+
+
+/* =========================
+   LOAD TEAMS
+========================= */
+
+function loadMatchTeams() {
+  const teamASelect = document.getElementById("teamASelect");
+  const teamBSelect = document.getElementById("teamBSelect");
+
+  if (!teamASelect || !teamBSelect) return;
+
+  const teams = getTeams();
+
+  teams.forEach(function (team, index) {
+    const id = team.id || String(index);
+    const name =
+      team.name ||
+      team.teamName ||
+      "Team " + (index + 1);
+
+    const optionA = document.createElement("option");
+    optionA.value = id;
+    optionA.textContent = name;
+
+    const optionB = document.createElement("option");
+    optionB.value = id;
+    optionB.textContent = name;
+
+    teamASelect.appendChild(optionA);
+    teamBSelect.appendChild(optionB);
+  });
+}
+
+function updateTeamNames() {
+  const teams = getTeams();
+
+  const teamASelect = document.getElementById("teamASelect");
+  const teamBSelect = document.getElementById("teamBSelect");
+  const teamAName = document.getElementById("teamAName");
+  const teamBName = document.getElementById("teamBName");
+
+  if (
+    !teamASelect ||
+    !teamBSelect ||
+    !teamAName ||
+    !teamBName
+  ) return;
+
+  const teamA = teams.find(function (team) {
+    return String(team.id) === String(teamASelect.value);
+  });
+
+  const teamB = teams.find(function (team) {
+    return String(team.id) === String(teamBSelect.value);
+  });
+
+  teamAName.textContent =
+    teamA
+      ? (teamA.name || teamA.teamName)
+      : "Select Team A";
+
+  teamBName.textContent =
+    teamB
+      ? (teamB.name || teamB.teamName)
+      : "Select Team B";
+}
+
+
+/* =========================
+   SAVE MATCH
+========================= */
+
+function saveSingleMatch() {
+  const teamAId =
+    document.getElementById("teamASelect").value;
+
+  const teamBId =
+    document.getElementById("teamBSelect").value;
+
+  const overs =
+    document.getElementById("matchOvers").value;
+
+  const date =
+    document.getElementById("matchDate").value;
+
+  const ground =
+    document.getElementById("groundName").value.trim();
+
+  if (!teamAId || !teamBId) {
+    alert("Please select Team A and Team B");
+    return;
   }
 
-  .appName{
-    font-size:17px;
+  if (teamAId === teamBId) {
+    alert("Team A and Team B cannot be the same");
+    return;
   }
 
-  .headerBtn{
-    width:34px;
-    height:34px;
-    font-size:15px;
+  if (!overs) {
+    alert("Please select match overs");
+    return;
   }
 
-  .hero h1{
-    font-size:22px;
+  if (!date) {
+    alert("Please select match date");
+    return;
   }
 
-  .teamWrap{
-    gap:7px;
+  if (!ground) {
+    alert("Please enter ground name");
+    return;
   }
 
-  .teamBox{
-    padding:13px 7px;
+  const teams = getTeams();
+
+  const teamA = teams.find(function (team) {
+    return String(team.id) === String(teamAId);
+  });
+
+  const teamB = teams.find(function (team) {
+    return String(team.id) === String(teamBId);
+  });
+
+  const match = {
+    id: Date.now(),
+    teamA: teamA ? (teamA.name || teamA.teamName) : "Team A",
+    teamB: teamB ? (teamB.name || teamB.teamName) : "Team B",
+    overs: Number(overs),
+    date: date,
+    ground: ground,
+    status: "upcoming",
+    createdAt: new Date().toISOString()
+  };
+
+  const matches = getMatches();
+  matches.push(match);
+
+  localStorage.setItem(
+    "CY_SINGLE_MATCHES",
+    JSON.stringify(matches)
+  );
+
+  alert("🏆 Match Created Successfully!");
+
+  updateHomeMatch();
+  startSingleMatch();
+}
+
+
+/* =========================
+   START MATCH SCREEN
+========================= */
+
+function startSingleMatch() {
+  const matches = getMatches();
+
+  if (!matches.length) {
+    alert("Pehle Create Match se match banao.");
+    return;
   }
 
-  .teamLogo{
-    width:58px;
-    height:58px;
-    font-size:24px;
+  const match =
+    matches.find(function (item) {
+      return item.status === "upcoming";
+    }) || matches[0];
+
+  const box = document.getElementById("singleMatch");
+
+  if (!box) return;
+
+  box.innerHTML = `
+    <button class="backBtn" onclick="openSingleMatchMenu()">
+      ← Back
+    </button>
+
+    <h2 class="createMatchTitle">☀️ Match Ready</h2>
+
+    <div class="modernMatchCard">
+
+      <h3>
+        🏆 ${escapeHTML(match.teamA)}
+        🆚
+        ${escapeHTML(match.teamB)}
+      </h3>
+
+      <div class="matchNote">
+        🏏 ${match.overs} Overs
+        <br><br>
+        📅 ${escapeHTML(match.date)}
+        <br><br>
+        📍 ${escapeHTML(match.ground)}
+      </div>
+
+      <button
+        class="createMatchBtn"
+        onclick="beginMatch('${match.id}')"
+      >
+        ▶ START MATCH
+      </button>
+
+    </div>
+  `;
+}
+
+
+/* =========================
+   BEGIN MATCH
+========================= */
+
+function beginMatch(matchId) {
+  const matches = getMatches();
+
+  const match = matches.find(function (item) {
+    return String(item.id) === String(matchId);
+  });
+
+  if (!match) {
+    alert("Match nahi mila.");
+    return;
   }
 
-  .vsBox{
-    flex:0 0 42px;
-    width:42px;
-    height:42px;
-    font-size:12px;
+  match.status = "live";
+
+  localStorage.setItem(
+    "CY_SINGLE_MATCHES",
+    JSON.stringify(matches)
+  );
+
+  const scoreKey = "CY_LIVE_SCORE_" + match.id;
+  const existingScore = localStorage.getItem(scoreKey);
+
+  if (!existingScore) {
+    const score = {
+      matchId: match.id,
+      teamA: match.teamA,
+      teamB: match.teamB,
+      maxOvers: Number(match.overs) || 20,
+      runs: 0,
+      wickets: 0,
+      totalBalls: 0,
+      striker: "Batsman 1",
+      nonStriker: "Batsman 2",
+      selectedDirection: "Straight",
+      commentary: [
+        "🏏 Match started! First ball coming up."
+      ]
+    };
+
+    saveLiveScore(scoreKey, score);
   }
 
-  .teamName{
-    min-height:38px;
-    font-size:12px;
+  updateHomeMatch();
+  showScorecards();
+}
+
+
+/* =========================
+   GET MATCHES
+========================= */
+
+function getMatches() {
+  try {
+    const matches = JSON.parse(
+      localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+    );
+
+    return Array.isArray(matches) ? matches : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+
+/* =========================
+   GET LIVE MATCH
+========================= */
+
+function getLiveMatchAndScore() {
+  const matches = getMatches();
+
+  const match = matches.find(function (item) {
+    return item.status === "live";
+  });
+
+  if (!match) return null;
+
+  const key = "CY_LIVE_SCORE_" + match.id;
+  let score = null;
+
+  try {
+    score = JSON.parse(
+      localStorage.getItem(key) || "null"
+    );
+  } catch (error) {
+    score = null;
   }
 
-  .teamBox select{
-    font-size:11px;
+  return {
+    match: match,
+    key: key,
+    score: score
+  };
+}
+
+function saveLiveScore(key, score) {
+  localStorage.setItem(
+    key,
+    JSON.stringify(score)
+  );
+}
+
+
+/* =========================
+   SCORE HELPERS
+========================= */
+
+function getCurrentOver(score) {
+  if (!score) return "0.0";
+
+  const overs =
+    Math.floor(Number(score.totalBalls || 0) / 6);
+
+  const balls =
+    Number(score.totalBalls || 0) % 6;
+
+  return overs + "." + balls;
+}
+
+function getRunRate(score) {
+  if (!score || !score.totalBalls) return "0.00";
+
+  const overs =
+    Number(score.totalBalls) / 6;
+
+  return (
+    Number(score.runs || 0) / overs
+  ).toFixed(2);
+}
+
+function getBallsRemaining(score) {
+  if (!score) return 0;
+
+  const maxBalls =
+    Number(score.maxOvers || 0) * 6;
+
+  const playedBalls =
+    Number(score.totalBalls || 0);
+
+  return Math.max(0, maxBalls - playedBalls);
+}
+
+function getRequiredRuns(match, score) {
+  if (!match || !score || !score.target) {
+    return null;
   }
 
-  .directionGrid{
-    grid-template-columns:repeat(2,1fr);
+  return Math.max(
+    0,
+    Number(score.target) - Number(score.runs || 0)
+  );
+}
+
+
+/* =========================
+   LIVE SCORE
+========================= */
+
+function showScorecards() {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.match || !live.score) {
+    alert(
+      "Koi live match ya score nahi mila. Start Match se match start karo."
+    );
+    return;
   }
 
-  .bigScore{
-    font-size:36px;
+  renderScoreScreen();
+}
+
+function renderScoreScreen() {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.match || !live.score) return;
+
+  const match = live.match;
+  const score = live.score;
+
+  const overText = getCurrentOver(score);
+  const runRate = getRunRate(score);
+  const ballsRemaining = getBallsRemaining(score);
+  const requiredRuns = getRequiredRuns(match, score);
+
+  const requiredText =
+    requiredRuns === null
+      ? "First Innings"
+      : requiredRuns > 0
+        ? requiredRuns + " runs needed"
+        : "Target achieved";
+
+  const commentaryHTML =
+    Array.isArray(score.commentary) &&
+    score.commentary.length
+      ? score.commentary
+          .slice()
+          .reverse()
+          .slice(0, 10)
+          .map(function (item) {
+            return `
+              <div class="matchNote">
+                🎙️ ${escapeHTML(item)}
+              </div>
+            `;
+          })
+          .join("")
+      : `
+          <div class="matchNote">
+            🎙️ Commentary will appear here.
+          </div>
+        `;
+
+  const box = document.getElementById("singleMatch");
+
+  if (!box) return;
+
+  box.innerHTML = `
+    <button
+      class="backBtn"
+      onclick="openSingleMatchMenu()"
+    >
+      ← Back
+    </button>
+
+    <h2 class="createMatchTitle">
+      🔴 Live Match
+    </h2>
+
+    <div class="liveScoreHeader">
+
+      <div class="liveScoreTeams">
+        ${escapeHTML(score.teamA)}
+        🆚
+        ${escapeHTML(score.teamB)}
+      </div>
+
+      <div class="bigScore">
+        ${score.runs}/${score.wickets}
+      </div>
+
+      <div class="overText">
+        Overs: ${overText} / ${score.maxOvers}
+      </div>
+
+      <div class="matchNote">
+        📈 Run Rate: ${runRate}
+        <br>
+        ⏳ ${ballsRemaining} balls remaining
+        <br>
+        🎯 ${requiredText}
+      </div>
+
+      <div class="liveInfoGrid">
+
+        <div class="infoMini">
+          STRIKER
+          <b>${escapeHTML(score.striker)}</b>
+        </div>
+
+        <div class="infoMini">
+          NON-STRIKER
+          <b>${escapeHTML(score.nonStriker)}</b>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modernMatchCard">
+
+      <h3>🎯 Shot Direction</h3>
+
+      <div class="directionGrid">
+        ${directionButton("Cover", score)}
+        ${directionButton("Point", score)}
+        ${directionButton("Straight", score)}
+        ${directionButton("Long On", score)}
+        ${directionButton("Long Off", score)}
+        ${directionButton("Mid Wicket", score)}
+        ${directionButton("Square Leg", score)}
+        ${directionButton("Fine Leg", score)}
+      </div>
+
+      <div class="matchNote">
+        🎯 Selected:
+        <b>${escapeHTML(score.selectedDirection)}</b>
+      </div>
+
+    </div>
+
+    <div class="modernMatchCard">
+
+      <h3>🏏 Ball Result</h3>
+
+      <div class="scoreButtons">
+
+        <button class="runBtn" onclick="addBall(0)">0</button>
+        <button class="runBtn" onclick="addBall(1)">1</button>
+        <button class="runBtn" onclick="addBall(2)">2</button>
+        <button class="runBtn" onclick="addBall(3)">3</button>
+        <button class="runBtn boundary" onclick="addBall(4)">4</button>
+        <button class="runBtn six" onclick="addBall(6)">6</button>
+
+      </div>
+
+      <div class="extraButtons">
+
+        <button
+          class="extraBtn wideBtn"
+          onclick="addWide()"
+        >
+          ⚠️ WD
+        </button>
+
+        <button
+          class="extraBtn noBallBtn"
+          onclick="addNoBall()"
+        >
+          ⚠️ NB
+        </button>
+
+        <button
+          class="extraBtn byeBtn"
+          onclick="addBye(1)"
+        >
+          BYE
+        </button>
+
+        <button
+          class="extraBtn legByeBtn"
+          onclick="addLegBye(1)"
+        >
+          LB
+        </button>
+
+        <button
+          class="extraBtn wicket"
+          onclick="addWicket()"
+        >
+          🏏 OUT
+        </button>
+
+        <button
+          class="extraBtn undoBtn"
+          onclick="undoLastBall()"
+        >
+          ↩️ UNDO
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="modernMatchCard">
+      <h3>🎙️ Live Commentary</h3>
+      ${commentaryHTML}
+    </div>
+  `;
+}
+
+
+/* =========================
+   DIRECTION
+========================= */
+
+function directionButton(direction, score) {
+  const active =
+    score.selectedDirection === direction
+      ? "active"
+      : "";
+
+  return `
+    <button
+      class="directionBtn ${active}"
+      onclick="selectShotDirection('${direction}')"
+    >
+      🏏 ${direction}
+    </button>
+  `;
+}
+
+function selectShotDirection(direction) {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  live.score.selectedDirection = direction;
+
+  saveLiveScore(live.key, live.score);
+  renderScoreScreen();
+}
+
+
+/* =========================
+   ADD BALL
+========================= */
+
+function addBall(runs) {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  const score = live.score;
+
+  if (score.totalBalls >= score.maxOvers * 6) {
+    alert("Match overs completed.");
+    return;
   }
-   }
+
+  const direction =
+    score.selectedDirection || "Straight";
+
+  score.runs += Number(runs);
+  score.totalBalls += 1;
+
+  let text = "";
+
+  if (runs === 0) {
+    text = `${direction} ki taraf shot, dot ball.`;
+  } else if (runs === 1) {
+    text = `${direction} ki taraf shot aur 1 run.`;
+    swapBatsmen(score);
+  } else if (runs === 2) {
+    text = `${direction} ki taraf 2 runs.`;
+  } else if (runs === 3) {
+    text = `${direction} ki taraf shandaar 3 runs.`;
+    swapBatsmen(score);
+  } else if (runs === 4) {
+    text = `🔥 ${direction} ki taraf FOUR!`;
+  } else if (runs === 6) {
+    text = `🚀 ${direction} ki taraf SIX!`;
+  }
+
+  score.commentary.push(
+    ballNumberText(score) + " — " + text
+  );
+
+  finishOverIfNeeded(score);
+  checkMatchComplete(score);
+
+  saveLiveScore(live.key, score);
+  updateHomeMatch();
+  renderScoreScreen();
+}
+
+
+/* =========================
+   WIDE
+========================= */
+
+function addWide() {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  live.score.runs += 1;
+
+  live.score.commentary.push(
+    "🚨 Wide ball! 1 extra run."
+  );
+
+  saveLiveScore(live.key, live.score);
+  updateHomeMatch();
+  renderScoreScreen();
+}
+
+
+/* =========================
+   NO BALL
+========================= */
+
+function addNoBall() {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  live.score.runs += 1;
+
+  live.score.commentary.push(
+    "⚠️ NO BALL! 1 extra run. Free Hit!"
+  );
+
+  saveLiveScore(live.key, live.score);
+  updateHomeMatch();
+  renderScoreScreen();
+}
+
+
+/* =========================
+   WICKET
+========================= */
+
+function addWicket() {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  const score = live.score;
+
+  if (score.wickets >= 10) {
+    alert("All wickets are down.");
+    return;
+  }
+
+  score.wickets += 1;
+  score.totalBalls += 1;
+
+  score.commentary.push(
+    `🏏 WICKET! ${score.striker} OUT!`
+  );
+
+  score.striker =
+    "Batsman " + (score.wickets + 2);
+
+  finishOverIfNeeded(score);
+  checkMatchComplete(score);
+
+  saveLiveScore(live.key, score);
+  updateHomeMatch();
+  renderScoreScreen();
+}
+
+
+/* =========================
+   BYE
+========================= */
+
+function addBye(runs) {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  const score = live.score;
+
+  score.runs += Number(runs);
+  score.totalBalls += 1;
+
+  score.commentary.push(
+    "🔵 BYE +" + runs + " run"
+  );
+
+  finishOverIfNeeded(score);
+  checkMatchComplete(score);
+
+  saveLiveScore(live.key, score);
+  updateHomeMatch();
+  renderScoreScreen();
+}
+
+
+/* =========================
+   LEG BYE
+========================= */
+
+function addLegBye(runs) {
+  const live = getLiveMatchAndScore();
+
+  if (!live || !live.score) return;
+
+  const score = live.score;
+
+  score.runs += Number(runs);
+  score.totalBalls += 1;
+
+  score.commentary.push(
+    "🟢 LEG BYE +" + runs + " run"
+  );
+
+  finishOverIfNeeded(score);
+  checkMatchComplete(score);
+
+  saveLiveScore(live.key, score);
+  updateHomeMatch();
+  renderScoreScreen();
+}
+
+
+/* =========================
+   OVER COMPLETE
+========================= */
+
+function finishOverIfNeeded(score) {
+  if (
+    score.totalBalls > 0 &&
+    score.totalBalls % 6 === 0
+  ) {
+    score.commentary.push(
+      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}`
+    );
+
+    swapBatsmen(score);
+  }
+}
+
+
+/* =========================
+   MATCH COMPLETE
+========================= */
+
+function checkMatchComplete(score) {
+  if (
+    score.totalBalls >= score.maxOvers * 6 ||
+    score.wickets >= 10
+  ) {
+    if (!score.completed) {
+      score.completed = true;
+
+      score.commentary.push(
+        "🏁 Innings Complete!"
+      );
+    }
+  }
+}
+
+
+/* =========================
+   UNDO
+========================= */
+
+function undoLastBall() {
+  alert(
+    "UNDO feature abhi next step me proper history system ke saath add karenge."
+  );
+}
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function swapBatsmen(score) {
+  const temp = score.striker;
+  score.striker = score.nonStriker;
+  score.nonStriker = temp;
+}
+
+function ballNumberText(score) {
+  const over =
+    Math.floor(
+      (score.totalBalls - 1) / 6
+    ) + 1;
+
+  const ball =
+    ((score.totalBalls - 1) % 6) + 1;
+
+  return over + "." + ball;
+}
+
+
+/* =========================
+   HOME LIVE MATCH UPDATE
+========================= */
+
+function updateHomeMatch() {
+  const matches = getMatches();
+
+  const liveMatch = matches.find(function (item) {
+    return item.status === "live";
+  });
+
+  const upcomingMatch = matches.find(function (item) {
+    return item.status === "upcoming";
+  });
+
+  const match = liveMatch || upcomingMatch;
+
+  const teamA = document.getElementById("homeTeamA");
+  const teamB = document.getElementById("homeTeamB");
+  const homeScore = document.getElementById("homeScore");
+  const homeOvers = document.getElementById("homeOvers");
+  const homeStatus = document.getElementById("homeStatus");
+  const homeGround = document.getElementById("homeGround");
+
+  const liveBox =
+    document.getElementById("liveMatchesBox");
+
+  const upcomingBox =
+    document.getElementById("upcomingMatchesBox");
+
+  if (!teamA) return;
+
+  if (!match) {
+    teamA.textContent = "Team A";
+    teamB.textContent = "Team B";
+    homeScore.textContent = "0/0";
+    homeOvers.textContent = "0.0";
+    homeStatus.textContent = "☀️ Ready to Start";
+    homeGround.textContent = "📍 Cricket Ground";
+
+    if (liveBox) {
+      liveBox.textContent =
+        "No live matches right now.";
+    }
+
+    if (upcomingBox) {
+      upcomingBox.textContent =
+        "Create a match and it will appear here.";
+    }
+
+    return;
+  }
+
+  teamA.textContent = match.teamA;
+  teamB.textContent = match.teamB;
+  homeGround.textContent =
+    "📍 " + match.ground;
+
+  if (liveMatch) {
+    const live = getLiveMatchAndScore();
+
+    if (live && live.score) {
+      homeScore.textContent =
+        live.score.runs +
+        "/" +
+        live.score.wickets;
+
+      homeOvers.textContent =
+        getCurrentOver(live.score);
+    }
+
+    homeStatus.textContent = "🔴 LIVE NOW";
+
+    if (liveBox) {
+      liveBox.innerHTML =
+        "🔴 " +
+        escapeHTML(match.teamA) +
+        " vs " +
+        escapeHTML(match.teamB) +
+        " is LIVE now!";
+    }
+
+    if (upcomingBox) {
+      upcomingBox.textContent =
+        "No upcoming match selected.";
+    }
+
+  } else {
+    homeScore.textContent = "READY";
+    homeOvers.textContent =
+      match.overs + " OV";
+
+    homeStatus.textContent =
+      "☀️ Upcoming Match";
+
+    if (liveBox) {
+      liveBox.textContent =
+        "No live matches right now.";
+    }
+
+    if (upcomingBox) {
+      upcomingBox.innerHTML =
+        "📅 " +
+        escapeHTML(match.teamA) +
+        " vs " +
+        escapeHTML(match.teamB) +
+        " • " +
+        escapeHTML(match.date) +
+        " • " +
+        escapeHTML(match.ground);
+    }
+  }
+}
+
+
+/* =========================
+   OPEN CURRENT MATCH
+========================= */
+
+function openCurrentMatch() {
+  const matches = getMatches();
+
+  const live = matches.find(function (item) {
+    return item.status === "live";
+  });
+
+  if (live) {
+    openPage("singleMatch");
+
+    setTimeout(function () {
+      showScorecards();
+    }, 100);
+
+    return;
+  }
+
+  const upcoming = matches.find(function (item) {
+    return item.status === "upcoming";
+  });
+
+  if (upcoming) {
+    openPage("singleMatch");
+
+    setTimeout(function () {
+      startSingleMatch();
+    }, 100);
+
+    return;
+  }
+
+  openPage("singleMatch");
+}
+
+
+/* =========================
+   MY MATCHES
+========================= */
+
+function showMyMatches() {
+  const matches = getMatches();
+
+  const box =
+    document.getElementById("singleMatch");
+
+  if (!box) return;
+
+  if (!matches.length) {
+    box.innerHTML = `
+      <button
+        class="backBtn"
+        onclick="openSingleMatchMenu()"
+      >
+        ← Back
+      </button>
+
+      <h2>📋 My Matches</h2>
+
+      <div class="emptyBox">
+        No matches found.
+        Create your first match.
+      </div>
+    `;
+
+    return;
+  }
+
+  let html = `
+    <button
+      class="backBtn"
+      onclick="openSingleMatchMenu()"
+    >
+      ← Back
+    </button>
+
+    <h2>📋 My Matches</h2>
+  `;
+
+  matches
+    .slice()
+    .reverse()
+    .forEach(function (match) {
+      html += `
+        <div class="pageCard">
+
+          <b>
+            ${escapeHTML(match.teamA)}
+            🆚
+            ${escapeHTML(match.teamB)}
+          </b>
+
+          <div class="smallText">
+
+            🏏 ${match.overs} Overs
+
+            <br>
+
+            📅 ${escapeHTML(match.date)}
+
+            <br>
+
+            📍 ${escapeHTML(match.ground)}
+
+            <br>
+
+            Status:
+            ${escapeHTML(match.status)}
+
+          </div>
+
+        </div>
+      `;
+    });
+
+  box.innerHTML = html;
+}
+
+
+/* =========================
+   SINGLE MATCH MENU
+========================= */
+
+function openSingleMatchMenu() {
+  const box =
+    document.getElementById("singleMatch");
+
+  if (!box) return;
+
+  box.innerHTML = `
+    <button
+      class="backBtn"
+      onclick="goBack()"
+    >
+      ← Back
+    </button>
+
+    <h2>🏏 Single Match</h2>
+
+    <div class="pageCard">
+
+      <b>
+        Create and manage your cricket match.
+      </b>
+
+      <div class="smallText">
+        Pehle Create Match karo,
+        phir Start Match se live scoring shuru karo.
+      </div>
+
+    </div>
+
+    <div class="pageGrid">
+
+      <button
+        class="pageOption"
+        onclick="createSingleMatch()"
+      >
+        <span>➕</span>
+        Create Match
+      </button>
+
+      <button
+        class="pageOption"
+        onclick="showMyMatches()"
+      >
+        <span>📋</span>
+        My Matches
+      </button>
+
+      <button
+        class="pageOption"
+        onclick="startSingleMatch()"
+      >
+        <span>▶️</span>
+        Start Match
+      </button>
+
+      <button
+        class="pageOption"
+        onclick="showScorecards()"
+      >
+        <span>📊</span>
+        Live Score
+      </button>
+
+    </div>
+  `;
+}
+
+
+/* =========================
+   SAFE HTML
+========================= */
+
+function escapeHTML(value) {
+  const div = document.createElement("div");
+
+  div.textContent =
+    String(value || "");
+
+  return div.innerHTML;
+  }
