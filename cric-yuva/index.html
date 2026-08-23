@@ -2,641 +2,107 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="style.css">   
-   
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
 <title>CRIC YUVA</title>
 
-<style>
+<link
+  rel="stylesheet"
+  href="style.css"
+>
 
-/* =========================================================
-   CRIC YUVA - NEW MAIN DESIGN
-   PHASE 1 : DESIGN + NAVIGATION STRUCTURE
-========================================================= */
-
-:root{
-  --purple:#7c3aed;
-  --purple2:#a855f7;
-  --dark:#0d0716;
-  --dark2:#171022;
-  --card:#21162f;
-  --line:#38244f;
-  --text:#ffffff;
-  --muted:#b7aac4;
-  --green:#22c55e;
-  --red:#ef4444;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html{
-  background:var(--dark);
-}
-
-body{
-  margin:0;
-  background:var(--dark);
-  color:var(--text);
-  font-family:Arial,sans-serif;
-  min-height:100vh;
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.appHeader{
-  height:68px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:8px 12px;
-  background:linear-gradient(90deg,#180d27,#211235);
-  border-bottom:1px solid var(--line);
-  position:sticky;
-  top:0;
-  z-index:100;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
-
-.logoBox{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--purple2),var(--purple));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
-  box-shadow:0 5px 20px #0008;
-}
-
-.appName{
-  font-size:20px;
-  font-weight:900;
-  letter-spacing:.5px;
-}
-
-.version{
-  font-size:10px;
-  color:var(--muted);
-  margin-top:2px;
-}
-
-.headerButtons{
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
-
-.headerBtn{
-  width:38px;
-  height:38px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:#281a3a;
-  color:#fff;
-  font-size:17px;
-  cursor:pointer;
-}
-
-/* =========================================================
-   MAIN CONTENT
-========================================================= */
-
-.main{
-  padding:12px;
-  padding-bottom:90px;
-  max-width:900px;
-  margin:auto;
-}
-
-.page{
-  display:none;
-}
-
-.page.active{
-  display:block;
-}
-
-.hero{
-  background:
-    linear-gradient(135deg,#5b21b6,#7c3aed,#a855f7);
-  border-radius:24px;
-  padding:22px 17px;
-  margin-bottom:16px;
-  box-shadow:0 10px 30px #0005;
-}
-
-.hero h1{
-  margin:0 0 7px;
-  font-size:25px;
-}
-
-.hero p{
-  margin:0;
-  font-size:13px;
-  line-height:1.5;
-  color:#f1e9ff;
-}
-
-.sectionTitle{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:19px 2px 10px;
-}
-
-.sectionTitle h2{
-  margin:0;
-  font-size:18px;
-}
-
-.moreBtn{
-  border:0;
-  background:transparent;
-  color:#c7a5ff;
-  font-size:12px;
-}
-
-/* =========================================================
-   LIVE VIDEO AREA
-========================================================= */
-
-.liveCard{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:22px;
-  overflow:hidden;
-}
-
-.videoArea{
-  height:180px;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:
-    radial-gradient(circle at center,#3f2165,#170d25 65%);
-}
-
-.liveTag{
-  position:absolute;
-  top:12px;
-  left:12px;
-  background:#dc2626;
-  color:white;
-  padding:6px 10px;
-  border-radius:8px;
-  font-size:10px;
-  font-weight:bold;
-}
-
-.videoPlay{
-  width:66px;
-  height:66px;
-  border:0;
-  border-radius:50%;
-  background:#fff;
-  color:var(--purple);
-  font-size:25px;
-  cursor:pointer;
-}
-
-.liveInfo{
-  padding:14px;
-}
-
-.liveInfo b{
-  font-size:15px;
-}
-
-.smallText{
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.5;
-  margin-top:5px;
-}
-
-/* =========================================================
-   QUICK START
-========================================================= */
-
-.quickGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:9px;
-}
-
-.quickCard{
-  min-height:110px;
-  border:1px solid var(--line);
-  background:var(--card);
-  color:white;
-  border-radius:19px;
-  padding:12px 6px;
-  font-weight:bold;
-  cursor:pointer;
-  font-size:12px;
-}
-
-.quickIcon{
-  display:block;
-  font-size:28px;
-  margin-bottom:9px;
-}
-
-/* =========================================================
-   MATCH LIST CARDS
-========================================================= */
-
-.matchBox{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:17px;
-  padding:14px;
-  margin-bottom:9px;
-}
-
-.matchTop{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-}
-
-.status{
-  font-size:10px;
-  padding:5px 8px;
-  border-radius:20px;
-  background:#302041;
-  color:#d7c8ec;
-}
-
-.status.live{
-  background:#3b1020;
-  color:#ff9cab;
-}
-
-.status.upcoming{
-  background:#132d21;
-  color:#8af0b0;
-}
-
-.status.completed{
-  background:#1e2a45;
-  color:#a9c7ff;
-}
-
-.emptyBox{
-  border:1px dashed #51376b;
-  color:var(--muted);
-  text-align:center;
-  border-radius:17px;
-  padding:22px 12px;
-}
-
-/* =========================================================
-   BOTTOM NAVIGATION
-========================================================= */
-
-.bottomNav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  z-index:200;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  background:#181022;
-  border-top:1px solid var(--line);
-  padding:6px 3px;
-}
-
-.navBtn{
-  border:0;
-  background:transparent;
-  color:#a89bb6;
-  padding:4px 1px;
-  font-size:10px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.navBtn span{
-  display:block;
-  font-size:19px;
-  margin-bottom:3px;
-}
-
-.navBtn.active{
-  color:#c89cff;
-}
-
-/* =========================================================
-   BACK BUTTON
-========================================================= */
-
-.backBtn{
-  border:0;
-  background:#2a1b3c;
-  color:white;
-  padding:10px 14px;
-  border-radius:11px;
-  cursor:pointer;
-  margin-bottom:13px;
-}
-
-/* =========================================================
-   DRAWER
-========================================================= */
-
-.drawerShade{
-  position:fixed;
-  inset:0;
-  background:#000b;
-  z-index:300;
-  display:none;
-}
-
-.drawerShade.open{
-  display:block;
-}
-
-.drawer{
-  position:fixed;
-  top:0;
-  right:0;
-  bottom:0;
-  width:min(390px,90vw);
-  background:#181022;
-  border-left:1px solid var(--line);
-  z-index:301;
-  transform:translateX(105%);
-  transition:.25s;
-  overflow-y:auto;
-}
-
-.drawer.open{
-  transform:translateX(0);
-}
-
-.drawerHead{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:17px;
-  border-bottom:1px solid var(--line);
-}
-
-.drawerClose{
-  width:38px;
-  height:38px;
-  border-radius:10px;
-  border:0;
-  background:#2b1c3d;
-  color:white;
-  font-size:18px;
-}
-
-.menuLabel{
-  padding:18px 17px 6px;
-  color:#a99abb;
-  font-size:10px;
-  font-weight:bold;
-}
-
-.menuBtn{
-  width:100%;
-  text-align:left;
-  padding:15px 17px;
-  border:0;
-  border-bottom:1px solid #2b1d3c;
-  background:transparent;
-  color:white;
-  font-size:14px;
-  cursor:pointer;
-}
-
-/* =========================================================
-   PAGE DESIGN CARDS
-========================================================= */
-
-.pageCard{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:15px;
-  margin-bottom:10px;
-}
-
-.pageGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:9px;
-}
-
-.pageOption{
-  min-height:95px;
-  border:1px solid var(--line);
-  background:#21162f;
-  border-radius:16px;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  padding:10px;
-}
-
-.pageOption span{
-  display:block;
-  font-size:25px;
-  margin-bottom:7px;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media(max-width:420px){
-
-  .appName{
-    font-size:18px;
-  }
-
-  .headerBtn{
-    width:35px;
-    height:35px;
-  }
-
-  .quickCard{
-    font-size:11px;
-  }
-
-  .hero h1{
-    font-size:22px;
-  }
-
-}
-
-   .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.logoBox{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    overflow:hidden;
-    flex-shrink:0;
-}
-
-.logoBox img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    display:block;
-}
-   
-
-/* =========================================================
-   CRIC YUVA SPLASH SCREEN
-========================================================= */
-#splashScreen{
-  position:fixed;
-  inset:0;
-  z-index:9999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:radial-gradient(circle at top,#5b21b6 0%,#170d25 48%,#0d0716 100%);
-  transition:opacity .45s ease, visibility .45s ease;
-}
-#splashScreen.hide{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-}
-.splashContent{
-  text-align:center;
-  padding:24px;
-}
-.splashLogo{
-  width:96px;
-  height:96px;
-  margin:0 auto 20px;
-  border-radius:28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:48px;
-  background:linear-gradient(135deg,var(--purple2),var(--purple));
-  box-shadow:0 12px 35px #0008;
-  animation:splashPulse 1.4s infinite ease-in-out;
-}
-.splashTitle{
-  font-size:34px;
-  font-weight:900;
-  letter-spacing:1px;
-  margin:0 0 9px;
-}
-.splashSub{
-  color:#dfcff9;
-  font-size:12px;
-  letter-spacing:1.5px;
-  font-weight:bold;
-}
-.splashLine{
-  width:150px;
-  height:4px;
-  margin:25px auto 0;
-  border-radius:10px;
-  overflow:hidden;
-  background:#ffffff24;
-}
-.splashLine::after{
-  content:"";
-  display:block;
-  width:45%;
-  height:100%;
-  border-radius:10px;
-  background:#fff;
-  animation:splashLoad 2.8s linear forwards;
-}
-@keyframes splashPulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.07)}
-}
-@keyframes splashLoad{
-  from{transform:translateX(-110%)}
-  to{transform:translateX(230%)}
-}
-
-</style>
 </head>
 
 <body>
 
-<!-- =====================================================
-     SPLASH SCREEN
-===================================================== -->
+
+<!-- SPLASH -->
+
 <div id="splashScreen">
+
   <div class="splashContent">
-    <div class="splashLogo">🏏</div>
-    <h1 class="splashTitle">CRIC YUVA</h1>
-    <div class="splashSub">CRICKET • TOURNAMENT • LIVE SCORE</div>
+
+    <div class="splashLogo">
+      🏏
+    </div>
+
+    <h1 class="splashTitle">
+      CRIC YUVA
+    </h1>
+
+    <div class="splashSub">
+      CRICKET • TOURNAMENT • LIVE SCORE
+    </div>
+
     <div class="splashLine"></div>
+
   </div>
+
 </div>
 
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
+<!-- HEADER -->
 
 <header class="appHeader">
 
   <div class="brand">
 
     <div class="logoBox">
-  <img src="cric-yuva-logo.png" alt="CRIC YUVA Logo">
+
+      <img
+        src="cric-yuva-logo.png"
+        alt="CRIC YUVA Logo"
+        onerror="this.style.display='none';this.parentElement.innerHTML='🏏';"
+      >
+
     </div>
 
     <div>
-      <div class="appName">CRIC YUVA</div>
-      <div class="version">Version 1.0.0</div>
+
+      <div class="appName">
+        CRIC YUVA
+      </div>
+
+      <div class="version">
+        Version 1.0.0
+      </div>
+
     </div>
 
   </div>
 
+
   <div class="headerButtons">
 
-    <button class="headerBtn"
-      onclick="openPage('search')">
+    <button
+      class="headerBtn"
+      onclick="openPage('search')"
+    >
       🔍
     </button>
 
-    <button class="headerBtn"
-      onclick="openPage('chat')">
+    <button
+      class="headerBtn"
+      onclick="openPage('chat')"
+    >
       💬
     </button>
 
-    <button class="headerBtn"
-      onclick="openPage('notifications')">
+    <button
+      class="headerBtn"
+      onclick="openPage('notifications')"
+    >
       🔔
     </button>
 
-    <button class="headerBtn"
-      onclick="openDrawer()">
+    <button
+      class="headerBtn"
+      onclick="openDrawer()"
+    >
       ☰
     </button>
 
@@ -645,98 +111,193 @@ body{
 </header>
 
 
-<!-- =====================================================
-     MAIN
-===================================================== -->
+<!-- MAIN -->
 
 <div class="main">
 
 
-<!-- =====================================================
-     HOME
-===================================================== -->
+<!-- HOME -->
 
-<section id="home" class="page active">
+<section
+  id="home"
+  class="page active"
+>
 
   <div class="hero">
 
-    <h1>Welcome to CRIC YUVA 🏏</h1>
+    <h1>
+      Welcome to CRIC YUVA 🏏
+    </h1>
 
     <p>
-      Your complete cricket world for matches,
-      tournaments, series, teams, players and live scoring.
+      Create matches, start live scoring,
+      tournaments, teams and your complete
+      cricket world in one place.
     </p>
 
   </div>
 
 
-  <!-- LIVE VIDEO -->
-
   <div class="sectionTitle">
-    <h2>🔴 Live Match / Video</h2>
+
+    <h2>
+      🔴 Live Cricket
+    </h2>
+
   </div>
 
-  <div class="liveCard">
 
-    <div class="videoArea">
+  <!-- SUNNY DAY MATCH -->
 
-      <div class="liveTag">
-        CRIC YUVA LIVE
+  <div class="sunnyMatchCard">
+
+    <div class="cloud"></div>
+
+    <div class="liveRibbon">
+      <span class="liveDot"></span>
+      LIVE MATCH
+    </div>
+
+    <div class="stadium">
+      <div class="stand"></div>
+    </div>
+
+    <div class="pitch"></div>
+
+    <div class="pitchStrip"></div>
+
+    <div class="player a"></div>
+    <div class="player b"></div>
+    <div class="player c"></div>
+    <div class="player d"></div>
+    <div class="player e"></div>
+    <div class="player f"></div>
+    <div class="player g"></div>
+
+
+    <div class="scoreOverlay">
+
+      <div class="matchTeamsRow">
+
+        <div class="previewTeam">
+
+          <div
+            class="previewTeamName"
+            id="homeTeamA"
+          >
+            Team A
+          </div>
+
+          <div
+            class="previewScore"
+            id="homeScore"
+          >
+            0/0
+          </div>
+
+        </div>
+
+
+        <div class="previewVS">
+          VS
+        </div>
+
+
+        <div class="previewTeam">
+
+          <div
+            class="previewTeamName"
+            id="homeTeamB"
+          >
+            Team B
+          </div>
+
+          <div
+            class="previewScore"
+            id="homeOvers"
+          >
+            0.0
+          </div>
+
+        </div>
+
       </div>
 
-      <button class="videoPlay">
-        ▶
+
+      <div class="previewStatus">
+
+        <span id="homeStatus">
+          ☀️ Ready to Start
+        </span>
+
+        <span id="homeGround">
+          📍 Cricket Ground
+        </span>
+
+      </div>
+
+
+      <button
+        class="previewOpenBtn"
+        onclick="openCurrentMatch()"
+      >
+        🏏 OPEN LIVE MATCH
       </button>
 
     </div>
 
-    <div class="liveInfo">
-
-      <b>CRIC YUVA Live Cricket</b>
-
-      <div class="smallText">
-        Match start aur camera setup ke baad
-        jis match ko open karoge uska live video
-        yahan connect hoga.
-      </div>
-
-    </div>
-
   </div>
 
 
-  <!-- QUICK START -->
+  <!-- START CRICKET -->
 
   <div class="sectionTitle">
-    <h2>⚡ Start Cricket</h2>
+
+    <h2>
+      ⚡ Start Cricket
+    </h2>
+
   </div>
+
 
   <div class="quickGrid">
 
-    <button class="quickCard"
-      onclick="openPage('singleMatch')">
+    <button
+      class="quickCard"
+      onclick="openPage('singleMatch')"
+    >
 
-      <span class="quickIcon">🏏</span>
+      <span class="quickIcon">
+        🏏
+      </span>
 
       Single Match
 
     </button>
 
 
-    <button class="quickCard"
-      onclick="openPage('tournament')">
+    <button
+      class="quickCard"
+      onclick="openPage('tournament')"
+    >
 
-      <span class="quickIcon">🏆</span>
+      <span class="quickIcon">
+        🏆
+      </span>
 
       Tournament
 
     </button>
 
 
-    <button class="quickCard"
-      onclick="openPage('series')">
+    <button
+      class="quickCard"
+      onclick="openPage('series')"
+    >
 
-      <span class="quickIcon">🥇</span>
+      <span class="quickIcon">
+        🥇
+      </span>
 
       Series
 
@@ -748,11 +309,25 @@ body{
   <!-- LIVE MATCHES -->
 
   <div class="sectionTitle">
-    <h2>📡 Live Matches</h2>
-    <button class="moreBtn">View All</button>
+
+    <h2>
+      📡 Live Matches
+    </h2>
+
+    <button
+      class="moreBtn"
+      onclick="openPage('singleMatch')"
+    >
+      View All
+    </button>
+
   </div>
 
-  <div class="emptyBox">
+
+  <div
+    class="emptyBox"
+    id="liveMatchesBox"
+  >
     No live matches right now.
   </div>
 
@@ -760,20 +335,29 @@ body{
   <!-- UPCOMING -->
 
   <div class="sectionTitle">
-    <h2>📅 Upcoming Matches</h2>
-    <button class="moreBtn">View All</button>
+
+    <h2>
+      📅 Upcoming Matches
+    </h2>
+
   </div>
 
-  <div class="emptyBox">
-    Upcoming matches will appear here.
+  <div
+    class="emptyBox"
+    id="upcomingMatchesBox"
+  >
+    Create a match and it will appear here.
   </div>
 
 
   <!-- COMPLETED -->
 
   <div class="sectionTitle">
-    <h2>🏁 Completed Matches</h2>
-    <button class="moreBtn">View All</button>
+
+    <h2>
+      🏁 Completed Matches
+    </h2>
+
   </div>
 
   <div class="emptyBox">
@@ -784,24 +368,46 @@ body{
   <!-- FOR YOU -->
 
   <div class="sectionTitle">
-    <h2>✨ For You</h2>
+
+    <h2>
+      ✨ For You
+    </h2>
+
   </div>
+
 
   <div class="quickGrid">
 
     <button class="quickCard">
-      <span class="quickIcon">📊</span>
+
+      <span class="quickIcon">
+        📊
+      </span>
+
       Insights
+
     </button>
 
+
     <button class="quickCard">
-      <span class="quickIcon">👥</span>
+
+      <span class="quickIcon">
+        👥
+      </span>
+
       My Teams
+
     </button>
 
+
     <button class="quickCard">
-      <span class="quickIcon">🎂</span>
+
+      <span class="quickIcon">
+        🎂
+      </span>
+
       Birthdays
+
     </button>
 
   </div>
@@ -809,50 +415,87 @@ body{
 </section>
 
 
-<!-- =====================================================
-     SINGLE MATCH
-===================================================== -->
+<!-- SINGLE MATCH -->
 
-<section id="singleMatch" class="page">
+<section
+  id="singleMatch"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
     ← Back
   </button>
 
-  <h2>🏏 Single Match</h2>
+
+  <h2>
+    🏏 Single Match
+  </h2>
+
 
   <div class="pageCard">
 
-    <b>Create and manage an individual match.</b>
+    <b>
+      Create and manage your cricket match.
+    </b>
 
     <div class="smallText">
-      Baad me yahan Team A, Team B,
-      overs, ground, date, toss aur
-      live scoreboard system connect hoga.
+      Pehle match create karo, phir Start Match
+      se live scoring shuru karo.
     </div>
 
   </div>
+
 
   <div class="pageGrid">
 
-    <button class="pageOption" onclick="createSingleMatch()">
-  <span>➕</span>
-  Create Match
+    <button
+      class="pageOption"
+      onclick="createSingleMatch()"
+    >
+
+      <span>➕</span>
+
+      Create Match
+
     </button>
 
-    <button class="pageOption" onclick="showMyMatches()">
+
+    <button
+      class="pageOption"
+      onclick="showMyMatches()"
+    >
+
       <span>📋</span>
+
       My Matches
+
     </button>
 
-    <button class="pageOption" onclick="startSingleMatch()">
-      <span>🏏</span>
+
+    <button
+      class="pageOption"
+      onclick="startSingleMatch()"
+    >
+
+      <span>▶️</span>
+
       Start Match
+
     </button>
 
-    <button class="pageOption" onclick="showScorecards()">
+
+    <button
+      class="pageOption"
+      onclick="showScorecards()"
+    >
+
       <span>📊</span>
-      Scorecards
+
+      Live Score
+
     </button>
 
   </div>
@@ -860,29 +503,37 @@ body{
 </section>
 
 
-<!-- =====================================================
-     TOURNAMENT
-===================================================== -->
+<!-- TOURNAMENT -->
 
-<section id="tournament" class="page">
+<section
+  id="tournament"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
     ← Back
   </button>
 
-  <h2>🏆 Tournament</h2>
+  <h2>
+    🏆 Tournament
+  </h2>
 
   <div class="pageCard">
 
-    <b>Complete tournament management.</b>
+    <b>
+      Complete Tournament Management
+    </b>
 
     <div class="smallText">
       Teams, grounds, schedule, groups,
-      points table, knockout, auction,
-      matches aur results yahan aayenge.
+      points table, auction and matches.
     </div>
 
   </div>
+
 
   <div class="pageGrid">
 
@@ -921,66 +572,57 @@ body{
 </section>
 
 
-<!-- =====================================================
-     SERIES
-===================================================== -->
+<!-- SERIES -->
 
-<section id="series" class="page">
+<section
+  id="series"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
     ← Back
   </button>
 
-  <h2>🥇 Series</h2>
+  <h2>
+    🥇 Series
+  </h2>
 
   <div class="pageCard">
 
-    <b>Two teams ke beech complete series.</b>
+    <b>
+      Complete cricket series.
+    </b>
 
     <div class="smallText">
-      2, 3 ya 5 matches series,
-      series points, completed matches
-      aur final winner yahan manage hoga.
+      Two teams, multiple matches,
+      series score and final winner.
     </div>
-
-  </div>
-
-  <div class="pageGrid">
-
-    <button class="pageOption">
-      <span>➕</span>
-      Create Series
-    </button>
-
-    <button class="pageOption">
-      <span>📅</span>
-      Series Matches
-    </button>
-
-    <button class="pageOption">
-      <span>📊</span>
-      Series Score
-    </button>
-
-    <button class="pageOption">
-      <span>🏆</span>
-      Winner
-    </button>
 
   </div>
 
 </section>
 
 
-<!-- =====================================================
-     LOOKING
-===================================================== -->
+<!-- LOOKING -->
 
-<section id="looking" class="page">
+<section
+  id="looking"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>🔭 Looking</h2>
+  <h2>
+    🔭 Looking
+  </h2>
 
   <div class="pageGrid">
 
@@ -1009,32 +651,46 @@ body{
 </section>
 
 
-<!-- =====================================================
-     MY CRICKET
-===================================================== -->
+<!-- MY CRICKET -->
 
-<section id="myCricket" class="page">
+<section
+  id="myCricket"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>🏏 My Cricket</h2>
+  <h2>
+    🏏 My Cricket
+  </h2>
 
   <div class="pageGrid">
 
-    <button class="pageOption"
-      onclick="openPage('singleMatch')">
+    <button
+      class="pageOption"
+      onclick="openPage('singleMatch')"
+    >
       <span>🏏</span>
       Matches
     </button>
 
-    <button class="pageOption"
-      onclick="openPage('tournament')">
+    <button
+      class="pageOption"
+      onclick="openPage('tournament')"
+    >
       <span>🏆</span>
       Tournament
     </button>
 
-    <button class="pageOption"
-      onclick="openPage('series')">
+    <button
+      class="pageOption"
+      onclick="openPage('series')"
+    >
       <span>🥇</span>
       Series
     </button>
@@ -1059,15 +715,23 @@ body{
 </section>
 
 
-<!-- =====================================================
-     COMMUNITY
-===================================================== -->
+<!-- COMMUNITY -->
 
-<section id="community" class="page">
+<section
+  id="community"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>👥 Community</h2>
+  <h2>
+    👥 Community
+  </h2>
 
   <div class="pageGrid">
 
@@ -1091,54 +755,56 @@ body{
       Streamers
     </button>
 
-    <button class="pageOption">
-      <span>🏫</span>
-      Academies
-    </button>
-
-    <button class="pageOption">
-      <span>🏟️</span>
-      Grounds
-    </button>
-
   </div>
 
 </section>
 
 
-<!-- =====================================================
-     STORE
-===================================================== -->
+<!-- STORE -->
 
-<section id="store" class="page">
+<section
+  id="store"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>🛍️ CRIC YUVA Store</h2>
+  <h2>
+    🛍️ CRIC YUVA Store
+  </h2>
 
   <div class="pageCard">
 
-    <b>Future Store</b>
-
-    <div class="smallText">
-      Subscription, premium features
-      aur cricket services future online phase me.
-    </div>
+    Future cricket services and
+    premium features.
 
   </div>
 
 </section>
 
 
-<!-- =====================================================
-     PROFILE
-===================================================== -->
+<!-- PROFILE -->
 
-<section id="profile" class="page">
+<section
+  id="profile"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>👤 Profile</h2>
+  <h2>
+    👤 Profile
+  </h2>
 
   <div class="pageCard">
 
@@ -1150,9 +816,12 @@ body{
       Player Profile
     </div>
 
-    <div class="smallText" style="text-align:center">
-      Photo, Player ID, jersey, cricket role,
-      batting, bowling aur complete stats.
+    <div
+      class="smallText"
+      style="text-align:center"
+    >
+      Player photo, Player ID,
+      jersey, role and statistics.
     </div>
 
   </div>
@@ -1160,48 +829,53 @@ body{
 </section>
 
 
-<!-- =====================================================
-     SETTINGS
-===================================================== -->
+<!-- SETTINGS -->
 
-<section id="settings" class="page">
+<section
+  id="settings"
+  class="page"
+>
 
-<button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-<h2>⚙️ Settings</h2>
+  <h2>
+    ⚙️ Settings
+  </h2>
 
-<div class="pageCard">
-App Settings
-</div>
-
-<div class="pageCard">
-Privacy
-</div>
-
-<div class="pageCard">
-Data Settings
-</div>
-
-<div class="pageCard">
-Help & Information
-</div>
+  <div class="pageCard">App Settings</div>
+  <div class="pageCard">Privacy</div>
+  <div class="pageCard">Data Settings</div>
+  <div class="pageCard">Help & Information</div>
 
 </section>
 
 
-<!-- =====================================================
-     SEARCH
-===================================================== -->
+<!-- SEARCH -->
 
-<section id="search" class="page">
+<section
+  id="search"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>🔍 Search</h2>
+  <h2>
+    🔍 Search
+  </h2>
 
   <div class="pageCard">
 
-    Search Player, Player ID, Mobile,
+    Search Player, Player ID,
     Team, Tournament and Ground.
 
   </div>
@@ -1209,15 +883,23 @@ Help & Information
 </section>
 
 
-<!-- =====================================================
-     CHAT
-===================================================== -->
+<!-- CHAT -->
 
-<section id="chat" class="page">
+<section
+  id="chat"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>💬 Chat</h2>
+  <h2>
+    💬 Chat
+  </h2>
 
   <div class="emptyBox">
     Friends and chat system will appear here.
@@ -1226,35 +908,44 @@ Help & Information
 </section>
 
 
-<!-- =====================================================
-     NOTIFICATIONS
-===================================================== -->
+<!-- NOTIFICATIONS -->
 
-<section id="notifications" class="page">
+<section
+  id="notifications"
+  class="page"
+>
 
-  <button class="backBtn" onclick="goBack()">← Back</button>
+  <button
+    class="backBtn"
+    onclick="goBack()"
+  >
+    ← Back
+  </button>
 
-  <h2>🔔 Notifications</h2>
+  <h2>
+    🔔 Notifications
+  </h2>
 
   <div class="emptyBox">
-    Match invite, friend request,
-    team request and important updates.
+    Match invite, friend request
+    and important updates.
   </div>
 
 </section>
 
+
 </div>
 
 
-<!-- =====================================================
-     BOTTOM NAVIGATION
-===================================================== -->
+<!-- BOTTOM NAVIGATION -->
 
 <nav class="bottomNav">
 
-  <button class="navBtn active"
+  <button
+    class="navBtn active"
     data-page="home"
-    onclick="openPage('home')">
+    onclick="openPage('home')"
+  >
 
     <span>🏠</span>
     Home
@@ -1262,9 +953,11 @@ Help & Information
   </button>
 
 
-  <button class="navBtn"
+  <button
+    class="navBtn"
     data-page="looking"
-    onclick="openPage('looking')">
+    onclick="openPage('looking')"
+  >
 
     <span>🔭</span>
     Looking
@@ -1272,9 +965,11 @@ Help & Information
   </button>
 
 
-  <button class="navBtn"
+  <button
+    class="navBtn"
     data-page="myCricket"
-    onclick="openPage('myCricket')">
+    onclick="openPage('myCricket')"
+  >
 
     <span>🏏</span>
     My Cricket
@@ -1282,9 +977,11 @@ Help & Information
   </button>
 
 
-  <button class="navBtn"
+  <button
+    class="navBtn"
     data-page="community"
-    onclick="openPage('community')">
+    onclick="openPage('community')"
+  >
 
     <span>👥</span>
     Community
@@ -1292,9 +989,11 @@ Help & Information
   </button>
 
 
-  <button class="navBtn"
+  <button
+    class="navBtn"
     data-page="store"
-    onclick="openPage('store')">
+    onclick="openPage('store')"
+  >
 
     <span>🛍️</span>
     Store
@@ -1304,24 +1003,27 @@ Help & Information
 </nav>
 
 
-<!-- =====================================================
-     DRAWER
-===================================================== -->
+<!-- DRAWER -->
 
-<div id="drawerShade"
+<div
+  id="drawerShade"
   class="drawerShade"
-  onclick="closeDrawer()">
-</div>
+  onclick="closeDrawer()"
+></div>
 
 
-<aside id="drawer"
-  class="drawer">
+<aside
+  id="drawer"
+  class="drawer"
+>
 
   <div class="drawerHead">
 
     <div>
 
-      <b>☰ CRIC YUVA</b>
+      <b>
+        ☰ CRIC YUVA
+      </b>
 
       <div class="version">
         Main Menu
@@ -1329,28 +1031,38 @@ Help & Information
 
     </div>
 
-    <button class="drawerClose"
-      onclick="closeDrawer()">
+    <button
+      class="drawerClose"
+      onclick="closeDrawer()"
+    >
       ✕
     </button>
 
   </div>
 
 
-  <div class="menuLabel">ACCOUNT</div>
+  <div class="menuLabel">
+    ACCOUNT
+  </div>
 
-  <button class="menuBtn"
-    onclick="drawerPage('profile')">
+  <button
+    class="menuBtn"
+    onclick="drawerPage('profile')"
+  >
     👤 Profile
   </button>
 
-  <button class="menuBtn"
-    onclick="drawerPage('settings')">
+  <button
+    class="menuBtn"
+    onclick="drawerPage('settings')"
+  >
     ⚙️ Settings
   </button>
 
 
-  <div class="menuLabel">CRIC YUVA</div>
+  <div class="menuLabel">
+    CRIC YUVA
+  </div>
 
   <button class="menuBtn">
     🛡️ Clubs
@@ -1368,23 +1080,10 @@ Help & Information
     ⭐ Rate Us
   </button>
 
-  <button class="menuBtn">
-    🔳 App Code
-  </button>
 
-
-  <div class="menuLabel">MORE</div>
-
-  <button class="menuBtn">
-    🎁 What's New
-  </button>
-
-  <button class="menuBtn">
-    🌐 Change Language
-  </button>
-
-
-  <div class="menuLabel">SOCIAL & INFO</div>
+  <div class="menuLabel">
+    SOCIAL & INFO
+  </div>
 
   <button class="menuBtn">
     📷 Instagram
@@ -1399,121 +1098,98 @@ Help & Information
   </button>
 
   <button class="menuBtn">
-    𝕏 X
-  </button>
-
-  <button class="menuBtn">
     ℹ️ About Us
-  </button>
-
-  <button class="menuBtn">
-    ❓ Help / FAQs
-  </button>
-
-  <button class="menuBtn">
-    🔒 Privacy Policy
-  </button>
-
-  <button class="menuBtn">
-    📄 Terms of Service
-  </button>
-
-  <button class="menuBtn">
-    💳 Paid Service Terms
-  </button>
-
-
-  <div class="menuLabel">ACCOUNT</div>
-
-  <button class="menuBtn">
-    🚪 Logout
   </button>
 
 </aside>
 
 
-<!-- =====================================================
-     JAVASCRIPT
-===================================================== -->
-
 <script>
 
 
-/* =========================================================
-   SPLASH SCREEN
-========================================================= */
+/* =========================
+   SPLASH
+========================= */
 
-   window.addEventListener("load", function(){
+window.addEventListener(
+  "load",
+  function(){
 
-  setTimeout(function(){
+    setTimeout(
+      function(){
 
-    const splash =
-      document.getElementById("splashScreen");
+        const splash =
+          document.getElementById(
+            "splashScreen"
+          );
 
-    if(splash){
+        if(splash){
 
-      splash.classList.add("hide");
+          splash.classList.add("hide");
 
-      setTimeout(function(){
-        splash.remove();
-      }, 500);
+          setTimeout(
+            function(){
 
-    }
+              splash.remove();
 
-  }, 2500);
+            },
+            500
+          );
 
-});
+        }
 
-/* =========================================================
-   PAGE HISTORY
-========================================================= */
+      },
+      2200
+    );
+
+    updateHomeMatch();
+
+  }
+);
+
+
+/* =========================
+   PAGE SYSTEM
+========================= */
 
 let currentPage = "home";
 
 let pageHistory = ["home"];
 
 
-/* =========================================================
-   OPEN PAGE
-========================================================= */
-
 function openPage(pageName){
-
-  const pages =
-    document.querySelectorAll(".page");
-
-  pages.forEach(function(page){
-
-    page.classList.remove("active");
-
-  });
-
 
   const selectedPage =
     document.getElementById(pageName);
 
   if(!selectedPage){
-
     return;
-
   }
 
+  document
+    .querySelectorAll(".page")
+    .forEach(function(page){
+
+      page.classList.remove("active");
+
+    });
 
   selectedPage.classList.add("active");
 
 
-  if(currentPage !== pageName){
+  if(
+    currentPage !== pageName
+  ){
 
     pageHistory.push(pageName);
 
   }
 
-
   currentPage = pageName;
-
 
   updateNavigation(pageName);
 
+  closeDrawer();
 
   window.scrollTo({
     top:0,
@@ -1522,10 +1198,6 @@ function openPage(pageName){
 
 }
 
-
-/* =========================================================
-   BACK BUTTON
-========================================================= */
 
 function goBack(){
 
@@ -1538,81 +1210,49 @@ function goBack(){
         pageHistory.length - 1
       ];
 
-    const pages =
-      document.querySelectorAll(".page");
-
-    pages.forEach(function(page){
-
-      page.classList.remove("active");
-
-    });
-
-
     document
-      .getElementById(previousPage)
-      .classList.add("active");
+      .querySelectorAll(".page")
+      .forEach(function(page){
 
+        page.classList.remove("active");
 
-    currentPage = previousPage;
+      });
 
+    const previous =
+      document.getElementById(
+        previousPage
+      );
 
-    updateNavigation(previousPage);
+    if(previous){
 
-  }
+      previous.classList.add("active");
 
-  else{
+      currentPage = previousPage;
 
-    openHome();
+      updateNavigation(
+        previousPage
+      );
+
+    }
+
+  }else{
+
+    openPage("home");
 
   }
 
 }
 
-
-/* =========================================================
-   HOME
-========================================================= */
-
-function openHome(){
-
-  pageHistory = ["home"];
-
-  currentPage = "home";
-
-  document
-    .querySelectorAll(".page")
-    .forEach(function(page){
-
-      page.classList.remove("active");
-
-    });
-
-
-  document
-    .getElementById("home")
-    .classList.add("active");
-
-
-  updateNavigation("home");
-
-}
-
-
-/* =========================================================
-   UPDATE BOTTOM NAVIGATION
-========================================================= */
 
 function updateNavigation(pageName){
 
-  const buttons =
-    document.querySelectorAll(".navBtn");
+  document
+    .querySelectorAll(".navBtn")
+    .forEach(function(button){
 
-  buttons.forEach(function(button){
+      button.classList.remove("active");
 
-    button.classList.remove("active");
-
-  });
-
+    });
 
   const activeButton =
     document.querySelector(
@@ -1620,7 +1260,6 @@ function updateNavigation(pageName){
       pageName +
       '"]'
     );
-
 
   if(activeButton){
 
@@ -1631,16 +1270,15 @@ function updateNavigation(pageName){
 }
 
 
-/* =========================================================
+/* =========================
    DRAWER
-========================================================= */
+========================= */
 
 function openDrawer(){
 
   document
     .getElementById("drawer")
     .classList.add("open");
-
 
   document
     .getElementById("drawerShade")
@@ -1651,21 +1289,22 @@ function openDrawer(){
 
 function closeDrawer(){
 
-  document
-    .getElementById("drawer")
-    .classList.remove("open");
+  const drawer =
+    document.getElementById("drawer");
 
+  const shade =
+    document.getElementById("drawerShade");
 
-  document
-    .getElementById("drawerShade")
-    .classList.remove("open");
+  if(drawer){
+    drawer.classList.remove("open");
+  }
+
+  if(shade){
+    shade.classList.remove("open");
+  }
 
 }
 
-
-/* =========================================================
-   DRAWER PAGE
-========================================================= */
 
 function drawerPage(pageName){
 
@@ -1676,41 +1315,74 @@ function drawerPage(pageName){
 }
 
 
-/* =========================================================
-   MOBILE BACK BUTTON
-========================================================= */
+/* =========================
+   TEAMS
+========================= */
 
-window.addEventListener(
-  "popstate",
-  function(){
+function getTeams(){
 
-    goBack();
+  let teams = [];
+
+  try{
+
+    teams =
+      JSON.parse(
+        localStorage.getItem("CY_TEAMS")
+        || "[]"
+      );
+
+  }catch(error){
+
+    teams = [];
 
   }
-);
 
-/* ===============================
-   SINGLE MATCH BUTTON FUNCTIONS
-================================ */
 
-/* =========================================
-   CRIC YUVA - COMPLETE CREATE MATCH SYSTEM
-========================================= */
+  if(
+    !Array.isArray(teams)
+    || teams.length < 2
+  ){
+
+    teams = [
+
+      {
+        id:"team-a",
+        name:"CRIC YUVA WARRIORS"
+      },
+
+      {
+        id:"team-b",
+        name:"CRIC YUVA KINGS"
+      }
+
+    ];
+
+  }
+
+  return teams;
+
+}
+
+
+/* =========================
+   CREATE MATCH
+========================= */
 
 function createSingleMatch(){
 
-  const box = document.getElementById("singleMatch");
+  const box =
+    document.getElementById("singleMatch");
 
   if(!box){
-    console.log("singleMatch box not found");
     return;
   }
+
 
   box.innerHTML = `
 
     <button
       class="backBtn"
-      onclick="location.reload()"
+      onclick="openSingleMatchMenu()"
     >
       ← Back
     </button>
@@ -1719,27 +1391,18 @@ function createSingleMatch(){
       🏏 Create Match
     </h2>
 
+
     <div class="teamWrap">
 
-      <!-- TEAM A -->
       <div class="teamBox">
 
         <div class="teamLabel">
           TEAM A
         </div>
 
-        <div
-          class="teamLogo"
-          id="teamAPlaceholder"
-        >
+        <div class="teamLogo">
           🏏
         </div>
-
-        <img
-          id="teamALogo"
-          class="teamLogo"
-          style="display:none"
-        >
 
         <div
           class="teamName"
@@ -1750,7 +1413,7 @@ function createSingleMatch(){
 
         <select
           id="teamASelect"
-          onchange="selectMatchTeam('A')"
+          onchange="updateTeamNames()"
         >
           <option value="">
             Select Team A
@@ -1760,31 +1423,20 @@ function createSingleMatch(){
       </div>
 
 
-      <!-- VS -->
       <div class="vsBox">
         VS
       </div>
 
 
-      <!-- TEAM B -->
-      <div class="teamBox teamB">
+      <div class="teamBox">
 
         <div class="teamLabel">
           TEAM B
         </div>
 
-        <div
-          class="teamLogo"
-          id="teamBPlaceholder"
-        >
+        <div class="teamLogo">
           🏏
         </div>
-
-        <img
-          id="teamBLogo"
-          class="teamLogo"
-          style="display:none"
-        >
 
         <div
           class="teamName"
@@ -1795,7 +1447,7 @@ function createSingleMatch(){
 
         <select
           id="teamBSelect"
-          onchange="selectMatchTeam('B')"
+          onchange="updateTeamNames()"
         >
           <option value="">
             Select Team B
@@ -1807,7 +1459,6 @@ function createSingleMatch(){
     </div>
 
 
-    <!-- MATCH DETAILS -->
     <div class="modernMatchCard">
 
       <h3>
@@ -1819,112 +1470,26 @@ function createSingleMatch(){
         🏏 Match Overs
       </label>
 
-      <select
-        id="matchOvers"
-        onchange="toggleCustomOvers()"
-      >
+      <select id="matchOvers">
 
         <option value="">
           Select Overs
         </option>
 
-        <option value="1">
-          1 Over
-        </option>
-
-        <option value="2">
-          2 Overs
-        </option>
-
-        <option value="3">
-          3 Overs
-        </option>
-
-        <option value="4">
-          4 Overs
-        </option>
-
-        <option value="5">
-          5 Overs
-        </option>
-
-        <option value="6">
-          6 Overs
-        </option>
-
-        <option value="7">
-          7 Overs
-        </option>
-
-        <option value="8">
-          8 Overs
-        </option>
-
-        <option value="9">
-          9 Overs
-        </option>
-
-        <option value="10">
-          10 Overs
-        </option>
-
-        <option value="11">
-          11 Overs
-        </option>
-
-        <option value="12">
-          12 Overs
-        </option>
-
-        <option value="15">
-          15 Overs
-        </option>
-
-        <option value="20">
-          20 Overs
-        </option>
-
-        <option value="25">
-          25 Overs
-        </option>
-
-        <option value="30">
-          30 Overs
-        </option>
-
-        <option value="40">
-          40 Overs
-        </option>
-
-        <option value="50">
-          50 Overs
-        </option>
-
-        <option value="custom">
-          Custom Overs
-        </option>
+        <option value="1">1 Over</option>
+        <option value="2">2 Overs</option>
+        <option value="3">3 Overs</option>
+        <option value="4">4 Overs</option>
+        <option value="5">5 Overs</option>
+        <option value="6">6 Overs</option>
+        <option value="8">8 Overs</option>
+        <option value="10">10 Overs</option>
+        <option value="12">12 Overs</option>
+        <option value="15">15 Overs</option>
+        <option value="20">20 Overs</option>
+        <option value="50">50 Overs</option>
 
       </select>
-
-
-      <div
-        id="customOversBox"
-        style="display:none"
-      >
-
-        <label>
-          ✏️ Custom Overs
-        </label>
-
-        <input
-          type="number"
-          id="customOvers"
-          min="1"
-          max="100"
-          placeholder="Enter custom overs"
-        >
-
-      </div>
 
 
       <label>
@@ -1949,7 +1514,10 @@ function createSingleMatch(){
 
 
       <div class="matchNote">
-        ℹ️ Toss hoga match create hone ke baad.
+
+        ℹ️ Toss aur Playing XI
+        Start Match ke baad select karenge.
+
       </div>
 
 
@@ -1969,320 +1537,462 @@ function createSingleMatch(){
 }
 
 
-/* =========================================
-   CUSTOM OVERS
-========================================= */
+/* =========================
+   LOAD TEAMS
+========================= */
 
-function toggleCustomOvers(){
+function loadMatchTeams(){
 
-  const overs =
-    document.getElementById("matchOvers");
+  const teamASelect =
+    document.getElementById("teamASelect");
 
-  const customBox =
-    document.getElementById("customOversBox");
+  const teamBSelect =
+    document.getElementById("teamBSelect");
 
-  if(!overs || !customBox){
+  if(
+    !teamASelect
+    || !teamBSelect
+  ){
     return;
   }
 
-  if(overs.value === "custom"){
 
-    customBox.style.display =
-      "block";
+  const teams =
+    getTeams();
 
-  }else{
 
-    customBox.style.display =
-      "none";
+  teams.forEach(
+    function(team,index){
 
-  }
+      const id =
+        team.id ||
+        String(index);
+
+      const name =
+        team.name ||
+        team.teamName ||
+        "Team " + (index + 1);
+
+
+      const optionA =
+        document.createElement("option");
+
+      optionA.value = id;
+      optionA.textContent = name;
+
+
+      const optionB =
+        document.createElement("option");
+
+      optionB.value = id;
+      optionB.textContent = name;
+
+
+      teamASelect.appendChild(
+        optionA
+      );
+
+      teamBSelect.appendChild(
+        optionB
+      );
+
+    }
+  );
 
 }
 
 
-/* =========================================
-   GET SAVED TEAMS
-========================================= */
+function updateTeamNames(){
 
-function getSavedMatchTeams(){
+  const teams =
+    getTeams();
 
-  let savedTeams = [];
+  const teamASelect =
+    document.getElementById("teamASelect");
 
-  try{
+  const teamBSelect =
+    document.getElementById("teamBSelect");
 
-    savedTeams =
-      JSON.parse(
-        localStorage.getItem("CY_TEAMS") || "[]"
-      );
+  const teamAName =
+    document.getElementById("teamAName");
 
-  }catch(error){
+  const teamBName =
+    document.getElementById("teamBName");
 
-    savedTeams = [];
+
+  if(
+    !teamASelect
+    || !teamBSelect
+    || !teamAName
+    || !teamBName
+  ){
+    return;
+  }
+
+
+  const teamA =
+    teams.find(
+      team =>
+        String(team.id) ===
+        String(teamASelect.value)
+    );
+
+  const teamB =
+    teams.find(
+      team =>
+        String(team.id) ===
+        String(teamBSelect.value)
+    );
+
+
+  teamAName.textContent =
+    teamA
+      ? teamA.name
+      : "Select Team A";
+
+  teamBName.textContent =
+    teamB
+      ? teamB.name
+      : "Select Team B";
+
+}
+
+
+/* =========================
+   SAVE MATCH
+========================= */
+
+function saveSingleMatch(){
+
+  const teamAId =
+    document.getElementById(
+      "teamASelect"
+    ).value;
+
+  const teamBId =
+    document.getElementById(
+      "teamBSelect"
+    ).value;
+
+  const overs =
+    document.getElementById(
+      "matchOvers"
+    ).value;
+
+  const date =
+    document.getElementById(
+      "matchDate"
+    ).value;
+
+  const ground =
+    document.getElementById(
+      "groundName"
+    ).value.trim();
+
+
+  if(
+    !teamAId
+    || !teamBId
+  ){
+
+    alert(
+      "Please select Team A and Team B"
+    );
+
+    return;
 
   }
 
 
   if(
-    !Array.isArray(savedTeams) ||
-    savedTeams.length === 0
+    teamAId === teamBId
   ){
 
-    try{
+    alert(
+      "Team A and Team B cannot be the same"
+    );
 
-      savedTeams =
-        JSON.parse(
-          localStorage.getItem(
-            "cricYuvaTeams"
-          ) || "[]"
-        );
-
-    }catch(error){
-
-      savedTeams = [];
-
-    }
+    return;
 
   }
 
 
-  return Array.isArray(savedTeams)
-    ? savedTeams
-    : [];
+  if(!overs){
+
+    alert(
+      "Please select match overs"
+    );
+
+    return;
+
+  }
+
+
+  if(!date){
+
+    alert(
+      "Please select match date"
+    );
+
+    return;
+
+  }
+
+
+  if(!ground){
+
+    alert(
+      "Please enter ground name"
+    );
+
+    return;
+
+  }
+
+
+  const teams =
+    getTeams();
+
+
+  const teamA =
+    teams.find(
+      team =>
+        String(team.id) ===
+        String(teamAId)
+    );
+
+  const teamB =
+    teams.find(
+      team =>
+        String(team.id) ===
+        String(teamBId)
+    );
+
+
+  const match = {
+
+    id:Date.now(),
+
+    teamA:
+      teamA
+        ? teamA.name
+        : "Team A",
+
+    teamB:
+      teamB
+        ? teamB.name
+        : "Team B",
+
+    overs:Number(overs),
+
+    date:date,
+
+    ground:ground,
+
+    status:"upcoming",
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+
+  let matches = [];
+
+  try{
+
+    matches =
+      JSON.parse(
+        localStorage.getItem(
+          "CY_SINGLE_MATCHES"
+        ) || "[]"
+      );
+
+  }catch(error){
+
+    matches = [];
+
+  }
+
+
+  matches.push(match);
+
+
+  localStorage.setItem(
+    "CY_SINGLE_MATCHES",
+    JSON.stringify(matches)
+  );
+
+
+  alert(
+    "🏆 Match Created Successfully!"
+  );
+
+
+  updateHomeMatch();
+
+  startSingleMatch();
 
 }
 
 
-/* =========================================
-   LOAD TEAMS
-========================================= */
-
-function loadMatchTeams(){
-
-    const teamASelect = document.getElementById("teamASelect");
-    const teamBSelect = document.getElementById("teamBSelect");
-
-    if(!teamASelect || !teamBSelect){
-        return;
-    }
-
-    let teams = getSavedMatchTeams();
-
-    // TEST KE LIYE 2 PROPER TEAMS - 11 PLAYER EACH
-    if(!Array.isArray(teams) || teams.length < 2){
-
-        teams = [
-            {
-                id: "test-team-a",
-                name: "Cric Yuva Warriors",
-                players: [
-                    "Hussy (Captain)",
-                    "Player 2",
-                    "Player 3",
-                    "Player 4",
-                    "Player 5",
-                    "Player 6",
-                    "Player 7",
-                    "Player 8",
-                    "Player 9",
-                    "Player 10",
-                    "Player 11"
-                ]
-            },
-            {
-                id: "test-team-b",
-                name: "Cric Yuva Kings",
-                players: [
-                    "Captain 1",
-                    "Player 2",
-                    "Player 3",
-                    "Player 4",
-                    "Player 5",
-                    "Player 6",
-                    "Player 7",
-                    "Player 8",
-                    "Player 9",
-                    "Player 10",
-                    "Player 11"
-                ]
-            }
-        ];
-    }
-
-   
-        teams.forEach(function(team,index){
-       
-           const teamId = team.id || String(index);
-
-        const teamName =
-            team.name ||
-            team.teamName ||
-            "Team " + (index + 1);
-
-        const optionA = document.createElement("option");
-        optionA.value = teamId;
-        optionA.textContent = teamName;
-
-        const optionB = document.createElement("option");
-        optionB.value = teamId;
-        optionB.textContent = teamName;
-
-        teamASelect.appendChild(optionA);
-        teamBSelect.appendChild(optionB);
-
-    });
-
-}
-
-
-/* =========================================
-   TEAM SELECT
-   NAME + LOGO AUTOMATIC
-========================================= */
-
-function selectMatchTeam(side) {
-    const teams = getSavedMatchTeams();
-
-    const select = document.getElementById(
-        side === "A" ? "teamASelect" : "teamBSelect"
-    );
-
-    const logo = document.getElementById(
-        side === "A" ? "teamALogo" : "teamBLogo"
-    );
-
-    const placeholder = document.getElementById(
-        side === "A" ? "teamAPlaceholder" : "teamBPlaceholder"
-    );
-
-    const nameBox = document.getElementById(
-        side === "A" ? "teamAName" : "teamBName"
-    );
-
-    if (!select || !logo || !placeholder || !nameBox) {
-        return;
-    }
-
-    const selectedId = select.value;
-
-    if (!selectedId) {
-        nameBox.textContent = side === "A"
-            ? "Select Team A"
-            : "Select Team B";
-
-        logo.src = "";
-        logo.style.display = "none";
-        placeholder.style.display = "flex";
-        return;
-    }
-
-    const team = teams.find(function(item, index) {
-        const itemId = item.id || String(index);
-        return String(itemId) === String(selectedId);
-    });
-
-    if (!team) {
-        nameBox.textContent = side === "A"
-            ? "Select Team A"
-            : "Select Team B";
-
-        logo.src = "";
-        logo.style.display = "none";
-        placeholder.style.display = "flex";
-        return;
-    }
-
-    const teamName =
-        team.name ||
-        team.teamName ||
-        "Selected Team";
-
-    const teamLogo =
-        team.logoUrl ||
-        team.logo ||
-        team.teamLogo ||
-        "";
-
-    nameBox.textContent = teamName;
-
-    if (teamLogo) {
-        logo.src = teamLogo;
-        logo.style.display = "block";
-        placeholder.style.display = "none";
-    } else {
-        logo.src = "";
-        logo.style.display = "none";
-        placeholder.style.display = "flex";
-    }
-}
-
-/* =========================================
-   OTHER MATCH BUTTONS
-========================================= */
+/* =========================
+   START MATCH SCREEN
+========================= */
 
 function startSingleMatch(){
 
-  let matches = JSON.parse(
-    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
-  );
+  const matches =
+    getMatches();
+
 
   if(!matches.length){
-    alert("Pehle Create Match se match banao.");
+
+    alert(
+      "Pehle Create Match se match banao."
+    );
+
     return;
+
   }
+
 
   const match =
-    matches.find(function(item){
-      return item.status === "upcoming";
-    }) || matches[0];
+    matches.find(
+      item =>
+        item.status === "upcoming"
+    )
+    ||
+    matches[0];
 
-  const box = document.getElementById("singleMatch");
 
-  if(!box){
-    alert("Match page nahi mila.");
-    return;
-  }
+  const box =
+    document.getElementById(
+      "singleMatch"
+    );
+
 
   box.innerHTML = `
+
     <button
       class="backBtn"
-      onclick="location.reload()"
+      onclick="openSingleMatchMenu()"
     >
       ← Back
     </button>
 
+
     <h2 class="createMatchTitle">
-      🏏 Start Match
+      ☀️ Match Ready
     </h2>
+
+
+    <div class="sunnyMatchCard">
+
+      <div class="cloud"></div>
+
+      <div class="liveRibbon">
+        <span class="liveDot"></span>
+        READY TO START
+      </div>
+
+      <div class="stadium">
+        <div class="stand"></div>
+      </div>
+
+      <div class="pitch"></div>
+
+      <div class="pitchStrip"></div>
+
+      <div class="player a"></div>
+      <div class="player b"></div>
+      <div class="player c"></div>
+      <div class="player d"></div>
+      <div class="player e"></div>
+      <div class="player f"></div>
+      <div class="player g"></div>
+
+
+      <div class="scoreOverlay">
+
+        <div class="matchTeamsRow">
+
+          <div class="previewTeam">
+
+            <div class="previewTeamName">
+              ${escapeHTML(match.teamA)}
+            </div>
+
+            <div class="previewScore">
+              0/0
+            </div>
+
+          </div>
+
+
+          <div class="previewVS">
+            VS
+          </div>
+
+
+          <div class="previewTeam">
+
+            <div class="previewTeamName">
+              ${escapeHTML(match.teamB)}
+            </div>
+
+            <div class="previewScore">
+              0.0
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="previewStatus">
+
+          <span>
+            🏏 ${match.overs} Overs
+          </span>
+
+          <span>
+            📍 ${escapeHTML(match.ground)}
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
 
     <div class="modernMatchCard">
 
-      <h3>🏆 Match Ready</h3>
+      <h3>
+        🏆 ${escapeHTML(match.teamA)}
+        🆚
+        ${escapeHTML(match.teamB)}
+      </h3>
 
       <div class="matchNote">
-        <b>${match.teamA || "Team A"}</b>
+
+        ☀️ Day Match
 
         <br><br>
 
-        🆚
+        🏏 ${match.overs} Overs
 
         <br><br>
 
-        <b>${match.teamB || "Team B"}</b>
+        📅 ${escapeHTML(match.date)}
 
         <br><br>
 
-        🏏 ${match.overs || "--"} Overs
+        📍 ${escapeHTML(match.ground)}
 
-        <br><br>
-
-        📅 ${match.date || "Date not set"}
-
-        <br><br>
-
-        📍 ${match.ground || "Ground not set"}
       </div>
 
-      <br>
 
       <button
         class="createMatchBtn"
@@ -2292,242 +2002,327 @@ function startSingleMatch(){
       </button>
 
     </div>
+
   `;
+
 }
 
 
+/* =========================
+   BEGIN MATCH
+========================= */
+
 function beginMatch(matchId){
 
-  let matches = JSON.parse(
-    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
-  );
+  const matches =
+    getMatches();
 
-  const match = matches.find(function(item){
-    return String(item.id) === String(matchId);
-  });
+
+  const match =
+    matches.find(
+      item =>
+        String(item.id) ===
+        String(matchId)
+    );
+
 
   if(!match){
+
     alert("Match nahi mila.");
+
     return;
+
   }
 
+
   match.status = "live";
+
 
   localStorage.setItem(
     "CY_SINGLE_MATCHES",
     JSON.stringify(matches)
   );
 
-  alert(
-    "🏏 Match Start Ho Gaya!"
-  );
 
-  showScorecards();
-}
+  const scoreKey =
+    "CY_LIVE_SCORE_" +
+    match.id;
 
-function showScorecards(){
 
-  alert(
-    "Scorecards page abhi next step me banayenge."
-  );
+  const existingScore =
+    localStorage.getItem(scoreKey);
 
-}
 
-    function saveSingleMatch() {
-    const teamA = document.getElementById("teamASelect").value;
-    const teamB = document.getElementById("teamBSelect").value;
-    const overs = document.getElementById("matchOvers").value;
-    const customOvers = document.getElementById("customOvers");
-    const matchDate = document.getElementById("matchDate").value;
-    const groundName = document.getElementById("groundName").value;
+  if(!existingScore){
 
-    let finalOvers = overs;
+    const score = {
 
-    if (overs === "custom" && customOvers) {
-        finalOvers = customOvers.value;
-    }
+      matchId:match.id,
 
-    if (!teamA || !teamB) {
-        alert("Please select Team A and Team B");
-        return;
-    }
+      teamA:match.teamA,
 
-    if (teamA === teamB) {
-        alert("Team A and Team B cannot be the same");
-        return;
-    }
+      teamB:match.teamB,
 
-    if (!finalOvers) {
-        alert("Please select match overs");
-        return;
-    }
+      maxOvers:Number(match.overs),
 
-    if (!matchDate) {
-        alert("Please select match date");
-        return;
-    }
+      runs:0,
 
-    if (!groundName.trim()) {
-        alert("Please enter ground name");
-        return;
-    }
+      wickets:0,
 
-    const match = {
-        id: Date.now(),
-        teamA: teamA,
-        teamB: teamB,
-        overs: finalOvers,
-        date: matchDate,
-        ground: groundName,
-        status: "upcoming",
-        createdAt: new Date().toISOString()
+      totalBalls:0,
+
+      striker:"Batsman 1",
+
+      nonStriker:"Batsman 2",
+
+      selectedDirection:"Straight",
+
+      commentary:[
+        "🏏 Match started! First ball coming up."
+      ]
+
     };
 
-    const matches = JSON.parse(localStorage.getItem("CY_SINGLE_MATCHES") || "[]");
-matches.push(match);
-localStorage.setItem("CY_SINGLE_MATCHES", JSON.stringify(matches));
-
-    alert("🏆 Match Created Successfully!");
-
-    location.reload();
- }  
-
-/* =========================================
-   CRIC YUVA - BALL BY BALL SCORING SYSTEM
-========================================= */
-
-let selectedShotDirection = "Straight";
-
-
-function showScorecards(){
-
-  const matches = JSON.parse(
-    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
-  );
-
-  const match =
-    matches.find(item => item.status === "live")
-    || matches[0];
-
-  if(!match){
-    alert("Koi live match nahi mila.");
-    return;
-  }
-
-  const scoreKey = "CY_LIVE_SCORE_" + match.id;
-
-  let score = JSON.parse(
-    localStorage.getItem(scoreKey) || "null"
-  );
-
-  if(!score){
-
-    score = {
-      matchId: match.id,
-      teamA: match.teamA,
-      teamB: match.teamB,
-      runs: 0,
-      wickets: 0,
-      balls: 0,
-      totalBalls: 0,
-      overs: 0,
-      striker: "Batsman 1",
-      nonStriker: "Batsman 2",
-      selectedDirection: "Straight",
-      commentary: []
-    };
 
     localStorage.setItem(
       scoreKey,
       JSON.stringify(score)
     );
+
   }
 
+
+  updateHomeMatch();
+
+  showScorecards();
+
+}
+
+
+/* =========================
+   LIVE SCORE SCREEN
+========================= */
+
+function showScorecards(){
+
+  const matches =
+    getMatches();
+
+
+  const match =
+    matches.find(
+      item =>
+        item.status === "live"
+    );
+
+
+  if(!match){
+
+    alert(
+      "Koi live match nahi mila. Start Match se match start karo."
+    );
+
+    return;
+
+  }
+
+
+  const scoreKey =
+    "CY_LIVE_SCORE_" +
+    match.id;
+
+
+  const score =
+    JSON.parse(
+      localStorage.getItem(scoreKey)
+    );
+
+
+  if(!score){
+
+    beginMatch(match.id);
+
+    return;
+
+  }
+
+
   renderScoreScreen();
+
 }
 
 
 function renderScoreScreen(){
 
-  const matches = JSON.parse(
-    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
-  );
+  const live =
+    getLiveMatchAndScore();
+
+
+  if(
+    !live
+    || !live.match
+    || !live.score
+  ){
+    return;
+  }
+
 
   const match =
-    matches.find(item => item.status === "live")
-    || matches[0];
+    live.match;
 
-  if(!match) return;
+  const score =
+    live.score;
 
-  const scoreKey = "CY_LIVE_SCORE_" + match.id;
 
-  const score = JSON.parse(
-    localStorage.getItem(scoreKey)
-  );
+  const box =
+    document.getElementById(
+      "singleMatch"
+    );
 
-  if(!score) return;
-
-  const box = document.getElementById("singleMatch");
-
-  if(!box) return;
 
   const overText =
-    Math.floor(score.totalBalls / 6)
-    + "."
-    + (score.totalBalls % 6);
+    Math.floor(
+      score.totalBalls / 6
+    )
+    +
+    "."
+    +
+    (
+      score.totalBalls % 6
+    );
+
 
   const commentaryHTML =
     score.commentary.length
-    ? score.commentary
+
+      ?
+
+      score.commentary
         .slice()
         .reverse()
-        .map(function(item){
-          return `<div class="matchNote">🎙️ ${item}</div>`;
-        })
+        .slice(0,10)
+        .map(
+          item =>
+            `<div class="matchNote">
+              🎙️ ${escapeHTML(item)}
+            </div>`
+        )
         .join("")
-    : `<div class="matchNote">
-         🎙️ Match commentary yahan aayegi.
-       </div>`;
+
+      :
+
+      `<div class="matchNote">
+        🎙️ Commentary will appear here.
+      </div>`;
+
 
   box.innerHTML = `
 
     <button
       class="backBtn"
-      onclick="location.reload()"
+      onclick="openSingleMatchMenu()"
     >
       ← Back
     </button>
 
+
     <h2 class="createMatchTitle">
-      🏏 Live Match
+      🔴 Live Match
     </h2>
+
+
+    <div class="liveScoreHeader">
+
+      <div class="liveScoreTeams">
+
+        ${escapeHTML(score.teamA)}
+
+        🆚
+
+        ${escapeHTML(score.teamB)}
+
+      </div>
+
+
+      <div class="bigScore">
+
+        ${score.runs}/${score.wickets}
+
+      </div>
+
+
+      <div class="overText">
+
+        Overs: ${overText}
+
+        / ${score.maxOvers}
+
+      </div>
+
+
+      <div class="liveInfoGrid">
+
+        <div class="infoMini">
+
+          STRIKER
+
+          <b>
+            ${escapeHTML(score.striker)}
+          </b>
+
+        </div>
+
+
+        <div class="infoMini">
+
+          NON-STRIKER
+
+          <b>
+            ${escapeHTML(score.nonStriker)}
+          </b>
+
+        </div>
+
+      </div>
+
+    </div>
+
 
     <div class="modernMatchCard">
 
       <h3>
-        ${score.teamA}
-        🆚
-        ${score.teamB}
+        🎯 Shot Direction
       </h3>
 
+
+      <div class="directionGrid">
+
+        ${directionButton("Cover",score)}
+
+        ${directionButton("Point",score)}
+
+        ${directionButton("Straight",score)}
+
+        ${directionButton("Long On",score)}
+
+        ${directionButton("Long Off",score)}
+
+        ${directionButton("Mid Wicket",score)}
+
+        ${directionButton("Square Leg",score)}
+
+        ${directionButton("Fine Leg",score)}
+
+      </div>
+
+
       <div class="matchNote">
 
-        <b style="font-size:28px;">
-          ${score.runs}/${score.wickets}
+        🎯 Selected:
+        <b>
+          ${escapeHTML(score.selectedDirection)}
         </b>
 
-        <br><br>
-
-        Overs: ${overText}
-
-        <br><br>
-
-        🏏 Striker: ${score.striker}
-
-        <br>
-
-        🏏 Non-Striker: ${score.nonStriker}
-
       </div>
 
     </div>
@@ -2535,144 +2330,76 @@ function renderScoreScreen(){
 
     <div class="modernMatchCard">
 
-      <h3>🎯 Ball kis disha me mara?</h3>
+      <h3>
+        🏏 Ball Result
+      </h3>
 
-      <div class="pageGrid">
 
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Cover')"
-        >
-          🏏 Cover
-        </button>
+      <div class="scoreButtons">
 
         <button
-          class="pageOption"
-          onclick="selectShotDirection('Point')"
-        >
-          🏏 Point
-        </button>
-
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Straight')"
-        >
-          🏏 Straight
-        </button>
-
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Long On')"
-        >
-          🏏 Long On
-        </button>
-
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Long Off')"
-        >
-          🏏 Long Off
-        </button>
-
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Mid Wicket')"
-        >
-          🏏 Mid Wicket
-        </button>
-
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Square Leg')"
-        >
-          🏏 Square Leg
-        </button>
-
-        <button
-          class="pageOption"
-          onclick="selectShotDirection('Fine Leg')"
-        >
-          🏏 Fine Leg
-        </button>
-
-      </div>
-
-      <div class="matchNote">
-        🎯 Selected: <b>${score.selectedDirection}</b>
-      </div>
-
-    </div>
-
-
-    <div class="modernMatchCard">
-
-      <h3>🏏 Ball Result</h3>
-
-      <div class="pageGrid">
-
-        <button
-          class="pageOption"
+          class="runBtn"
           onclick="addBall(0)"
         >
           0
         </button>
 
         <button
-          class="pageOption"
+          class="runBtn"
           onclick="addBall(1)"
         >
           1
         </button>
 
         <button
-          class="pageOption"
+          class="runBtn"
           onclick="addBall(2)"
         >
           2
         </button>
 
         <button
-          class="pageOption"
+          class="runBtn"
           onclick="addBall(3)"
         >
           3
         </button>
 
         <button
-          class="pageOption"
+          class="runBtn boundary"
           onclick="addBall(4)"
         >
-          🔥 4
+          4
         </button>
 
         <button
-          class="pageOption"
+          class="runBtn six"
           onclick="addBall(6)"
         >
-          🚀 6
+          6
         </button>
 
       </div>
 
 
-      <div class="pageGrid">
+      <div class="extraButtons">
 
         <button
-          class="pageOption"
+          class="extraBtn"
           onclick="addWide()"
         >
           🚨 Wide
         </button>
 
         <button
-          class="pageOption"
+          class="extraBtn"
           onclick="addNoBall()"
         >
           ⚠️ No Ball
         </button>
 
         <button
-          class="pageOption"
+          class="extraBtn wicket"
           onclick="addWicket()"
         >
           🏏 Wicket
@@ -2685,162 +2412,194 @@ function renderScoreScreen(){
 
     <div class="modernMatchCard">
 
-      <h3>🎙️ Live Commentary</h3>
+      <h3>
+        🎙️ Live Commentary
+      </h3>
 
       ${commentaryHTML}
 
     </div>
 
   `;
+
 }
 
+
+/* =========================
+   DIRECTION BUTTON
+========================= */
+
+function directionButton(
+  direction,
+  score
+){
+
+  const active =
+    score.selectedDirection === direction
+      ? "active"
+      : "";
+
+
+  return `
+
+    <button
+      class="directionBtn ${active}"
+      onclick="selectShotDirection('${direction}')"
+    >
+      🏏 ${direction}
+    </button>
+
+  `;
+
+}
+
+
+/* =========================
+   SELECT DIRECTION
+========================= */
 
 function selectShotDirection(direction){
 
-  selectedShotDirection = direction;
+  const live =
+    getLiveMatchAndScore();
 
-  const matches = JSON.parse(
-    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  if(!live){
+    return;
+  }
+
+
+  live.score.selectedDirection =
+    direction;
+
+
+  saveLiveScore(
+    live.key,
+    live.score
   );
 
-  const match =
-    matches.find(item => item.status === "live")
-    || matches[0];
-
-  if(!match) return;
-
-  const scoreKey =
-    "CY_LIVE_SCORE_" + match.id;
-
-  const score = JSON.parse(
-    localStorage.getItem(scoreKey)
-  );
-
-  if(!score) return;
-
-  score.selectedDirection = direction;
-
-  localStorage.setItem(
-    scoreKey,
-    JSON.stringify(score)
-  );
 
   renderScoreScreen();
+
 }
 
 
-function getLiveScore(){
-
-  const matches = JSON.parse(
-    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
-  );
-
-  const match =
-    matches.find(item => item.status === "live")
-    || matches[0];
-
-  if(!match) return null;
-
-  const scoreKey =
-    "CY_LIVE_SCORE_" + match.id;
-
-  return {
-    key: scoreKey,
-    score: JSON.parse(
-      localStorage.getItem(scoreKey)
-    )
-  };
-}
-
-
-function saveLiveScore(key, score){
-
-  localStorage.setItem(
-    key,
-    JSON.stringify(score)
-  );
-}
-
-
-function swapBatsmen(score){
-
-  const temp = score.striker;
-
-  score.striker = score.nonStriker;
-
-  score.nonStriker = temp;
-}
-
+/* =========================
+   ADD BALL
+========================= */
 
 function addBall(runs){
 
-  const live = getLiveScore();
+  const live =
+    getLiveMatchAndScore();
 
-  if(!live || !live.score) return;
+  if(!live){
+    return;
+  }
 
-  const score = live.score;
+
+  const score =
+    live.score;
+
+
+  if(
+    Math.floor(
+      score.totalBalls / 6
+    )
+    >= score.maxOvers
+  ){
+
+    alert(
+      "Match overs completed."
+    );
+
+    return;
+
+  }
+
 
   const direction =
-    score.selectedDirection || "Straight";
+    score.selectedDirection
+    || "Straight";
+
 
   score.runs += runs;
 
-  score.balls += 1;
   score.totalBalls += 1;
 
 
   let text = "";
 
+
   if(runs === 0){
 
     text =
-      `${direction} ki taraf shot, lekin koi run nahi. Dot ball!`;
+      `${direction} ki taraf shot, dot ball.`;
 
-  }else if(runs === 1){
+  }
+
+  if(runs === 1){
 
     text =
-      `${direction} ki taraf shot aur ek run liya.`;
+      `${direction} ki taraf shot aur 1 run.`;
 
     swapBatsmen(score);
 
-  }else if(runs === 2){
+  }
+
+  if(runs === 2){
 
     text =
-      `${direction} ki taraf shot, dono batsmen ne 2 runs complete kiye.`;
+      `${direction} ki taraf 2 runs.`;
 
-  }else if(runs === 3){
+  }
+
+  if(runs === 3){
 
     text =
-      `${direction} ki taraf ball gayi, shandaar 3 runs!`;
+      `${direction} ki taraf shandaar 3 runs.`;
 
     swapBatsmen(score);
 
-  }else if(runs === 4){
+  }
+
+  if(runs === 4){
 
     text =
-      `🔥 ${direction} ki taraf zabardast shot! Ball boundary ke paar... FOUR!`;
+      `🔥 ${direction} ki taraf FOUR!`;
 
-  }else if(runs === 6){
+  }
+
+  if(runs === 6){
 
     text =
-      `🚀 ${direction} ki taraf gajab ka shot! Ball hawa me... SIX!`;
+      `🚀 ${direction} ki taraf SIX!`;
 
   }
 
 
   score.commentary.push(
-    `${Math.floor((score.totalBalls - 1) / 6) + 1}.${((score.totalBalls - 1) % 6) + 1} — ${text}`
+    ballNumberText(score)
+    +
+    " — "
+    +
+    text
   );
 
 
-  if(score.totalBalls % 6 === 0){
+  if(
+    score.totalBalls % 6 === 0
+  ){
 
     score.commentary.push(
-      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}. Batsmen ne ends change kiye.`
+      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}`
     );
 
     swapBatsmen(score);
+
   }
+
+
+  checkMatchComplete(score);
 
 
   saveLiveScore(
@@ -2848,93 +2607,782 @@ function addBall(runs){
     score
   );
 
+
+  updateHomeMatch();
+
   renderScoreScreen();
+
 }
 
+
+/* =========================
+   WIDE
+========================= */
 
 function addWide(){
 
-  const live = getLiveScore();
+  const live =
+    getLiveMatchAndScore();
 
-  if(!live || !live.score) return;
-
-  const score = live.score;
-
-  score.runs += 1;
-
-  score.commentary.push(
-    `🚨 Wide ball! ${score.selectedDirection || "Leg Side"} ki taraf bahut bahar. 1 extra run.`
-  );
-
-  saveLiveScore(
-    live.key,
-    score
-  );
-
-  renderScoreScreen();
-}
-
-
-function addNoBall(){
-
-  const live = getLiveScore();
-
-  if(!live || !live.score) return;
-
-  const score = live.score;
-
-  score.runs += 1;
-
-  score.commentary.push(
-    `⚠️ NO BALL! Bowler ne illegal delivery dali. 1 extra run aur Free Hit!`
-  );
-
-  saveLiveScore(
-    live.key,
-    score
-  );
-
-  renderScoreScreen();
-}
-
-
-function addWicket(){
-
-  const live = getLiveScore();
-
-  if(!live || !live.score) return;
-
-  const score = live.score;
-
-  score.wickets += 1;
-
-  score.balls += 1;
-  score.totalBalls += 1;
-
-  score.commentary.push(
-    `🏏 WICKET! ${score.striker} OUT! ${score.selectedDirection || "Pitch"} par ball ne match palat diya.`
-  );
-
-
-  if(score.totalBalls % 6 === 0){
-
-    score.commentary.push(
-      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}.`
-    );
-
-    swapBatsmen(score);
+  if(!live){
+    return;
   }
 
 
+  const score =
+    live.score;
+
+
+  score.runs += 1;
+
+
+  score.commentary.push(
+    `🚨 Wide ball! 1 extra run.`
+  );
+
+
   saveLiveScore(
     live.key,
     score
   );
 
+
+  updateHomeMatch();
+
   renderScoreScreen();
+
 }
-   
+
+
+/* =========================
+   NO BALL
+========================= */
+
+function addNoBall(){
+
+  const live =
+    getLiveMatchAndScore();
+
+  if(!live){
+    return;
+  }
+
+
+  const score =
+    live.score;
+
+
+  score.runs += 1;
+
+
+  score.commentary.push(
+    `⚠️ NO BALL! 1 extra run. Free Hit!`
+  );
+
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+
+  updateHomeMatch();
+
+  renderScoreScreen();
+
+}
+
+
+/* =========================
+   WICKET
+========================= */
+
+function addWicket(){
+
+  const live =
+    getLiveMatchAndScore();
+
+  if(!live){
+    return;
+  }
+
+
+  const score =
+    live.score;
+
+
+  if(score.wickets >= 10){
+
+    return;
+
+  }
+
+
+  score.wickets += 1;
+
+  score.totalBalls += 1;
+
+
+  score.commentary.push(
+    `🏏 WICKET! ${score.striker} OUT!`
+  );
+
+
+  score.striker =
+    "Batsman " +
+    (score.wickets + 2);
+
+
+  if(
+    score.totalBalls % 6 === 0
+  ){
+
+    score.commentary.push(
+      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}`
+    );
+
+    swapBatsmen(score);
+
+  }
+
+
+  checkMatchComplete(score);
+
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+
+  updateHomeMatch();
+
+  renderScoreScreen();
+
+}
+
+
+/* =========================
+   MATCH COMPLETE CHECK
+========================= */
+
+function checkMatchComplete(score){
+
+  const completedOvers =
+    Math.floor(
+      score.totalBalls / 6
+    );
+
+
+  if(
+    completedOvers >= score.maxOvers
+    ||
+    score.wickets >= 10
+  ){
+
+    score.commentary.push(
+      "🏁 Innings Complete!"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function swapBatsmen(score){
+
+  const temp =
+    score.striker;
+
+  score.striker =
+    score.nonStriker;
+
+  score.nonStriker =
+    temp;
+
+}
+
+
+function ballNumberText(score){
+
+  const over =
+    Math.floor(
+      (score.totalBalls - 1) / 6
+    ) + 1;
+
+
+  const ball =
+    (
+      (score.totalBalls - 1) % 6
+    ) + 1;
+
+
+  return over + "." + ball;
+
+}
+
+
+function getMatches(){
+
+  try{
+
+    const matches =
+      JSON.parse(
+        localStorage.getItem(
+          "CY_SINGLE_MATCHES"
+        ) || "[]"
+      );
+
+
+    return Array.isArray(matches)
+      ? matches
+      : [];
+
+  }catch(error){
+
+    return [];
+
+  }
+
+}
+
+
+function getLiveMatchAndScore(){
+
+  const matches =
+    getMatches();
+
+
+  const match =
+    matches.find(
+      item =>
+        item.status === "live"
+    );
+
+
+  if(!match){
+    return null;
+  }
+
+
+  const key =
+    "CY_LIVE_SCORE_" +
+    match.id;
+
+
+  let score = null;
+
+
+  try{
+
+    score =
+      JSON.parse(
+        localStorage.getItem(key)
+      );
+
+  }catch(error){
+
+    score = null;
+
+  }
+
+
+  return {
+
+    match:match,
+
+    key:key,
+
+    score:score
+
+  };
+
+}
+
+
+function saveLiveScore(
+  key,
+  score
+){
+
+  localStorage.setItem(
+    key,
+    JSON.stringify(score)
+  );
+
+}
+
+
+/* =========================
+   HOME LIVE MATCH UPDATE
+========================= */
+
+function updateHomeMatch(){
+
+  const matches =
+    getMatches();
+
+
+  const liveMatch =
+    matches.find(
+      item =>
+        item.status === "live"
+    );
+
+
+  const upcomingMatch =
+    matches.find(
+      item =>
+        item.status === "upcoming"
+    );
+
+
+  const match =
+    liveMatch || upcomingMatch;
+
+
+  const teamA =
+    document.getElementById("homeTeamA");
+
+  const teamB =
+    document.getElementById("homeTeamB");
+
+  const homeScore =
+    document.getElementById("homeScore");
+
+  const homeOvers =
+    document.getElementById("homeOvers");
+
+  const homeStatus =
+    document.getElementById("homeStatus");
+
+  const homeGround =
+    document.getElementById("homeGround");
+
+  const liveBox =
+    document.getElementById(
+      "liveMatchesBox"
+    );
+
+  const upcomingBox =
+    document.getElementById(
+      "upcomingMatchesBox"
+    );
+
+
+  if(!teamA){
+    return;
+  }
+
+
+  if(!match){
+
+    teamA.textContent = "Team A";
+
+    teamB.textContent = "Team B";
+
+    homeScore.textContent = "0/0";
+
+    homeOvers.textContent = "0.0";
+
+    homeStatus.textContent =
+      "☀️ Ready to Start";
+
+    homeGround.textContent =
+      "📍 Cricket Ground";
+
+    if(liveBox){
+
+      liveBox.textContent =
+        "No live matches right now.";
+
+    }
+
+    if(upcomingBox){
+
+      upcomingBox.textContent =
+        "Create a match and it will appear here.";
+
+    }
+
+    return;
+
+  }
+
+
+  teamA.textContent =
+    match.teamA;
+
+  teamB.textContent =
+    match.teamB;
+
+  homeGround.textContent =
+    "📍 " + match.ground;
+
+
+  if(liveMatch){
+
+    const live =
+      getLiveMatchAndScore();
+
+
+    if(
+      live
+      &&
+      live.score
+    ){
+
+      homeScore.textContent =
+        live.score.runs
+        +
+        "/"
+        +
+        live.score.wickets;
+
+
+      homeOvers.textContent =
+        Math.floor(
+          live.score.totalBalls / 6
+        )
+        +
+        "."
+        +
+        (
+          live.score.totalBalls % 6
+        );
+
+    }
+
+
+    homeStatus.textContent =
+      "🔴 LIVE NOW";
+
+
+    if(liveBox){
+
+      liveBox.innerHTML =
+        "🔴 " +
+        escapeHTML(match.teamA)
+        +
+        " vs "
+        +
+        escapeHTML(match.teamB)
+        +
+        " is LIVE now!";
+
+    }
+
+
+    if(upcomingBox){
+
+      upcomingBox.textContent =
+        "No upcoming match selected.";
+
+    }
+
+  }else{
+
+    homeScore.textContent =
+      "READY";
+
+    homeOvers.textContent =
+      match.overs + " OV";
+
+    homeStatus.textContent =
+      "☀️ Upcoming Match";
+
+
+    if(liveBox){
+
+      liveBox.textContent =
+        "No live matches right now.";
+
+    }
+
+
+    if(upcomingBox){
+
+      upcomingBox.innerHTML =
+        "📅 "
+        +
+        escapeHTML(match.teamA)
+        +
+        " vs "
+        +
+        escapeHTML(match.teamB)
+        +
+        " • "
+        +
+        escapeHTML(match.date)
+        +
+        " • "
+        +
+        escapeHTML(match.ground);
+
+    }
+
+  }
+
+}
+
+
+function openCurrentMatch(){
+
+  const matches =
+    getMatches();
+
+
+  const live =
+    matches.find(
+      item =>
+        item.status === "live"
+    );
+
+
+  if(live){
+
+    openPage("singleMatch");
+
+    setTimeout(
+      showScorecards,
+      100
+    );
+
+    return;
+
+  }
+
+
+  const upcoming =
+    matches.find(
+      item =>
+        item.status === "upcoming"
+    );
+
+
+  if(upcoming){
+
+    openPage("singleMatch");
+
+    setTimeout(
+      startSingleMatch,
+      100
+    );
+
+    return;
+
+  }
+
+
+  openPage("singleMatch");
+
+}
+
+
+/* =========================
+   MY MATCHES
+========================= */
+
+function showMyMatches(){
+
+  const matches =
+    getMatches();
+
+
+  const box =
+    document.getElementById(
+      "singleMatch"
+    );
+
+
+  if(!matches.length){
+
+    box.innerHTML = `
+
+      <button
+        class="backBtn"
+        onclick="openSingleMatchMenu()"
+      >
+        ← Back
+      </button>
+
+      <h2>
+        📋 My Matches
+      </h2>
+
+      <div class="emptyBox">
+        No matches found.
+        Create your first match.
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  let html = `
+
+    <button
+      class="backBtn"
+      onclick="openSingleMatchMenu()"
+    >
+      ← Back
+    </button>
+
+    <h2>
+      📋 My Matches
+    </h2>
+
+  `;
+
+
+  matches
+    .slice()
+    .reverse()
+    .forEach(
+      function(match){
+
+        html += `
+
+          <div class="pageCard">
+
+            <b>
+              ${escapeHTML(match.teamA)}
+              🆚
+              ${escapeHTML(match.teamB)}
+            </b>
+
+            <div class="smallText">
+
+              🏏 ${match.overs} Overs
+
+              <br>
+
+              📍 ${escapeHTML(match.ground)}
+
+              <br>
+
+              Status:
+              ${escapeHTML(match.status)}
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+  box.innerHTML = html;
+
+}
+
+
+/* =========================
+   SINGLE MATCH MENU
+========================= */
+
+function openSingleMatchMenu(){
+
+  const box =
+    document.getElementById(
+      "singleMatch"
+    );
+
+
+  box.innerHTML = `
+
+    <button
+      class="backBtn"
+      onclick="goBack()"
+    >
+      ← Back
+    </button>
+
+    <h2>
+      🏏 Single Match
+    </h2>
+
+    <div class="pageCard">
+
+      <b>
+        Create and manage your cricket match.
+      </b>
+
+      <div class="smallText">
+        Pehle Create Match karo,
+        phir Start Match se live scoring shuru karo.
+      </div>
+
+    </div>
+
+    <div class="pageGrid">
+
+      <button
+        class="pageOption"
+        onclick="createSingleMatch()"
+      >
+        <span>➕</span>
+        Create Match
+      </button>
+
+      <button
+        class="pageOption"
+        onclick="showMyMatches()"
+      >
+        <span>📋</span>
+        My Matches
+      </button>
+
+      <button
+        class="pageOption"
+        onclick="startSingleMatch()"
+      >
+        <span>▶️</span>
+        Start Match
+      </button>
+
+      <button
+        class="pageOption"
+        onclick="showScorecards()"
+      >
+        <span>📊</span>
+        Live Score
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   SAFE HTML
+========================= */
+
+function escapeHTML(value){
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    String(value || "");
+
+  return div.innerHTML;
+
+}
+
+
 </script>
 
 </body>
-</html>
+   </html>
