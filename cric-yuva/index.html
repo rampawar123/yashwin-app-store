@@ -9,9 +9,6 @@
 
 <body>
 
-<!-- =========================
-     SPLASH SCREEN
-========================= -->
 <div id="splashScreen">
   <div class="splashContent">
     <div class="splashLogo">🏏</div>
@@ -21,12 +18,7 @@
   </div>
 </div>
 
-
-<!-- =========================
-     LOGIN PAGE
-========================= -->
 <div id="authPage">
-
   <h1>🏏 CRIC YUVA</h1>
 
   <div class="auth-container">
@@ -34,140 +26,62 @@
 
     <div class="form-group">
       <label>Mobile Number</label>
-      <input
-        type="tel"
-        id="authMobile"
-        inputmode="numeric"
-        placeholder="Enter mobile number"
-      >
+      <input type="tel" id="authMobile" inputmode="numeric" placeholder="Enter mobile number">
     </div>
 
     <div class="form-group">
       <label>Password</label>
-      <input
-        type="password"
-        id="authPassword"
-        placeholder="Enter password"
-      >
+      <input type="password" id="authPassword" placeholder="Enter password">
     </div>
 
-    <button
-      class="action-btn"
-      type="button"
-      onclick="handleLogin()"
-    >
-      🔑 OPEN APP
-    </button>
+    <button class="action-btn" type="button" onclick="handleLogin()">🔑 OPEN APP</button>
 
-    <p
-      style="margin-top:15px;font-size:13px;color:#00d084;cursor:pointer;font-weight:bold;"
-      onclick="toggleRegisterSection()"
-    >
-      🆕 Don't have an account? Create Account
-    </p>
+    <p class="login-link" onclick="toggleRegisterSection()">🆕 Don't have an account? Create Account</p>
 
-    <!-- REGISTER -->
-    <div
-      id="registerSection"
-      style="display:none;margin-top:15px;padding-top:15px;border-top:1px dashed #555;"
-    >
+    <div id="registerSection" class="hiddenSection">
       <h4>Create New App Account</h4>
 
       <div class="form-group">
         <label>Mobile Number</label>
-        <input
-          type="tel"
-          id="regMobile"
-          inputmode="numeric"
-          placeholder="Enter mobile number"
-        >
+        <input type="tel" id="regMobile" inputmode="numeric" placeholder="Enter mobile number">
       </div>
 
       <div class="form-group">
         <label>Create Password</label>
-        <input
-          type="password"
-          id="regPassword"
-          placeholder="Set password"
-        >
+        <input type="password" id="regPassword" placeholder="Set password">
       </div>
 
-      <button
-        class="action-btn"
-        style="background:#00a86b;"
-        type="button"
-        onclick="processUserRegistration()"
-      >
-        📝 REGISTER ACCOUNT
-      </button>
+      <button class="action-btn greenBtn" type="button" onclick="processUserRegistration()">📝 REGISTER ACCOUNT</button>
     </div>
 
-    <p
-      style="margin-top:15px;font-size:13px;color:#168cff;cursor:pointer;"
-      onclick="toggleResetForm()"
-    >
-      Forgot Password? 🔑
-    </p>
+    <p class="reset-link" onclick="toggleResetForm()">Forgot Password? 🔑</p>
 
-    <!-- RESET PASSWORD -->
-    <div
-      id="resetPasswordSection"
-      style="display:none;margin-top:15px;padding-top:15px;border-top:1px dashed #555;"
-    >
+    <div id="resetPasswordSection" class="hiddenSection">
       <h4>Reset Password</h4>
 
       <div class="form-group">
         <label>Registered Mobile</label>
-        <input
-          type="tel"
-          id="resetMobile"
-          inputmode="numeric"
-          placeholder="Enter mobile"
-        >
+        <input type="tel" id="resetMobile" inputmode="numeric" placeholder="Enter mobile">
       </div>
 
       <div class="form-group">
         <label>New Password</label>
-        <input
-          type="password"
-          id="resetNewPassword"
-          placeholder="Enter new password"
-        >
+        <input type="password" id="resetNewPassword" placeholder="Enter new password">
       </div>
 
-      <button
-        class="action-btn"
-        type="button"
-        onclick="processPasswordReset()"
-      >
-        💾 UPDATE PASSWORD
-      </button>
+      <button class="action-btn" type="button" onclick="processPasswordReset()">💾 UPDATE PASSWORD</button>
     </div>
 
-    <button
-      class="action-btn"
-      style="background:#56616c;margin-top:15px;"
-      type="button"
-      onclick="generateDummyMobile()"
-    >
-      🎲 GENERATE TEST ACCOUNT
-    </button>
-
+    <button class="action-btn testBtn" type="button" onclick="generateDummyMobile()">🎲 GENERATE TEST ACCOUNT</button>
   </div>
 </div>
 
 
-<!-- =========================
-     MAIN APP
-========================= -->
 <div id="appInterface" style="display:none;">
 
-  <!-- HEADER -->
   <header class="appHeader">
-
     <div class="brand">
       <div class="logoBox">🏏</div>
-
       <div>
         <div class="appName">CRIC YUVA</div>
         <div class="version">Version 1.0.0</div>
@@ -175,69 +89,29 @@
     </div>
 
     <div class="headerButtons">
-      <button
-        class="headerBtn"
-        type="button"
-        onclick="showSearch()"
-        title="Search"
-      >🔍</button>
-
-      <button
-        class="headerBtn"
-        type="button"
-        onclick="showMessage()"
-        title="Chat"
-      >💬</button>
-
-      <button
-        class="headerBtn"
-        type="button"
-        onclick="showNotifications()"
-        title="Notifications"
-      >🔔</button>
-
-      <button
-        class="headerBtn"
-        type="button"
-        onclick="logout()"
-        title="Logout"
-      >🚪</button>
+      <button class="headerBtn" type="button" onclick="showSearch()">🔍</button>
+      <button class="headerBtn" type="button" onclick="showMessage()">💬</button>
+      <button class="headerBtn" type="button" onclick="showNotifications()">🔔</button>
+      <button class="headerBtn" type="button" onclick="logout()">🚪</button>
     </div>
-
   </header>
 
 
   <main class="main">
 
-    <!-- BIRTHDAY -->
     <div id="birthdayBox" class="birthday-alert-box">
-      🎉 Happy Birthday:
-      <span id="birthdayPlayerName"></span>
-      🏏
+      🎉 Happy Birthday: <span id="birthdayPlayerName"></span> 🏏
     </div>
 
 
-    <!-- =========================
-         HOME
-    ========================= -->
+    <!-- HOME -->
     <section id="home" class="page">
-
-      <div class="hero">
-        <h1>Welcome to CRIC YUVA 🏏</h1>
-        <p>
-          Create matches, manage teams, add players,
-          run tournaments and score your cricket match live.
-        </p>
-      </div>
 
       <div class="sectionTitle">
         <h2>🔴 Live Cricket</h2>
       </div>
 
-
-      <!-- LIVE MATCH CARD -->
       <div class="sunnyMatchCard">
-
         <div class="cloud"></div>
 
         <div class="liveRibbon">
@@ -245,10 +119,7 @@
           LIVE MATCH
         </div>
 
-        <div class="stadium">
-          <div class="stand"></div>
-        </div>
-
+        <div class="stadium"><div class="stand"></div></div>
         <div class="pitch"></div>
         <div class="pitchStrip"></div>
 
@@ -261,35 +132,18 @@
         <div class="player g"></div>
 
         <div class="scoreOverlay">
-
           <div class="matchTeamsRow">
-
             <div class="previewTeam">
-              <div
-                class="previewTeamName"
-                id="homeTeamA"
-              >TITANS</div>
-
-              <div
-                class="previewScore"
-                id="homeScore"
-              >0/0</div>
+              <div class="previewTeamName" id="homeTeamA">TITANS</div>
+              <div class="previewScore" id="homeScore">0/0</div>
             </div>
 
             <div class="previewVS">VS</div>
 
             <div class="previewTeam">
-              <div
-                class="previewTeamName"
-                id="homeTeamB"
-              >WARRIORS</div>
-
-              <div
-                class="previewScore"
-                id="homeOvers"
-              >0.0 Overs</div>
+              <div class="previewTeamName" id="homeTeamB">WARRIORS</div>
+              <div class="previewScore" id="homeOvers">0.0 Overs</div>
             </div>
-
           </div>
 
           <div class="previewStatus">
@@ -297,383 +151,151 @@
             <span id="homeGround">📍 Testing Ground</span>
           </div>
 
-          <button
-            class="previewOpenBtn"
-            type="button"
-            onclick="openPage('liveScoringPage')"
-          >
+          <button class="previewOpenBtn" type="button" onclick="openPage('liveScoringPage')">
             🏏 OPEN LIVE SCORING PANEL
           </button>
-
         </div>
       </div>
 
 
-      <!-- QUICK BUTTONS -->
       <div class="sectionTitle">
         <h2>⚡ Start Cricket</h2>
       </div>
 
       <div class="quickGrid">
-
-        <button
-          class="quickCard"
-          type="button"
-          onclick="openPage('singleMatch')"
-        >
-          <span class="quickIcon">🏏</span>
-          Single Match
+        <button class="quickCard" type="button" onclick="openPage('singleMatch')">
+          <span class="quickIcon">🏏</span>Single Match
         </button>
 
-        <button
-          class="quickCard"
-          type="button"
-          onclick="openPage('tournament')"
-        >
-          <span class="quickIcon">🏆</span>
-          Tournament
+        <button class="quickCard" type="button" onclick="openPage('tournament')">
+          <span class="quickIcon">🏆</span>Tournament
         </button>
 
-        <button
-          class="quickCard"
-          type="button"
-          onclick="openPage('playerRegPage')"
-        >
-          <span class="quickIcon">👤</span>
-          Add Player
+        <button class="quickCard" type="button" onclick="openPage('playerRegPage')">
+          <span class="quickIcon">👤</span>Add Player
         </button>
-
       </div>
-
     </section>
 
 
-    <!-- =========================
-         SINGLE MATCH
-    ========================= -->
+    <!-- SINGLE MATCH -->
     <section id="singleMatch" class="page">
-
-      <button
-        class="backBtn"
-        type="button"
-        onclick="goHome()"
-      >
-        ← Back
-      </button>
-
+      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
       <h2>🏏 Single Match Setup</h2>
 
       <div class="modal-box">
-
-        <h3>Start Quick Match</h3>
+        <h3>Testing Match</h3>
 
         <div class="form-group">
           <label>Batting Team Name</label>
-          <input
-            type="text"
-            id="matchTeamA"
-            value="Titans"
-          >
+          <input type="text" id="matchTeamA" value="Titans">
         </div>
 
         <div class="form-group">
           <label>Bowling Team Name</label>
-          <input
-            type="text"
-            id="matchTeamB"
-            value="Warriors"
-          >
+          <input type="text" id="matchTeamB" value="Warriors">
         </div>
 
-        <button
-          class="action-btn"
-          type="button"
-          onclick="initiateNormalMatch()"
-        >
-          🏏 START LIVE MATCH
-        </button>
-
+        <button class="action-btn" type="button" onclick="initiateNormalMatch()">🏏 START LIVE MATCH</button>
       </div>
-
     </section>
 
 
-    <!-- =========================
-         TOURNAMENT
-    ========================= -->
+    <!-- TOURNAMENT -->
     <section id="tournament" class="page">
-
-      <button
-        class="backBtn"
-        type="button"
-        onclick="goHome()"
-      >
-        ← Back
-      </button>
-
+      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
       <h2>🏆 Tournament Panel</h2>
 
       <div class="pageGrid">
-
-        <button
-          class="pageOption"
-          type="button"
-          onclick="openPage('normalTournamentPage')"
-        >
-          <span>👥</span>
-          Normal Tournament
+        <button class="pageOption" type="button" onclick="openPage('normalTournamentPage')">
+          <span>👥</span>Normal Tournament
         </button>
 
-        <button
-          class="pageOption"
-          type="button"
-          onclick="openPage('auctionTournamentPage')"
-        >
-          <span>🪙</span>
-          Auction System
+        <button class="pageOption" type="button" onclick="openPage('auctionTournamentPage')">
+          <span>🪙</span>Auction System
         </button>
-
       </div>
-
     </section>
 
 
-    <!-- =========================
-         PLAYER REGISTRATION
-    ========================= -->
+    <!-- PLAYER -->
     <section id="playerRegPage" class="page">
-
-      <button
-        class="backBtn"
-        type="button"
-        onclick="goHome()"
-      >
-        ← Back
-      </button>
-
+      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
       <h2>👤 Player Profile</h2>
 
       <div class="modal-box">
-
-        <div class="form-group">
-          <label>Full Name *</label>
-          <input type="text" id="pName" placeholder="Player name">
-        </div>
-
-        <div class="form-group">
-          <label>Mobile Number *</label>
-          <input
-            type="tel"
-            id="pMobile"
-            inputmode="numeric"
-            placeholder="9876543210"
-          >
-        </div>
-
-        <div class="form-group">
-          <label>Jersey Number</label>
-          <input
-            type="number"
-            id="pJNo"
-            placeholder="7"
-          >
-        </div>
-
-        <div class="form-group">
-          <label>Jersey Name</label>
-          <input
-            type="text"
-            id="pJName"
-            placeholder="DHONI"
-          >
-        </div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="pName" placeholder="Player name"></div>
+        <div class="form-group"><label>Mobile Number *</label><input type="tel" id="pMobile" placeholder="9876543210"></div>
+        <div class="form-group"><label>Jersey Number</label><input type="number" id="pJNo" placeholder="7"></div>
+        <div class="form-group"><label>Jersey Name</label><input type="text" id="pJName" placeholder="DHONI"></div>
 
         <div class="form-group">
           <label>Jersey Size</label>
           <select id="pJSize">
-            <option>S</option>
-            <option selected>M</option>
-            <option>L</option>
-            <option>XL</option>
-            <option>XXL</option>
-            <option>XXXL</option>
+            <option>S</option><option selected>M</option><option>L</option>
+            <option>XL</option><option>XXL</option><option>XXXL</option>
           </select>
         </div>
 
-        <div class="form-group">
-          <label>Pant Size</label>
-          <input
-            type="text"
-            id="pPSize"
-            placeholder="32"
-          >
-        </div>
+        <div class="form-group"><label>Pant Size</label><input type="text" id="pPSize" placeholder="32"></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="pEmail" placeholder="player@cric.com"></div>
+        <div class="form-group"><label>Date of Birth *</label><input type="date" id="pDob"></div>
 
-        <div class="form-group">
-          <label>Email Address</label>
-          <input
-            type="email"
-            id="pEmail"
-            placeholder="player@cric.com"
-          >
-        </div>
-
-        <div class="form-group">
-          <label>Date of Birth *</label>
-          <input type="date" id="pDob">
-        </div>
-
-        <button
-          class="action-btn"
-          type="button"
-          onclick="registerPlayer()"
-        >
-          💾 SAVE PLAYER
-        </button>
-
+        <button class="action-btn" type="button" onclick="registerPlayer()">💾 SAVE PLAYER</button>
       </div>
-
     </section>
 
 
-    <!-- =========================
-         NORMAL TOURNAMENT
-    ========================= -->
+    <!-- NORMAL TOURNAMENT -->
     <section id="normalTournamentPage" class="page">
-
-      <button
-        class="backBtn"
-        type="button"
-        onclick="openPage('tournament')"
-      >
-        ← Back
-      </button>
-
+      <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
       <h2>👥 Normal Tournament</h2>
 
       <div class="modal-box">
-
-        <p class="smallText">
-          Registered players are shown below.
-        </p>
-
+        <p class="smallText">Registered players are shown below.</p>
         <br>
-
-        <div id="normalPlayersList">
-          No registered players yet.
-        </div>
-
-        <button
-          class="action-btn"
-          type="button"
-          onclick="formTeams()"
-        >
-          👥 FORM TEST TEAMS
-        </button>
-
+        <div id="normalPlayersList">No registered players yet.</div>
+        <button class="action-btn" type="button" onclick="formTeams()">👥 FORM TEST TEAMS</button>
       </div>
-
     </section>
 
 
-    <!-- =========================
-         AUCTION
-    ========================= -->
+    <!-- AUCTION -->
     <section id="auctionTournamentPage" class="page">
-
-      <button
-        class="backBtn"
-        type="button"
-        onclick="openPage('tournament')"
-      >
-        ← Back
-      </button>
-
+      <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
       <h2>🪙 IPL-Style Auction</h2>
 
       <div class="modal-box">
-
         <div class="pageCard">
-          <b>
-            TITANS Points:
-            <span id="teamAPoints">1000</span>
-          </b>
-
-          <b style="margin-top:8px;">
-            WARRIORS Points:
-            <span id="teamBPoints">1000</span>
-          </b>
+          <b>TITANS Points: <span id="teamAPoints">1000</span></b>
+          <b>WARRIORS Points: <span id="teamBPoints">1000</span></b>
         </div>
 
-        <div class="pageCard" style="text-align:center;">
+        <div class="pageCard auctionCenter">
+          <div class="smallText">CURRENT PLAYER</div>
+          <h2 id="auctionPlayerName">No Active Player</h2>
+          <p>Base Value: <span id="auctionBaseValue">50</span></p>
 
-          <div class="smallText">
-            CURRENT PLAYER
+          <div class="auctionButtons">
+            <button class="action-btn greenBtn" type="button" onclick="sellPlayer('A')">SOLD TITANS</button>
+            <button class="action-btn" type="button" onclick="sellPlayer('B')">SOLD WARRIORS</button>
           </div>
-
-          <h2 id="auctionPlayerName">
-            No Active Player
-          </h2>
-
-          <p>
-            Base Value:
-            <span id="auctionBaseValue">50</span>
-          </p>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
-
-            <button
-              class="action-btn"
-              style="background:#00a86b;"
-              type="button"
-              onclick="sellPlayer('A')"
-            >
-              SOLD TITANS
-            </button>
-
-            <button
-              class="action-btn"
-              type="button"
-              onclick="sellPlayer('B')"
-            >
-              SOLD WARRIORS
-            </button>
-
-          </div>
-
         </div>
 
-        <h4 style="margin:18px 0 10px;">
-          Sold History
-        </h4>
-
-        <div id="auctionHistoryLog">
-          No players sold yet.
-        </div>
-
+        <h4>Sold History</h4>
+        <div id="auctionHistoryLog">No players sold yet.</div>
       </div>
-
     </section>
 
 
-    <!-- =========================
-         LIVE SCORING
-    ========================= -->
+    <!-- LIVE SCORING -->
     <section id="liveScoringPage" class="page">
 
-      <button
-        class="backBtn"
-        type="button"
-        onclick="goHome()"
-      >
-        ← Back Home
-      </button>
+      <button class="backBtn" type="button" onclick="goHome()">← Back Home</button>
 
-      <h2 style="text-align:center;">
-        🏏 Live Scoring Console
-      </h2>
+      <h2 class="centerTitle">🏏 Live Scoring Console</h2>
 
-      <div class="modal-box" style="text-align:center;">
+      <div class="modal-box scoringPanel">
 
         <div class="smallText">
           <span id="consoleTeamA">TITANS</span>
@@ -681,493 +303,444 @@
           <span id="consoleTeamB">WARRIORS</span>
         </div>
 
-        <h2
-          style="font-size:32px;margin:10px 0;"
-          id="consoleScore"
-        >
-          0 / 0
-        </h2>
+        <h2 class="bigScore" id="consoleScore">0 / 0</h2>
+        <p class="oversText" id="consoleOvers">Overs: 0.0</p>
+        <p id="consoleStats" class="statsText">CRR: 0.00</p>
 
-        <p
-          style="font-size:18px;"
-          id="consoleOvers"
-        >
-          Overs: 0.0
-        </p>
+        <div class="extrasBox">
+          <b>Extras: <span id="extrasTotal">0</span></b>
+          <span>WD: <b id="wideTotal">0</b></span>
+          <span>NB: <b id="noBallTotal">0</b></span>
+          <span>B: <b id="byeTotal">0</b></span>
+          <span>LB: <b id="legByeTotal">0</b></span>
+        </div>
 
-        <p
-          id="consoleStats"
-          style="font-weight:bold;"
-        >
-          CRR: 0.00
-        </p>
-
-        <div
-          id="ballHistoryBox"
-          class="pageCard"
-          style="margin-top:15px;"
-        >
+        <div id="ballHistoryBox" class="pageCard ballHistory">
           Over History: Start Scoring...
         </div>
 
 
-        <div class="scoring-grid">
+        <!-- RUN -->
+        <div class="scoreSection">
+          <div class="scoreSectionTitle">🏏 RUNS</div>
+          <div class="scoreButtonGrid">
+            <button class="score-btn run" onclick="selectScore(0)">0</button>
+            <button class="score-btn run" onclick="selectScore(1)">1</button>
+            <button class="score-btn run" onclick="selectScore(2)">2</button>
+            <button class="score-btn run" onclick="selectScore(3)">3</button>
+            <button class="score-btn run" onclick="selectScore(4)">4</button>
+            <button class="score-btn run" onclick="selectScore(6)">6</button>
+          </div>
+        </div>
 
-          <button class="score-btn run" type="button" onclick="addScore(0)">0</button>
-          <button class="score-btn run" type="button" onclick="addScore(1)">1</button>
-          <button class="score-btn run" type="button" onclick="addScore(2)">2</button>
 
-          <button class="score-btn run" type="button" onclick="addScore(3)">3</button>
-          <button class="score-btn run" type="button" onclick="addScore(4)">4</button>
-          <button class="score-btn run" type="button" onclick="addScore(6)">6</button>
+        <!-- ROUND DIRECTION GROUND -->
+        <div class="directionTitle" id="directionStatus">
+          👆 Run select karo, phir ball ki direction dabao
+        </div>
 
-          <button class="score-btn extra" type="button" onclick="addScore('WD')">Wd</button>
-          <button class="score-btn extra" type="button" onclick="addScore('NB')">Nb</button>
-          <button class="score-btn wk" type="button" onclick="addScore('W')">Wkt</button>
+        <div class="fieldWrap">
+          <div class="cricketField">
 
-          <button
-            class="score-btn undo"
-            type="button"
-            onclick="handleUndo()"
-          >
-            ↩️ UNDO LAST BALL
-          </button>
+            <button class="fieldBtn straight" onclick="chooseDirection('Straight')">STRAIGHT</button>
 
+            <button class="fieldBtn longOn" onclick="chooseDirection('Long On')">LONG ON</button>
+            <button class="fieldBtn longOff" onclick="chooseDirection('Long Off')">LONG OFF</button>
+
+            <button class="fieldBtn midWicket" onclick="chooseDirection('Mid Wicket')">MID WICKET</button>
+            <button class="fieldBtn cover" onclick="chooseDirection('Cover')">COVER</button>
+
+            <button class="fieldBtn squareLeg" onclick="chooseDirection('Square Leg')">SQUARE LEG</button>
+            <button class="fieldBtn point" onclick="chooseDirection('Point')">POINT</button>
+
+            <button class="fieldBtn fineLeg" onclick="chooseDirection('Fine Leg')">FINE LEG</button>
+
+            <div class="fieldPitch">🏏</div>
+          </div>
+        </div>
+
+
+        <!-- EXTRAS -->
+        <div class="scoreSection">
+          <div class="scoreSectionTitle">🟡 WIDE</div>
+          <div class="extraButtonGrid">
+            <button class="score-btn extra" onclick="addDirectEvent('WD',1)">Wd</button>
+            <button class="score-btn extra" onclick="addDirectEvent('WD',2)">Wd+1</button>
+            <button class="score-btn extra" onclick="addDirectEvent('WD',3)">Wd+2</button>
+            <button class="score-btn extra" onclick="addDirectEvent('WD',4)">Wd+3</button>
+            <button class="score-btn extra" onclick="addDirectEvent('WD',5)">Wd+4</button>
+          </div>
+        </div>
+
+        <div class="scoreSection">
+          <div class="scoreSectionTitle">🔵 NO BALL</div>
+          <div class="extraButtonGrid">
+            <button class="score-btn noBall" onclick="addDirectEvent('NB',1)">Nb</button>
+            <button class="score-btn noBall" onclick="addDirectEvent('NB',2)">Nb+1</button>
+            <button class="score-btn noBall" onclick="addDirectEvent('NB',3)">Nb+2</button>
+            <button class="score-btn noBall" onclick="addDirectEvent('NB',4)">Nb+3</button>
+            <button class="score-btn noBall" onclick="addDirectEvent('NB',5)">Nb+4</button>
+            <button class="score-btn noBall" onclick="addDirectEvent('NB',7)">Nb+6</button>
+          </div>
+        </div>
+
+        <div class="scoreSection">
+          <div class="scoreSectionTitle">🟣 BYE</div>
+          <div class="extraButtonGrid fourCols">
+            <button class="score-btn bye" onclick="addDirectEvent('B',1)">B+1</button>
+            <button class="score-btn bye" onclick="addDirectEvent('B',2)">B+2</button>
+            <button class="score-btn bye" onclick="addDirectEvent('B',3)">B+3</button>
+            <button class="score-btn bye" onclick="addDirectEvent('B',4)">B+4</button>
+          </div>
+        </div>
+
+        <div class="scoreSection">
+          <div class="scoreSectionTitle">🟠 LEG BYE</div>
+          <div class="extraButtonGrid fourCols">
+            <button class="score-btn legBye" onclick="addDirectEvent('LB',1)">LB+1</button>
+            <button class="score-btn legBye" onclick="addDirectEvent('LB',2)">LB+2</button>
+            <button class="score-btn legBye" onclick="addDirectEvent('LB',3)">LB+3</button>
+            <button class="score-btn legBye" onclick="addDirectEvent('LB',4)">LB+4</button>
+          </div>
+        </div>
+
+
+        <!-- WICKET -->
+        <div class="scoreSection">
+          <div class="scoreSectionTitle">🔴 WICKET</div>
+          <button class="score-btn wk fullButton" type="button" onclick="addWicket()">WKT</button>
+        </div>
+
+        <button class="score-btn undo fullButton" type="button" onclick="handleUndo()">↩️ UNDO LAST BALL</button>
+
+
+        <div class="commentaryCard">
+          <div class="commentaryHead">🎙️ LIVE COMMENTARY</div>
+          <div id="commentaryText">Match start karo aur scoring shuru karo...</div>
         </div>
 
       </div>
-
     </section>
 
   </main>
-
 </div>
 
 
-<!-- =========================
-     JAVASCRIPT
-========================= -->
 <script>
+let players = JSON.parse(localStorage.getItem("cy_players")) || [];
 
-/* =========================
-   APP DATA
-========================= */
+let matchTeams = JSON.parse(localStorage.getItem("cy_match_teams")) || {
+  teamA:"Titans",
+  teamB:"Warriors"
+};
 
-let players =
-  JSON.parse(localStorage.getItem("cy_players")) || [];
+let currentMatch = JSON.parse(localStorage.getItem("cy_current_match")) || {
+  runs:0,
+  wickets:0,
+  balls:0,
+  history:[],
+  extras:{wd:0,nb:0,b:0,lb:0}
+};
 
-let matchTeams =
-  JSON.parse(localStorage.getItem("cy_match_teams")) || {
-    teamA:"Titans",
-    teamB:"Warriors"
-  };
+if(!currentMatch.extras){
+  currentMatch.extras={wd:0,nb:0,b:0,lb:0};
+}
 
-let currentMatch =
-  JSON.parse(localStorage.getItem("cy_current_match")) || {
-    runs:0,
-    wickets:0,
-    balls:0,
-    history:[]
-  };
+let pendingScore = null;
 
-let auctionState =
-  JSON.parse(localStorage.getItem("cy_auction")) || {
-    teamA:1000,
-    teamB:1000,
-    currentPlayerIndex:0,
-    history:[]
-  };
+let auctionState = JSON.parse(localStorage.getItem("cy_auction")) || {
+  teamA:1000,
+  teamB:1000,
+  history:[]
+};
 
 
-/* =========================
-   START APP
-========================= */
-
-window.addEventListener("DOMContentLoaded", function(){
-
+window.addEventListener("DOMContentLoaded",function(){
   setTimeout(function(){
-    const splash =
-      document.getElementById("splashScreen");
-
+    const splash=document.getElementById("splashScreen");
     if(splash){
       splash.classList.add("hide");
-
-      setTimeout(function(){
-        splash.style.display = "none";
-      },500);
+      setTimeout(function(){splash.style.display="none";},500);
     }
   },1500);
 
   updateScoreDisplay();
   checkTodayBirthdays();
-
 });
 
 
-/* =========================
-   LOGIN
-========================= */
-
 function handleLogin(){
-
-  const mobile =
-    document.getElementById("authMobile").value.trim();
-
-  const password =
-    document.getElementById("authPassword").value;
-
-  /* Direct testing login allowed */
+  const mobile=document.getElementById("authMobile").value.trim();
+  const password=document.getElementById("authPassword").value;
 
   if(!mobile || !password){
-    alert("Mobile number and password enter karo.");
+    alert("Mobile number aur password enter karo.");
     return;
   }
-
   proceedToApp();
-
 }
-
 
 function proceedToApp(){
-
-  document.getElementById("authPage").style.display =
-    "none";
-
-  document.getElementById("appInterface").style.display =
-    "block";
-
+  document.getElementById("authPage").style.display="none";
+  document.getElementById("appInterface").style.display="block";
   openPage("home");
-
   updateScoreDisplay();
-  checkTodayBirthdays();
-
 }
-
 
 function logout(){
-
-  document.getElementById("appInterface").style.display =
-    "none";
-
-  document.getElementById("authPage").style.display =
-    "block";
-
-  document.getElementById("authPassword").value = "";
-
+  document.getElementById("appInterface").style.display="none";
+  document.getElementById("authPage").style.display="block";
+  document.getElementById("authPassword").value="";
 }
-
 
 function generateDummyMobile(){
-
-  const randomMob =
-    "9" + Math.floor(
-      100000000 + Math.random() * 900000000
-    );
-
-  document.getElementById("authMobile").value =
-    randomMob;
-
-  document.getElementById("authPassword").value =
-    "123456";
-
-  localStorage.setItem(
-    "cy_user_pass_" + randomMob,
-    "123456"
-  );
-
-  alert(
-    "Test Account Created!\n\n" +
-    "Mobile: " + randomMob +
-    "\nPassword: 123456"
-  );
-
+  const randomMob="9"+Math.floor(100000000+Math.random()*900000000);
+  document.getElementById("authMobile").value=randomMob;
+  document.getElementById("authPassword").value="123456";
+  alert("Test Account Created!\nMobile: "+randomMob+"\nPassword: 123456");
 }
-
-
-/* =========================
-   REGISTER
-========================= */
 
 function toggleRegisterSection(){
-
-  const box =
-    document.getElementById("registerSection");
-
-  if(box.style.display === "none" || !box.style.display){
-
-    box.style.display = "block";
-
-    document.getElementById("regMobile").value =
-      document.getElementById("authMobile").value;
-
-  }else{
-    box.style.display = "none";
-  }
-
+  const box=document.getElementById("registerSection");
+  box.style.display=(box.style.display==="block")?"none":"block";
 }
 
-
 function processUserRegistration(){
-
-  const mobile =
-    document.getElementById("regMobile").value.trim();
-
-  const password =
-    document.getElementById("regPassword").value;
+  const mobile=document.getElementById("regMobile").value.trim();
+  const password=document.getElementById("regPassword").value;
 
   if(!mobile || !password){
     alert("Mobile aur password enter karo.");
     return;
   }
 
-  localStorage.setItem(
-    "cy_user_pass_" + mobile,
-    password
-  );
-
-  document.getElementById("authMobile").value =
-    mobile;
-
-  document.getElementById("authPassword").value =
-    password;
-
-  document.getElementById("registerSection").style.display =
-    "none";
-
+  document.getElementById("authMobile").value=mobile;
+  document.getElementById("authPassword").value=password;
+  document.getElementById("registerSection").style.display="none";
   alert("🎉 Account created successfully!");
-
 }
-
-
-/* =========================
-   RESET PASSWORD
-========================= */
 
 function toggleResetForm(){
-
-  const box =
-    document.getElementById("resetPasswordSection");
-
-  if(box.style.display === "none" || !box.style.display){
-
-    box.style.display = "block";
-
-    document.getElementById("resetMobile").value =
-      document.getElementById("authMobile").value;
-
-  }else{
-    box.style.display = "none";
-  }
-
+  const box=document.getElementById("resetPasswordSection");
+  box.style.display=(box.style.display==="block")?"none":"block";
 }
 
-
 function processPasswordReset(){
-
-  const mobile =
-    document.getElementById("resetMobile").value.trim();
-
-  const password =
-    document.getElementById("resetNewPassword").value;
+  const mobile=document.getElementById("resetMobile").value.trim();
+  const password=document.getElementById("resetNewPassword").value;
 
   if(!mobile || !password){
     alert("All details fill karo.");
     return;
   }
 
-  localStorage.setItem(
-    "cy_user_pass_" + mobile,
-    password
-  );
-
-  document.getElementById("authPassword").value =
-    password;
-
-  document.getElementById("resetPasswordSection").style.display =
-    "none";
-
+  document.getElementById("authMobile").value=mobile;
+  document.getElementById("authPassword").value=password;
+  document.getElementById("resetPasswordSection").style.display="none";
   alert("🎉 Password updated successfully!");
-
 }
 
 
-/* =========================
-   PAGE NAVIGATION
-========================= */
-
 function openPage(pageId){
-
-  const pages =
-    document.querySelectorAll("section.page");
-
-  pages.forEach(function(page){
-    page.style.display = "none";
+  document.querySelectorAll("section.page").forEach(function(page){
+    page.style.display="none";
     page.classList.remove("active");
   });
 
-  const target =
-    document.getElementById(pageId);
+  const target=document.getElementById(pageId);
 
   if(target){
-
-    target.style.display = "block";
+    target.style.display="block";
     target.classList.add("active");
-
   }
 
-  if(pageId === "normalTournamentPage"){
-    renderNormalPlayers();
-  }
+  if(pageId==="normalTournamentPage") renderNormalPlayers();
+  if(pageId==="auctionTournamentPage") syncAuctionPool();
+  if(pageId==="liveScoringPage") updateScoreDisplay();
 
-  if(pageId === "auctionTournamentPage"){
-    syncAuctionPool();
-  }
-
-  if(pageId === "liveScoringPage"){
-    updateScoreDisplay();
-  }
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-
 
 function goHome(){
   openPage("home");
 }
 
+function showSearch(){alert("🔍 Search feature coming soon.");}
+function showMessage(){alert("💬 Chat feature coming soon.");}
+function showNotifications(){alert("🔔 No new notifications.");}
 
-/* =========================
-   HEADER BUTTONS
-========================= */
-
-function showSearch(){
-  alert("🔍 Search feature coming soon.");
-}
-
-function showMessage(){
-  alert("💬 Chat feature coming soon.");
-}
-
-function showNotifications(){
-  alert("🔔 No new notifications.");
-}
-
-
-/* =========================
-   MATCH SETUP
-========================= */
 
 function initiateNormalMatch(){
-
-  const teamA =
-    document.getElementById("matchTeamA").value.trim();
-
-  const teamB =
-    document.getElementById("matchTeamB").value.trim();
+  const teamA=document.getElementById("matchTeamA").value.trim();
+  const teamB=document.getElementById("matchTeamB").value.trim();
 
   if(!teamA || !teamB){
     alert("Dono team ke naam enter karo.");
     return;
   }
 
-  matchTeams.teamA = teamA;
-  matchTeams.teamB = teamB;
+  matchTeams.teamA=teamA;
+  matchTeams.teamB=teamB;
 
-  currentMatch = {
+  currentMatch={
     runs:0,
     wickets:0,
     balls:0,
-    history:[]
+    history:[],
+    extras:{wd:0,nb:0,b:0,lb:0}
   };
 
-  localStorage.setItem(
-    "cy_match_teams",
-    JSON.stringify(matchTeams)
-  );
+  pendingScore=null;
 
+  localStorage.setItem("cy_match_teams",JSON.stringify(matchTeams));
   saveMatch();
-
   updateScoreDisplay();
 
-  alert(
-    "🏏 Match Started!\n\n" +
-    teamA + " vs " + teamB
-  );
+  setCommentary("🏏 Match started! "+teamA+" vs "+teamB+". Scoring shuru karo!");
 
   openPage("liveScoringPage");
-
 }
-
 
 function saveMatch(){
-
-  localStorage.setItem(
-    "cy_current_match",
-    JSON.stringify(currentMatch)
-  );
-
+  localStorage.setItem("cy_current_match",JSON.stringify(currentMatch));
 }
 
 
-/* =========================
-   SCORE SYSTEM
-========================= */
+/* RUN SELECT - DIRECTION KE BAAD SAVE HOGA */
+function selectScore(runs){
+  pendingScore=runs;
 
-function addScore(value){
+  setText(
+    "directionStatus",
+    "🏏 "+runs+" run selected — ab ball ki direction dabao"
+  );
+}
 
-  let event = {
-    type:value,
-    runs:0,
+
+/* DIRECTION SELECT */
+function chooseDirection(direction){
+
+  if(pendingScore===null){
+    setCommentary("Pehle run button dabao, phir ball ki direction select karo.");
+    return;
+  }
+
+  const runs=pendingScore;
+
+  const event={
+    type:"RUN",
+    runs:runs,
+    legal:true,
     wicket:false,
-    legal:false
+    direction:direction,
+    label:String(runs)
   };
 
+  saveEvent(event);
 
-  /* NORMAL RUN */
+  setCommentary(createRunCommentary(runs,direction));
 
-  if(typeof value === "number"){
+  pendingScore=null;
 
-    event.runs = value;
-    event.legal = true;
+  setText(
+    "directionStatus",
+    "👆 Agli ball ke liye run select karo, phir direction dabao"
+  );
+}
 
+
+function createRunCommentary(runs,direction){
+  if(runs===0){
+    return "Dot ball! Ball "+direction+" ki direction me gayi, koi run nahi.";
   }
 
-
-  /* WIDE */
-
-  else if(value === "WD"){
-
-    event.runs = 1;
-    event.legal = false;
-
+  if(runs===1){
+    return "1 run! Batsman ne ball "+direction+" ki direction me khelkar single liya.";
   }
 
-
-  /* NO BALL */
-
-  else if(value === "NB"){
-
-    event.runs = 1;
-    event.legal = false;
-
+  if(runs===2){
+    return "2 runs! Ball "+direction+" ki direction me, dono batsman ne tez running ki.";
   }
 
-
-  /* WICKET */
-
-  else if(value === "W"){
-
-    event.wicket = true;
-    event.legal = true;
-
+  if(runs===3){
+    return "3 runs! Ball "+direction+" ki taraf gayi aur shandar running!";
   }
 
+  if(runs===4){
+    return "🔥 FOUR! Shandar shot "+direction+" ki direction me, ball boundary ke paar!";
+  }
 
-  currentMatch.runs += event.runs;
+  if(runs===6){
+    return "🚀 SIX! Zabardast shot! Ball "+direction+" ki direction me stadium ke bahar!";
+  }
+
+  return runs+" runs! Ball "+direction+" ki direction me gayi.";
+}
+
+
+/* DIRECT EXTRAS */
+function addDirectEvent(type,runs){
+
+  pendingScore=null;
+
+  let label="";
+  let commentary="";
+
+  if(type==="WD"){
+    label=runs===1 ? "Wd" : "Wd+"+(runs-1);
+    commentary="Wide ball! Team ko "+runs+" extra run mile.";
+  }
+
+  if(type==="NB"){
+    label=runs===1 ? "Nb" : "Nb+"+(runs-1);
+    commentary="No Ball! Team ko "+runs+" run mile.";
+  }
+
+  if(type==="B"){
+    label="B+"+runs;
+    commentary="Bye! "+runs+" extra run team score me add.";
+  }
+
+  if(type==="LB"){
+    label="LB+"+runs;
+    commentary="Leg Bye! "+runs+" extra run team score me add.";
+  }
+
+  const event={
+    type:type,
+    runs:runs,
+    legal:type==="B" || type==="LB",
+    wicket:false,
+    direction:"",
+    label:label
+  };
+
+  saveEvent(event);
+  setCommentary(commentary);
+}
+
+
+function addWicket(){
+  pendingScore=null;
+
+  const event={
+    type:"W",
+    runs:0,
+    legal:true,
+    wicket:true,
+    direction:"",
+    label:"W"
+  };
+
+  saveEvent(event);
+  setCommentary("🔴 OUT! Wicket gir gaya! Naya batsman crease par aayega.");
+}
+
+
+/* COMMON EVENT SAVE */
+function saveEvent(event){
+
+  currentMatch.runs+=event.runs;
 
   if(event.wicket){
     currentMatch.wickets++;
@@ -1177,31 +750,30 @@ function addScore(value){
     currentMatch.balls++;
   }
 
+  if(event.type==="WD") currentMatch.extras.wd+=event.runs;
+  if(event.type==="NB") currentMatch.extras.nb+=event.runs;
+  if(event.type==="B") currentMatch.extras.b+=event.runs;
+  if(event.type==="LB") currentMatch.extras.lb+=event.runs;
 
   currentMatch.history.push(event);
 
   saveMatch();
-
   updateScoreDisplay();
-
 }
 
 
-/* =========================
-   UNDO
-========================= */
-
 function handleUndo(){
 
-  if(currentMatch.history.length === 0){
+  pendingScore=null;
+
+  if(currentMatch.history.length===0){
     alert("Undo karne ke liye koi ball nahi hai.");
     return;
   }
 
-  const last =
-    currentMatch.history.pop();
+  const last=currentMatch.history.pop();
 
-  currentMatch.runs -= last.runs;
+  currentMatch.runs-=last.runs;
 
   if(last.wicket){
     currentMatch.wickets--;
@@ -1211,519 +783,243 @@ function handleUndo(){
     currentMatch.balls--;
   }
 
-  if(currentMatch.runs < 0){
-    currentMatch.runs = 0;
-  }
+  if(last.type==="WD") currentMatch.extras.wd-=last.runs;
+  if(last.type==="NB") currentMatch.extras.nb-=last.runs;
+  if(last.type==="B") currentMatch.extras.b-=last.runs;
+  if(last.type==="LB") currentMatch.extras.lb-=last.runs;
 
-  if(currentMatch.wickets < 0){
-    currentMatch.wickets = 0;
-  }
+  currentMatch.runs=Math.max(0,currentMatch.runs);
+  currentMatch.wickets=Math.max(0,currentMatch.wickets);
+  currentMatch.balls=Math.max(0,currentMatch.balls);
 
-  if(currentMatch.balls < 0){
-    currentMatch.balls = 0;
-  }
+  currentMatch.extras.wd=Math.max(0,currentMatch.extras.wd);
+  currentMatch.extras.nb=Math.max(0,currentMatch.extras.nb);
+  currentMatch.extras.b=Math.max(0,currentMatch.extras.b);
+  currentMatch.extras.lb=Math.max(0,currentMatch.extras.lb);
 
   saveMatch();
-
   updateScoreDisplay();
-
+  setCommentary("↩️ Last ball undo kar di gayi.");
 }
 
 
-/* =========================
-   SCORE DISPLAY
-========================= */
-
 function updateScoreDisplay(){
 
-  const score =
-    currentMatch.runs +
-    "/" +
-    currentMatch.wickets;
+  const score=currentMatch.runs+"/"+currentMatch.wickets;
 
-  const overs =
-    Math.floor(currentMatch.balls / 6) +
-    "." +
-    (currentMatch.balls % 6);
+  const overs=
+    Math.floor(currentMatch.balls/6)+"."+
+    (currentMatch.balls%6);
 
-  const completedOvers =
-    currentMatch.balls / 6;
+  const completedOvers=currentMatch.balls/6;
 
-  let crr = "0.00";
+  let crr="0.00";
 
-  if(completedOvers > 0){
-
-    crr =
-      (
-        currentMatch.runs /
-        completedOvers
-      ).toFixed(2);
-
+  if(completedOvers>0){
+    crr=(currentMatch.runs/completedOvers).toFixed(2);
   }
 
+  setText("homeTeamA",matchTeams.teamA.toUpperCase());
+  setText("homeTeamB",matchTeams.teamB.toUpperCase());
+  setText("homeScore",score);
+  setText("homeOvers",overs+" Overs");
+  setText("homeStatus","CRR: "+crr);
 
-  /* HOME */
+  setText("consoleTeamA",matchTeams.teamA.toUpperCase());
+  setText("consoleTeamB",matchTeams.teamB.toUpperCase());
+  setText("consoleScore",score);
+  setText("consoleOvers","Overs: "+overs);
+  setText("consoleStats","CRR: "+crr);
 
-  setText(
-    "homeTeamA",
-    matchTeams.teamA.toUpperCase()
-  );
+  const extras=
+    currentMatch.extras.wd+
+    currentMatch.extras.nb+
+    currentMatch.extras.b+
+    currentMatch.extras.lb;
 
-  setText(
-    "homeTeamB",
-    matchTeams.teamB.toUpperCase()
-  );
+  setText("extrasTotal",extras);
+  setText("wideTotal",currentMatch.extras.wd);
+  setText("noBallTotal",currentMatch.extras.nb);
+  setText("byeTotal",currentMatch.extras.b);
+  setText("legByeTotal",currentMatch.extras.lb);
 
-  setText(
-    "homeScore",
-    score
-  );
+  const history=currentMatch.history.map(function(ball){
 
-  setText(
-    "homeOvers",
-    overs + " Overs"
-  );
+    if(ball.direction){
+      return ball.label+"("+ball.direction+")";
+    }
 
-  setText(
-    "homeStatus",
-    "CRR: " + crr
-  );
+    return ball.label;
 
-
-  /* LIVE CONSOLE */
-
-  setText(
-    "consoleTeamA",
-    matchTeams.teamA.toUpperCase()
-  );
-
-  setText(
-    "consoleTeamB",
-    matchTeams.teamB.toUpperCase()
-  );
-
-  setText(
-    "consoleScore",
-    score
-  );
-
-  setText(
-    "consoleOvers",
-    "Overs: " + overs
-  );
-
-  setText(
-    "consoleStats",
-    "CRR: " + crr
-  );
-
-
-  /* BALL HISTORY */
-
-  const history =
-    currentMatch.history.map(function(ball){
-
-      if(ball.type === "W"){
-        return "W";
-      }
-
-      if(ball.type === "WD"){
-        return "Wd";
-      }
-
-      if(ball.type === "NB"){
-        return "Nb";
-      }
-
-      return ball.runs;
-
-    }).join(" • ");
+  }).join(" • ");
 
   setText(
     "ballHistoryBox",
-    history
-      ? "History: " + history
-      : "Over History: Start Scoring..."
+    history ? "History: "+history : "Over History: Start Scoring..."
   );
+}
 
+
+function setCommentary(text){
+  setText("commentaryText",text);
 }
 
 
 function setText(id,value){
-
-  const element =
-    document.getElementById(id);
-
-  if(element){
-    element.textContent = value;
-  }
-
+  const element=document.getElementById(id);
+  if(element) element.textContent=value;
 }
 
 
-/* =========================
-   PLAYER REGISTRATION
-========================= */
-
+/* PLAYER */
 function registerPlayer(){
 
-  const name =
-    document.getElementById("pName").value.trim();
-
-  const mob =
-    document.getElementById("pMobile").value.trim();
-
-  const dob =
-    document.getElementById("pDob").value;
-
+  const name=document.getElementById("pName").value.trim();
+  const mob=document.getElementById("pMobile").value.trim();
+  const dob=document.getElementById("pDob").value;
 
   if(!name || !mob || !dob){
-
-    alert(
-      "Name, Mobile aur Date of Birth mandatory hai."
-    );
-
+    alert("Name, Mobile aur Date of Birth mandatory hai.");
     return;
-
   }
 
-
-  const player = {
-
+  const player={
     id:Date.now(),
-
     name:name,
-
     mob:mob,
-
     dob:dob,
-
-    jerseyNo:
-      document.getElementById("pJNo").value || "7",
-
-    jerseyName:
-      document.getElementById("pJName").value || name,
-
-    jerseySize:
-      document.getElementById("pJSize").value,
-
-    pantSize:
-      document.getElementById("pPSize").value,
-
-    email:
-      document.getElementById("pEmail").value,
-
+    jerseyNo:document.getElementById("pJNo").value || "7",
+    jerseyName:document.getElementById("pJName").value || name,
+    jerseySize:document.getElementById("pJSize").value,
+    pantSize:document.getElementById("pPSize").value,
+    email:document.getElementById("pEmail").value,
     soldTo:null
-
   };
 
-
   players.push(player);
+  localStorage.setItem("cy_players",JSON.stringify(players));
 
-
-  localStorage.setItem(
-    "cy_players",
-    JSON.stringify(players)
-  );
-
-
-  clearPlayerForm();
-
-  checkTodayBirthdays();
-
-  alert(
-    "🎉 Player Profile Saved Successfully!"
-  );
-
+  alert("🎉 Player Profile Saved Successfully!");
   goHome();
-
 }
 
-
-function clearPlayerForm(){
-
-  [
-    "pName",
-    "pMobile",
-    "pJNo",
-    "pJName",
-    "pPSize",
-    "pEmail",
-    "pDob"
-  ].forEach(function(id){
-
-    const el =
-      document.getElementById(id);
-
-    if(el){
-      el.value = "";
-    }
-
-  });
-
-}
-
-
-/* =========================
-   BIRTHDAY
-========================= */
 
 function checkTodayBirthdays(){
 
-  const box =
-    document.getElementById("birthdayBox");
+  const box=document.getElementById("birthdayBox");
+  const nameBox=document.getElementById("birthdayPlayerName");
 
-  const nameBox =
-    document.getElementById("birthdayPlayerName");
+  if(!box || !nameBox) return;
 
-  if(!box || !nameBox){
-    return;
-  }
+  const today=new Date();
 
-
-  const today =
-    new Date();
-
-  const monthDay =
-    String(today.getMonth()+1).padStart(2,"0") +
-    "-" +
+  const monthDay=
+    String(today.getMonth()+1).padStart(2,"0")+"-"+
     String(today.getDate()).padStart(2,"0");
 
-
-  const birthdayPlayer =
-    players.find(function(player){
-
-      return (
-        player.dob &&
-        player.dob.substring(5) === monthDay
-      );
-
-    });
-
+  const birthdayPlayer=players.find(function(player){
+    return player.dob && player.dob.substring(5)===monthDay;
+  });
 
   if(birthdayPlayer){
-
-    nameBox.textContent =
-      birthdayPlayer.name;
-
-    box.style.display =
-      "block";
-
+    nameBox.textContent=birthdayPlayer.name;
+    box.style.display="block";
   }else{
-
-    box.style.display =
-      "none";
-
+    box.style.display="none";
   }
-
 }
 
 
-/* =========================
-   NORMAL TOURNAMENT
-========================= */
-
+/* TOURNAMENT PLAYERS */
 function renderNormalPlayers(){
 
-  const list =
-    document.getElementById("normalPlayersList");
+  const list=document.getElementById("normalPlayersList");
+  if(!list) return;
 
-  if(!list){
+  if(players.length===0){
+    list.innerHTML="<div class='emptyBox'>No registered players yet. Add Player first.</div>";
     return;
   }
 
-
-  if(players.length === 0){
-
-    list.innerHTML =
-      "<div class='emptyBox'>" +
-      "No registered players yet. Add Player first." +
-      "</div>";
-
-    return;
-
-  }
-
-
-  list.innerHTML =
-    players.map(function(player){
-
-      return `
-        <div class="auction-flex">
-          <div>
-            <b>${escapeHTML(player.name)}</b>
-            <br>
-            Jersey: ${escapeHTML(String(player.jerseyNo))}
-          </div>
-
-          <div>
-            📞 ${escapeHTML(player.mob)}
-          </div>
-        </div>
-      `;
-
-    }).join("");
-
+  list.innerHTML=players.map(function(player){
+    return `
+      <div class="auction-flex">
+        <div><b>${escapeHTML(player.name)}</b><br>Jersey: ${escapeHTML(String(player.jerseyNo))}</div>
+        <div>📞 ${escapeHTML(player.mob)}</div>
+      </div>
+    `;
+  }).join("");
 }
-
 
 function formTeams(){
-
-  if(players.length < 2){
-
-    alert(
-      "Kam se kam 2 players register karo."
-    );
-
+  if(players.length<2){
+    alert("Kam se kam 2 players register karo.");
     return;
-
   }
 
+  const middle=Math.ceil(players.length/2);
+  const teamA=players.slice(0,middle);
+  const teamB=players.slice(middle);
 
-  const middle =
-    Math.ceil(players.length / 2);
-
-  const teamA =
-    players.slice(0,middle);
-
-  const teamB =
-    players.slice(middle);
-
-
-  let message =
-    "👥 TEST TEAMS FORMED!\n\n";
-
-  message +=
-    "TITANS:\n" +
-    teamA.map(function(p){
-      return p.name;
-    }).join(", ");
-
-  message +=
-    "\n\nWARRIORS:\n" +
-    teamB.map(function(p){
-      return p.name;
-    }).join(", ");
-
-
-  alert(message);
-
+  alert(
+    "👥 TEST TEAMS FORMED!\n\nTITANS:\n"+
+    teamA.map(p=>p.name).join(", ")+
+    "\n\nWARRIORS:\n"+
+    teamB.map(p=>p.name).join(", ")
+  );
 }
 
 
-/* =========================
-   AUCTION
-========================= */
-
+/* AUCTION */
 function syncAuctionPool(){
 
-  setText(
-    "teamAPoints",
-    auctionState.teamA
-  );
+  setText("teamAPoints",auctionState.teamA);
+  setText("teamBPoints",auctionState.teamB);
 
-  setText(
-    "teamBPoints",
-    auctionState.teamB
-  );
+  const available=players.filter(player=>!player.soldTo);
 
-
-  const available =
-    players.filter(function(player){
-      return !player.soldTo;
-    });
-
-
-  if(available.length === 0){
-
-    setText(
-      "auctionPlayerName",
-      players.length === 0
-        ? "Add Players First"
-        : "All Players Sold!"
-    );
-
+  if(available.length===0){
+    setText("auctionPlayerName",players.length===0?"Add Players First":"All Players Sold!");
     renderAuctionHistory();
-
     return;
-
   }
 
-
-  setText(
-    "auctionPlayerName",
-    available[0].name
-  );
-
-  setText(
-    "auctionBaseValue",
-    "50"
-  );
-
+  setText("auctionPlayerName",available[0].name);
+  setText("auctionBaseValue","50");
   renderAuctionHistory();
-
 }
-
 
 function sellPlayer(team){
 
-  const available =
-    players.filter(function(player){
-      return !player.soldTo;
-    });
+  const available=players.filter(player=>!player.soldTo);
 
-
-  if(available.length === 0){
-
+  if(available.length===0){
     alert("No players available.");
-
     return;
-
   }
 
+  const player=available[0];
+  const price=50;
 
-  const player =
-    available[0];
-
-  const price =
-    50;
-
-
-  if(team === "A"){
-
-    if(auctionState.teamA < price){
-
+  if(team==="A"){
+    if(auctionState.teamA<price){
       alert("TITANS ke paas points kam hain.");
-
       return;
-
     }
 
-    auctionState.teamA -= price;
-
-    player.soldTo =
-      "TITANS";
-
+    auctionState.teamA-=price;
+    player.soldTo="TITANS";
   }
 
-
-  if(team === "B"){
-
-    if(auctionState.teamB < price){
-
+  if(team==="B"){
+    if(auctionState.teamB<price){
       alert("WARRIORS ke paas points kam hain.");
-
       return;
-
     }
 
-    auctionState.teamB -= price;
-
-    player.soldTo =
-      "WARRIORS";
-
+    auctionState.teamB-=price;
+    player.soldTo="WARRIORS";
   }
-
 
   auctionState.history.unshift({
     player:player.name,
@@ -1731,98 +1027,43 @@ function sellPlayer(team){
     price:price
   });
 
+  localStorage.setItem("cy_players",JSON.stringify(players));
+  localStorage.setItem("cy_auction",JSON.stringify(auctionState));
 
-  localStorage.setItem(
-    "cy_players",
-    JSON.stringify(players)
-  );
-
-
-  localStorage.setItem(
-    "cy_auction",
-    JSON.stringify(auctionState)
-  );
-
-
-  alert(
-    "🪙 " +
-    player.name +
-    " SOLD TO " +
-    player.soldTo +
-    " for " +
-    price +
-    " points!"
-  );
-
+  alert("🪙 "+player.name+" SOLD TO "+player.soldTo+" for "+price+" points!");
 
   syncAuctionPool();
-
 }
-
 
 function renderAuctionHistory(){
 
-  const log =
-    document.getElementById(
-      "auctionHistoryLog"
-    );
+  const log=document.getElementById("auctionHistoryLog");
+  if(!log) return;
 
-  if(!log){
+  if(!auctionState.history || auctionState.history.length===0){
+    log.innerHTML="<div class='emptyBox'>No players sold yet.</div>";
     return;
   }
 
-
-  if(
-    !auctionState.history ||
-    auctionState.history.length === 0
-  ){
-
-    log.innerHTML =
-      "<div class='emptyBox'>" +
-      "No players sold yet." +
-      "</div>";
-
-    return;
-
-  }
-
-
-  log.innerHTML =
-    auctionState.history.map(function(item){
-
-      return `
-        <div class="auction-flex">
-          <div>
-            <b>${escapeHTML(item.player)}</b>
-          </div>
-
-          <div>
-            ${escapeHTML(item.team)}
-            🪙 ${item.price}
-          </div>
-        </div>
-      `;
-
-    }).join("");
-
+  log.innerHTML=auctionState.history.map(function(item){
+    return `
+      <div class="auction-flex">
+        <div><b>${escapeHTML(item.player)}</b></div>
+        <div>${escapeHTML(item.team)} 🪙 ${item.price}</div>
+      </div>
+    `;
+  }).join("");
 }
 
 
-/* =========================
-   SAFE HTML
-========================= */
-
 function escapeHTML(value){
-
   return String(value || "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
-
 }
-
 </script>
 
 </body>
