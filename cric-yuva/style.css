@@ -39,7 +39,7 @@ body{
 
 
 /* =========================
-   SPLASH SCREEN
+   CRIC YUVA SPLASH SCREEN
 ========================= */
 
 #splashScreen{
@@ -98,7 +98,13 @@ body{
   height:4px;
   margin:22px auto 0;
   border-radius:10px;
-  background:linear-gradient(90deg,transparent,#168cff,#00d084,transparent);
+  background:linear-gradient(
+    90deg,
+    transparent,
+    #168cff,
+    #00d084,
+    transparent
+  );
 }
 
 @keyframes splashPop{
@@ -115,7 +121,7 @@ body{
 
 
 /* =========================
-   HEADER
+   CRIC YUVA HEADER
 ========================= */
 
 .appHeader{
@@ -197,7 +203,7 @@ body{
 
 
 /* =========================
-   MAIN / PAGES
+   MAIN / CRIC YUVA PAGES
 ========================= */
 
 .main{
@@ -253,7 +259,7 @@ body{
 
 
 /* =========================
-   HERO
+   CRIC YUVA HERO
 ========================= */
 
 .hero{
@@ -264,9 +270,11 @@ body{
   border:1px solid rgba(22,140,255,.30);
   border-radius:22px;
   background:
-    linear-gradient(135deg,
-    rgba(22,140,255,.30),
-    rgba(0,208,132,.10)),
+    linear-gradient(
+      135deg,
+      rgba(22,140,255,.30),
+      rgba(0,208,132,.10)
+    ),
     #0d1c2d;
 }
 
@@ -327,10 +335,10 @@ body{
 
 
 /* =========================
-   SUNNY LIVE MATCH
+   CRIC YUVA LIVE MATCH
 ========================= */
 
-.sunnyMatchCard{
+.cricYuvaMatchCard{
   position:relative;
   min-height:285px;
   overflow:hidden;
@@ -348,8 +356,8 @@ body{
     inset 0 0 0 1px rgba(255,255,255,.25);
 }
 
-.sunnyMatchCard::before{
-  content:"☀️";
+.cricYuvaMatchCard::before{
+  content:"🏏";
   position:absolute;
   top:13px;
   right:18px;
@@ -468,11 +476,14 @@ body{
   top:179px;
   border-radius:6px;
   background:#c9b47a;
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.18);
 }
 
 
-/* Players */
+/* =========================
+   CRIC YUVA MATCH PLAYERS
+========================= */
 
 .player{
   position:absolute;
@@ -495,16 +506,45 @@ body{
   background:#f1c49a;
 }
 
-.player.a{ left:28%; top:150px; }
-.player.b{ left:40%; top:166px; }
-.player.c{ left:52%; top:150px; }
-.player.d{ left:63%; top:168px; }
-.player.e{ left:18%; top:190px; }
-.player.f{ left:74%; top:190px; }
-.player.g{ left:49%; top:200px; }
+.player.a{
+  left:28%;
+  top:150px;
+}
+
+.player.b{
+  left:40%;
+  top:166px;
+}
+
+.player.c{
+  left:52%;
+  top:150px;
+}
+
+.player.d{
+  left:63%;
+  top:168px;
+}
+
+.player.e{
+  left:18%;
+  top:190px;
+}
+
+.player.f{
+  left:74%;
+  top:190px;
+}
+
+.player.g{
+  left:49%;
+  top:200px;
+}
 
 
-/* Score Overlay */
+/* =========================
+   CRIC YUVA SCORE OVERLAY
+========================= */
 
 .scoreOverlay{
   position:absolute;
@@ -575,7 +615,12 @@ body{
   border:none;
   border-radius:12px;
   color:white;
-  background:linear-gradient(135deg,#168cff,#075bb9);
+  background:
+    linear-gradient(
+      135deg,
+      #168cff,
+      #075bb9
+    );
   font-weight:900;
   letter-spacing:.3px;
   cursor:pointer;
@@ -606,9 +651,11 @@ body{
   border-radius:18px;
   color:white;
   background:
-    linear-gradient(145deg,
-    rgba(255,255,255,.07),
-    rgba(255,255,255,.025));
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.07),
+      rgba(255,255,255,.025)
+    );
   cursor:pointer;
   font-size:13px;
   font-weight:700;
@@ -635,7 +682,7 @@ body{
 
 
 /* =========================
-   CARDS / EMPTY BOX
+   CRIC YUVA CARDS
 ========================= */
 
 .pageCard,
@@ -680,7 +727,9 @@ body{
   z-index:200;
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  padding:
+    6px 4px
+    calc(6px + env(safe-area-inset-bottom));
   border-top:1px solid var(--border);
   background:rgba(5,13,24,.96);
   backdrop-filter:blur(18px);
@@ -706,11 +755,12 @@ body{
 
 .navBtn.active{
   color:white;
-  background:linear-gradient(
-    145deg,
-    rgba(22,140,255,.28),
-    rgba(22,140,255,.10)
-  );
+  background:
+    linear-gradient(
+      145deg,
+      rgba(22,140,255,.28),
+      rgba(22,140,255,.10)
+    );
 }
 
 .navBtn.active span{
@@ -719,7 +769,7 @@ body{
 
 
 /* =========================
-   DRAWER
+   CRIC YUVA DRAWER
 ========================= */
 
 .drawerShade{
@@ -808,7 +858,7 @@ body{
 
 
 /* =========================
-   LIVE SCORE PAGE
+   CRIC YUVA LIVE SCORE PAGE
 ========================= */
 
 #liveScorePage .pageCard{
@@ -830,7 +880,9 @@ body{
   gap:10px;
 }
 
-#liveScorePage .pageCard:last-child .pageOption{
+#liveScorePage
+.pageCard:last-child
+.pageOption{
   min-height:55px;
   font-size:13px;
 }
@@ -872,7 +924,7 @@ body{
     font-size:22px;
   }
 
-  .sunnyMatchCard{
+  .cricYuvaMatchCard{
     min-height:275px;
   }
 
