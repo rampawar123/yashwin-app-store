@@ -2014,95 +2014,256 @@ function startSingleMatch(){
 
 function beginMatch(matchId){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
-
-  const match =
-    matches.find(
-      item =>
-        String(item.id) ===
-        String(matchId)
-    );
-
+  const match = matches.find(
+    item => String(item.id) === String(matchId)
+  );
 
   if(!match){
-
     alert("Match nahi mila.");
-
     return;
-
   }
 
-
   match.status = "live";
-
 
   localStorage.setItem(
     "CY_SINGLE_MATCHES",
     JSON.stringify(matches)
   );
 
+  const scoreKey = "CY_LIVE_SCORE_" + match.id;
 
-  const scoreKey =
-    "CY_LIVE_SCORE_" +
-    match.id;
-
-
-  const existingScore =
-    localStorage.getItem(scoreKey);
-
+  const existingScore = localStorage.getItem(scoreKey);
 
   if(!existingScore){
 
     const score = {
+      matchId: match.id,
 
-      matchId:match.id,
+      teamA: match.teamA,
 
-      teamA:match.teamA,
+      teamB: match.teamB,
 
-      teamB:match.teamB,
+      maxOvers: Number(match.overs) || 20,
 
-      maxOvers:Number(match.overs),
+      runs: 0,
 
-      runs:0,
+      wickets: 0,
 
-      wickets:0,
+      totalBalls: 0,
 
-      totalBalls:0,
+      striker: "Batsman 1",
 
-      striker:"Batsman 1",
+      nonStriker: "Batsman 2",
 
-      nonStriker:"Batsman 2",
+      selectedDirection: "Straight",
 
-      selectedDirection:"Straight",
-
-      commentary:[
+      commentary: [
         "🏏 Match started! First ball coming up."
       ]
-
     };
-
 
     localStorage.setItem(
       scoreKey,
       JSON.stringify(score)
     );
-
   }
-
 
   updateHomeMatch();
 
   showScorecards();
-
 }
+
+  function getLiveMatchAndScore(){
+
+  const matches = getMatches();
+
+  const match = matches.find(
+    item => item.status === "live"
+  );
+
+  if(!match){
+    return {
+      match: null,
+      score: null,
+      scoreKey: null
+    };
+  }
+
+  const scoreKey =
+    "CY_LIVE_SCORE_" + match.id;
+
+  const savedScore =
+    localStorage.getItem(scoreKey);
+
+  if(!savedScore){
+    return {
+      match: match,
+      score: null,
+      scoreKey: scoreKey
+    };
+  }
+
+  let score = null;
+
+  try{
+    score = JSON.parse(savedScore);
+  }catch(error){
+    score = null;
+  }
+
+  return {
+    match: match,
+    score: score,
+    scoreKey: scoreKey
+  };
+  }
 
 
 /* =========================
    LIVE SCORE SCREEN
 ========================= */
 
+function getCurrentOver(score){
+
+  if(!score){
+    return "0.0";
+  }
+
+  const overs =
+    Math.floor(score.totalBalls / 6);
+
+  const balls =
+    score.totalBalls % 6;
+
+  return overs + "." + balls;
+}
+
+  function getRequiredRuns(match, score){
+
+  if(!match || !score || !score.target){
+    return null;
+  }
+
+  const required =
+    score.target - score.runs;
+
+  return required > 0 ? required : 0;
+  }
+
+  function getBallsRemaining(match, score){
+    if(!match || !score){
+        return 0;
+    }
+
+    const maxOvers = Number(
+        match.overs ||
+        score.maxOvers ||
+        0
+    );
+
+    const totalMatchBalls = maxOvers * 6;
+
+    const remaining =
+        totalMatchBalls -
+        Number(score.totalBalls || 0);
+
+    return remaining > 0 ? remaining : 0;
+}
+
+function getRunRate(score){
+    if(!score || !score.totalBalls){
+        return "0.00";
+    }
+
+    const overs =
+        Number(score.totalBalls) / 6;
+
+    const runRate =
+        Number(score.runs || 0) / overs;
+
+    return runRate.toFixed(2);
+}
+
+  function getBallsRemaining(score){
+    if(!score){
+        return 0;
+    }
+
+    const maxBalls =
+        Number(score.maxOvers || 0) * 6;
+
+    const playedBalls =
+        Number(score.totalBalls || 0);
+
+    const remaining =
+        maxBalls - playedBalls;
+
+    return remaining > 0 ? remaining : 0;
+  }
+
+  function getMatchProgress(score){
+    if(!score){
+        return {
+            played: 0,
+            total: 0,
+            percent: 0
+        };
+    }
+
+    const total =
+        Number(score.maxOvers || 0) * 6;
+
+    const played =
+        Number(score.totalBalls || 0);
+
+    let percent = 0;
+
+    if(total > 0){
+        percent =
+            Math.min(
+                100,
+                Math.round(
+                    (played / total) * 100
+                )
+            );
+    }
+
+    return {
+        played: played,
+        total: total,
+        percent: percent
+    };
+  }
+
+  function getScoreSummary(score){
+    if(!score){
+        return {
+            scoreText: "0/0",
+            oversText: "0.0",
+            runRate: "0.00",
+            ballsRemaining: 0
+        };
+    }
+
+    return {
+        scoreText:
+            Number(score.runs || 0) +
+            "/" +
+            Number(score.wickets || 0),
+
+        oversText:
+            getCurrentOver(score),
+
+        runRate:
+            getRunRate(score),
+
+        ballsRemaining:
+            getBallsRemaining(score)
+    };
+  }
+  
 function showScorecards(){
 
   const matches =
@@ -2115,7 +2276,25 @@ function showScorecards(){
         item.status === "live"
     );
 
+  const liveData = getLiveMatchAndScore();
 
+if(!liveData || !liveData.match || !liveData.score){
+    alert("Koi live match ya score nahi mila. Start Match se match start karo.");
+    return;
+}
+
+const score = liveData.score;
+
+const summary = getScoreSummary(score);
+
+const progress = getMatchProgress(score);
+
+  const requiredRuns = getRequiredRuns(match, score);
+
+const runRate = getRunRate(score);
+
+const ballsRemaining = getBallsRemaining(score);
+  
   if(!match){
 
     alert(
@@ -2125,7 +2304,6 @@ function showScorecards(){
     return;
 
   }
-
 
   const scoreKey =
     "CY_LIVE_SCORE_" +
@@ -2139,18 +2317,23 @@ function showScorecards(){
 
 
   if(!score){
-
     beginMatch(match.id);
-
     return;
-
   }
+
+  const displayData = {
+    score: summary.scoreText,
+    overs: summary.oversText,
+    runRate: runRate,
+    requiredRuns: requiredRuns,
+    ballsRemaining: ballsRemaining,
+    progress: progress
+};
 
 
   renderScoreScreen();
 
 }
-
 
 function renderScoreScreen(){
 
@@ -2169,6 +2352,18 @@ function renderScoreScreen(){
 
   const match =
     live.match;
+
+  const score = live.score;
+
+  const summary = getScoreSummary(score);
+
+  const progress = getMatchProgress(score);
+
+  const requiredRuns = getRequiredRuns(match, score);
+
+  const runRate = getRunRate(score);
+
+  const ballsRemaining = getBallsRemaining(score);
 
   const score =
     live.score;
@@ -2190,6 +2385,19 @@ function renderScoreScreen(){
     (
       score.totalBalls % 6
     );
+
+  const scoreText =
+    Number(score.runs || 0)
+    + "/"
+    + Number(score.wickets || 0);
+
+const requiredText =
+    requiredRuns > 0
+        ? requiredRuns + " runs needed"
+        : "Target achieved";
+
+const ballsText =
+    ballsRemaining + " balls remaining";
 
 
   const commentaryHTML =
@@ -2381,32 +2589,35 @@ function renderScoreScreen(){
 
       </div>
 
-
       <div class="extraButtons">
 
-        <button
-          class="extraBtn"
-          onclick="addWide()"
-        >
-          🚨 Wide
-        </button>
+  <button class="extraBtn wideBtn" onclick="addWide()">
+    ⚠️ WD
+  </button>
 
-        <button
-          class="extraBtn"
-          onclick="addNoBall()"
-        >
-          ⚠️ No Ball
-        </button>
+  <button class="extraBtn noBallBtn" onclick="addNoBall()">
+    ⚠️ NB
+  </button>
 
-        <button
-          class="extraBtn wicket"
-          onclick="addWicket()"
-        >
-          🏏 Wicket
-        </button>
+  <button class="extraBtn byeBtn" onclick="addBye(1)">
+    BYE
+  </button>
 
-      </div>
+  <button class="extraBtn legByeBtn" onclick="addLegBye(1)">
+    LB
+  </button>
 
+  <button class="extraBtn wicket" onclick="addWicket()">
+    🏏 OUT
+  </button>
+
+  <button class="extraBtn undoBtn" onclick="undoLastBall()">
+    ↩️ UNDO
+  </button>
+
+</div>
+
+   
     </div>
 
 
@@ -2761,6 +2972,96 @@ function addWicket(){
 
 }
 
+/* =========================
+   BYE
+========================= */
+function addBye(runs = 1){
+  const live = getLiveMatchAndScore();
+
+  if(!live){
+    return;
+  }
+
+  const score = live.score;
+
+  score.runs += runs;
+  score.totalBalls += 1;
+
+  score.commentary.push(
+    "🔵 BYE +" + runs + " run"
+  );
+
+  if(score.totalBalls % 6 === 0){
+    score.commentary.push(
+      "🔔 OVER COMPLETE! Score: " +
+      score.runs + "/" + score.wickets
+    );
+
+    swapBatsmen(score);
+  }
+
+  checkMatchComplete(score);
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+  updateHomeMatch();
+
+  renderScoreScreen();
+}
+
+
+/* =========================
+   LEG BYE
+========================= */
+function addLegBye(runs = 1){
+  const live = getLiveMatchAndScore();
+
+  if(!live){
+    return;
+  }
+
+  const score = live.score;
+
+  score.runs += runs;
+  score.totalBalls += 1;
+
+  score.commentary.push(
+    "🟢 LEG BYE +" + runs + " run"
+  );
+
+  if(score.totalBalls % 6 === 0){
+    score.commentary.push(
+      "🔔 OVER COMPLETE! Score: " +
+      score.runs + "/" + score.wickets
+    );
+
+    swapBatsmen(score);
+  }
+
+  checkMatchComplete(score);
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+  updateHomeMatch();
+
+  renderScoreScreen();
+}
+
+
+/* =========================
+   UNDO LAST BALL
+========================= */
+function undoLastBall(){
+  alert(
+    "UNDO feature: last action remove karne ke liye history system add karna hoga."
+  );
+}
 
 /* =========================
    MATCH COMPLETE CHECK
