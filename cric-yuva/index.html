@@ -50,6 +50,23 @@
       <input type="password" id="authPassword" placeholder="Enter password">
     </div>
     <button class="action-btn" onclick="handleLogin()">🔑 Open App</button>
+         <!-- Forgot Password Code -->
+    <p style="margin-top: 15px; font-size: 13px; color: #168cff; cursor: pointer; text-decoration: underline;" onclick="toggleResetForm()">
+      Forgot Password? / Reset Password 🔑
+    </p>
+
+    <div id="resetPasswordSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc;">
+      <h4 style="color: #ff3b5c; margin-bottom: 10px;">Reset Your Password</h4>
+      <div class="form-group">
+        <label>Enter Registered Mobile Number</label>
+        <input type="number" id="resetMobile" placeholder="e.g. 7218332558">
+      </div>
+      <div class="form-group">
+        <label>Enter New Password</label>
+        <input type="password" id="resetNewPassword" placeholder="Enter new password">
+      </div>
+      <button class="action-btn" style="background: #28a745;" onclick="processPasswordReset()">💾 Update Password</button>
+    </div>
     <button class="action-btn" style="background:#6c757d;" onclick="generateDummyMobile()">🎲 Generate Dummy Mobile</button>
   </div>
 </div>
