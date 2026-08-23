@@ -1172,6 +1172,1927 @@ function openPage(pageName){
 
 }
 
+/* =========================
+   SPLASH SCREEN
+========================= */
+
+window.addEventListener("load", function(){
+
+  setTimeout(function(){
+
+    const splash =
+      document.getElementById(
+        "splashScreen"
+      );
+
+    if(splash){
+
+      splash.classList.add("hide");
+
+      setTimeout(function(){
+
+        splash.style.display = "none";
+
+      }, 500);
+
+    }
+
+  }, 2200);
+
+  updateHomeMatch();
+
+});
+
+
+/* =========================
+   PAGE SYSTEM
+========================= */
+
+let currentPage = "home";
+
+let pageHistory = ["home"];
+
+
+function openPage(pageName){
+
+  const selected =
+    document.getElementById(pageName);
+
+  if(!selected){
+    return;
+  }
+
+  document
+    .querySelectorAll(".page")
+    .forEach(function(page){
+
+      page.classList.remove("active");
+
+    });
+
+  selected.classList.add("active");
+
+  if(currentPage !== pageName){
+
+    pageHistory.push(pageName);
+
+  }
+
+  currentPage = pageName;
+
+  updateNavigation(pageName);
+
+  closeDrawer();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+function openHome(){
+
+  pageHistory = ["home"];
+
+  currentPage = "home";
+
+  document
+    .querySelectorAll(".page")
+    .forEach(function(page){
+
+      page.classList.remove("active");
+
+    });
+
+  const home =
+    document.getElementById("home");
+
+  if(home){
+
+    home.classList.add("active");
+
+  }
+
+  updateNavigation("home");
+
+}
+
+
+function goBack(){
+
+  if(pageHistory.length <= 1){
+
+    openHome();
+
+    return;
+
+  }
+
+  pageHistory.pop();
+
+  const previousPage =
+    pageHistory[
+      pageHistory.length - 1
+    ];
+
+  document
+    .querySelectorAll(".page")
+    .forEach(function(page){
+
+      page.classList.remove("active");
+
+    });
+
+  const previous =
+    document.getElementById(previousPage);
+
+  if(previous){
+
+    previous.classList.add("active");
+
+    currentPage = previousPage;
+
+    updateNavigation(previousPage);
+
+  }
+
+}
+
+
+/* =========================
+   BOTTOM NAVIGATION
+========================= */
+
+function updateNavigation(pageName){
+
+  document
+    .querySelectorAll(".navBtn")
+    .forEach(function(button){
+
+      button.classList.remove("active");
+
+    });
+
+  const activeButton =
+    document.querySelector(
+      '.navBtn[data-page="' +
+      pageName +
+      '"]'
+    );
+
+  if(activeButton){
+
+    activeButton.classList.add("active");
+
+  }
+
+}
+
+
+/* =========================
+   DRAWER
+========================= */
+
+function openDrawer(){
+
+  const drawer =
+    document.getElementById("drawer");
+
+  const shade =
+    document.getElementById("drawerShade");
+
+  if(drawer){
+
+    drawer.classList.add("open");
+
+  }
+
+  if(shade){
+
+    shade.classList.add("open");
+
+  }
+
+}
+
+
+function closeDrawer(){
+
+  const drawer =
+    document.getElementById("drawer");
+
+  const shade =
+    document.getElementById("drawerShade");
+
+  if(drawer){
+
+    drawer.classList.remove("open");
+
+  }
+
+  if(shade){
+
+    shade.classList.remove("open");
+
+  }
+
+}
+
+
+function drawerPage(pageName){
+
+  closeDrawer();
+
+  openPage(pageName);
+
+}
+
+
+/* =========================
+   MATCH DATA
+========================= */
+
+const MATCH_STORAGE_KEY =
+  "CY_SINGLE_MATCHES";
+
+
+function getMatches(){
+
+  try{
+
+    const matches =
+      JSON.parse(
+        localStorage.getItem(
+          MATCH_STORAGE_KEY
+        ) || "[]"
+      );
+
+    return Array.isArray(matches)
+      ? matches
+      : [];
+
+  }catch(error){
+
+    console.error(
+      "Match load error:",
+      error
+    );
+
+    return [];
+
+  }
+
+}
+
+
+function saveMatches(matches){
+
+  localStorage.setItem(
+    MATCH_STORAGE_KEY,
+    JSON.stringify(matches)
+  );
+
+}
+
+
+function escapeHTML(value){
+
+  return String(value ?? "")
+
+    .replace(/&/g, "&amp;")
+
+    .replace(/</g, "&lt;")
+
+    .replace(/>/g, "&gt;")
+
+    .replace(/"/g, "&quot;")
+
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================
+   HOME MATCH UPDATE
+========================= */
+
+function updateHomeMatch(){
+
+  const matches =
+    getMatches();
+
+  const live =
+    matches.find(
+      item =>
+        item.status === "live"
+    );
+
+  const upcoming =
+    matches.find(
+      item =>
+        item.status === "upcoming"
+    );
+
+  const match =
+    live || upcoming;
+
+
+  const homeTeamA =
+    document.getElementById(
+      "homeTeamA"
+    );
+
+  const homeTeamB =
+    document.getElementById(
+      "homeTeamB"
+    );
+
+  const homeScore =
+    document.getElementById(
+      "homeScore"
+    );
+
+  const homeOvers =
+    document.getElementById(
+      "homeOvers"
+    );
+
+  const homeStatus =
+    document.getElementById(
+      "homeStatus"
+    );
+
+  const homeGround =
+    document.getElementById(
+      "homeGround"
+    );
+
+  const liveBox =
+    document.getElementById(
+      "liveMatchesBox"
+    );
+
+  const upcomingBox =
+    document.getElementById(
+      "upcomingMatchesBox"
+    );
+
+
+  if(!match){
+
+    if(homeTeamA){
+
+      homeTeamA.textContent =
+        "Team A";
+
+    }
+
+    if(homeTeamB){
+
+      homeTeamB.textContent =
+        "Team B";
+
+    }
+
+    if(homeScore){
+
+      homeScore.textContent =
+        "0/0";
+
+    }
+
+    if(homeOvers){
+
+      homeOvers.textContent =
+        "0.0";
+
+    }
+
+    if(homeStatus){
+
+      homeStatus.textContent =
+        "☀️ Ready to Start";
+
+    }
+
+    if(homeGround){
+
+      homeGround.textContent =
+        "📍 Cricket Ground";
+
+    }
+
+    if(liveBox){
+
+      liveBox.textContent =
+        "No live matches right now.";
+
+    }
+
+    if(upcomingBox){
+
+      upcomingBox.textContent =
+        "Create a match and it will appear here.";
+
+    }
+
+    return;
+
+  }
+
+
+  if(homeTeamA){
+
+    homeTeamA.textContent =
+      match.teamA;
+
+  }
+
+  if(homeTeamB){
+
+    homeTeamB.textContent =
+      match.teamB;
+
+  }
+
+  if(homeGround){
+
+    homeGround.textContent =
+      "📍 " +
+      (
+        match.ground ||
+        "Cricket Ground"
+      );
+
+  }
+
+
+  if(live){
+
+    homeScore.textContent =
+      (
+        match.runs || 0
+      )
+      +
+      "/"
+      +
+      (
+        match.wickets || 0
+      );
+
+    homeOvers.textContent =
+      (
+        match.currentOvers ||
+        "0.0"
+      );
+
+    homeStatus.textContent =
+      "🔴 LIVE NOW";
+
+
+    if(liveBox){
+
+      liveBox.innerHTML =
+        "🔴 <b>"
+        +
+        escapeHTML(match.teamA)
+        +
+        " vs "
+        +
+        escapeHTML(match.teamB)
+        +
+        "</b><br><br>"
+        +
+        (
+          match.runs || 0
+        )
+        +
+        "/"
+        +
+        (
+          match.wickets || 0
+        )
+        +
+        " • "
+        +
+        (
+          match.currentOvers ||
+          "0.0"
+        )
+        +
+        " Overs";
+
+    }
+
+
+    if(upcomingBox){
+
+      upcomingBox.textContent =
+        "No upcoming matches right now.";
+
+    }
+
+  }else{
+
+    homeScore.textContent =
+      "READY";
+
+    homeOvers.textContent =
+      match.overs +
+      " OV";
+
+    homeStatus.textContent =
+      "☀️ Upcoming Match";
+
+
+    if(liveBox){
+
+      liveBox.textContent =
+        "No live matches right now.";
+
+    }
+
+
+    if(upcomingBox){
+
+      upcomingBox.innerHTML =
+        "📅 "
+        +
+        escapeHTML(match.teamA)
+        +
+        " vs "
+        +
+        escapeHTML(match.teamB)
+        +
+        " • "
+        +
+        escapeHTML(match.date)
+        +
+        " • "
+        +
+        escapeHTML(match.ground);
+
+    }
+
+  }
+
+}
+
+  /* =========================
+   CREATE SINGLE MATCH
+========================= */
+
+function createSingleMatch(){
+
+  const teamA =
+    prompt(
+      "Enter Team A Name:",
+      "Team A"
+    );
+
+  if(!teamA){
+    return;
+  }
+
+
+  const teamB =
+    prompt(
+      "Enter Team B Name:",
+      "Team B"
+    );
+
+  if(!teamB){
+    return;
+  }
+
+
+  const overs =
+    prompt(
+      "Enter Total Overs:",
+      "10"
+    );
+
+  if(!overs){
+    return;
+  }
+
+
+  const ground =
+    prompt(
+      "Enter Ground Name:",
+      "Cricket Ground"
+    );
+
+
+  const date =
+    new Date()
+      .toLocaleDateString();
+
+
+  const match = {
+
+    id:
+      "match_" +
+      Date.now(),
+
+    teamA:
+      teamA.trim(),
+
+    teamB:
+      teamB.trim(),
+
+    overs:
+      Number(overs) || 10,
+
+    ground:
+      ground ||
+      "Cricket Ground",
+
+    date:
+      date,
+
+    status:
+      "upcoming",
+
+    innings:
+      1,
+
+    runs:
+      0,
+
+    wickets:
+      0,
+
+    legalBalls:
+      0,
+
+    currentOvers:
+      "0.0",
+
+    target:
+      null,
+
+    result:
+      null,
+
+    createdAt:
+      Date.now()
+
+  };
+
+
+  const matches =
+    getMatches();
+
+  matches.unshift(match);
+
+  saveMatches(matches);
+
+  updateHomeMatch();
+
+  alert(
+    "🏏 Match Created Successfully!\n\n" +
+    match.teamA +
+    " VS " +
+    match.teamB +
+    "\n\nOvers: " +
+    match.overs +
+    "\nGround: " +
+    match.ground
+  );
+
+}
+
+
+/* =========================
+   SHOW MY MATCHES
+========================= */
+
+function showMyMatches(){
+
+  const matches =
+    getMatches();
+
+  if(!matches.length){
+
+    alert(
+      "Abhi koi match create nahi hua hai."
+    );
+
+    return;
+
+  }
+
+
+  let message =
+    "🏏 MY MATCHES\n\n";
+
+
+  matches.forEach(
+    function(match, index){
+
+      message +=
+        (
+          index + 1
+        )
+        +
+        ". "
+        +
+        match.teamA
+        +
+        " vs "
+        +
+        match.teamB
+        +
+        "\n"
+        +
+        "Status: "
+        +
+        match.status
+        +
+        "\n"
+        +
+        "Ground: "
+        +
+        match.ground
+        +
+        "\n\n";
+
+    }
+  );
+
+
+  alert(message);
+
+}
+
+
+/* =========================
+   START SINGLE MATCH
+========================= */
+
+function startSingleMatch(){
+
+  const matches =
+    getMatches();
+
+  if(!matches.length){
+
+    alert(
+      "Pehle Create Match karo."
+    );
+
+    return;
+
+  }
+
+
+  const upcoming =
+    matches.find(
+      function(match){
+
+        return (
+          match.status ===
+          "upcoming"
+        );
+
+      }
+    );
+
+
+  if(!upcoming){
+
+    const liveMatch =
+      matches.find(
+        function(match){
+
+          return (
+            match.status ===
+            "live"
+          );
+
+        }
+      );
+
+
+    if(liveMatch){
+
+      openLiveScore(
+        liveMatch.id
+      );
+
+      return;
+
+    }
+
+
+    alert(
+      "Start karne ke liye koi upcoming match nahi hai."
+    );
+
+    return;
+
+  }
+
+
+  upcoming.status =
+    "live";
+
+  upcoming.innings =
+    1;
+
+  upcoming.runs =
+    0;
+
+  upcoming.wickets =
+    0;
+
+  upcoming.legalBalls =
+    0;
+
+  upcoming.currentOvers =
+    "0.0";
+
+
+  saveMatches(matches);
+
+  updateHomeMatch();
+
+  alert(
+    "🔴 LIVE MATCH STARTED!\n\n" +
+    upcoming.teamA +
+    " vs " +
+    upcoming.teamB
+  );
+
+  openLiveScore(
+    upcoming.id
+  );
+
+}
+
+
+/* =========================
+   OPEN CURRENT MATCH
+========================= */
+
+function openCurrentMatch(){
+
+  const matches =
+    getMatches();
+
+  const liveMatch =
+    matches.find(
+      function(match){
+
+        return (
+          match.status ===
+          "live"
+        );
+
+      }
+    );
+
+
+  if(liveMatch){
+
+    openLiveScore(
+      liveMatch.id
+    );
+
+    return;
+
+  }
+
+
+  const upcoming =
+    matches.find(
+      function(match){
+
+        return (
+          match.status ===
+          "upcoming"
+        );
+
+      }
+    );
+
+
+  if(upcoming){
+
+    alert(
+      "Match abhi start nahi hua hai.\n\n" +
+      "Single Match → Start Match dabao."
+    );
+
+    openPage(
+      "singleMatch"
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "Abhi koi match nahi hai.\n\n" +
+    "Single Match → Create Match se match banao."
+  );
+
+  openPage(
+    "singleMatch"
+  );
+
+}
+
+
+/* =========================
+   LIVE SCORE PAGE
+========================= */
+
+function openLiveScore(matchId){
+
+  const matches =
+    getMatches();
+
+  const match =
+    matches.find(
+      function(item){
+
+        return (
+          item.id ===
+          matchId
+        );
+
+      }
+    );
+
+
+  if(!match){
+
+    alert(
+      "Match not found."
+    );
+
+    return;
+
+  }
+
+
+  let scorePage =
+    document.getElementById(
+      "liveScorePage"
+    );
+
+
+  if(!scorePage){
+
+    scorePage =
+      document.createElement(
+        "section"
+      );
+
+    scorePage.id =
+      "liveScorePage";
+
+    scorePage.className =
+      "page";
+
+    const main =
+      document.querySelector(
+        ".main"
+      );
+
+    if(main){
+
+      main.appendChild(
+        scorePage
+      );
+
+    }
+
+  }
+
+
+  scorePage.innerHTML =
+
+    '<button class="backBtn" onclick="goBack()">← Back</button>' +
+
+    '<h2>🔴 Live Score</h2>' +
+
+    '<div class="pageCard">' +
+
+      '<div class="smallText">' +
+      escapeHTML(match.teamA) +
+      ' VS ' +
+      escapeHTML(match.teamB) +
+      '</div>' +
+
+      '<div id="liveScoreNumber" style="font-size:36px;font-weight:bold;text-align:center;margin:15px 0;">' +
+      match.runs +
+      '/' +
+      match.wickets +
+      '</div>' +
+
+      '<div id="liveOversNumber" style="text-align:center;font-size:18px;">' +
+      match.currentOvers +
+      ' / ' +
+      match.overs +
+      ' Overs</div>' +
+
+      '<div id="inningsText" class="smallText" style="text-align:center;margin-top:10px;">' +
+      'Innings ' +
+      match.innings +
+      '</div>' +
+
+    '</div>' +
+
+    '<div class="pageCard">' +
+
+      '<div class="pageGrid">' +
+
+        '<button class="pageOption" onclick="addRuns(0)">0</button>' +
+        '<button class="pageOption" onclick="addRuns(1)">1</button>' +
+        '<button class="pageOption" onclick="addRuns(2)">2</button>' +
+        '<button class="pageOption" onclick="addRuns(3)">3</button>' +
+        '<button class="pageOption" onclick="addRuns(4)">4️⃣</button>' +
+        '<button class="pageOption" onclick="addRuns(6)">6️⃣</button>' +
+
+        '<button class="pageOption" onclick="addWide()">WD</button>' +
+        '<button class="pageOption" onclick="addNoBall()">NB</button>' +
+        '<button class="pageOption" onclick="addWicket()">W</button>' +
+
+      '</div>' +
+
+    '</div>' +
+
+    '<div class="pageCard">' +
+
+      '<button class="pageOption" onclick="undoLastBall()">↩️ Undo Last</button>' +
+
+      '<button class="pageOption" onclick="endInnings()">🏁 End Innings</button>' +
+
+    '</div>';
+
+
+  scorePage.dataset.matchId =
+    matchId;
+
+
+  openPage(
+    "liveScorePage"
+  );
+
+}
+
+  /* =========================
+   LIVE SCORING SYSTEM
+========================= */
+
+let ballHistory = [];
+
+
+/* =========================
+   GET ACTIVE MATCH
+========================= */
+
+function getActiveMatch(){
+
+  const scorePage =
+    document.getElementById(
+      "liveScorePage"
+    );
+
+  if(!scorePage){
+    return null;
+  }
+
+  const matchId =
+    scorePage.dataset.matchId;
+
+  const matches =
+    getMatches();
+
+  const match =
+    matches.find(
+      function(item){
+
+        return item.id === matchId;
+
+      }
+    );
+
+  if(!match){
+    return null;
+  }
+
+  return {
+    match: match,
+    matches: matches
+  };
+
+}
+
+
+/* =========================
+   SAVE ACTIVE MATCH
+========================= */
+
+function saveActiveMatch(data){
+
+  if(!data){
+    return;
+  }
+
+  saveMatches(
+    data.matches
+  );
+
+  updateHomeMatch();
+
+  updateLiveScoreUI(
+    data.match
+  );
+
+}
+
+
+/* =========================
+   UPDATE LIVE SCORE UI
+========================= */
+
+function updateLiveScoreUI(match){
+
+  const scoreNumber =
+    document.getElementById(
+      "liveScoreNumber"
+    );
+
+  const oversNumber =
+    document.getElementById(
+      "liveOversNumber"
+    );
+
+  const inningsText =
+    document.getElementById(
+      "inningsText"
+    );
+
+
+  if(scoreNumber){
+
+    scoreNumber.textContent =
+      match.runs +
+      "/" +
+      match.wickets;
+
+  }
+
+
+  if(oversNumber){
+
+    oversNumber.textContent =
+      match.currentOvers +
+      " / " +
+      match.overs +
+      " Overs";
+
+  }
+
+
+  if(inningsText){
+
+    if(
+      match.innings === 2 &&
+      match.target
+    ){
+
+      const need =
+        Math.max(
+          0,
+          match.target -
+          match.runs
+        );
+
+      inningsText.textContent =
+        "Innings 2 • Target " +
+        match.target +
+        " • Need " +
+        need;
+
+    }else{
+
+      inningsText.textContent =
+        "Innings " +
+        match.innings;
+
+    }
+
+  }
+
+}
+
+
+/* =========================
+   UPDATE OVERS
+========================= */
+
+function updateOvers(match){
+
+  const completedOvers =
+    Math.floor(
+      match.legalBalls / 6
+    );
+
+  const balls =
+    match.legalBalls % 6;
+
+  match.currentOvers =
+    completedOvers +
+    "." +
+    balls;
+
+}
+
+
+/* =========================
+   CHECK OVER / MATCH END
+========================= */
+
+function checkMatchStatus(match){
+
+  const totalBalls =
+    Number(match.overs) * 6;
+
+
+  /* WICKET ALL OUT */
+
+  if(match.wickets >= 10){
+
+    setTimeout(function(){
+
+      endInnings();
+
+    }, 300);
+
+    return;
+
+  }
+
+
+  /* OVERS COMPLETED */
+
+  if(
+    match.legalBalls >=
+    totalBalls
+  ){
+
+    setTimeout(function(){
+
+      endInnings();
+
+    }, 300);
+
+    return;
+
+  }
+
+
+  /* TARGET CHASED */
+
+  if(
+    match.innings === 2 &&
+    match.target &&
+    match.runs >= match.target
+  ){
+
+    finishMatch(
+      match
+    );
+
+  }
+
+}
+
+
+/* =========================
+   ADD NORMAL RUNS
+========================= */
+
+function addRuns(runs){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+  const match =
+    data.match;
+
+
+  ballHistory.push({
+
+    matchId:
+      match.id,
+
+    runs:
+      match.runs,
+
+    wickets:
+      match.wickets,
+
+    legalBalls:
+      match.legalBalls,
+
+    currentOvers:
+      match.currentOvers,
+
+    innings:
+      match.innings,
+
+    target:
+      match.target
+
+  });
+
+
+  match.runs +=
+    Number(runs);
+
+  match.legalBalls += 1;
+
+  updateOvers(match);
+
+  saveActiveMatch(data);
+
+  checkMatchStatus(match);
+
+}
+
+
+/* =========================
+   ADD WIDE
+========================= */
+
+function addWide(){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+  const match =
+    data.match;
+
+
+  ballHistory.push({
+
+    matchId:
+      match.id,
+
+    runs:
+      match.runs,
+
+    wickets:
+      match.wickets,
+
+    legalBalls:
+      match.legalBalls,
+
+    currentOvers:
+      match.currentOvers,
+
+    innings:
+      match.innings,
+
+    target:
+      match.target
+
+  });
+
+
+  const extra =
+    prompt(
+      "Wide runs?",
+      "1"
+    );
+
+  const wideRuns =
+    Number(extra) || 1;
+
+
+  match.runs +=
+    wideRuns;
+
+
+  /* Wide legal ball nahi hai */
+
+  updateOvers(match);
+
+  saveActiveMatch(data);
+
+}
+
+
+/* =========================
+   ADD NO BALL
+========================= */
+
+function addNoBall(){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+  const match =
+    data.match;
+
+
+  ballHistory.push({
+
+    matchId:
+      match.id,
+
+    runs:
+      match.runs,
+
+    wickets:
+      match.wickets,
+
+    legalBalls:
+      match.legalBalls,
+
+    currentOvers:
+      match.currentOvers,
+
+    innings:
+      match.innings,
+
+    target:
+      match.target
+
+  });
+
+
+  const extra =
+    prompt(
+      "Total runs on No Ball?",
+      "1"
+    );
+
+  const noBallRuns =
+    Number(extra) || 1;
+
+
+  match.runs +=
+    noBallRuns;
+
+
+  /* No Ball legal ball nahi hai */
+
+  updateOvers(match);
+
+  saveActiveMatch(data);
+
+}
+
+
+/* =========================
+   ADD WICKET
+========================= */
+
+function addWicket(){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+  const match =
+    data.match;
+
+
+  ballHistory.push({
+
+    matchId:
+      match.id,
+
+    runs:
+      match.runs,
+
+    wickets:
+      match.wickets,
+
+    legalBalls:
+      match.legalBalls,
+
+    currentOvers:
+      match.currentOvers,
+
+    innings:
+      match.innings,
+
+    target:
+      match.target
+
+  });
+
+
+  match.wickets += 1;
+
+  match.legalBalls += 1;
+
+  updateOvers(match);
+
+  saveActiveMatch(data);
+
+  checkMatchStatus(match);
+
+}
+
+
+/* =========================
+   UNDO LAST BALL
+========================= */
+
+function undoLastBall(){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+
+  const match =
+    data.match;
+
+
+  let historyIndex =
+    -1;
+
+
+  for(
+    let i =
+      ballHistory.length - 1;
+
+    i >= 0;
+
+    i--
+  ){
+
+    if(
+      ballHistory[i].matchId ===
+      match.id
+    ){
+
+      historyIndex = i;
+
+      break;
+
+    }
+
+  }
+
+
+  if(historyIndex === -1){
+
+    alert(
+      "Undo karne ke liye koi ball nahi hai."
+    );
+
+    return;
+
+  }
+
+
+  const previous =
+    ballHistory[
+      historyIndex
+    ];
+
+
+  match.runs =
+    previous.runs;
+
+  match.wickets =
+    previous.wickets;
+
+  match.legalBalls =
+    previous.legalBalls;
+
+  match.currentOvers =
+    previous.currentOvers;
+
+  match.innings =
+    previous.innings;
+
+  match.target =
+    previous.target;
+
+
+  ballHistory.splice(
+    historyIndex,
+    1
+  );
+
+
+  saveActiveMatch(data);
+
+}
+
+
+/* =========================
+   END INNINGS
+========================= */
+
+function endInnings(){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+  const match =
+    data.match;
+
+
+  if(match.innings === 1){
+
+    const firstInningsScore =
+      match.runs;
+
+
+    const confirmEnd =
+      confirm(
+        "🏁 End 1st Innings?\n\n" +
+        "Score: " +
+        match.runs +
+        "/" +
+        match.wickets +
+        "\nOvers: " +
+        match.currentOvers
+      );
+
+
+    if(!confirmEnd){
+      return;
+    }
+
+
+    match.firstInningsScore =
+      firstInningsScore;
+
+    match.target =
+      firstInningsScore + 1;
+
+    match.innings = 2;
+
+    match.runs = 0;
+
+    match.wickets = 0;
+
+    match.legalBalls = 0;
+
+    match.currentOvers = "0.0";
+
+
+    saveActiveMatch(data);
+
+
+    alert(
+      "🏏 2nd Innings Started!\n\n" +
+      "Target: " +
+      match.target
+    );
+
+    return;
+
+  }
+
+
+  /* SECOND INNINGS END */
+
+  finishMatch(match);
+
+}
+
+
+/* =========================
+   FINISH MATCH
+========================= */
+
+function finishMatch(match){
+
+  const data =
+    getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+
+  const firstScore =
+    Number(
+      match.firstInningsScore || 0
+    );
+
+  const secondScore =
+    Number(
+      match.runs || 0
+    );
+
+
+  let result =
+    "";
+
+
+  if(secondScore > firstScore){
+
+    const wicketsLeft =
+      10 - match.wickets;
+
+    result =
+      match.teamB +
+      " won by " +
+      wicketsLeft +
+      " wicket(s)";
+
+  }
+  else if(secondScore < firstScore){
+
+    const runsWon =
+      firstScore -
+      secondScore;
+
+    result =
+      match.teamA +
+      " won by " +
+      runsWon +
+      " run(s)";
+
+  }
+  else{
+
+    result =
+      "Match Tied";
+
+  }
+
+
+  match.status =
+    "completed";
+
+  match.result =
+    result;
+
+  match.completedAt =
+    Date.now();
+
+
+  saveMatches(
+    data.matches
+  );
+
+  updateHomeMatch();
+
+
+  alert(
+    "🏆 MATCH COMPLETED!\n\n" +
+    result +
+    "\n\nFinal Score:\n" +
+    match.teamA +
+    ": " +
+    firstScore +
+    "\n" +
+    match.teamB +
+    ": " +
+    secondScore
+  );
+
+
+  openPage("home");
+
+}
+
+
+/* =========================
+   SHOW SCORECARDS
+========================= */
+
+function showScorecards(){
+
+  const matches =
+    getMatches();
+
+  if(!matches.length){
+
+    alert(
+      "Abhi koi match nahi hai."
+    );
+
+    return;
+
+  }
+
+
+  let message =
+    "📊 SCORECARDS\n\n";
+
+
+  matches.forEach(
+    function(match, index){
+
+      message +=
+        (
+          index + 1
+        ) +
+        ". " +
+        match.teamA +
+        " vs " +
+        match.teamB +
+        "\n";
+
+
+      if(
+        match.status ===
+        "completed"
+      ){
+
+        message +=
+          "🏁 " +
+          (
+            match.result ||
+            "Completed"
+          );
+
+      }
+      else if(
+        match.status ===
+        "live"
+      ){
+
+        message +=
+          "🔴 " +
+          match.runs +
+          "/" +
+          match.wickets +
+          " (" +
+          match.currentOvers +
+          ")";
+
+      }
+      else{
+
+        message +=
+          "📅 Upcoming";
+
+      }
+
+
+      message +=
+        "\n\n";
+
+    }
+  );
+
+
+  alert(message);
+
+}
+
+
+/* =========================
+   APP INITIALIZATION
+========================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    updateHomeMatch();
+
+    updateNavigation(
+      "home"
+    );
+
+  }
+);
+
 <script src="script.js"></script>
 </body>
 </html>
