@@ -1111,22 +1111,19 @@
    SPLASH FIX
 ========================= */
 
-setTimeout(function(){
+window.addEventListener("load", function () {
+    setTimeout(function () {
+        const splash = document.getElementById("splashScreen");
 
-  const splash =
-    document.getElementById("splashScreen");
+        if (splash) {
+            splash.classList.add("hide");
 
-  if(splash){
-
-    splash.classList.add("hide");
-
-    setTimeout(function(){
-      splash.style.display = "none";
-    }, 600);
-
-  }
-
-}, 2500);
+            setTimeout(function () {
+                splash.style.display = "none";
+            }, 500);
+        }
+    }, 2500);
+});
 
 
 /* =========================
