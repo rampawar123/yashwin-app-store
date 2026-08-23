@@ -16,7 +16,6 @@
 
 <body>
 
-
 <!-- SPLASH -->
 
 <div id="splashScreen">
@@ -77,6 +76,7 @@
 
     <button
       class="headerBtn"
+      type="button"
       onclick="openPage('search')"
     >
       🔍
@@ -84,6 +84,7 @@
 
     <button
       class="headerBtn"
+      type="button"
       onclick="openPage('chat')"
     >
       💬
@@ -91,6 +92,7 @@
 
     <button
       class="headerBtn"
+      type="button"
       onclick="openPage('notifications')"
     >
       🔔
@@ -98,6 +100,7 @@
 
     <button
       class="headerBtn"
+      type="button"
       onclick="openDrawer()"
     >
       ☰
@@ -144,7 +147,7 @@
   </div>
 
 
-  <!-- SUNNY DAY MATCH -->
+  <!-- LIVE MATCH -->
 
   <div class="sunnyMatchCard">
 
@@ -224,7 +227,7 @@
       <div class="previewStatus">
 
         <span id="homeStatus">
-          ☀️ Ready to Start
+          Ready to Start
         </span>
 
         <span id="homeGround">
@@ -236,6 +239,7 @@
 
       <button
         class="previewOpenBtn"
+        type="button"
         onclick="openCurrentMatch()"
       >
         🏏 OPEN LIVE MATCH
@@ -261,6 +265,7 @@
 
     <button
       class="quickCard"
+      type="button"
       onclick="openPage('singleMatch')"
     >
 
@@ -275,6 +280,7 @@
 
     <button
       class="quickCard"
+      type="button"
       onclick="openPage('tournament')"
     >
 
@@ -289,6 +295,7 @@
 
     <button
       class="quickCard"
+      type="button"
       onclick="openPage('series')"
     >
 
@@ -313,6 +320,7 @@
 
     <button
       class="moreBtn"
+      type="button"
       onclick="openPage('singleMatch')"
     >
       View All
@@ -375,7 +383,10 @@
 
   <div class="quickGrid">
 
-    <button class="quickCard">
+    <button
+      class="quickCard"
+      type="button"
+    >
 
       <span class="quickIcon">
         📊
@@ -386,7 +397,10 @@
     </button>
 
 
-    <button class="quickCard">
+    <button
+      class="quickCard"
+      type="button"
+    >
 
       <span class="quickIcon">
         👥
@@ -397,7 +411,10 @@
     </button>
 
 
-    <button class="quickCard">
+    <button
+      class="quickCard"
+      type="button"
+    >
 
       <span class="quickIcon">
         🎂
@@ -421,6 +438,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -450,6 +468,7 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="createSingleMatch()"
     >
 
@@ -462,6 +481,7 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="showMyMatches()"
     >
 
@@ -474,6 +494,7 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="startSingleMatch()"
     >
 
@@ -486,6 +507,7 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="showScorecards()"
     >
 
@@ -509,6 +531,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -534,32 +557,32 @@
 
   <div class="pageGrid">
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>➕</span>
       Create Tournament
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>👥</span>
       Teams
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>📅</span>
       Schedule
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>📊</span>
       Points Table
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>🪙</span>
       Auction
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>🏁</span>
       Results
     </button>
@@ -578,6 +601,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -612,6 +636,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -623,22 +648,22 @@
 
   <div class="pageGrid">
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>⚔️</span>
       Opponent
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>👥</span>
       Team to Join
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>👤</span>
       Player
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>➕</span>
       Create Post
     </button>
@@ -657,6 +682,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -670,6 +696,7 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="openPage('singleMatch')"
     >
       <span>🏏</span>
@@ -678,6 +705,7 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="openPage('tournament')"
     >
       <span>🏆</span>
@@ -686,23 +714,24 @@
 
     <button
       class="pageOption"
+      type="button"
       onclick="openPage('series')"
     >
       <span>🥇</span>
       Series
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>👥</span>
       Teams
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>📊</span>
       Stats
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>✨</span>
       Highlights
     </button>
@@ -721,6 +750,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -732,22 +762,22 @@
 
   <div class="pageGrid">
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>📋</span>
       Scorers
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>🧑‍⚖️</span>
       Umpires
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>🎙️</span>
       Commentators
     </button>
 
-    <button class="pageOption">
+    <button class="pageOption" type="button">
       <span>📡</span>
       Streamers
     </button>
@@ -766,6 +796,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -794,6 +825,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -835,6 +867,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -861,6 +894,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -889,6 +923,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -914,6 +949,7 @@
 
   <button
     class="backBtn"
+    type="button"
     onclick="goBack()"
   >
     ← Back
@@ -930,7 +966,6 @@
 
 </section>
 
-
 </div>
 
 
@@ -940,61 +975,56 @@
 
   <button
     class="navBtn active"
+    type="button"
     data-page="home"
     onclick="openPage('home')"
   >
-
     <span>🏠</span>
     Home
-
   </button>
 
 
   <button
     class="navBtn"
+    type="button"
     data-page="looking"
     onclick="openPage('looking')"
   >
-
     <span>🔭</span>
     Looking
-
   </button>
 
 
   <button
     class="navBtn"
+    type="button"
     data-page="myCricket"
     onclick="openPage('myCricket')"
   >
-
     <span>🏏</span>
     My Cricket
-
   </button>
 
 
   <button
     class="navBtn"
+    type="button"
     data-page="community"
     onclick="openPage('community')"
   >
-
     <span>👥</span>
     Community
-
   </button>
 
 
   <button
     class="navBtn"
+    type="button"
     data-page="store"
     onclick="openPage('store')"
   >
-
     <span>🛍️</span>
     Store
-
   </button>
 
 </nav>
@@ -1030,6 +1060,7 @@
 
     <button
       class="drawerClose"
+      type="button"
       onclick="closeDrawer()"
     >
       ✕
@@ -1044,6 +1075,7 @@
 
   <button
     class="menuBtn"
+    type="button"
     onclick="drawerPage('profile')"
   >
     👤 Profile
@@ -1051,6 +1083,7 @@
 
   <button
     class="menuBtn"
+    type="button"
     onclick="drawerPage('settings')"
   >
     ⚙️ Settings
@@ -1061,19 +1094,19 @@
     CRIC YUVA
   </div>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     🛡️ Clubs
   </button>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     📞 Contact
   </button>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     📤 Share the App
   </button>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     ⭐ Rate Us
   </button>
 
@@ -1082,136 +1115,37 @@
     SOCIAL & INFO
   </div>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     📷 Instagram
   </button>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     ▶ YouTube
   </button>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     📘 Facebook
   </button>
 
-  <button class="menuBtn">
+  <button class="menuBtn" type="button">
     ℹ️ About Us
   </button>
 
 </aside>
 
-<script>
-/* =========================
-   SPLASH FIX
-========================= */
-
-window.addEventListener("load", function () {
-    setTimeout(function () {
-        const splash = document.getElementById("splashScreen");
-
-        if (splash) {
-            splash.classList.add("hide");
-
-            setTimeout(function () {
-                splash.style.display = "none";
-            }, 500);
-        }
-    }, 2500);
-});
-</script>
-  
 
 <script>
-/* =========================
-   PAGE SYSTEM
-========================= */
 
 let currentPage = "home";
-
 let pageHistory = ["home"];
+let ballHistory = [];
 
-
-function openPage(pageName){
-
-  const selectedPage =
-    document.getElementById(pageName);
-
-  if(!selectedPage){
-    return;
-  }
-
-  document
-    .querySelectorAll(".page")
-    .forEach(function(page){
-
-      page.classList.remove("active");
-
-    });
-
-  selectedPage.classList.add("active");
-
-
-  if(
-    currentPage !== pageName
-  ){
-
-    pageHistory.push(pageName);
-
-  }
-
-  currentPage = pageName;
-
-  updateNavigation(pageName);
-
-  closeDrawer();
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-}
-
-/* =========================
-   SPLASH SCREEN
-========================= */
-
-window.addEventListener("load", function(){
-
-  setTimeout(function(){
-
-    const splash =
-      document.getElementById(
-        "splashScreen"
-      );
-
-    if(splash){
-
-      splash.classList.add("hide");
-
-      setTimeout(function(){
-
-        splash.style.display = "none";
-
-      }, 500);
-
-    }
-
-  }, 2200);
-
-  updateHomeMatch();
-
-});
+const MATCH_STORAGE_KEY = "CY_SINGLE_MATCHES";
 
 
 /* =========================
    PAGE SYSTEM
 ========================= */
-
-let currentPage = "home";
-
-let pageHistory = ["home"];
-
 
 function openPage(pageName){
 
@@ -1225,17 +1159,13 @@ function openPage(pageName){
   document
     .querySelectorAll(".page")
     .forEach(function(page){
-
       page.classList.remove("active");
-
     });
 
   selected.classList.add("active");
 
   if(currentPage !== pageName){
-
     pageHistory.push(pageName);
-
   }
 
   currentPage = pageName;
@@ -1255,24 +1185,19 @@ function openPage(pageName){
 function openHome(){
 
   pageHistory = ["home"];
-
   currentPage = "home";
 
   document
     .querySelectorAll(".page")
     .forEach(function(page){
-
       page.classList.remove("active");
-
     });
 
   const home =
     document.getElementById("home");
 
   if(home){
-
     home.classList.add("active");
-
   }
 
   updateNavigation("home");
@@ -1283,11 +1208,8 @@ function openHome(){
 function goBack(){
 
   if(pageHistory.length <= 1){
-
     openHome();
-
     return;
-
   }
 
   pageHistory.pop();
@@ -1300,9 +1222,7 @@ function goBack(){
   document
     .querySelectorAll(".page")
     .forEach(function(page){
-
       page.classList.remove("active");
-
     });
 
   const previous =
@@ -1330,9 +1250,7 @@ function updateNavigation(pageName){
   document
     .querySelectorAll(".navBtn")
     .forEach(function(button){
-
       button.classList.remove("active");
-
     });
 
   const activeButton =
@@ -1343,9 +1261,7 @@ function updateNavigation(pageName){
     );
 
   if(activeButton){
-
     activeButton.classList.add("active");
-
   }
 
 }
@@ -1364,15 +1280,11 @@ function openDrawer(){
     document.getElementById("drawerShade");
 
   if(drawer){
-
     drawer.classList.add("open");
-
   }
 
   if(shade){
-
     shade.classList.add("open");
-
   }
 
 }
@@ -1387,15 +1299,11 @@ function closeDrawer(){
     document.getElementById("drawerShade");
 
   if(drawer){
-
     drawer.classList.remove("open");
-
   }
 
   if(shade){
-
     shade.classList.remove("open");
-
   }
 
 }
@@ -1404,19 +1312,14 @@ function closeDrawer(){
 function drawerPage(pageName){
 
   closeDrawer();
-
   openPage(pageName);
 
 }
 
 
 /* =========================
-   MATCH DATA
+   MATCH STORAGE
 ========================= */
-
-const MATCH_STORAGE_KEY =
-  "CY_SINGLE_MATCHES";
-
 
 function getMatches(){
 
@@ -1462,13 +1365,9 @@ function escapeHTML(value){
   return String(value ?? "")
 
     .replace(/&/g, "&amp;")
-
     .replace(/</g, "&lt;")
-
     .replace(/>/g, "&gt;")
-
     .replace(/"/g, "&quot;")
-
     .replace(/'/g, "&#039;");
 
 }
@@ -1480,122 +1379,80 @@ function escapeHTML(value){
 
 function updateHomeMatch(){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   const live =
-    matches.find(
-      item =>
-        item.status === "live"
-    );
+    matches.find(function(item){
+      return item.status === "live";
+    });
 
   const upcoming =
-    matches.find(
-      item =>
-        item.status === "upcoming"
-    );
+    matches.find(function(item){
+      return item.status === "upcoming";
+    });
 
-  const match =
-    live || upcoming;
-
+  const match = live || upcoming;
 
   const homeTeamA =
-    document.getElementById(
-      "homeTeamA"
-    );
+    document.getElementById("homeTeamA");
 
   const homeTeamB =
-    document.getElementById(
-      "homeTeamB"
-    );
+    document.getElementById("homeTeamB");
 
   const homeScore =
-    document.getElementById(
-      "homeScore"
-    );
+    document.getElementById("homeScore");
 
   const homeOvers =
-    document.getElementById(
-      "homeOvers"
-    );
+    document.getElementById("homeOvers");
 
   const homeStatus =
-    document.getElementById(
-      "homeStatus"
-    );
+    document.getElementById("homeStatus");
 
   const homeGround =
-    document.getElementById(
-      "homeGround"
-    );
+    document.getElementById("homeGround");
 
   const liveBox =
-    document.getElementById(
-      "liveMatchesBox"
-    );
+    document.getElementById("liveMatchesBox");
 
   const upcomingBox =
-    document.getElementById(
-      "upcomingMatchesBox"
-    );
+    document.getElementById("upcomingMatchesBox");
 
 
   if(!match){
 
     if(homeTeamA){
-
-      homeTeamA.textContent =
-        "Team A";
-
+      homeTeamA.textContent = "Team A";
     }
 
     if(homeTeamB){
-
-      homeTeamB.textContent =
-        "Team B";
-
+      homeTeamB.textContent = "Team B";
     }
 
     if(homeScore){
-
-      homeScore.textContent =
-        "0/0";
-
+      homeScore.textContent = "0/0";
     }
 
     if(homeOvers){
-
-      homeOvers.textContent =
-        "0.0";
-
+      homeOvers.textContent = "0.0";
     }
 
     if(homeStatus){
-
-      homeStatus.textContent =
-        "☀️ Ready to Start";
-
+      homeStatus.textContent = "Ready to Start";
     }
 
     if(homeGround){
-
       homeGround.textContent =
         "📍 Cricket Ground";
-
     }
 
     if(liveBox){
-
       liveBox.textContent =
         "No live matches right now.";
-
     }
 
     if(upcomingBox){
-
       upcomingBox.textContent =
         "Create a match and it will appear here.";
-
     }
 
     return;
@@ -1604,17 +1461,11 @@ function updateHomeMatch(){
 
 
   if(homeTeamA){
-
-    homeTeamA.textContent =
-      match.teamA;
-
+    homeTeamA.textContent = match.teamA;
   }
 
   if(homeTeamB){
-
-    homeTeamB.textContent =
-      match.teamB;
-
+    homeTeamB.textContent = match.teamB;
   }
 
   if(homeGround){
@@ -1632,21 +1483,12 @@ function updateHomeMatch(){
   if(live){
 
     homeScore.textContent =
-      (
-        match.runs || 0
-      )
-      +
-      "/"
-      +
-      (
-        match.wickets || 0
-      );
+      (match.runs || 0) +
+      "/" +
+      (match.wickets || 0);
 
     homeOvers.textContent =
-      (
-        match.currentOvers ||
-        "0.0"
-      );
+      match.currentOvers || "0.0";
 
     homeStatus.textContent =
       "🔴 LIVE NOW";
@@ -1655,33 +1497,16 @@ function updateHomeMatch(){
     if(liveBox){
 
       liveBox.innerHTML =
-        "🔴 <b>"
-        +
-        escapeHTML(match.teamA)
-        +
-        " vs "
-        +
-        escapeHTML(match.teamB)
-        +
-        "</b><br><br>"
-        +
-        (
-          match.runs || 0
-        )
-        +
-        "/"
-        +
-        (
-          match.wickets || 0
-        )
-        +
-        " • "
-        +
-        (
-          match.currentOvers ||
-          "0.0"
-        )
-        +
+        "🔴 <b>" +
+        escapeHTML(match.teamA) +
+        " vs " +
+        escapeHTML(match.teamB) +
+        "</b><br><br>" +
+        (match.runs || 0) +
+        "/" +
+        (match.wickets || 0) +
+        " • " +
+        (match.currentOvers || "0.0") +
         " Overs";
 
     }
@@ -1696,15 +1521,13 @@ function updateHomeMatch(){
 
   }else{
 
-    homeScore.textContent =
-      "READY";
+    homeScore.textContent = "READY";
 
     homeOvers.textContent =
-      match.overs +
-      " OV";
+      match.overs + " OV";
 
     homeStatus.textContent =
-      "☀️ Upcoming Match";
+      "📅 Upcoming Match";
 
 
     if(liveBox){
@@ -1718,20 +1541,13 @@ function updateHomeMatch(){
     if(upcomingBox){
 
       upcomingBox.innerHTML =
-        "📅 "
-        +
-        escapeHTML(match.teamA)
-        +
-        " vs "
-        +
-        escapeHTML(match.teamB)
-        +
-        " • "
-        +
-        escapeHTML(match.date)
-        +
-        " • "
-        +
+        "📅 " +
+        escapeHTML(match.teamA) +
+        " vs " +
+        escapeHTML(match.teamB) +
+        " • " +
+        escapeHTML(match.date) +
+        " • " +
         escapeHTML(match.ground);
 
     }
@@ -1740,7 +1556,8 @@ function updateHomeMatch(){
 
 }
 
- /* =========================
+
+/* =========================
    CREATE SINGLE MATCH
 ========================= */
 
@@ -1752,7 +1569,7 @@ function createSingleMatch(){
       "Team A"
     );
 
-  if(!teamA){
+  if(!teamA || !teamA.trim()){
     return;
   }
 
@@ -1763,7 +1580,7 @@ function createSingleMatch(){
       "Team B"
     );
 
-  if(!teamB){
+  if(!teamB || !teamB.trim()){
     return;
   }
 
@@ -1786,16 +1603,22 @@ function createSingleMatch(){
     );
 
 
-  const date =
-    new Date()
-      .toLocaleDateString();
+  const totalOvers =
+    Number(overs);
+
+  if(!Number.isFinite(totalOvers) || totalOvers <= 0){
+
+    alert("Please enter valid overs.");
+
+    return;
+
+  }
 
 
   const match = {
 
     id:
-      "match_" +
-      Date.now(),
+      "match_" + Date.now(),
 
     teamA:
       teamA.trim(),
@@ -1804,14 +1627,13 @@ function createSingleMatch(){
       teamB.trim(),
 
     overs:
-      Number(overs) || 10,
+      totalOvers,
 
     ground:
-      ground ||
-      "Cricket Ground",
+      (ground || "Cricket Ground").trim(),
 
     date:
-      date,
+      new Date().toLocaleDateString(),
 
     status:
       "upcoming",
@@ -1831,6 +1653,9 @@ function createSingleMatch(){
     currentOvers:
       "0.0",
 
+    firstInningsScore:
+      0,
+
     target:
       null,
 
@@ -1843,14 +1668,14 @@ function createSingleMatch(){
   };
 
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   matches.unshift(match);
 
   saveMatches(matches);
 
   updateHomeMatch();
+
 
   alert(
     "🏏 Match Created Successfully!\n\n" +
@@ -1872,8 +1697,7 @@ function createSingleMatch(){
 
 function showMyMatches(){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   if(!matches.length){
 
@@ -1894,30 +1718,15 @@ function showMyMatches(){
     function(match, index){
 
       message +=
-        (
-          index + 1
-        )
-        +
-        ". "
-        +
-        match.teamA
-        +
-        " vs "
-        +
-        match.teamB
-        +
-        "\n"
-        +
-        "Status: "
-        +
-        match.status
-        +
-        "\n"
-        +
-        "Ground: "
-        +
-        match.ground
-        +
+        (index + 1) +
+        ". " +
+        match.teamA +
+        " vs " +
+        match.teamB +
+        "\nStatus: " +
+        match.status +
+        "\nGround: " +
+        match.ground +
         "\n\n";
 
     }
@@ -1935,8 +1744,7 @@ function showMyMatches(){
 
 function startSingleMatch(){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   if(!matches.length){
 
@@ -1949,44 +1757,28 @@ function startSingleMatch(){
   }
 
 
+  const liveMatch =
+    matches.find(function(match){
+      return match.status === "live";
+    });
+
+
+  if(liveMatch){
+
+    openLiveScore(liveMatch.id);
+
+    return;
+
+  }
+
+
   const upcoming =
-    matches.find(
-      function(match){
-
-        return (
-          match.status ===
-          "upcoming"
-        );
-
-      }
-    );
+    matches.find(function(match){
+      return match.status === "upcoming";
+    });
 
 
   if(!upcoming){
-
-    const liveMatch =
-      matches.find(
-        function(match){
-
-          return (
-            match.status ===
-            "live"
-          );
-
-        }
-      );
-
-
-    if(liveMatch){
-
-      openLiveScore(
-        liveMatch.id
-      );
-
-      return;
-
-    }
-
 
     alert(
       "Start karne ke liye koi upcoming match nahi hai."
@@ -1997,28 +1789,21 @@ function startSingleMatch(){
   }
 
 
-  upcoming.status =
-    "live";
-
-  upcoming.innings =
-    1;
-
-  upcoming.runs =
-    0;
-
-  upcoming.wickets =
-    0;
-
-  upcoming.legalBalls =
-    0;
-
-  upcoming.currentOvers =
-    "0.0";
+  upcoming.status = "live";
+  upcoming.innings = 1;
+  upcoming.runs = 0;
+  upcoming.wickets = 0;
+  upcoming.legalBalls = 0;
+  upcoming.currentOvers = "0.0";
+  upcoming.firstInningsScore = 0;
+  upcoming.target = null;
+  upcoming.result = null;
 
 
   saveMatches(matches);
 
   updateHomeMatch();
+
 
   alert(
     "🔴 LIVE MATCH STARTED!\n\n" +
@@ -2027,9 +1812,8 @@ function startSingleMatch(){
     upcoming.teamB
   );
 
-  openLiveScore(
-    upcoming.id
-  );
+
+  openLiveScore(upcoming.id);
 
 }
 
@@ -2040,27 +1824,17 @@ function startSingleMatch(){
 
 function openCurrentMatch(){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   const liveMatch =
-    matches.find(
-      function(match){
-
-        return (
-          match.status ===
-          "live"
-        );
-
-      }
-    );
+    matches.find(function(match){
+      return match.status === "live";
+    });
 
 
   if(liveMatch){
 
-    openLiveScore(
-      liveMatch.id
-    );
+    openLiveScore(liveMatch.id);
 
     return;
 
@@ -2068,16 +1842,9 @@ function openCurrentMatch(){
 
 
   const upcoming =
-    matches.find(
-      function(match){
-
-        return (
-          match.status ===
-          "upcoming"
-        );
-
-      }
-    );
+    matches.find(function(match){
+      return match.status === "upcoming";
+    });
 
 
   if(upcoming){
@@ -2087,9 +1854,7 @@ function openCurrentMatch(){
       "Single Match → Start Match dabao."
     );
 
-    openPage(
-      "singleMatch"
-    );
+    openPage("singleMatch");
 
     return;
 
@@ -2101,9 +1866,7 @@ function openCurrentMatch(){
     "Single Match → Create Match se match banao."
   );
 
-  openPage(
-    "singleMatch"
-  );
+  openPage("singleMatch");
 
 }
 
@@ -2114,27 +1877,17 @@ function openCurrentMatch(){
 
 function openLiveScore(matchId){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   const match =
-    matches.find(
-      function(item){
-
-        return (
-          item.id ===
-          matchId
-        );
-
-      }
-    );
+    matches.find(function(item){
+      return item.id === matchId;
+    });
 
 
   if(!match){
 
-    alert(
-      "Match not found."
-    );
+    alert("Match not found.");
 
     return;
 
@@ -2142,35 +1895,23 @@ function openLiveScore(matchId){
 
 
   let scorePage =
-    document.getElementById(
-      "liveScorePage"
-    );
+    document.getElementById("liveScorePage");
 
 
   if(!scorePage){
 
     scorePage =
-      document.createElement(
-        "section"
-      );
+      document.createElement("section");
 
-    scorePage.id =
-      "liveScorePage";
+    scorePage.id = "liveScorePage";
 
-    scorePage.className =
-      "page";
+    scorePage.className = "page";
 
     const main =
-      document.querySelector(
-        ".main"
-      );
+      document.querySelector(".main");
 
     if(main){
-
-      main.appendChild(
-        scorePage
-      );
-
+      main.appendChild(scorePage);
     }
 
   }
@@ -2178,7 +1919,7 @@ function openLiveScore(matchId){
 
   scorePage.innerHTML =
 
-    '<button class="backBtn" onclick="goBack()">← Back</button>' +
+    '<button class="backBtn" type="button" onclick="goBack()">← Back</button>' +
 
     '<h2>🔴 Live Score</h2>' +
 
@@ -2213,16 +1954,15 @@ function openLiveScore(matchId){
 
       '<div class="pageGrid">' +
 
-        '<button class="pageOption" onclick="addRuns(0)">0</button>' +
-        '<button class="pageOption" onclick="addRuns(1)">1</button>' +
-        '<button class="pageOption" onclick="addRuns(2)">2</button>' +
-        '<button class="pageOption" onclick="addRuns(3)">3</button>' +
-        '<button class="pageOption" onclick="addRuns(4)">4️⃣</button>' +
-        '<button class="pageOption" onclick="addRuns(6)">6️⃣</button>' +
-
-        '<button class="pageOption" onclick="addWide()">WD</button>' +
-        '<button class="pageOption" onclick="addNoBall()">NB</button>' +
-        '<button class="pageOption" onclick="addWicket()">W</button>' +
+        '<button class="pageOption" type="button" onclick="addRuns(0)">0</button>' +
+        '<button class="pageOption" type="button" onclick="addRuns(1)">1</button>' +
+        '<button class="pageOption" type="button" onclick="addRuns(2)">2</button>' +
+        '<button class="pageOption" type="button" onclick="addRuns(3)">3</button>' +
+        '<button class="pageOption" type="button" onclick="addRuns(4)">4️⃣</button>' +
+        '<button class="pageOption" type="button" onclick="addRuns(6)">6️⃣</button>' +
+        '<button class="pageOption" type="button" onclick="addWide()">WD</button>' +
+        '<button class="pageOption" type="button" onclick="addNoBall()">NB</button>' +
+        '<button class="pageOption" type="button" onclick="addWicket()">W</button>' +
 
       '</div>' +
 
@@ -2230,40 +1970,30 @@ function openLiveScore(matchId){
 
     '<div class="pageCard">' +
 
-      '<button class="pageOption" onclick="undoLastBall()">↩️ Undo Last</button>' +
+      '<button class="pageOption" type="button" onclick="undoLastBall()">↩️ Undo Last</button>' +
 
-      '<button class="pageOption" onclick="endInnings()">🏁 End Innings</button>' +
+      '<button class="pageOption" type="button" onclick="endInnings()">🏁 End Innings</button>' +
 
     '</div>';
 
 
-  scorePage.dataset.matchId =
-    matchId;
+  scorePage.dataset.matchId = matchId;
 
+  openPage("liveScorePage");
 
-  openPage(
-    "liveScorePage"
-  );
+  updateLiveScoreUI(match);
 
 }
 
-  /* =========================
-   LIVE SCORING SYSTEM
-========================= */
-
-let ballHistory = [];
-
 
 /* =========================
-   GET ACTIVE MATCH
+   ACTIVE MATCH
 ========================= */
 
 function getActiveMatch(){
 
   const scorePage =
-    document.getElementById(
-      "liveScorePage"
-    );
+    document.getElementById("liveScorePage");
 
   if(!scorePage){
     return null;
@@ -2276,13 +2006,9 @@ function getActiveMatch(){
     getMatches();
 
   const match =
-    matches.find(
-      function(item){
-
-        return item.id === matchId;
-
-      }
-    );
+    matches.find(function(item){
+      return item.id === matchId;
+    });
 
   if(!match){
     return null;
@@ -2306,15 +2032,11 @@ function saveActiveMatch(data){
     return;
   }
 
-  saveMatches(
-    data.matches
-  );
+  saveMatches(data.matches);
 
   updateHomeMatch();
 
-  updateLiveScoreUI(
-    data.match
-  );
+  updateLiveScoreUI(data.match);
 
 }
 
@@ -2326,19 +2048,13 @@ function saveActiveMatch(data){
 function updateLiveScoreUI(match){
 
   const scoreNumber =
-    document.getElementById(
-      "liveScoreNumber"
-    );
+    document.getElementById("liveScoreNumber");
 
   const oversNumber =
-    document.getElementById(
-      "liveOversNumber"
-    );
+    document.getElementById("liveOversNumber");
 
   const inningsText =
-    document.getElementById(
-      "inningsText"
-    );
+    document.getElementById("inningsText");
 
 
   if(scoreNumber){
@@ -2372,8 +2088,7 @@ function updateLiveScoreUI(match){
       const need =
         Math.max(
           0,
-          match.target -
-          match.runs
+          match.target - match.runs
         );
 
       inningsText.textContent =
@@ -2402,9 +2117,7 @@ function updateLiveScoreUI(match){
 function updateOvers(match){
 
   const completedOvers =
-    Math.floor(
-      match.legalBalls / 6
-    );
+    Math.floor(match.legalBalls / 6);
 
   const balls =
     match.legalBalls % 6;
@@ -2418,81 +2131,10 @@ function updateOvers(match){
 
 
 /* =========================
-   CHECK OVER / MATCH END
+   SAVE BALL HISTORY
 ========================= */
 
-function checkMatchStatus(match){
-
-  const totalBalls =
-    Number(match.overs) * 6;
-
-
-  /* WICKET ALL OUT */
-
-  if(match.wickets >= 10){
-
-    setTimeout(function(){
-
-      endInnings();
-
-    }, 300);
-
-    return;
-
-  }
-
-
-  /* OVERS COMPLETED */
-
-  if(
-    match.legalBalls >=
-    totalBalls
-  ){
-
-    setTimeout(function(){
-
-      endInnings();
-
-    }, 300);
-
-    return;
-
-  }
-
-
-  /* TARGET CHASED */
-
-  if(
-    match.innings === 2 &&
-    match.target &&
-    match.runs >= match.target
-  ){
-
-    finishMatch(
-      match
-    );
-
-  }
-
-}
-
-
-/* =========================
-   ADD NORMAL RUNS
-========================= */
-
-function addRuns(runs){
-
-  const data =
-    getActiveMatch();
-
-  if(!data){
-    return;
-  }
-
-  const match =
-    data.match;
-
+function saveBallState(match){
 
   ballHistory.push({
 
@@ -2515,13 +2157,99 @@ function addRuns(runs){
       match.innings,
 
     target:
-      match.target
+      match.target,
+
+    firstInningsScore:
+      match.firstInningsScore
 
   });
 
+}
 
-  match.runs +=
-    Number(runs);
+
+/* =========================
+   CHECK MATCH STATUS
+========================= */
+
+function checkMatchStatus(match){
+
+  if(match.status !== "live"){
+    return;
+  }
+
+
+  if(
+    match.innings === 2 &&
+    match.target &&
+    match.runs >= match.target
+  ){
+
+    finishMatch(match);
+
+    return;
+
+  }
+
+
+  const totalBalls =
+    Number(match.overs) * 6;
+
+
+  if(match.wickets >= 10){
+
+    setTimeout(function(){
+
+      if(
+        confirm(
+          "All out! End this innings?"
+        )
+      ){
+        endInnings();
+      }
+
+    }, 100);
+
+    return;
+
+  }
+
+
+  if(match.legalBalls >= totalBalls){
+
+    setTimeout(function(){
+
+      if(
+        confirm(
+          "Overs completed! End this innings?"
+        )
+      ){
+        endInnings();
+      }
+
+    }, 100);
+
+  }
+
+}
+
+
+/* =========================
+   ADD NORMAL RUNS
+========================= */
+
+function addRuns(runs){
+
+  const data = getActiveMatch();
+
+  if(!data){
+    return;
+  }
+
+  const match = data.match;
+
+  saveBallState(match);
+
+  match.runs += Number(runs);
 
   match.legalBalls += 1;
 
@@ -2540,41 +2268,15 @@ function addRuns(runs){
 
 function addWide(){
 
-  const data =
-    getActiveMatch();
+  const data = getActiveMatch();
 
   if(!data){
     return;
   }
 
-  const match =
-    data.match;
+  const match = data.match;
 
-
-  ballHistory.push({
-
-    matchId:
-      match.id,
-
-    runs:
-      match.runs,
-
-    wickets:
-      match.wickets,
-
-    legalBalls:
-      match.legalBalls,
-
-    currentOvers:
-      match.currentOvers,
-
-    innings:
-      match.innings,
-
-    target:
-      match.target
-
-  });
+  saveBallState(match);
 
 
   const extra =
@@ -2583,19 +2285,24 @@ function addWide(){
       "1"
     );
 
+  if(extra === null){
+    ballHistory.pop();
+    return;
+  }
+
+
   const wideRuns =
-    Number(extra) || 1;
+    Math.max(
+      1,
+      Number(extra) || 1
+    );
 
 
-  match.runs +=
-    wideRuns;
-
-
-  /* Wide legal ball nahi hai */
-
-  updateOvers(match);
+  match.runs += wideRuns;
 
   saveActiveMatch(data);
+
+  checkMatchStatus(match);
 
 }
 
@@ -2606,41 +2313,15 @@ function addWide(){
 
 function addNoBall(){
 
-  const data =
-    getActiveMatch();
+  const data = getActiveMatch();
 
   if(!data){
     return;
   }
 
-  const match =
-    data.match;
+  const match = data.match;
 
-
-  ballHistory.push({
-
-    matchId:
-      match.id,
-
-    runs:
-      match.runs,
-
-    wickets:
-      match.wickets,
-
-    legalBalls:
-      match.legalBalls,
-
-    currentOvers:
-      match.currentOvers,
-
-    innings:
-      match.innings,
-
-    target:
-      match.target
-
-  });
+  saveBallState(match);
 
 
   const extra =
@@ -2649,19 +2330,24 @@ function addNoBall(){
       "1"
     );
 
+  if(extra === null){
+    ballHistory.pop();
+    return;
+  }
+
+
   const noBallRuns =
-    Number(extra) || 1;
+    Math.max(
+      1,
+      Number(extra) || 1
+    );
 
 
-  match.runs +=
-    noBallRuns;
-
-
-  /* No Ball legal ball nahi hai */
-
-  updateOvers(match);
+  match.runs += noBallRuns;
 
   saveActiveMatch(data);
+
+  checkMatchStatus(match);
 
 }
 
@@ -2672,42 +2358,15 @@ function addNoBall(){
 
 function addWicket(){
 
-  const data =
-    getActiveMatch();
+  const data = getActiveMatch();
 
   if(!data){
     return;
   }
 
-  const match =
-    data.match;
+  const match = data.match;
 
-
-  ballHistory.push({
-
-    matchId:
-      match.id,
-
-    runs:
-      match.runs,
-
-    wickets:
-      match.wickets,
-
-    legalBalls:
-      match.legalBalls,
-
-    currentOvers:
-      match.currentOvers,
-
-    innings:
-      match.innings,
-
-    target:
-      match.target
-
-  });
-
+  saveBallState(match);
 
   match.wickets += 1;
 
@@ -2728,28 +2387,21 @@ function addWicket(){
 
 function undoLastBall(){
 
-  const data =
-    getActiveMatch();
+  const data = getActiveMatch();
 
   if(!data){
     return;
   }
 
 
-  const match =
-    data.match;
+  const match = data.match;
 
-
-  let historyIndex =
-    -1;
+  let historyIndex = -1;
 
 
   for(
-    let i =
-      ballHistory.length - 1;
-
+    let i = ballHistory.length - 1;
     i >= 0;
-
     i--
   ){
 
@@ -2779,9 +2431,7 @@ function undoLastBall(){
 
 
   const previous =
-    ballHistory[
-      historyIndex
-    ];
+    ballHistory[historyIndex];
 
 
   match.runs =
@@ -2802,6 +2452,9 @@ function undoLastBall(){
   match.target =
     previous.target;
 
+  match.firstInningsScore =
+    previous.firstInningsScore;
+
 
   ballHistory.splice(
     historyIndex,
@@ -2820,22 +2473,16 @@ function undoLastBall(){
 
 function endInnings(){
 
-  const data =
-    getActiveMatch();
+  const data = getActiveMatch();
 
   if(!data){
     return;
   }
 
-  const match =
-    data.match;
+  const match = data.match;
 
 
   if(match.innings === 1){
-
-    const firstInningsScore =
-      match.runs;
-
 
     const confirmEnd =
       confirm(
@@ -2855,10 +2502,10 @@ function endInnings(){
 
 
     match.firstInningsScore =
-      firstInningsScore;
+      match.runs;
 
     match.target =
-      firstInningsScore + 1;
+      match.runs + 1;
 
     match.innings = 2;
 
@@ -2870,6 +2517,8 @@ function endInnings(){
 
     match.currentOvers = "0.0";
 
+
+    ballHistory = [];
 
     saveActiveMatch(data);
 
@@ -2885,8 +2534,6 @@ function endInnings(){
   }
 
 
-  /* SECOND INNINGS END */
-
   finishMatch(match);
 
 }
@@ -2898,8 +2545,7 @@ function endInnings(){
 
 function finishMatch(match){
 
-  const data =
-    getActiveMatch();
+  const data = getActiveMatch();
 
   if(!data){
     return;
@@ -2912,13 +2558,10 @@ function finishMatch(match){
     );
 
   const secondScore =
-    Number(
-      match.runs || 0
-    );
+    Number(match.runs || 0);
 
 
-  let result =
-    "";
+  let result = "";
 
 
   if(secondScore > firstScore){
@@ -2936,8 +2579,7 @@ function finishMatch(match){
   else if(secondScore < firstScore){
 
     const runsWon =
-      firstScore -
-      secondScore;
+      firstScore - secondScore;
 
     result =
       match.teamA +
@@ -2954,21 +2596,18 @@ function finishMatch(match){
   }
 
 
-  match.status =
-    "completed";
+  match.status = "completed";
 
-  match.result =
-    result;
+  match.result = result;
 
-  match.completedAt =
-    Date.now();
+  match.completedAt = Date.now();
 
 
-  saveMatches(
-    data.matches
-  );
+  saveMatches(data.matches);
 
   updateHomeMatch();
+
+  ballHistory = [];
 
 
   alert(
@@ -2996,8 +2635,7 @@ function finishMatch(match){
 
 function showScorecards(){
 
-  const matches =
-    getMatches();
+  const matches = getMatches();
 
   if(!matches.length){
 
@@ -3018,9 +2656,7 @@ function showScorecards(){
     function(match, index){
 
       message +=
-        (
-          index + 1
-        ) +
+        (index + 1) +
         ". " +
         match.teamA +
         " vs " +
@@ -3028,10 +2664,7 @@ function showScorecards(){
         "\n";
 
 
-      if(
-        match.status ===
-        "completed"
-      ){
+      if(match.status === "completed"){
 
         message +=
           "🏁 " +
@@ -3041,10 +2674,7 @@ function showScorecards(){
           );
 
       }
-      else if(
-        match.status ===
-        "live"
-      ){
+      else if(match.status === "live"){
 
         message +=
           "🔴 " +
@@ -3064,8 +2694,7 @@ function showScorecards(){
       }
 
 
-      message +=
-        "\n\n";
+      message += "\n\n";
 
     }
   );
@@ -3077,17 +2706,40 @@ function showScorecards(){
 
 
 /* =========================
-   APP INITIALIZATION
+   APP START
 ========================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
+window.addEventListener(
+  "load",
   function(){
 
     updateHomeMatch();
 
-    updateNavigation(
-      "home"
+    updateNavigation("home");
+
+    setTimeout(
+      function(){
+
+        const splash =
+          document.getElementById(
+            "splashScreen"
+          );
+
+        if(splash){
+
+          splash.classList.add("hide");
+
+          setTimeout(
+            function(){
+              splash.style.display = "none";
+            },
+            500
+          );
+
+        }
+
+      },
+      2200
     );
 
   }
