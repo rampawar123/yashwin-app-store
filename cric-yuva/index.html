@@ -1,1069 +1,1792 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRIC YUVA</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>CRIC YUVA</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div id="splashScreen">
-  <div class="splashContent">
-    <div class="splashLogo">🏏</div>
-    <h1 class="splashTitle">CRIC YUVA</h1>
-    <div class="splashSub">CRICKET • TOURNAMENT • LIVE SCORE</div>
-    <div class="splashLine"></div>
-  </div>
-</div>
+<div id="app">
 
-<div id="authPage">
-  <h1>🏏 CRIC YUVA</h1>
+  <!-- =========================
+       REGISTRATION PAGE
+  ========================== -->
+  <section id="registrationPage" class="page auth-page">
 
-  <div class="auth-container">
-    <h3>Login / Register</h3>
+    <div class="top-title">
+      <h1>CRIC YUVA</h1>
+      <p>Player Registration</p>
+    </div>
 
-    <div class="form-group">
+    <div class="profile-photo">
+      <div class="photo-circle" id="photoPreview">👤</div>
+
+      <label class="photo-btn">
+        📷 Add Photo
+        <input type="file" id="playerPhoto" accept="image/*">
+      </label>
+    </div>
+
+    <div class="form-box">
+
+      <label>Full Name</label>
+      <input type="text" id="regName" placeholder="Enter full name">
+
       <label>Mobile Number</label>
-      <input type="tel" id="authMobile" inputmode="numeric" placeholder="Enter mobile number">
+      <input type="tel"
+             id="regMobile"
+             placeholder="Enter mobile number"
+             maxlength="10">
+
+      <label>Jersey Name</label>
+      <input type="text"
+             id="regJerseyName"
+             placeholder="Jersey name">
+
+      <label>Jersey Number</label>
+      <input type="number"
+             id="regJerseyNumber"
+             placeholder="Jersey number">
+
+      <label>Playing Role</label>
+      <select id="regRole">
+        <option value="">Select role</option>
+        <option>Batsman</option>
+        <option>Bowler</option>
+        <option>All Rounder</option>
+        <option>Wicket Keeper</option>
+      </select>
+
+      <label>Jersey Size</label>
+      <select id="regSize">
+        <option value="">Select size</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+        <option>XXL</option>
+        <option>XXXL</option>
+      </select>
+
+      <label>Date of Birth</label>
+      <input type="date" id="regDob">
+
+      <button class="primary-btn" onclick="saveRegistration()">
+        SAVE & CONTINUE
+      </button>
+
+      <p class="small-text">
+        Registration complete होने के बाद app direct open होगा.
+      </p>
+
     </div>
-
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="authPassword" placeholder="Enter password">
-    </div>
-
-    <button class="action-btn" type="button" onclick="handleLogin()">🔑 OPEN APP</button>
-
-    <p class="login-link" onclick="toggleRegisterSection()">🆕 Don't have an account? Create Account</p>
-
-    <div id="registerSection" class="hiddenSection">
-      <h4>Create New App Account</h4>
-
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="tel" id="regMobile" inputmode="numeric" placeholder="Enter mobile number">
-      </div>
-
-      <div class="form-group">
-        <label>Create Password</label>
-        <input type="password" id="regPassword" placeholder="Set password">
-      </div>
-
-      <button class="action-btn greenBtn" type="button" onclick="processUserRegistration()">📝 REGISTER ACCOUNT</button>
-    </div>
-
-    <p class="reset-link" onclick="toggleResetForm()">Forgot Password? 🔑</p>
-
-    <div id="resetPasswordSection" class="hiddenSection">
-      <h4>Reset Password</h4>
-
-      <div class="form-group">
-        <label>Registered Mobile</label>
-        <input type="tel" id="resetMobile" inputmode="numeric" placeholder="Enter mobile">
-      </div>
-
-      <div class="form-group">
-        <label>New Password</label>
-        <input type="password" id="resetNewPassword" placeholder="Enter new password">
-      </div>
-
-      <button class="action-btn" type="button" onclick="processPasswordReset()">💾 UPDATE PASSWORD</button>
-    </div>
-
-    <button class="action-btn testBtn" type="button" onclick="generateDummyMobile()">🎲 GENERATE TEST ACCOUNT</button>
-  </div>
-</div>
+  </section>
 
 
-<div id="appInterface" style="display:none;">
+  <!-- =========================
+       MAIN HOME PAGE
+  ========================== -->
+  <section id="homePage" class="page hidden">
 
-  <header class="appHeader">
-    <div class="brand">
-      <div class="logoBox">🏏</div>
+    <header class="app-header">
       <div>
-        <div class="appName">CRIC YUVA</div>
-        <div class="version">Version 1.0.0</div>
-      </div>
-    </div>
-
-    <div class="headerButtons">
-      <button class="headerBtn" type="button" onclick="showSearch()">🔍</button>
-      <button class="headerBtn" type="button" onclick="showMessage()">💬</button>
-      <button class="headerBtn" type="button" onclick="showNotifications()">🔔</button>
-      <button class="headerBtn" type="button" onclick="logout()">🚪</button>
-    </div>
-  </header>
-
-
-  <main class="main">
-
-    <div id="birthdayBox" class="birthday-alert-box">
-      🎉 Happy Birthday: <span id="birthdayPlayerName"></span> 🏏
-    </div>
-
-
-    <!-- HOME -->
-    <section id="home" class="page">
-
-      <div class="sectionTitle">
-        <h2>🔴 Live Cricket</h2>
+        <h2>CRIC YUVA</h2>
+        <span>Version 1.0</span>
       </div>
 
-      <div class="sunnyMatchCard">
-        <div class="cloud"></div>
+      <div class="header-icons">
+        <button>🔍</button>
+        <button>💬</button>
+        <button>🔔</button>
+        <button onclick="toggleMenu()">☰</button>
+      </div>
+    </header>
 
-        <div class="liveRibbon">
-          <span class="liveDot"></span>
-          LIVE MATCH
+
+    <!-- SIDE MENU -->
+    <div id="sideMenu" class="side-menu hidden">
+
+      <div class="menu-profile">
+        <div class="mini-photo" id="menuPhoto">👤</div>
+
+        <div>
+          <b id="menuName">Player</b>
+          <span id="menuMobile">0000000000</span>
+        </div>
+      </div>
+
+      <button onclick="showProfile()">👤 My Profile</button>
+      <button onclick="openTeams()">👥 My Teams</button>
+      <button>🏆 Tournaments</button>
+      <button>📅 Match Schedule</button>
+      <button>🔨 Auction</button>
+      <button>📺 Live Streaming</button>
+      <button>📋 Scorecards</button>
+      <button>📊 Points Table</button>
+      <button>📈 Statistics</button>
+      <button>💬 Chat / Community</button>
+      <button>🔔 Notifications</button>
+      <button>⚙️ Settings</button>
+
+      <hr>
+
+      <button class="logout-btn" onclick="logoutApp()">
+        🚪 Logout
+      </button>
+    </div>
+
+
+    <main class="home-content">
+
+      <div class="section-heading">
+        <span class="live-dot"></span>
+        Live Cricket
+      </div>
+
+      <div class="live-card">
+
+        <div class="live-label-row">
+          <span class="live-badge">LIVE MATCH</span>
+
+          <div class="video-switch">
+            LIVE VIDEO
+            <span></span>
+          </div>
         </div>
 
-        <div class="stadium"><div class="stand"></div></div>
-        <div class="pitch"></div>
-        <div class="pitchStrip"></div>
+        <div class="stadium">
+          <div class="play-circle">▶</div>
+        </div>
 
-        <div class="player a"></div>
-        <div class="player b"></div>
-        <div class="player c"></div>
-        <div class="player d"></div>
-        <div class="player e"></div>
-        <div class="player f"></div>
-        <div class="player g"></div>
-
-        <div class="scoreOverlay">
-          <div class="matchTeamsRow">
-            <div class="previewTeam">
-              <div class="previewTeamName" id="homeTeamA">TITANS</div>
-              <div class="previewScore" id="homeScore">0/0</div>
-            </div>
-
-            <div class="previewVS">VS</div>
-
-            <div class="previewTeam">
-              <div class="previewTeamName" id="homeTeamB">WARRIORS</div>
-              <div class="previewScore" id="homeOvers">0.0 Overs</div>
-            </div>
+        <div class="score-summary">
+          <div>
+            <b>CHENNAI SUPER KINGS</b>
+            <strong id="homeScore">0/0</strong>
+            <span id="homeOvers">(0.0 Overs)</span>
           </div>
 
-          <div class="previewStatus">
-            <span id="homeStatus">CRR: 0.00</span>
-            <span id="homeGround">📍 Testing Ground</span>
+          <div class="vs">VS</div>
+
+          <div>
+            <b>CHENNAI SUPER 11</b>
+            <strong>--</strong>
+            <span>Waiting</span>
           </div>
-
-          <button class="previewOpenBtn" type="button" onclick="openPage('liveScoringPage')">
-            🏏 OPEN LIVE SCORING PANEL
-          </button>
-        </div>
-      </div>
-
-
-      <div class="sectionTitle">
-        <h2>⚡ Start Cricket</h2>
-      </div>
-
-      <div class="quickGrid">
-        <button class="quickCard" type="button" onclick="openPage('singleMatch')">
-          <span class="quickIcon">🏏</span>Single Match
-        </button>
-
-        <button class="quickCard" type="button" onclick="openPage('tournament')">
-          <span class="quickIcon">🏆</span>Tournament
-        </button>
-
-        <button class="quickCard" type="button" onclick="openPage('playerRegPage')">
-          <span class="quickIcon">👤</span>Add Player
-        </button>
-      </div>
-    </section>
-
-
-    <!-- SINGLE MATCH -->
-    <section id="singleMatch" class="page">
-      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
-      <h2>🏏 Single Match Setup</h2>
-
-      <div class="modal-box">
-        <h3>Testing Match</h3>
-
-        <div class="form-group">
-          <label>Batting Team Name</label>
-          <input type="text" id="matchTeamA" value="Titans">
         </div>
 
-        <div class="form-group">
-          <label>Bowling Team Name</label>
-          <input type="text" id="matchTeamB" value="Warriors">
+        <div class="rate-bar">
+          <span>Current Run Rate: <b id="crr">0.00</b></span>
+          <span>Testing Ground</span>
         </div>
 
-        <button class="action-btn" type="button" onclick="initiateNormalMatch()">🏏 START LIVE MATCH</button>
+        <div class="recent-balls" id="recentBalls">
+          <span>•</span>
+        </div>
+
       </div>
-    </section>
 
 
-    <!-- TOURNAMENT -->
-    <section id="tournament" class="page">
-      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
-      <h2>🏆 Tournament Panel</h2>
+      <div class="section-heading">
+        🏏 Start Cricket
+      </div>
 
-      <div class="pageGrid">
-        <button class="pageOption" type="button" onclick="openPage('normalTournamentPage')">
-          <span>👥</span>Normal Tournament
+      <div class="start-grid">
+
+        <button class="start-card" onclick="openMatchSetup()">
+          <div class="big-icon">🏏</div>
+          <span>Single Match</span>
         </button>
 
-        <button class="pageOption" type="button" onclick="openPage('auctionTournamentPage')">
-          <span>🪙</span>Auction System
+        <button class="start-card">
+          <div class="big-icon">🏆</div>
+          <span>Tournament</span>
         </button>
+
       </div>
-    </section>
 
 
-    <!-- PLAYER -->
-    <section id="playerRegPage" class="page">
-      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
-      <h2>👤 Player Profile</h2>
+      <div class="section-heading">
+        ⚡ Quick Access
+      </div>
 
-      <div class="modal-box">
-        <div class="form-group"><label>Full Name *</label><input type="text" id="pName" placeholder="Player name"></div>
-        <div class="form-group"><label>Mobile Number *</label><input type="tel" id="pMobile" placeholder="9876543210"></div>
-        <div class="form-group"><label>Jersey Number</label><input type="number" id="pJNo" placeholder="7"></div>
-        <div class="form-group"><label>Jersey Name</label><input type="text" id="pJName" placeholder="DHONI"></div>
+      <div class="quick-grid">
 
-        <div class="form-group">
-          <label>Jersey Size</label>
-          <select id="pJSize">
-            <option>S</option><option selected>M</option><option>L</option>
-            <option>XL</option><option>XXL</option><option>XXXL</option>
+        <button onclick="openTeams()">👥<br><span>My Teams</span></button>
+        <button>📅<br><span>Schedule</span></button>
+        <button>📊<br><span>Stats</span></button>
+        <button>🏅<br><span>Points</span></button>
+
+      </div>
+
+    </main>
+
+
+    <nav class="bottom-nav">
+
+      <button class="active" onclick="showHome()">
+        🏠
+        <span>Home</span>
+      </button>
+
+      <button>
+        🔭
+        <span>Looking</span>
+      </button>
+
+      <button onclick="openMatchSetup()">
+        🏏
+        <span>My Cricket</span>
+      </button>
+
+      <button>
+        👥
+        <span>Community</span>
+      </button>
+
+      <button>
+        🏪
+        <span>Store</span>
+      </button>
+
+    </nav>
+
+  </section>
+
+
+  <!-- =========================
+       PROFILE PAGE
+  ========================== -->
+  <section id="profilePage" class="page hidden">
+
+    <div class="simple-header">
+      <button onclick="showHome()">←</button>
+      <h2>My Profile</h2>
+      <span></span>
+    </div>
+
+    <div class="profile-card">
+
+      <div class="large-photo" id="profilePhoto">
+        👤
+      </div>
+
+      <h2 id="profileName">Player</h2>
+
+      <p id="profileRole">All Rounder</p>
+
+      <div class="profile-details">
+        <p>📱 <span id="profileMobile"></span></p>
+        <p>👕 Jersey Name: <span id="profileJerseyName"></span></p>
+        <p>🔢 Jersey Number: <span id="profileJerseyNumber"></span></p>
+        <p>📏 Size: <span id="profileSize"></span></p>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       TESTING TEAMS PAGE
+  ========================== -->
+  <section id="teamsPage" class="page hidden">
+
+    <div class="simple-header">
+      <button onclick="showHome()">←</button>
+      <h2>Testing Teams</h2>
+      <span></span>
+    </div>
+
+    <div class="teams-container">
+
+      <div class="team-panel">
+
+        <div class="team-title team-a">
+          <h2>CHENNAI SUPER KINGS</h2>
+          <span>TEAM A • 11 PLAYERS</span>
+        </div>
+
+        <div id="teamAList"></div>
+
+      </div>
+
+
+      <div class="team-panel">
+
+        <div class="team-title team-b">
+          <h2>CHENNAI SUPER 11</h2>
+          <span>TEAM B • 11 PLAYERS</span>
+        </div>
+
+        <div id="teamBList"></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       MATCH SETUP
+  ========================== -->
+  <section id="matchSetupPage" class="page hidden">
+
+    <div class="simple-header red-header">
+      <button onclick="showHome()">←</button>
+      <h2>Start a Match</h2>
+      <button>?</button>
+    </div>
+
+    <div class="setup-content">
+
+      <h3>Select Teams</h3>
+
+      <div class="team-select-row">
+
+        <button id="teamACard"
+                class="selected-team"
+                onclick="selectTeam('A')">
+
+          <div class="team-logo">🦁</div>
+          <b>CHENNAI SUPER KINGS</b>
+          <small>Team A • 11 Players</small>
+
+        </button>
+
+
+        <button id="teamBCard"
+                onclick="selectTeam('B')">
+
+          <div class="team-logo">🏏</div>
+          <b>CHENNAI SUPER 11</b>
+          <small>Team B • 11 Players</small>
+
+        </button>
+
+      </div>
+
+
+      <h3>Match type *</h3>
+
+      <div class="chip-row">
+        <button class="chip active">Limited Overs</button>
+        <button class="chip">Box/Turf Cricket</button>
+        <button class="chip">Pair Cricket</button>
+      </div>
+
+      <div class="chip-row">
+        <button class="chip">Test Match</button>
+        <button class="chip">The Hundred</button>
+      </div>
+
+
+      <div class="two-inputs">
+
+        <div>
+          <label>No. of overs *</label>
+          <input type="number"
+                 id="matchOvers"
+                 value="5"
+                 min="1"
+                 max="50">
+        </div>
+
+        <div>
+          <label>Overs per bowler</label>
+          <input type="number"
+                 value="1"
+                 min="1">
+        </div>
+
+      </div>
+
+
+      <label>City / town *</label>
+      <input type="text" id="matchCity" value="Madhavaram">
+
+
+      <label>Ground *</label>
+      <input type="text" id="matchGround" value="Chennai">
+
+
+      <label>Date & time</label>
+      <input type="datetime-local" id="matchDate">
+
+
+      <h3>Ball type *</h3>
+
+      <div class="ball-types">
+
+        <button class="ball-type active">
+          🟢
+          <span>Tennis</span>
+        </button>
+
+        <button class="ball-type">
+          🔴
+          <span>Leather</span>
+        </button>
+
+        <button class="ball-type">
+          🟠
+          <span>Other</span>
+        </button>
+
+      </div>
+
+
+      <h3>Pitch type</h3>
+
+      <div class="chip-row pitch-row">
+        <button class="chip active">ROUGH</button>
+        <button class="chip">CEMENT</button>
+        <button class="chip">TURF</button>
+        <button class="chip">ASTROTURF</button>
+      </div>
+
+    </div>
+
+
+    <div class="fixed-action">
+      <button class="secondary-btn"
+              onclick="showHome()">
+        Cancel
+      </button>
+
+      <button class="primary-action"
+              onclick="startToss()">
+        Next (toss)
+      </button>
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       TOSS PAGE
+  ========================== -->
+  <section id="tossPage" class="page hidden">
+
+    <div class="simple-header red-header">
+      <button onclick="openMatchSetup()">←</button>
+      <h2>Toss</h2>
+      <span>📷</span>
+    </div>
+
+    <div class="toss-content">
+
+      <h2>Who won the toss?</h2>
+
+      <div class="toss-team-grid">
+
+        <button id="tossTeamA"
+                class="toss-team"
+                onclick="chooseTossTeam('A')">
+
+          <div class="large-logo">🦁</div>
+          <span>CHENNAI SUPER KINGS</span>
+
+        </button>
+
+
+        <button id="tossTeamB"
+                class="toss-team selected"
+                onclick="chooseTossTeam('B')">
+
+          <div class="large-logo">🏏</div>
+          <span>CHENNAI SUPER 11</span>
+
+        </button>
+
+      </div>
+
+
+      <h2>Winner of the toss elected to?</h2>
+
+      <div class="toss-team-grid">
+
+        <button id="batChoice"
+                class="toss-team"
+                onclick="chooseDecision('Bat')">
+
+          <div class="decision-icon">🏏</div>
+          <span>Bat</span>
+
+        </button>
+
+
+        <button id="bowlChoice"
+                class="toss-team selected"
+                onclick="chooseDecision('Bowl')">
+
+          <div class="decision-icon">🎳</div>
+          <span>Bowl</span>
+
+        </button>
+
+      </div>
+
+
+      <h2>Tap the coin to flip</h2>
+
+      <div id="coin"
+           class="coin"
+           onclick="flipCoin()">
+        <span id="coinText">TAP</span>
+      </div>
+
+      <p id="coinResult" class="coin-result"></p>
+
+    </div>
+
+
+    <div class="fixed-action">
+
+      <button class="secondary-btn">
+        Need help?
+      </button>
+
+      <button class="primary-action"
+              onclick="openInningsSetup()">
+        Let's play
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       INNINGS PLAYER SELECT
+  ========================== -->
+  <section id="inningsPage" class="page hidden">
+
+    <div class="simple-header red-header">
+      <button onclick="startToss()">←</button>
+      <h2>Start innings</h2>
+      <span>?</span>
+    </div>
+
+
+    <div class="innings-content">
+
+      <h2 id="battingTitle">
+        Batting - CHENNAI SUPER KINGS
+      </h2>
+
+
+      <div class="player-selection-grid">
+
+        <div class="selection-box">
+
+          <h3>Select striker</h3>
+
+          <select id="strikerSelect">
+            <option value="">Select player</option>
           </select>
-        </div>
 
-        <div class="form-group"><label>Pant Size</label><input type="text" id="pPSize" placeholder="32"></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="pEmail" placeholder="player@cric.com"></div>
-        <div class="form-group"><label>Date of Birth *</label><input type="date" id="pDob"></div>
-
-        <button class="action-btn" type="button" onclick="registerPlayer()">💾 SAVE PLAYER</button>
-      </div>
-    </section>
-
-
-    <!-- NORMAL TOURNAMENT -->
-    <section id="normalTournamentPage" class="page">
-      <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
-      <h2>👥 Normal Tournament</h2>
-
-      <div class="modal-box">
-        <p class="smallText">Registered players are shown below.</p>
-        <br>
-        <div id="normalPlayersList">No registered players yet.</div>
-        <button class="action-btn" type="button" onclick="formTeams()">👥 FORM TEST TEAMS</button>
-      </div>
-    </section>
-
-
-    <!-- AUCTION -->
-    <section id="auctionTournamentPage" class="page">
-      <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
-      <h2>🪙 IPL-Style Auction</h2>
-
-      <div class="modal-box">
-        <div class="pageCard">
-          <b>TITANS Points: <span id="teamAPoints">1000</span></b>
-          <b>WARRIORS Points: <span id="teamBPoints">1000</span></b>
-        </div>
-
-        <div class="pageCard auctionCenter">
-          <div class="smallText">CURRENT PLAYER</div>
-          <h2 id="auctionPlayerName">No Active Player</h2>
-          <p>Base Value: <span id="auctionBaseValue">50</span></p>
-
-          <div class="auctionButtons">
-            <button class="action-btn greenBtn" type="button" onclick="sellPlayer('A')">SOLD TITANS</button>
-            <button class="action-btn" type="button" onclick="sellPlayer('B')">SOLD WARRIORS</button>
-          </div>
-        </div>
-
-        <h4>Sold History</h4>
-        <div id="auctionHistoryLog">No players sold yet.</div>
-      </div>
-    </section>
-
-
-    <!-- LIVE SCORING -->
-    <section id="liveScoringPage" class="page">
-
-      <button class="backBtn" type="button" onclick="goHome()">← Back Home</button>
-
-      <h2 class="centerTitle">🏏 Live Scoring Console</h2>
-
-      <div class="modal-box scoringPanel">
-
-        <div class="smallText">
-          <span id="consoleTeamA">TITANS</span>
-          vs
-          <span id="consoleTeamB">WARRIORS</span>
-        </div>
-
-        <h2 class="bigScore" id="consoleScore">0 / 0</h2>
-        <p class="oversText" id="consoleOvers">Overs: 0.0</p>
-        <p id="consoleStats" class="statsText">CRR: 0.00</p>
-
-        <div class="extrasBox">
-          <b>Extras: <span id="extrasTotal">0</span></b>
-          <span>WD: <b id="wideTotal">0</b></span>
-          <span>NB: <b id="noBallTotal">0</b></span>
-          <span>B: <b id="byeTotal">0</b></span>
-          <span>LB: <b id="legByeTotal">0</b></span>
-        </div>
-
-        <div id="ballHistoryBox" class="pageCard ballHistory">
-          Over History: Start Scoring...
         </div>
 
 
-        <!-- RUN -->
-        <div class="scoreSection">
-          <div class="scoreSectionTitle">🏏 RUNS</div>
-          <div class="scoreButtonGrid">
-            <button class="score-btn run" onclick="selectScore(0)">0</button>
-            <button class="score-btn run" onclick="selectScore(1)">1</button>
-            <button class="score-btn run" onclick="selectScore(2)">2</button>
-            <button class="score-btn run" onclick="selectScore(3)">3</button>
-            <button class="score-btn run" onclick="selectScore(4)">4</button>
-            <button class="score-btn run" onclick="selectScore(6)">6</button>
-          </div>
-        </div>
+        <div class="selection-box">
 
+          <h3>Select non-striker</h3>
 
-        <!-- ROUND DIRECTION GROUND -->
-        <div class="directionTitle" id="directionStatus">
-          👆 Run select karo, phir ball ki direction dabao
-        </div>
+          <select id="nonStrikerSelect">
+            <option value="">Select player</option>
+          </select>
 
-        <div class="fieldWrap">
-          <div class="cricketField">
-
-            <button class="fieldBtn straight" onclick="chooseDirection('Straight')">STRAIGHT</button>
-
-            <button class="fieldBtn longOn" onclick="chooseDirection('Long On')">LONG ON</button>
-            <button class="fieldBtn longOff" onclick="chooseDirection('Long Off')">LONG OFF</button>
-
-            <button class="fieldBtn midWicket" onclick="chooseDirection('Mid Wicket')">MID WICKET</button>
-            <button class="fieldBtn cover" onclick="chooseDirection('Cover')">COVER</button>
-
-            <button class="fieldBtn squareLeg" onclick="chooseDirection('Square Leg')">SQUARE LEG</button>
-            <button class="fieldBtn point" onclick="chooseDirection('Point')">POINT</button>
-
-            <button class="fieldBtn fineLeg" onclick="chooseDirection('Fine Leg')">FINE LEG</button>
-
-            <div class="fieldPitch">🏏</div>
-          </div>
-        </div>
-
-
-        <!-- EXTRAS -->
-        <div class="scoreSection">
-          <div class="scoreSectionTitle">🟡 WIDE</div>
-          <div class="extraButtonGrid">
-            <button class="score-btn extra" onclick="addDirectEvent('WD',1)">Wd</button>
-            <button class="score-btn extra" onclick="addDirectEvent('WD',2)">Wd+1</button>
-            <button class="score-btn extra" onclick="addDirectEvent('WD',3)">Wd+2</button>
-            <button class="score-btn extra" onclick="addDirectEvent('WD',4)">Wd+3</button>
-            <button class="score-btn extra" onclick="addDirectEvent('WD',5)">Wd+4</button>
-          </div>
-        </div>
-
-        <div class="scoreSection">
-          <div class="scoreSectionTitle">🔵 NO BALL</div>
-          <div class="extraButtonGrid">
-            <button class="score-btn noBall" onclick="addDirectEvent('NB',1)">Nb</button>
-            <button class="score-btn noBall" onclick="addDirectEvent('NB',2)">Nb+1</button>
-            <button class="score-btn noBall" onclick="addDirectEvent('NB',3)">Nb+2</button>
-            <button class="score-btn noBall" onclick="addDirectEvent('NB',4)">Nb+3</button>
-            <button class="score-btn noBall" onclick="addDirectEvent('NB',5)">Nb+4</button>
-            <button class="score-btn noBall" onclick="addDirectEvent('NB',7)">Nb+6</button>
-          </div>
-        </div>
-
-        <div class="scoreSection">
-          <div class="scoreSectionTitle">🟣 BYE</div>
-          <div class="extraButtonGrid fourCols">
-            <button class="score-btn bye" onclick="addDirectEvent('B',1)">B+1</button>
-            <button class="score-btn bye" onclick="addDirectEvent('B',2)">B+2</button>
-            <button class="score-btn bye" onclick="addDirectEvent('B',3)">B+3</button>
-            <button class="score-btn bye" onclick="addDirectEvent('B',4)">B+4</button>
-          </div>
-        </div>
-
-        <div class="scoreSection">
-          <div class="scoreSectionTitle">🟠 LEG BYE</div>
-          <div class="extraButtonGrid fourCols">
-            <button class="score-btn legBye" onclick="addDirectEvent('LB',1)">LB+1</button>
-            <button class="score-btn legBye" onclick="addDirectEvent('LB',2)">LB+2</button>
-            <button class="score-btn legBye" onclick="addDirectEvent('LB',3)">LB+3</button>
-            <button class="score-btn legBye" onclick="addDirectEvent('LB',4)">LB+4</button>
-          </div>
-        </div>
-
-
-        <!-- WICKET -->
-        <div class="scoreSection">
-          <div class="scoreSectionTitle">🔴 WICKET</div>
-          <button class="score-btn wk fullButton" type="button" onclick="addWicket()">WKT</button>
-        </div>
-
-        <button class="score-btn undo fullButton" type="button" onclick="handleUndo()">↩️ UNDO LAST BALL</button>
-
-
-        <div class="commentaryCard">
-          <div class="commentaryHead">🎙️ LIVE COMMENTARY</div>
-          <div id="commentaryText">Match start karo aur scoring shuru karo...</div>
         </div>
 
       </div>
-    </section>
 
-  </main>
+
+      <h2 id="bowlingTitle">
+        Bowling - CHENNAI SUPER 11
+      </h2>
+
+      <div class="bowler-box">
+
+        <h3>Select bowler</h3>
+
+        <select id="bowlerSelect">
+          <option value="">Select bowler</option>
+        </select>
+
+      </div>
+
+
+      <div class="selected-preview">
+
+        <div>
+          <small>STRIKER</small>
+          <b id="previewStriker">Not Selected</b>
+        </div>
+
+        <div>
+          <small>NON-STRIKER</small>
+          <b id="previewNonStriker">Not Selected</b>
+        </div>
+
+        <div>
+          <small>BOWLER</small>
+          <b id="previewBowler">Not Selected</b>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="fixed-action">
+
+      <button class="secondary-btn">
+        Match rules
+      </button>
+
+      <button class="primary-action"
+              onclick="startScoring()">
+        Start scoring
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       LIVE SCORING PAGE
+  ========================== -->
+  <section id="scoringPage" class="page hidden">
+
+    <div class="simple-header dark-score-header">
+      <button onclick="showHome()">←</button>
+      <h2 id="scoreMatchTitle">
+        CHENNAI SUPER KINGS
+      </h2>
+      <span>📤</span>
+    </div>
+
+
+    <div class="score-page-content">
+
+      <div class="live-status">
+        <span class="live-dot"></span>
+        LIVE MATCH
+      </div>
+
+
+      <div class="main-score">
+
+        <h1 id="scoreRuns">0/0</h1>
+
+        <p id="scoreOvers">
+          0.0 / 5 Overs
+        </p>
+
+        <div class="target-box" id="targetBox">
+          1st Innings
+        </div>
+
+      </div>
+
+
+      <div class="batsmen-box">
+
+        <div>
+          <span id="strikerName">Striker</span>
+          <b id="strikerRuns">0 (0)</b>
+        </div>
+
+        <div>
+          <span id="nonStrikerName">Non Striker</span>
+          <b id="nonStrikerRuns">0 (0)</b>
+        </div>
+
+      </div>
+
+
+      <div class="bowler-info">
+
+        <span>🎳 <b id="liveBowler">Bowler</b></span>
+
+        <span id="bowlerFigures">0.0 - 0 - 0</span>
+
+      </div>
+
+
+      <div class="recent-title">
+        THIS OVER
+      </div>
+
+      <div id="overBalls"
+           class="over-balls">
+      </div>
+
+
+      <div class="scoring-buttons">
+
+        <button onclick="addRuns(0)">0</button>
+        <button onclick="addRuns(1)">1</button>
+        <button onclick="addRuns(2)">2</button>
+        <button onclick="addRuns(3)">3</button>
+        <button class="four" onclick="addRuns(4)">4</button>
+        <button class="six" onclick="addRuns(6)">6</button>
+
+      </div>
+
+
+      <div class="extra-buttons">
+
+        <button onclick="addExtra('Wd')">
+          Wide +1
+        </button>
+
+        <button onclick="addExtra('Nb')">
+          No Ball +1
+        </button>
+
+        <button onclick="addWicket()">
+          Wicket
+        </button>
+
+      </div>
+
+
+      <div class="scoring-controls">
+
+        <button onclick="undoBall()">
+          ↩ Undo
+        </button>
+
+        <button onclick="swapPlayers()">
+          ⇄ Change Strike
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
 </div>
 
 
 <script>
-let players = JSON.parse(localStorage.getItem("cy_players")) || [];
 
-let matchTeams = JSON.parse(localStorage.getItem("cy_match_teams")) || {
-  teamA:"Titans",
-  teamB:"Warriors"
+/* =========================================
+   TESTING TEAMS - 11 + 11 PLAYERS
+========================================= */
+
+const teamA = [
+  "BalKrushna",
+  "Pankaj Jabar",
+  "Bharath Abar",
+  "Rohit Sharma",
+  "Virat Kohli",
+  "Suryakumar Yadav",
+  "Hardik Pandya",
+  "Rishabh Pant",
+  "Ravindra Jadeja",
+  "Jasprit Bumrah",
+  "Mohammed Shami"
+];
+
+const teamB = [
+  "MS Dhoni",
+  "Shubman Gill",
+  "KL Rahul",
+  "Shreyas Iyer",
+  "Sanju Samson",
+  "Axar Patel",
+  "Kuldeep Yadav",
+  "Yuzvendra Chahal",
+  "Arshdeep Singh",
+  "Mohammed Siraj",
+  "Washington Sundar"
+];
+
+
+/* =========================================
+   APP STATE
+========================================= */
+
+let tossWinner = "B";
+let tossDecision = "Bowl";
+
+let battingTeam = "A";
+let bowlingTeam = "B";
+
+let score = {
+  runs: 0,
+  wickets: 0,
+  balls: 0,
+  totalOvers: 5,
+
+  striker: "",
+  nonStriker: "",
+  bowler: "",
+
+  strikerRuns: 0,
+  strikerBalls: 0,
+
+  nonStrikerRuns: 0,
+  nonStrikerBalls: 0,
+
+  bowlerRuns: 0,
+  bowlerBalls: 0,
+
+  overEvents: [],
+  history: []
 };
 
-let currentMatch = JSON.parse(localStorage.getItem("cy_current_match")) || {
-  runs:0,
-  wickets:0,
-  balls:0,
-  history:[],
-  extras:{wd:0,nb:0,b:0,lb:0}
-};
 
-if(!currentMatch.extras){
-  currentMatch.extras={wd:0,nb:0,b:0,lb:0};
-}
+/* =========================================
+   PAGE SYSTEM
+========================================= */
 
-let pendingScore = null;
+function hideAllPages() {
 
-let auctionState = JSON.parse(localStorage.getItem("cy_auction")) || {
-  teamA:1000,
-  teamB:1000,
-  history:[]
-};
-
-
-window.addEventListener("DOMContentLoaded",function(){
-  setTimeout(function(){
-    const splash=document.getElementById("splashScreen");
-    if(splash){
-      splash.classList.add("hide");
-      setTimeout(function(){splash.style.display="none";},500);
-    }
-  },1500);
-
-  updateScoreDisplay();
-  checkTodayBirthdays();
-});
-
-
-function handleLogin(){
-  const mobile=document.getElementById("authMobile").value.trim();
-  const password=document.getElementById("authPassword").value;
-
-  if(!mobile || !password){
-    alert("Mobile number aur password enter karo.");
-    return;
-  }
-  proceedToApp();
-}
-
-function proceedToApp(){
-  document.getElementById("authPage").style.display="none";
-  document.getElementById("appInterface").style.display="block";
-  openPage("home");
-  updateScoreDisplay();
-}
-
-function logout(){
-  document.getElementById("appInterface").style.display="none";
-  document.getElementById("authPage").style.display="block";
-  document.getElementById("authPassword").value="";
-}
-
-function generateDummyMobile(){
-  const randomMob="9"+Math.floor(100000000+Math.random()*900000000);
-  document.getElementById("authMobile").value=randomMob;
-  document.getElementById("authPassword").value="123456";
-  alert("Test Account Created!\nMobile: "+randomMob+"\nPassword: 123456");
-}
-
-function toggleRegisterSection(){
-  const box=document.getElementById("registerSection");
-  box.style.display=(box.style.display==="block")?"none":"block";
-}
-
-function processUserRegistration(){
-  const mobile=document.getElementById("regMobile").value.trim();
-  const password=document.getElementById("regPassword").value;
-
-  if(!mobile || !password){
-    alert("Mobile aur password enter karo.");
-    return;
-  }
-
-  document.getElementById("authMobile").value=mobile;
-  document.getElementById("authPassword").value=password;
-  document.getElementById("registerSection").style.display="none";
-  alert("🎉 Account created successfully!");
-}
-
-function toggleResetForm(){
-  const box=document.getElementById("resetPasswordSection");
-  box.style.display=(box.style.display==="block")?"none":"block";
-}
-
-function processPasswordReset(){
-  const mobile=document.getElementById("resetMobile").value.trim();
-  const password=document.getElementById("resetNewPassword").value;
-
-  if(!mobile || !password){
-    alert("All details fill karo.");
-    return;
-  }
-
-  document.getElementById("authMobile").value=mobile;
-  document.getElementById("authPassword").value=password;
-  document.getElementById("resetPasswordSection").style.display="none";
-  alert("🎉 Password updated successfully!");
-}
-
-
-function openPage(pageId){
-  document.querySelectorAll("section.page").forEach(function(page){
-    page.style.display="none";
-    page.classList.remove("active");
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.add("hidden");
   });
 
-  const target=document.getElementById(pageId);
-
-  if(target){
-    target.style.display="block";
-    target.classList.add("active");
-  }
-
-  if(pageId==="normalTournamentPage") renderNormalPlayers();
-  if(pageId==="auctionTournamentPage") syncAuctionPool();
-  if(pageId==="liveScoringPage") updateScoreDisplay();
-
-  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function goHome(){
-  openPage("home");
-}
+function showPage(id) {
 
-function showSearch(){alert("🔍 Search feature coming soon.");}
-function showMessage(){alert("💬 Chat feature coming soon.");}
-function showNotifications(){alert("🔔 No new notifications.");}
+  hideAllPages();
 
+  document.getElementById(id)
+    .classList.remove("hidden");
 
-function initiateNormalMatch(){
-  const teamA=document.getElementById("matchTeamA").value.trim();
-  const teamB=document.getElementById("matchTeamB").value.trim();
+  window.scrollTo(0, 0);
 
-  if(!teamA || !teamB){
-    alert("Dono team ke naam enter karo.");
-    return;
-  }
-
-  matchTeams.teamA=teamA;
-  matchTeams.teamB=teamB;
-
-  currentMatch={
-    runs:0,
-    wickets:0,
-    balls:0,
-    history:[],
-    extras:{wd:0,nb:0,b:0,lb:0}
-  };
-
-  pendingScore=null;
-
-  localStorage.setItem("cy_match_teams",JSON.stringify(matchTeams));
-  saveMatch();
-  updateScoreDisplay();
-
-  setCommentary("🏏 Match started! "+teamA+" vs "+teamB+". Scoring shuru karo!");
-
-  openPage("liveScoringPage");
-}
-
-function saveMatch(){
-  localStorage.setItem("cy_current_match",JSON.stringify(currentMatch));
 }
 
 
-/* RUN SELECT - DIRECTION KE BAAD SAVE HOGA */
-function selectScore(runs){
-  pendingScore=runs;
+/* =========================================
+   APP START
+========================================= */
 
-  setText(
-    "directionStatus",
-    "🏏 "+runs+" run selected — ab ball ki direction dabao"
-  );
-}
+window.onload = function () {
 
+  renderTeams();
 
-/* DIRECTION SELECT */
-function chooseDirection(direction){
+  const savedUser =
+    localStorage.getItem("cricYuvaUser");
 
-  if(pendingScore===null){
-    setCommentary("Pehle run button dabao, phir ball ki direction select karo.");
-    return;
+  if (savedUser) {
+
+    loadUser();
+
+    showHome();
+
+  } else {
+
+    showPage("registrationPage");
+
   }
 
-  const runs=pendingScore;
+};
 
-  const event={
-    type:"RUN",
-    runs:runs,
-    legal:true,
-    wicket:false,
-    direction:direction,
-    label:String(runs)
-  };
 
-  saveEvent(event);
+/* =========================================
+   REGISTRATION
+========================================= */
 
-  setCommentary(createRunCommentary(runs,direction));
+let uploadedPhoto = "";
 
-  pendingScore=null;
+document
+  .getElementById("playerPhoto")
+  .addEventListener("change", function(event) {
 
-  setText(
-    "directionStatus",
-    "👆 Agli ball ke liye run select karo, phir direction dabao"
-  );
-}
+    const file = event.target.files[0];
 
+    if (!file) return;
 
-function createRunCommentary(runs,direction){
-  if(runs===0){
-    return "Dot ball! Ball "+direction+" ki direction me gayi, koi run nahi.";
-  }
+    const reader = new FileReader();
 
-  if(runs===1){
-    return "1 run! Batsman ne ball "+direction+" ki direction me khelkar single liya.";
-  }
+    reader.onload = function(e) {
 
-  if(runs===2){
-    return "2 runs! Ball "+direction+" ki direction me, dono batsman ne tez running ki.";
-  }
+      uploadedPhoto = e.target.result;
 
-  if(runs===3){
-    return "3 runs! Ball "+direction+" ki taraf gayi aur shandar running!";
-  }
+      document.getElementById("photoPreview")
+        .innerHTML =
+        `<img src="${uploadedPhoto}">`;
 
-  if(runs===4){
-    return "🔥 FOUR! Shandar shot "+direction+" ki direction me, ball boundary ke paar!";
-  }
+    };
 
-  if(runs===6){
-    return "🚀 SIX! Zabardast shot! Ball "+direction+" ki direction me stadium ke bahar!";
-  }
+    reader.readAsDataURL(file);
 
-  return runs+" runs! Ball "+direction+" ki direction me gayi.";
-}
-
-
-/* DIRECT EXTRAS */
-function addDirectEvent(type,runs){
-
-  pendingScore=null;
-
-  let label="";
-  let commentary="";
-
-  if(type==="WD"){
-    label=runs===1 ? "Wd" : "Wd+"+(runs-1);
-    commentary="Wide ball! Team ko "+runs+" extra run mile.";
-  }
-
-  if(type==="NB"){
-    label=runs===1 ? "Nb" : "Nb+"+(runs-1);
-    commentary="No Ball! Team ko "+runs+" run mile.";
-  }
-
-  if(type==="B"){
-    label="B+"+runs;
-    commentary="Bye! "+runs+" extra run team score me add.";
-  }
-
-  if(type==="LB"){
-    label="LB+"+runs;
-    commentary="Leg Bye! "+runs+" extra run team score me add.";
-  }
-
-  const event={
-    type:type,
-    runs:runs,
-    legal:type==="B" || type==="LB",
-    wicket:false,
-    direction:"",
-    label:label
-  };
-
-  saveEvent(event);
-  setCommentary(commentary);
-}
-
-
-function addWicket(){
-  pendingScore=null;
-
-  const event={
-    type:"W",
-    runs:0,
-    legal:true,
-    wicket:true,
-    direction:"",
-    label:"W"
-  };
-
-  saveEvent(event);
-  setCommentary("🔴 OUT! Wicket gir gaya! Naya batsman crease par aayega.");
-}
-
-
-/* COMMON EVENT SAVE */
-function saveEvent(event){
-
-  currentMatch.runs+=event.runs;
-
-  if(event.wicket){
-    currentMatch.wickets++;
-  }
-
-  if(event.legal){
-    currentMatch.balls++;
-  }
-
-  if(event.type==="WD") currentMatch.extras.wd+=event.runs;
-  if(event.type==="NB") currentMatch.extras.nb+=event.runs;
-  if(event.type==="B") currentMatch.extras.b+=event.runs;
-  if(event.type==="LB") currentMatch.extras.lb+=event.runs;
-
-  currentMatch.history.push(event);
-
-  saveMatch();
-  updateScoreDisplay();
-}
-
-
-function handleUndo(){
-
-  pendingScore=null;
-
-  if(currentMatch.history.length===0){
-    alert("Undo karne ke liye koi ball nahi hai.");
-    return;
-  }
-
-  const last=currentMatch.history.pop();
-
-  currentMatch.runs-=last.runs;
-
-  if(last.wicket){
-    currentMatch.wickets--;
-  }
-
-  if(last.legal){
-    currentMatch.balls--;
-  }
-
-  if(last.type==="WD") currentMatch.extras.wd-=last.runs;
-  if(last.type==="NB") currentMatch.extras.nb-=last.runs;
-  if(last.type==="B") currentMatch.extras.b-=last.runs;
-  if(last.type==="LB") currentMatch.extras.lb-=last.runs;
-
-  currentMatch.runs=Math.max(0,currentMatch.runs);
-  currentMatch.wickets=Math.max(0,currentMatch.wickets);
-  currentMatch.balls=Math.max(0,currentMatch.balls);
-
-  currentMatch.extras.wd=Math.max(0,currentMatch.extras.wd);
-  currentMatch.extras.nb=Math.max(0,currentMatch.extras.nb);
-  currentMatch.extras.b=Math.max(0,currentMatch.extras.b);
-  currentMatch.extras.lb=Math.max(0,currentMatch.extras.lb);
-
-  saveMatch();
-  updateScoreDisplay();
-  setCommentary("↩️ Last ball undo kar di gayi.");
-}
-
-
-function updateScoreDisplay(){
-
-  const score=currentMatch.runs+"/"+currentMatch.wickets;
-
-  const overs=
-    Math.floor(currentMatch.balls/6)+"."+
-    (currentMatch.balls%6);
-
-  const completedOvers=currentMatch.balls/6;
-
-  let crr="0.00";
-
-  if(completedOvers>0){
-    crr=(currentMatch.runs/completedOvers).toFixed(2);
-  }
-
-  setText("homeTeamA",matchTeams.teamA.toUpperCase());
-  setText("homeTeamB",matchTeams.teamB.toUpperCase());
-  setText("homeScore",score);
-  setText("homeOvers",overs+" Overs");
-  setText("homeStatus","CRR: "+crr);
-
-  setText("consoleTeamA",matchTeams.teamA.toUpperCase());
-  setText("consoleTeamB",matchTeams.teamB.toUpperCase());
-  setText("consoleScore",score);
-  setText("consoleOvers","Overs: "+overs);
-  setText("consoleStats","CRR: "+crr);
-
-  const extras=
-    currentMatch.extras.wd+
-    currentMatch.extras.nb+
-    currentMatch.extras.b+
-    currentMatch.extras.lb;
-
-  setText("extrasTotal",extras);
-  setText("wideTotal",currentMatch.extras.wd);
-  setText("noBallTotal",currentMatch.extras.nb);
-  setText("byeTotal",currentMatch.extras.b);
-  setText("legByeTotal",currentMatch.extras.lb);
-
-  const history=currentMatch.history.map(function(ball){
-
-    if(ball.direction){
-      return ball.label+"("+ball.direction+")";
-    }
-
-    return ball.label;
-
-  }).join(" • ");
-
-  setText(
-    "ballHistoryBox",
-    history ? "History: "+history : "Over History: Start Scoring..."
-  );
-}
-
-
-function setCommentary(text){
-  setText("commentaryText",text);
-}
-
-
-function setText(id,value){
-  const element=document.getElementById(id);
-  if(element) element.textContent=value;
-}
-
-
-/* PLAYER */
-function registerPlayer(){
-
-  const name=document.getElementById("pName").value.trim();
-  const mob=document.getElementById("pMobile").value.trim();
-  const dob=document.getElementById("pDob").value;
-
-  if(!name || !mob || !dob){
-    alert("Name, Mobile aur Date of Birth mandatory hai.");
-    return;
-  }
-
-  const player={
-    id:Date.now(),
-    name:name,
-    mob:mob,
-    dob:dob,
-    jerseyNo:document.getElementById("pJNo").value || "7",
-    jerseyName:document.getElementById("pJName").value || name,
-    jerseySize:document.getElementById("pJSize").value,
-    pantSize:document.getElementById("pPSize").value,
-    email:document.getElementById("pEmail").value,
-    soldTo:null
-  };
-
-  players.push(player);
-  localStorage.setItem("cy_players",JSON.stringify(players));
-
-  alert("🎉 Player Profile Saved Successfully!");
-  goHome();
-}
-
-
-function checkTodayBirthdays(){
-
-  const box=document.getElementById("birthdayBox");
-  const nameBox=document.getElementById("birthdayPlayerName");
-
-  if(!box || !nameBox) return;
-
-  const today=new Date();
-
-  const monthDay=
-    String(today.getMonth()+1).padStart(2,"0")+"-"+
-    String(today.getDate()).padStart(2,"0");
-
-  const birthdayPlayer=players.find(function(player){
-    return player.dob && player.dob.substring(5)===monthDay;
   });
 
-  if(birthdayPlayer){
-    nameBox.textContent=birthdayPlayer.name;
-    box.style.display="block";
-  }else{
-    box.style.display="none";
+
+function saveRegistration() {
+
+  const name =
+    document.getElementById("regName").value.trim();
+
+  const mobile =
+    document.getElementById("regMobile").value.trim();
+
+  const jerseyName =
+    document.getElementById("regJerseyName").value.trim();
+
+  const jerseyNumber =
+    document.getElementById("regJerseyNumber").value.trim();
+
+  const role =
+    document.getElementById("regRole").value;
+
+  const size =
+    document.getElementById("regSize").value;
+
+  const dob =
+    document.getElementById("regDob").value;
+
+
+  if (!name || !mobile) {
+
+    alert("Please enter Full Name and Mobile Number");
+
+    return;
+
   }
+
+
+  const user = {
+
+    name,
+    mobile,
+    jerseyName,
+    jerseyNumber,
+    role,
+    size,
+    dob,
+    photo: uploadedPhoto
+
+  };
+
+
+  localStorage.setItem(
+    "cricYuvaUser",
+    JSON.stringify(user)
+  );
+
+
+  loadUser();
+
+  showHome();
+
 }
 
 
-/* TOURNAMENT PLAYERS */
-function renderNormalPlayers(){
+function loadUser() {
 
-  const list=document.getElementById("normalPlayersList");
-  if(!list) return;
+  const data =
+    localStorage.getItem("cricYuvaUser");
 
-  if(players.length===0){
-    list.innerHTML="<div class='emptyBox'>No registered players yet. Add Player first.</div>";
-    return;
+  if (!data) return;
+
+  const user = JSON.parse(data);
+
+
+  document.getElementById("menuName")
+    .textContent = user.name;
+
+  document.getElementById("menuMobile")
+    .textContent = user.mobile;
+
+
+  document.getElementById("profileName")
+    .textContent = user.name;
+
+  document.getElementById("profileMobile")
+    .textContent = user.mobile;
+
+  document.getElementById("profileJerseyName")
+    .textContent = user.jerseyName || "-";
+
+  document.getElementById("profileJerseyNumber")
+    .textContent = user.jerseyNumber || "-";
+
+  document.getElementById("profileRole")
+    .textContent = user.role || "Player";
+
+  document.getElementById("profileSize")
+    .textContent = user.size || "-";
+
+
+  if (user.photo) {
+
+    document.getElementById("menuPhoto")
+      .innerHTML =
+      `<img src="${user.photo}">`;
+
+    document.getElementById("profilePhoto")
+      .innerHTML =
+      `<img src="${user.photo}">`;
+
   }
 
-  list.innerHTML=players.map(function(player){
-    return `
-      <div class="auction-flex">
-        <div><b>${escapeHTML(player.name)}</b><br>Jersey: ${escapeHTML(String(player.jerseyNo))}</div>
-        <div>📞 ${escapeHTML(player.mob)}</div>
+}
+
+
+/* =========================================
+   HOME
+========================================= */
+
+function showHome() {
+
+  showPage("homePage");
+
+}
+
+function showProfile() {
+
+  document.getElementById("sideMenu")
+    .classList.add("hidden");
+
+  showPage("profilePage");
+
+}
+
+function toggleMenu() {
+
+  document.getElementById("sideMenu")
+    .classList.toggle("hidden");
+
+}
+
+function logoutApp() {
+
+  const yes =
+    confirm(
+      "Logout करने पर registration फिर से करना होगा. Continue?"
+    );
+
+  if (!yes) return;
+
+  localStorage.removeItem("cricYuvaUser");
+
+  location.reload();
+
+}
+
+
+/* =========================================
+   RENDER TEAMS
+========================================= */
+
+function renderTeams() {
+
+  const listA =
+    document.getElementById("teamAList");
+
+  const listB =
+    document.getElementById("teamBList");
+
+
+  listA.innerHTML = "";
+
+  teamA.forEach((player, index) => {
+
+    listA.innerHTML += `
+      <div class="player-row">
+        <span class="player-number">
+          ${index + 1}
+        </span>
+
+        <div class="player-avatar">
+          ${player.charAt(0)}
+        </div>
+
+        <div>
+          <b>${player}</b>
+          <small>Team A Player</small>
+        </div>
       </div>
     `;
-  }).join("");
-}
 
-function formTeams(){
-  if(players.length<2){
-    alert("Kam se kam 2 players register karo.");
-    return;
-  }
-
-  const middle=Math.ceil(players.length/2);
-  const teamA=players.slice(0,middle);
-  const teamB=players.slice(middle);
-
-  alert(
-    "👥 TEST TEAMS FORMED!\n\nTITANS:\n"+
-    teamA.map(p=>p.name).join(", ")+
-    "\n\nWARRIORS:\n"+
-    teamB.map(p=>p.name).join(", ")
-  );
-}
-
-
-/* AUCTION */
-function syncAuctionPool(){
-
-  setText("teamAPoints",auctionState.teamA);
-  setText("teamBPoints",auctionState.teamB);
-
-  const available=players.filter(player=>!player.soldTo);
-
-  if(available.length===0){
-    setText("auctionPlayerName",players.length===0?"Add Players First":"All Players Sold!");
-    renderAuctionHistory();
-    return;
-  }
-
-  setText("auctionPlayerName",available[0].name);
-  setText("auctionBaseValue","50");
-  renderAuctionHistory();
-}
-
-function sellPlayer(team){
-
-  const available=players.filter(player=>!player.soldTo);
-
-  if(available.length===0){
-    alert("No players available.");
-    return;
-  }
-
-  const player=available[0];
-  const price=50;
-
-  if(team==="A"){
-    if(auctionState.teamA<price){
-      alert("TITANS ke paas points kam hain.");
-      return;
-    }
-
-    auctionState.teamA-=price;
-    player.soldTo="TITANS";
-  }
-
-  if(team==="B"){
-    if(auctionState.teamB<price){
-      alert("WARRIORS ke paas points kam hain.");
-      return;
-    }
-
-    auctionState.teamB-=price;
-    player.soldTo="WARRIORS";
-  }
-
-  auctionState.history.unshift({
-    player:player.name,
-    team:player.soldTo,
-    price:price
   });
 
-  localStorage.setItem("cy_players",JSON.stringify(players));
-  localStorage.setItem("cy_auction",JSON.stringify(auctionState));
 
-  alert("🪙 "+player.name+" SOLD TO "+player.soldTo+" for "+price+" points!");
+  listB.innerHTML = "";
 
-  syncAuctionPool();
-}
+  teamB.forEach((player, index) => {
 
-function renderAuctionHistory(){
+    listB.innerHTML += `
+      <div class="player-row">
+        <span class="player-number">
+          ${index + 1}
+        </span>
 
-  const log=document.getElementById("auctionHistoryLog");
-  if(!log) return;
+        <div class="player-avatar blue">
+          ${player.charAt(0)}
+        </div>
 
-  if(!auctionState.history || auctionState.history.length===0){
-    log.innerHTML="<div class='emptyBox'>No players sold yet.</div>";
-    return;
-  }
-
-  log.innerHTML=auctionState.history.map(function(item){
-    return `
-      <div class="auction-flex">
-        <div><b>${escapeHTML(item.player)}</b></div>
-        <div>${escapeHTML(item.team)} 🪙 ${item.price}</div>
+        <div>
+          <b>${player}</b>
+          <small>Team B Player</small>
+        </div>
       </div>
     `;
-  }).join("");
+
+  });
+
 }
 
 
-function escapeHTML(value){
-  return String(value || "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+function openTeams() {
+
+  document.getElementById("sideMenu")
+    .classList.add("hidden");
+
+  showPage("teamsPage");
+
 }
+
+
+/* =========================================
+   MATCH SETUP
+========================================= */
+
+function openMatchSetup() {
+
+  showPage("matchSetupPage");
+
+}
+
+
+function selectTeam(team) {
+
+  const a =
+    document.getElementById("teamACard");
+
+  const b =
+    document.getElementById("teamBCard");
+
+  if (team === "A") {
+
+    a.classList.add("selected-team");
+    b.classList.remove("selected-team");
+
+  } else {
+
+    b.classList.add("selected-team");
+    a.classList.remove("selected-team");
+
+  }
+
+}
+
+
+/* =========================================
+   TOSS
+========================================= */
+
+function startToss() {
+
+  showPage("tossPage");
+
+}
+
+
+function chooseTossTeam(team) {
+
+  tossWinner = team;
+
+
+  document
+    .getElementById("tossTeamA")
+    .classList.toggle(
+      "selected",
+      team === "A"
+    );
+
+  document
+    .getElementById("tossTeamB")
+    .classList.toggle(
+      "selected",
+      team === "B"
+    );
+
+}
+
+
+function chooseDecision(decision) {
+
+  tossDecision = decision;
+
+
+  document
+    .getElementById("batChoice")
+    .classList.toggle(
+      "selected",
+      decision === "Bat"
+    );
+
+  document
+    .getElementById("bowlChoice")
+    .classList.toggle(
+      "selected",
+      decision === "Bowl"
+    );
+
+}
+
+
+function flipCoin() {
+
+  const coin =
+    document.getElementById("coin");
+
+  const text =
+    document.getElementById("coinText");
+
+  const result =
+    document.getElementById("coinResult");
+
+
+  coin.classList.add("flip");
+
+
+  setTimeout(() => {
+
+    const side =
+      Math.random() > 0.5
+        ? "HEADS"
+        : "TAILS";
+
+    text.textContent = side;
+
+    result.textContent =
+      side + " - Coin Flipped Successfully";
+
+    coin.classList.remove("flip");
+
+  }, 700);
+
+}
+
+
+/* =========================================
+   INNINGS SETUP
+========================================= */
+
+function openInningsSetup() {
+
+  if (
+    tossWinner === "A" &&
+    tossDecision === "Bat"
+  ) {
+
+    battingTeam = "A";
+    bowlingTeam = "B";
+
+  }
+
+  else if (
+    tossWinner === "A" &&
+    tossDecision === "Bowl"
+  ) {
+
+    battingTeam = "B";
+    bowlingTeam = "A";
+
+  }
+
+  else if (
+    tossWinner === "B" &&
+    tossDecision === "Bat"
+  ) {
+
+    battingTeam = "B";
+    bowlingTeam = "A";
+
+  }
+
+  else {
+
+    battingTeam = "A";
+    bowlingTeam = "B";
+
+  }
+
+
+  const battingPlayers =
+    battingTeam === "A"
+      ? teamA
+      : teamB;
+
+  const bowlingPlayers =
+    bowlingTeam === "A"
+      ? teamA
+      : teamB;
+
+
+  const battingName =
+    battingTeam === "A"
+      ? "CHENNAI SUPER KINGS"
+      : "CHENNAI SUPER 11";
+
+
+  const bowlingName =
+    bowlingTeam === "A"
+      ? "CHENNAI SUPER KINGS"
+      : "CHENNAI SUPER 11";
+
+
+  document.getElementById("battingTitle")
+    .textContent =
+    "Batting - " + battingName;
+
+  document.getElementById("bowlingTitle")
+    .textContent =
+    "Bowling - " + bowlingName;
+
+
+  fillSelect(
+    "strikerSelect",
+    battingPlayers,
+    "Select striker"
+  );
+
+  fillSelect(
+    "nonStrikerSelect",
+    battingPlayers,
+    "Select non-striker"
+  );
+
+  fillSelect(
+    "bowlerSelect",
+    bowlingPlayers,
+    "Select bowler"
+  );
+
+
+  ["strikerSelect", "nonStrikerSelect", "bowlerSelect"]
+    .forEach(id => {
+
+      document
+        .getElementById(id)
+        .onchange = updatePreview;
+
+    });
+
+
+  showPage("inningsPage");
+
+}
+
+
+function fillSelect(id, players, firstText) {
+
+  const select =
+    document.getElementById(id);
+
+  select.innerHTML =
+    `<option value="">${firstText}</option>`;
+
+  players.forEach(player => {
+
+    select.innerHTML +=
+      `<option value="${player}">
+        ${player}
+      </option>`;
+
+  });
+
+}
+
+
+function updatePreview() {
+
+  document.getElementById("previewStriker")
+    .textContent =
+    document.getElementById("strikerSelect").value
+    || "Not Selected";
+
+  document.getElementById("previewNonStriker")
+    .textContent =
+    document.getElementById("nonStrikerSelect").value
+    || "Not Selected";
+
+  document.getElementById("previewBowler")
+    .textContent =
+    document.getElementById("bowlerSelect").value
+    || "Not Selected";
+
+}
+
+
+/* =========================================
+   START SCORING
+========================================= */
+
+function startScoring() {
+
+  const striker =
+    document.getElementById("strikerSelect").value;
+
+  const nonStriker =
+    document.getElementById("nonStrikerSelect").value;
+
+  const bowler =
+    document.getElementById("bowlerSelect").value;
+
+
+  if (!striker ||
+      !nonStriker ||
+      !bowler) {
+
+    alert(
+      "Please select Striker, Non-Striker and Bowler"
+    );
+
+    return;
+
+  }
+
+
+  if (striker === nonStriker) {
+
+    alert(
+      "Striker and Non-Striker must be different"
+    );
+
+    return;
+
+  }
+
+
+  score = {
+
+    runs: 0,
+    wickets: 0,
+    balls: 0,
+
+    totalOvers:
+      parseInt(
+        document.getElementById("matchOvers").value
+      ) || 5,
+
+    striker,
+    nonStriker,
+    bowler,
+
+    strikerRuns: 0,
+    strikerBalls: 0,
+
+    nonStrikerRuns: 0,
+    nonStrikerBalls: 0,
+
+    bowlerRuns: 0,
+    bowlerBalls: 0,
+
+    overEvents: [],
+    history: []
+
+  };
+
+
+  updateScoreScreen();
+
+  showPage("scoringPage");
+
+}
+
+
+/* =========================================
+   SCORING
+========================================= */
+
+function saveHistory() {
+
+  score.history.push(
+    JSON.stringify(score)
+  );
+
+}
+
+
+function addRuns(runs) {
+
+  saveHistory();
+
+
+  score.runs += runs;
+
+  score.balls++;
+
+  score.strikerRuns += runs;
+  score.strikerBalls++;
+
+  score.bowlerRuns += runs;
+  score.bowlerBalls++;
+
+  score.overEvents.push(runs);
+
+
+  if (runs % 2 === 1) {
+
+    swapPlayers();
+
+  }
+
+
+  finishBallCheck();
+
+}
+
+
+function addExtra(type) {
+
+  saveHistory();
+
+
+  if (type === "Wd") {
+
+    score.runs++;
+    score.bowlerRuns++;
+
+    score.overEvents.push("Wd");
+
+  }
+
+
+  if (type === "Nb") {
+
+    score.runs++;
+    score.bowlerRuns++;
+
+    score.overEvents.push("Nb");
+
+  }
+
+
+  updateScoreScreen();
+
+}
+
+
+function addWicket() {
+
+  saveHistory();
+
+
+  score.wickets++;
+
+  score.balls++;
+
+  score.strikerBalls++;
+
+  score.bowlerBalls++;
+
+  score.overEvents.push("W");
+
+
+  finishBallCheck();
+
+}
+
+
+function finishBallCheck() {
+
+  if (score.balls % 6 === 0) {
+
+    swapPlayers();
+
+    score.overEvents = [];
+
+  }
+
+
+  updateScoreScreen();
+
+}
+
+
+function swapPlayers() {
+
+  const temp = score.striker;
+
+  score.striker =
+    score.nonStriker;
+
+  score.nonStriker =
+    temp;
+
+
+  const tempRuns =
+    score.strikerRuns;
+
+  score.strikerRuns =
+    score.nonStrikerRuns;
+
+  score.nonStrikerRuns =
+    tempRuns;
+
+
+  const tempBalls =
+    score.strikerBalls;
+
+  score.strikerBalls =
+    score.nonStrikerBalls;
+
+  score.nonStrikerBalls =
+    tempBalls;
+
+
+  updateScoreScreen();
+
+}
+
+
+function undoBall() {
+
+  if (score.history.length === 0) return;
+
+
+  const previous =
+    score.history.pop();
+
+
+  score = JSON.parse(previous);
+
+
+  updateScoreScreen();
+
+}
+
+
+function updateScoreScreen() {
+
+  const overs =
+    Math.floor(score.balls / 6);
+
+  const balls =
+    score.balls % 6;
+
+
+  document.getElementById("scoreRuns")
+    .textContent =
+    score.runs + "/" + score.wickets;
+
+
+  document.getElementById("scoreOvers")
+    .textContent =
+    overs + "." + balls +
+    " / " +
+    score.totalOvers +
+    " Overs";
+
+
+  document.getElementById("strikerName")
+    .textContent =
+    "🏏 " + score.striker;
+
+  document.getElementById("nonStrikerName")
+    .textContent =
+    score.nonStriker;
+
+
+  document.getElementById("strikerRuns")
+    .textContent =
+    score.strikerRuns +
+    " (" +
+    score.strikerBalls +
+    ")";
+
+
+  document.getElementById("nonStrikerRuns")
+    .textContent =
+    score.nonStrikerRuns +
+    " (" +
+    score.nonStrikerBalls +
+    ")";
+
+
+  document.getElementById("liveBowler")
+    .textContent =
+    score.bowler;
+
+
+  document.getElementById("bowlerFigures")
+    .textContent =
+    Math.floor(score.bowlerBalls / 6) +
+    "." +
+    (score.bowlerBalls % 6) +
+    " - " +
+    score.bowlerRuns +
+    " - " +
+    score.wickets;
+
+
+  const overBalls =
+    document.getElementById("overBalls");
+
+  overBalls.innerHTML = "";
+
+
+  score.overEvents.forEach(ball => {
+
+    overBalls.innerHTML +=
+      `<span>${ball}</span>`;
+
+  });
+
+
+  const totalLegalBalls =
+    score.balls;
+
+  const currentOvers =
+    Math.floor(totalLegalBalls / 6) +
+    "." +
+    (totalLegalBalls % 6);
+
+
+  document.getElementById("homeScore")
+    .textContent =
+    score.runs + "/" + score.wickets;
+
+
+  document.getElementById("homeOvers")
+    .textContent =
+    "(" + currentOvers + " Overs)";
+
+
+  const crr =
+    score.balls > 0
+      ? (
+          score.runs /
+          (score.balls / 6)
+        ).toFixed(2)
+      : "0.00";
+
+
+  document.getElementById("crr")
+    .textContent = crr;
+
+
+  document.getElementById("recentBalls")
+    .innerHTML =
+    score.overEvents
+      .map(ball =>
+        `<span>${ball}</span>`
+      )
+      .join("");
+
+}
+
 </script>
 
 </body>
