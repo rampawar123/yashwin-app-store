@@ -2391,6 +2391,940 @@ localStorage.setItem("CY_SINGLE_MATCHES", JSON.stringify(matches));
 
     location.reload();
  }  
+
+/* =========================================
+   CRIC YUVA - BALL BY BALL SCORING SYSTEM
+========================================= */
+
+let selectedShotDirection = "Straight";
+
+
+function showScorecards(){
+
+  const matches = JSON.parse(
+    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  );
+
+  const match =
+    matches.find(item => item.status === "live")
+    || matches[0];
+
+  if(!match){
+    alert("Koi live match nahi mila.");
+    return;
+  }
+
+  const scoreKey = "CY_LIVE_SCORE_" + match.id;
+
+  let score = JSON.parse(
+    localStorage.getItem(scoreKey) || "null"
+  );
+
+  if(!score){
+
+    score = {
+      matchId: match.id,
+      teamA: match.teamA,
+      teamB: match.teamB,
+      runs: 0,
+      wickets: 0,
+      balls: 0,
+      totalBalls: 0,
+      overs: 0,
+      striker: "Batsman 1",
+      nonStriker: "Batsman 2",
+      selectedDirection: "Straight",
+      commentary: []
+    };
+
+    localStorage.setItem(
+      scoreKey,
+      JSON.stringify(score)
+    );
+  }
+
+  renderScoreScreen();
+}
+
+
+function renderScoreScreen(){
+
+  const matches = JSON.parse(
+    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  );
+
+  const match =
+    matches.find(item => item.status === "live")
+    || matches[0];
+
+  if(!match) return;
+
+  const scoreKey = "CY_LIVE_SCORE_" + match.id;
+
+  const score = JSON.parse(
+    localStorage.getItem(scoreKey)
+  );
+
+  if(!score) return;
+
+  const box = document.getElementById("singleMatch");
+
+  if(!box) return;
+
+  const overText =
+    Math.floor(score.totalBalls / 6)
+    + "."
+    + (score.totalBalls % 6);
+
+  const commentaryHTML =
+    score.commentary.length
+    ? score.commentary
+        .slice()
+        .reverse()
+        .map(function(item){
+          return `<div class="matchNote">🎙️ ${item}</div>`;
+        })
+        .join("")
+    : `<div class="matchNote">
+         🎙️ Match commentary yahan aayegi.
+       </div>`;
+
+  box.innerHTML = `
+
+    <button
+      class="backBtn"
+      onclick="location.reload()"
+    >
+      ← Back
+    </button>
+
+    <h2 class="createMatchTitle">
+      🏏 Live Match
+    </h2>
+
+    <div class="modernMatchCard">
+
+      <h3>
+        ${score.teamA}
+        🆚
+        ${score.teamB}
+      </h3>
+
+      <div class="matchNote">
+
+        <b style="font-size:28px;">
+          ${score.runs}/${score.wickets}
+        </b>
+
+        <br><br>
+
+        Overs: ${overText}
+
+        <br><br>
+
+        🏏 Striker: ${score.striker}
+
+        <br>
+
+        🏏 Non-Striker: ${score.nonStriker}
+
+      </div>
+
+    </div>
+
+
+    <div class="modernMatchCard">
+
+      <h3>🎯 Ball kis disha me mara?</h3>
+
+      <div class="pageGrid">
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Cover')"
+        >
+          🏏 Cover
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Point')"
+        >
+          🏏 Point
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Straight')"
+        >
+          🏏 Straight
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Long On')"
+        >
+          🏏 Long On
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Long Off')"
+        >
+          🏏 Long Off
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Mid Wicket')"
+        >
+          🏏 Mid Wicket
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Square Leg')"
+        >
+          🏏 Square Leg
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="selectShotDirection('Fine Leg')"
+        >
+          🏏 Fine Leg
+        </button>
+
+      </div>
+
+      <div class="matchNote">
+        🎯 Selected: <b>${score.selectedDirection}</b>
+      </div>
+
+    </div>
+
+
+    <div class="modernMatchCard">
+
+      <h3>🏏 Ball Result</h3>
+
+      <div class="pageGrid">
+
+        <button
+          class="pageOption"
+          onclick="addBall(0)"
+        >
+          0
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addBall(1)"
+        >
+          1
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addBall(2)"
+        >
+          2
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addBall(3)"
+        >
+          3
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addBall(4)"
+        >
+          🔥 4
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addBall(6)"
+        >
+          🚀 6
+        </button>
+
+      </div>
+
+
+      <div class="pageGrid">
+
+        <button
+          class="pageOption"
+          onclick="addWide()"
+        >
+          🚨 Wide
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addNoBall()"
+        >
+          ⚠️ No Ball
+        </button>
+
+        <button
+          class="pageOption"
+          onclick="addWicket()"
+        >
+          🏏 Wicket
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="modernMatchCard">
+
+      <h3>🎙️ Live Commentary</h3>
+
+      ${commentaryHTML}
+
+    </div>
+
+  `;
+}
+
+
+function selectShotDirection(direction){
+
+  selectedShotDirection = direction;
+
+  const matches = JSON.parse(
+    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  );
+
+  const match =
+    matches.find(item => item.status === "live")
+    || matches[0];
+
+  if(!match) return;
+
+  const scoreKey =
+    "CY_LIVE_SCORE_" + match.id;
+
+  const score = JSON.parse(
+    localStorage.getItem(scoreKey)
+  );
+
+  if(!score) return;
+
+  score.selectedDirection = direction;
+
+  localStorage.setItem(
+    scoreKey,
+    JSON.stringify(score)
+  );
+
+  renderScoreScreen();
+}
+
+
+function getLiveScore(){
+
+  const matches = JSON.parse(
+    localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+  );
+
+  const match =
+    matches.find(item => item.status === "live")
+    || matches[0];
+
+  if(!match) return null;
+
+  const scoreKey =
+    "CY_LIVE_SCORE_" + match.id;
+
+  return {
+    key: scoreKey,
+    score: JSON.parse(
+      localStorage.getItem(scoreKey)
+    )
+  };
+}
+
+
+function saveLiveScore(key, score){
+
+  localStorage.setItem(
+    key,
+    JSON.stringify(score)
+  );
+}
+
+
+function swapBatsmen(score){
+
+  const temp = score.striker;
+
+  score.striker = score.nonStriker;
+
+  score.nonStriker = temp;
+}
+
+
+function addBall(runs){
+
+  const live = getLiveScore();
+
+  if(!live || !live.score) return;
+
+  const score = live.score;
+
+  const direction =
+    score.selectedDirection || "Straight";
+
+  score.runs += runs;
+
+  score.balls += 1;
+  score.totalBalls += 1;
+
+
+  let text = "";
+
+  if(runs === 0){
+
+    text =
+      `${direction} ki taraf shot, lekin koi run nahi. Dot ball!`;
+
+  }else if(runs === 1){
+
+    text =
+      `${direction} ki taraf shot aur ek run liya.`;
+
+    swapBatsmen(score);
+
+  }else if(runs === 2){
+
+    text =
+      `${direction} ki taraf shot, dono batsmen ne 2 runs complete kiye.`;
+
+  }else if(runs === 3){
+
+    text =
+      `${direction} ki taraf ball gayi, shandaar 3 runs!`;
+
+    swapBatsmen(score);
+
+  }else if(runs === 4){
+
+    text =
+      `🔥 ${direction} ki taraf zabardast shot! Ball boundary ke paar... FOUR!`;
+
+  }else if(runs === 6){
+
+    text =
+      `🚀 ${direction} ki taraf gajab ka shot! Ball hawa me... SIX!`;
+
+  }
+
+
+  score.commentary.push(
+    `${Math.floor((score.totalBalls - 1) / 6) + 1}.${((score.totalBalls - 1) % 6) + 1} — ${text}`
+  );
+
+
+  if(score.totalBalls % 6 === 0){
+
+    score.commentary.push(
+      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}. Batsmen ne ends change kiye.`
+    );
+
+    swapBatsmen(score);
+  }
+
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+  renderScoreScreen();
+}
+
+
+function addWide(){
+
+  const live = getLiveScore();
+
+  if(!live || !live.score) return;
+
+  const score = live.score;
+
+  score.runs += 1;
+
+  score.commentary.push(
+    `🚨 Wide ball! ${score.selectedDirection || "Leg Side"} ki taraf bahut bahar. 1 extra run.`
+  );
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+  renderScoreScreen();
+}
+
+
+function addNoBall(){
+
+  const live = getLiveScore();
+
+  if(!live || !live.score) return;
+
+  const score = live.score;
+
+  score.runs += 1;
+
+  score.commentary.push(
+    `⚠️ NO BALL! Bowler ne illegal delivery dali. 1 extra run aur Free Hit!`
+  );
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+  renderScoreScreen();
+}
+
+
+function addWicket(){
+
+  const live = getLiveScore();
+
+  if(!live || !live.score) return;
+
+  const score = live.score;
+
+  score.wickets += 1;
+
+  score.balls += 1;
+  score.totalBalls += 1;
+
+  score.commentary.push(
+    `🏏 WICKET! ${score.striker} OUT! ${score.selectedDirection || "Pitch"} par ball ne match palat diya.`
+  );
+
+
+  if(score.totalBalls % 6 === 0){
+
+    score.commentary.push(
+      `🔔 OVER COMPLETE! Score: ${score.runs}/${score.wickets}.`
+    );
+
+    swapBatsmen(score);
+  }
+
+
+  saveLiveScore(
+    live.key,
+    score
+  );
+
+  renderScoreScreen();
+}
+
+   /* ==========================================
+   CRIC YUVA - 2ND INNINGS + MATCH RESULT
+   Paste this code BEFORE </script>
+========================================== */
+
+(function(){
+
+    const originalAddBall = window.addBall;
+    const originalAddWide = window.addWide;
+    const originalAddNoBall = window.addNoBall;
+    const originalAddWicket = window.addWicket;
+
+    function getMatchState(matchId){
+        const key = "CY_MATCH_STATE_" + matchId;
+
+        let state = JSON.parse(
+            localStorage.getItem(key) || "null"
+        );
+
+        if(!state){
+            state = {
+                innings: 1,
+                firstInningsRuns: 0,
+                firstInningsWickets: 0,
+                firstInningsTeam: "",
+                secondInningsTeam: "",
+                target: 0,
+                completed: false
+            };
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(state)
+            );
+        }
+
+        return state;
+    }
+
+
+    function saveMatchState(matchId, state){
+        localStorage.setItem(
+            "CY_MATCH_STATE_" + matchId,
+            JSON.stringify(state)
+        );
+    }
+
+
+    function checkMatchProgress(){
+
+        const live = getLiveScore();
+
+        if(!live || !live.score){
+            return;
+        }
+
+        const score = live.score;
+
+        const matches = JSON.parse(
+            localStorage.getItem("CY_SINGLE_MATCHES") || "[]"
+        );
+
+        const match = matches.find(
+            item => item.status === "live"
+        ) || matches[0];
+
+        if(!match){
+            return;
+        }
+
+        const state = getMatchState(match.id);
+
+        if(state.completed){
+            return;
+        }
+
+        const maxBalls =
+            Number(match.overs) * 6;
+
+        const inningsFinished =
+            score.totalBalls >= maxBalls ||
+            score.wickets >= 10;
+
+
+        /* ===== FIRST INNINGS COMPLETE ===== */
+
+        if(state.innings === 1 && inningsFinished){
+
+            state.firstInningsRuns = score.runs;
+            state.firstInningsWickets = score.wickets;
+            state.firstInningsTeam = match.teamA;
+            state.secondInningsTeam = match.teamB;
+            state.target = score.runs + 1;
+            state.innings = 2;
+
+            saveMatchState(
+                match.id,
+                state
+            );
+
+
+            score.commentary.push(
+                "🏁 FIRST INNINGS COMPLETE! " +
+                match.teamA +
+                " scored " +
+                score.runs + "/" +
+                score.wickets
+            );
+
+            score.commentary.push(
+                "🎯 TARGET: " +
+                state.target +
+                " runs for " +
+                match.teamB
+            );
+
+
+            const secondInningsScore = {
+                matchId: match.id,
+                teamA: match.teamB,
+                teamB: match.teamA,
+
+                runs: 0,
+                wickets: 0,
+                balls: 0,
+                totalBalls: 0,
+
+                striker: "Batsman 1",
+                nonStriker: "Batsman 2",
+
+                selectedDirection: "Straight",
+
+                commentary: [
+                    "🏏 SECOND INNINGS START!",
+                    "🎯 Target: " +
+                    state.target +
+                    " runs"
+                ],
+
+                innings: 2,
+                target: state.target
+            };
+
+
+            saveLiveScore(
+                live.key,
+                secondInningsScore
+            );
+
+
+            alert(
+                "🏁 FIRST INNINGS COMPLETE!\n\n" +
+                match.teamA + ": " +
+                state.firstInningsRuns +
+                "/" +
+                state.firstInningsWickets +
+                "\n\n🎯 Target for " +
+                match.teamB +
+                ": " +
+                state.target +
+                " runs\n\n🏏 SECOND INNINGS START!"
+            );
+
+            renderScoreScreen();
+
+            return;
+        }
+
+
+        /* ===== SECOND INNINGS ===== */
+
+        if(state.innings === 2){
+
+            let result = "";
+
+
+            /* Target Chase Successful */
+
+            if(score.runs >= state.target){
+
+                const wicketsLeft =
+                    10 - score.wickets;
+
+                result =
+                    "🏆 " +
+                    state.secondInningsTeam +
+                    " WON BY " +
+                    wicketsLeft +
+                    " WICKETS!";
+
+
+                finishMatch(
+                    match,
+                    state,
+                    score,
+                    result
+                );
+
+                return;
+            }
+
+
+            /* Second Innings Complete */
+
+            if(inningsFinished){
+
+                if(score.runs === state.firstInningsRuns){
+
+                    result =
+                        "🤝 MATCH TIED!";
+
+                } else {
+
+                    const runMargin =
+                        state.firstInningsRuns -
+                        score.runs;
+
+                    result =
+                        "🏆 " +
+                        state.firstInningsTeam +
+                        " WON BY " +
+                        runMargin +
+                        " RUNS!";
+                }
+
+
+                finishMatch(
+                    match,
+                    state,
+                    score,
+                    result
+                );
+
+                return;
+            }
+        }
+    }
+
+
+    function finishMatch(
+        match,
+        state,
+        score,
+        result
+    ){
+
+        if(state.completed){
+            return;
+        }
+
+        state.completed = true;
+        state.result = result;
+        state.secondInningsRuns = score.runs;
+        state.secondInningsWickets = score.wickets;
+
+        saveMatchState(
+            match.id,
+            state
+        );
+
+
+        score.commentary.push(
+            "🏁 MATCH COMPLETE!"
+        );
+
+        score.commentary.push(
+            result
+        );
+
+        saveLiveScore(
+            "CY_LIVE_SCORE_" + match.id,
+            score
+        );
+
+
+        const matches = JSON.parse(
+            localStorage.getItem(
+                "CY_SINGLE_MATCHES"
+            ) || "[]"
+        );
+
+
+        const index = matches.findIndex(
+            item => item.id === match.id
+        );
+
+
+        if(index !== -1){
+
+            matches[index].status =
+                "completed";
+
+            matches[index].result =
+                result;
+
+            matches[index].firstInnings =
+                state.firstInningsTeam +
+                " " +
+                state.firstInningsRuns +
+                "/" +
+                state.firstInningsWickets;
+
+            matches[index].secondInnings =
+                state.secondInningsTeam +
+                " " +
+                score.runs +
+                "/" +
+                score.wickets;
+
+
+            localStorage.setItem(
+                "CY_SINGLE_MATCHES",
+                JSON.stringify(matches)
+            );
+        }
+
+
+        alert(
+            "🏁 MATCH COMPLETE!\n\n" +
+
+            state.firstInningsTeam +
+            ": " +
+            state.firstInningsRuns +
+            "/" +
+            state.firstInningsWickets +
+
+            "\n\n" +
+
+            state.secondInningsTeam +
+            ": " +
+            score.runs +
+            "/" +
+            score.wickets +
+
+            "\n\n" +
+
+            result
+        );
+
+
+        renderScoreScreen();
+    }
+
+
+    /* ===== WRAP ALL SCORING BUTTONS ===== */
+
+    window.addBall = function(runs){
+
+        originalAddBall(runs);
+
+        setTimeout(
+            checkMatchProgress,
+            50
+        );
+    };
+
+
+    window.addWide = function(){
+
+        originalAddWide();
+
+        setTimeout(
+            checkMatchProgress,
+            50
+        );
+    };
+
+
+    window.addNoBall = function(){
+
+        originalAddNoBall();
+
+        setTimeout(
+            checkMatchProgress,
+            50
+        );
+    };
+
+
+    window.addWicket = function(){
+
+        originalAddWicket();
+
+        setTimeout(
+            checkMatchProgress,
+            50
+        );
+    };
+
+
+})();
    
 </script>
 
