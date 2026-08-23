@@ -5,28 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRIC YUVA</title>
 <link rel="stylesheet" href="style.css">
-<style>
-  /* Extra support styles for newly added advance features */
-  .auth-container, .modal-box { background: #fff; padding: 20px; border-radius: 12px; margin: 15px auto; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #333; }
-  .auth-container h3, .modal-box h3 { margin-top: 0; color: #1e3c72; }
-  .form-group { margin-bottom: 12px; text-align: left; }
-  .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
-  .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-  .action-btn { width: 100%; background: #1e3c72; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-  .action-btn:hover { background: #2a5298; }
-  .birthday-alert-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin: 15px; border-radius: 8px; color: #856404; display: none; font-weight: bold; animation: pulse 2s infinite; }
-  .scoring-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-  .score-btn { padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; }
-  .score-btn.run { background: #e3f2fd; color: #0d47a1; }
-  .score-btn.wk { background: #ffebee; color: #c62828; }
-  .score-btn.extra { background: #fff3e0; color: #e65100; }
-  .score-btn.undo { background: #37474f; color: #fff; grid-column: span 2; }
-  .auction-flex { display: flex; justify-content: space-between; align-items: center; background: #f1f3f5; padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 14px; }
-</style>
 </head>
+
 <body>
 
-<!-- SPLASH SCREEN -->
+<!-- =========================
+     SPLASH SCREEN
+========================= -->
 <div id="splashScreen">
   <div class="splashContent">
     <div class="splashLogo">🏏</div>
@@ -36,365 +21,1809 @@
   </div>
 </div>
 
-<!-- 🔐 LOGIN / AUTH PAGE -->
-<div id="authPage" class="page active" style="display: block; text-align: center; padding-top: 50px;">
-  <h1 style="color:#1e3c72;">CRIC YUVA</h1>
+
+<!-- =========================
+     LOGIN PAGE
+========================= -->
+<div id="authPage">
+
+  <h1>🏏 CRIC YUVA</h1>
+
   <div class="auth-container">
     <h3>Login / Register</h3>
+
     <div class="form-group">
       <label>Mobile Number</label>
-      <input type="number" id="authMobile" placeholder="Enter mobile number">
+      <input
+        type="tel"
+        id="authMobile"
+        inputmode="numeric"
+        placeholder="Enter mobile number"
+      >
     </div>
+
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="authPassword" placeholder="Enter password">
+      <input
+        type="password"
+        id="authPassword"
+        placeholder="Enter password"
+      >
     </div>
-    
-    <button class="action-btn" onclick="handleLogin()">🔑 Open App</button>
 
-    <!-- 🆕 Create Account Link -->
-    <p style="margin-top: 15px; font-size: 13px; color: #00d084; cursor: pointer; text-decoration: underline; font-weight: bold;" onclick="toggleRegisterSection()">
+    <button
+      class="action-btn"
+      type="button"
+      onclick="handleLogin()"
+    >
+      🔑 OPEN APP
+    </button>
+
+    <p
+      style="margin-top:15px;font-size:13px;color:#00d084;cursor:pointer;font-weight:bold;"
+      onclick="toggleRegisterSection()"
+    >
       🆕 Don't have an account? Create Account
     </p>
 
-    <!-- Create Account Form Window -->
-    <div id="registerSection" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
-      <h4 style="color: #00d084; margin-bottom: 10px;">Create New App Account</h4>
+    <!-- REGISTER -->
+    <div
+      id="registerSection"
+      style="display:none;margin-top:15px;padding-top:15px;border-top:1px dashed #555;"
+    >
+      <h4>Create New App Account</h4>
+
       <div class="form-group">
-        <label>Enter Mobile Number</label>
-        <input type="number" id="regMobile" placeholder="e.g. 7218332558">
+        <label>Mobile Number</label>
+        <input
+          type="tel"
+          id="regMobile"
+          inputmode="numeric"
+          placeholder="Enter mobile number"
+        >
       </div>
+
       <div class="form-group">
-        <label>Create New Password</label>
-        <input type="password" id="regPassword" placeholder="Set your password">
+        <label>Create Password</label>
+        <input
+          type="password"
+          id="regPassword"
+          placeholder="Set password"
+        >
       </div>
-      <button class="action-btn" style="background: #00d084;" onclick="processUserRegistration()">📝 Register & Save Account</button>
+
+      <button
+        class="action-btn"
+        style="background:#00a86b;"
+        type="button"
+        onclick="processUserRegistration()"
+      >
+        📝 REGISTER ACCOUNT
+      </button>
     </div>
 
-    <!-- 🔑 Forgot Password Link -->
-    <p style="margin-top: 15px; font-size: 13px; color: #168cff; cursor: pointer; text-decoration: underline;" onclick="toggleResetForm()">
-      Forgot Password? / Reset Password 🔑
+    <p
+      style="margin-top:15px;font-size:13px;color:#168cff;cursor:pointer;"
+      onclick="toggleResetForm()"
+    >
+      Forgot Password? 🔑
     </p>
 
-    <!-- Reset Password Form Window -->
-    <div id="resetPasswordSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc;">
-      <h4 style="color: #ff3b5c; margin-bottom: 10px;">Reset Your Password</h4>
+    <!-- RESET PASSWORD -->
+    <div
+      id="resetPasswordSection"
+      style="display:none;margin-top:15px;padding-top:15px;border-top:1px dashed #555;"
+    >
+      <h4>Reset Password</h4>
+
       <div class="form-group">
-        <label>Enter Registered Mobile Number</label>
-        <input type="number" id="resetMobile" placeholder="e.g. 7218332558">
+        <label>Registered Mobile</label>
+        <input
+          type="tel"
+          id="resetMobile"
+          inputmode="numeric"
+          placeholder="Enter mobile"
+        >
       </div>
+
       <div class="form-group">
-        <label>Enter New Password</label>
-        <input type="password" id="resetNewPassword" placeholder="Enter new password">
+        <label>New Password</label>
+        <input
+          type="password"
+          id="resetNewPassword"
+          placeholder="Enter new password"
+        >
       </div>
-      <button class="action-btn" style="background: #28a745;" onclick="processPasswordReset()">💾 Update Password</button>
+
+      <button
+        class="action-btn"
+        type="button"
+        onclick="processPasswordReset()"
+      >
+        💾 UPDATE PASSWORD
+      </button>
     </div>
 
-    <button class="action-btn" style="background:#6c757d; margin-top:15px;" onclick="generateDummyMobile()">🎲 Generate Dummy Mobile</button>
+    <button
+      class="action-btn"
+      style="background:#56616c;margin-top:15px;"
+      type="button"
+      onclick="generateDummyMobile()"
+    >
+      🎲 GENERATE TEST ACCOUNT
+    </button>
+
   </div>
 </div>
 
-<!-- MAIN APP INTERFACE -->
-<div id="appInterface" style="display: none;">
+
+<!-- =========================
+     MAIN APP
+========================= -->
+<div id="appInterface" style="display:none;">
 
   <!-- HEADER -->
   <header class="appHeader">
+
     <div class="brand">
-      <div class="logoBox">
-        <img src="cric-yuva-logo.png" alt="CRIC YUVA Logo" onerror="this.style.display='none';this.parentElement.innerHTML='🏏';">
-      </div>
+      <div class="logoBox">🏏</div>
+
       <div>
         <div class="appName">CRIC YUVA</div>
         <div class="version">Version 1.0.0</div>
       </div>
     </div>
+
     <div class="headerButtons">
-      <button class="headerBtn" type="button" onclick="openPage('search')">🔍</button>
-      <button class="headerBtn" type="button" onclick="openPage('chat')">💬</button>
-      <button class="headerBtn" type="button" onclick="openPage('notifications')">🔔</button>
-      <button class="headerBtn" type="button" onclick="logout()">Logout 🚪</button>
+      <button
+        class="headerBtn"
+        type="button"
+        onclick="showSearch()"
+        title="Search"
+      >🔍</button>
+
+      <button
+        class="headerBtn"
+        type="button"
+        onclick="showMessage()"
+        title="Chat"
+      >💬</button>
+
+      <button
+        class="headerBtn"
+        type="button"
+        onclick="showNotifications()"
+        title="Notifications"
+      >🔔</button>
+
+      <button
+        class="headerBtn"
+        type="button"
+        onclick="logout()"
+        title="Logout"
+      >🚪</button>
     </div>
+
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <div class="main">
 
-    <!-- 🎁 BIRTHDAY BOX NOTIFICATION -->
+  <main class="main">
+
+    <!-- BIRTHDAY -->
     <div id="birthdayBox" class="birthday-alert-box">
-      🎉 Happy Birthday to our Player: <span id="birthdayPlayerName"></span>! Have a great match today! 🏏
+      🎉 Happy Birthday:
+      <span id="birthdayPlayerName"></span>
+      🏏
     </div>
 
-    <!-- HOME PAGE -->
+
+    <!-- =========================
+         HOME
+    ========================= -->
     <section id="home" class="page">
+
       <div class="hero">
         <h1>Welcome to CRIC YUVA 🏏</h1>
-        <p>Create matches, start live scoring, tournaments, teams and your complete cricket world in one place.</p>
+        <p>
+          Create matches, manage teams, add players,
+          run tournaments and score your cricket match live.
+        </p>
       </div>
 
-      <div class="sectionTitle"><h2>🔴 Live Cricket</h2></div>
+      <div class="sectionTitle">
+        <h2>🔴 Live Cricket</h2>
+      </div>
+
 
       <!-- LIVE MATCH CARD -->
       <div class="sunnyMatchCard">
+
         <div class="cloud"></div>
-        <div class="liveRibbon"><span class="liveDot"></span>LIVE MATCH</div>
-        <div class="stadium"><div class="stand"></div></div>
+
+        <div class="liveRibbon">
+          <span class="liveDot"></span>
+          LIVE MATCH
+        </div>
+
+        <div class="stadium">
+          <div class="stand"></div>
+        </div>
+
         <div class="pitch"></div>
         <div class="pitchStrip"></div>
-        <div class="player a"></div><div class="player b"></div><div class="player c"></div>
+
+        <div class="player a"></div>
+        <div class="player b"></div>
+        <div class="player c"></div>
+        <div class="player d"></div>
+        <div class="player e"></div>
+        <div class="player f"></div>
+        <div class="player g"></div>
+
         <div class="scoreOverlay">
+
           <div class="matchTeamsRow">
+
             <div class="previewTeam">
-              <div class="previewTeamName" id="homeTeamA">Team A</div>
-              <div class="previewScore" id="homeScore">0/0</div>
+              <div
+                class="previewTeamName"
+                id="homeTeamA"
+              >TITANS</div>
+
+              <div
+                class="previewScore"
+                id="homeScore"
+              >0/0</div>
             </div>
+
             <div class="previewVS">VS</div>
+
             <div class="previewTeam">
-              <div class="previewTeamName" id="homeTeamB">Team B</div>
-              <div class="previewScore" id="homeOvers">0.0 Overs</div>
+              <div
+                class="previewTeamName"
+                id="homeTeamB"
+              >WARRIORS</div>
+
+              <div
+                class="previewScore"
+                id="homeOvers"
+              >0.0 Overs</div>
             </div>
+
           </div>
+
           <div class="previewStatus">
             <span id="homeStatus">CRR: 0.00</span>
-            <span id="homeGround">📍 Live Match Board</span>
+            <span id="homeGround">📍 Testing Ground</span>
           </div>
-          <button class="previewOpenBtn" type="button" onclick="openPage('liveScoringPage')">🏏 OPEN LIVE SCORING PANEL</button>
+
+          <button
+            class="previewOpenBtn"
+            type="button"
+            onclick="openPage('liveScoringPage')"
+          >
+            🏏 OPEN LIVE SCORING PANEL
+          </button>
+
         </div>
       </div>
 
-      <div class="sectionTitle"><h2>⚡ Start Cricket</h2></div>
-      <div class="quickGrid">
-        <button class="quickCard" type="button" onclick="openPage('singleMatch')"><span class="quickIcon">🏏</span>Single Match</button>
-        <button class="quickCard" type="button" onclick="openPage('tournament')"><span class="quickIcon">🏆</span>Tournament</button>
-        <button class="quickCard" type="button" onclick="openPage('playerRegPage')"><span class="quickIcon">👤</span>Add Player</button>
+
+      <!-- QUICK BUTTONS -->
+      <div class="sectionTitle">
+        <h2>⚡ Start Cricket</h2>
       </div>
+
+      <div class="quickGrid">
+
+        <button
+          class="quickCard"
+          type="button"
+          onclick="openPage('singleMatch')"
+        >
+          <span class="quickIcon">🏏</span>
+          Single Match
+        </button>
+
+        <button
+          class="quickCard"
+          type="button"
+          onclick="openPage('tournament')"
+        >
+          <span class="quickIcon">🏆</span>
+          Tournament
+        </button>
+
+        <button
+          class="quickCard"
+          type="button"
+          onclick="openPage('playerRegPage')"
+        >
+          <span class="quickIcon">👤</span>
+          Add Player
+        </button>
+
+      </div>
+
     </section>
 
-    <!-- SINGLE MATCH PAGE -->
-    <section id="singleMatch" class="page" style="display:none;">
-      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
+
+    <!-- =========================
+         SINGLE MATCH
+    ========================= -->
+    <section id="singleMatch" class="page">
+
+      <button
+        class="backBtn"
+        type="button"
+        onclick="goHome()"
+      >
+        ← Back
+      </button>
+
       <h2>🏏 Single Match Setup</h2>
+
       <div class="modal-box">
+
         <h3>Start Quick Match</h3>
+
         <div class="form-group">
           <label>Batting Team Name</label>
-          <input type="text" id="matchTeamA" value="Titans">
+          <input
+            type="text"
+            id="matchTeamA"
+            value="Titans"
+          >
         </div>
+
         <div class="form-group">
           <label>Bowling Team Name</label>
-          <input type="text" id="matchTeamB" value="Warriors">
+          <input
+            type="text"
+            id="matchTeamB"
+            value="Warriors"
+          >
         </div>
-        <button class="action-btn" onclick="initiateNormalMatch()">Setup Match Screen</button>
+
+        <button
+          class="action-btn"
+          type="button"
+          onclick="initiateNormalMatch()"
+        >
+          🏏 START LIVE MATCH
+        </button>
+
       </div>
+
     </section>
 
-    <!-- TOURNAMENT MANAGEMENT PAGE -->
-    <section id="tournament" class="page" style="display:none;">
-      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
+
+    <!-- =========================
+         TOURNAMENT
+    ========================= -->
+    <section id="tournament" class="page">
+
+      <button
+        class="backBtn"
+        type="button"
+        onclick="goHome()"
+      >
+        ← Back
+      </button>
+
       <h2>🏆 Tournament Panel</h2>
+
       <div class="pageGrid">
-        <button class="pageOption" type="button" onclick="openPage('normalTournamentPage')"><span>👥</span>Normal Tournament</button>
-        <button class="pageOption" type="button" onclick="openPage('auctionTournamentPage')"><span>🪙</span>Auction System</button>
+
+        <button
+          class="pageOption"
+          type="button"
+          onclick="openPage('normalTournamentPage')"
+        >
+          <span>👥</span>
+          Normal Tournament
+        </button>
+
+        <button
+          class="pageOption"
+          type="button"
+          onclick="openPage('auctionTournamentPage')"
+        >
+          <span>🪙</span>
+          Auction System
+        </button>
+
       </div>
+
     </section>
 
-    <!-- PLAYER REGISTRATION PAGE -->
-    <section id="playerRegPage" class="page" style="display:none;">
-      <button class="backBtn" type="button" onclick="goHome()">← Back</button>
-      <h2>👤 Advance Player Profile</h2>
-      <div class="modal-box" style="max-width: 500px;">
-        <div class="form-group"><label>Full Name</label><input type="text" id="pName" placeholder="Sachin"></div>
-        <div class="form-group"><label>Mobile Number</label><input type="number" id="pMobile" placeholder="98765xxxxx"></div>
-<!-- PASTE THIS IMMEDIATELY BELOW LINE 207 -->
-        <div class="form-group"><label>Jersey Number</label><input type="number" id="pJNo" placeholder="7"></div>
-        <div class="form-group"><label>Jersey Name</label><input type="text" id="pJName" placeholder="DHONI"></div>
-        <div class="form-group"><label>Jersey Size</label>
-          <select id="pJSize"><option>M</option><option>L</option><option>XL</option></select>
-        </div>
-        <div class="form-group"><label>Pant Size</label><input type="number" id="pPSize" placeholder="32"></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="pEmail" placeholder="player@cric.com"></div>
-        <div class="form-group"><label>Date of Birth</label><input type="date" id="pDob"></div>
-        <button class="action-btn" onclick="registerPlayer()">💾 Save Player Details</button>
-      </div>
-    </section>
 
-    <!-- NORMAL TOURNAMENT SECTION -->
-    <section id="normalTournamentPage" class="page" style="display:none;">
-      <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
-      <h2>👥 Normal Tournament Setup</h2>
+    <!-- =========================
+         PLAYER REGISTRATION
+    ========================= -->
+    <section id="playerRegPage" class="page">
+
+      <button
+        class="backBtn"
+        type="button"
+        onclick="goHome()"
+      >
+        ← Back
+      </button>
+
+      <h2>👤 Player Profile</h2>
+
       <div class="modal-box">
-        <p>Choose registered players to create on-the-spot team rosters.</p>
-        <div id="normalPlayersList">No registered players yet.</div>
-        <button class="action-btn" onclick="alert('Roster linked. Ready to Play!')">Form Teams</button>
+
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="pName" placeholder="Player name">
+        </div>
+
+        <div class="form-group">
+          <label>Mobile Number *</label>
+          <input
+            type="tel"
+            id="pMobile"
+            inputmode="numeric"
+            placeholder="9876543210"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Jersey Number</label>
+          <input
+            type="number"
+            id="pJNo"
+            placeholder="7"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Jersey Name</label>
+          <input
+            type="text"
+            id="pJName"
+            placeholder="DHONI"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Jersey Size</label>
+          <select id="pJSize">
+            <option>S</option>
+            <option selected>M</option>
+            <option>L</option>
+            <option>XL</option>
+            <option>XXL</option>
+            <option>XXXL</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Pant Size</label>
+          <input
+            type="text"
+            id="pPSize"
+            placeholder="32"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input
+            type="email"
+            id="pEmail"
+            placeholder="player@cric.com"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Date of Birth *</label>
+          <input type="date" id="pDob">
+        </div>
+
+        <button
+          class="action-btn"
+          type="button"
+          onclick="registerPlayer()"
+        >
+          💾 SAVE PLAYER
+        </button>
+
       </div>
+
     </section>
 
-    <!-- AUCTION TOURNAMENT SECTION -->
-    <section id="auctionTournamentPage" class="page" style="display:none;">
-      <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
-      <h2>🪙 IPL-Style Auction Table</h2>
-      <div class="modal-box" style="max-width: 600px;">
-        <div style="display:flex; justify-content: space-between; font-weight: bold; background: #e9ecef; padding: 10px; border-radius: 6px;">
-          <div>Team A Points: <span id="teamAPoints">1000</span></div>
-          <div>Team B Points: <span id="teamBPoints">1000</span></div>
+
+    <!-- =========================
+         NORMAL TOURNAMENT
+    ========================= -->
+    <section id="normalTournamentPage" class="page">
+
+      <button
+        class="backBtn"
+        type="button"
+        onclick="openPage('tournament')"
+      >
+        ← Back
+      </button>
+
+      <h2>👥 Normal Tournament</h2>
+
+      <div class="modal-box">
+
+        <p class="smallText">
+          Registered players are shown below.
+        </p>
+
+        <br>
+
+        <div id="normalPlayersList">
+          No registered players yet.
         </div>
-        <div style="margin: 20px 0; border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
-          <h4 style="margin:0;">Current Player in Pool</h4>
-          <h2 id="auctionPlayerName" style="color:#1e3c72; margin:10px 0;">No Active Player</h2>
-          <p>Base Token Value: <span id="auctionBaseValue">50</span></p>
-          <div style="display:flex; gap: 10px; margin-top:10px;">
-            <button class="action-btn" style="background:#28a745;" onclick="sellPlayer('A')">Sold to Team A</button>
-            <button class="action-btn" style="background:#17a2b8;" onclick="sellPlayer('B')">Sold to Team B</button>
+
+        <button
+          class="action-btn"
+          type="button"
+          onclick="formTeams()"
+        >
+          👥 FORM TEST TEAMS
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         AUCTION
+    ========================= -->
+    <section id="auctionTournamentPage" class="page">
+
+      <button
+        class="backBtn"
+        type="button"
+        onclick="openPage('tournament')"
+      >
+        ← Back
+      </button>
+
+      <h2>🪙 IPL-Style Auction</h2>
+
+      <div class="modal-box">
+
+        <div class="pageCard">
+          <b>
+            TITANS Points:
+            <span id="teamAPoints">1000</span>
+          </b>
+
+          <b style="margin-top:8px;">
+            WARRIORS Points:
+            <span id="teamBPoints">1000</span>
+          </b>
+        </div>
+
+        <div class="pageCard" style="text-align:center;">
+
+          <div class="smallText">
+            CURRENT PLAYER
           </div>
+
+          <h2 id="auctionPlayerName">
+            No Active Player
+          </h2>
+
+          <p>
+            Base Value:
+            <span id="auctionBaseValue">50</span>
+          </p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
+
+            <button
+              class="action-btn"
+              style="background:#00a86b;"
+              type="button"
+              onclick="sellPlayer('A')"
+            >
+              SOLD TITANS
+            </button>
+
+            <button
+              class="action-btn"
+              type="button"
+              onclick="sellPlayer('B')"
+            >
+              SOLD WARRIORS
+            </button>
+
+          </div>
+
         </div>
-        <h4>Auction Status / Sold History</h4>
-        <div id="auctionHistoryLog" style="max-height: 150px; overflow-y: auto;">No items sold yet.</div>
+
+        <h4 style="margin:18px 0 10px;">
+          Sold History
+        </h4>
+
+        <div id="auctionHistoryLog">
+          No players sold yet.
+        </div>
+
       </div>
+
     </section>
 
-    <!-- LIVE SCORING PANEL -->
-    <section id="liveScoringPage" class="page" style="display:none;">
-      <button class="backBtn" type="button" onclick="goHome()">← Back Home</button>
-      <h2 style="text-align: center;">🏏 Live Scoring Console</h2>
-      <div class="modal-box" style="text-align: center; max-width: 500px;">
-        <h2 style="font-size: 32px; margin: 10px 0;" id="consoleScore">0 / 0</h2>
-        <p style="font-size: 18px; color: #555;" id="consoleOvers">Overs: 0.0</p>
-        <p id="consoleStats" style="font-weight: bold; color: #1e3c72;">CRR: 0.00</p>
-        <div style="background:#f1f3f5; padding:10px; border-radius:6px; margin: 15px 0; min-height: 24px; font-weight: bold;" id="ballHistoryBox">Over History: Start Scoring...</div>
+
+    <!-- =========================
+         LIVE SCORING
+    ========================= -->
+    <section id="liveScoringPage" class="page">
+
+      <button
+        class="backBtn"
+        type="button"
+        onclick="goHome()"
+      >
+        ← Back Home
+      </button>
+
+      <h2 style="text-align:center;">
+        🏏 Live Scoring Console
+      </h2>
+
+      <div class="modal-box" style="text-align:center;">
+
+        <div class="smallText">
+          <span id="consoleTeamA">TITANS</span>
+          vs
+          <span id="consoleTeamB">WARRIORS</span>
+        </div>
+
+        <h2
+          style="font-size:32px;margin:10px 0;"
+          id="consoleScore"
+        >
+          0 / 0
+        </h2>
+
+        <p
+          style="font-size:18px;"
+          id="consoleOvers"
+        >
+          Overs: 0.0
+        </p>
+
+        <p
+          id="consoleStats"
+          style="font-weight:bold;"
+        >
+          CRR: 0.00
+        </p>
+
+        <div
+          id="ballHistoryBox"
+          class="pageCard"
+          style="margin-top:15px;"
+        >
+          Over History: Start Scoring...
+        </div>
+
+
         <div class="scoring-grid">
-          <button class="score-btn run" onclick="addScore(0)">0</button>
-          <button class="score-btn run" onclick="addScore(1)">1</button>
-          <button class="score-btn run" onclick="addScore(2)">2</button>
-          <button class="score-btn run" onclick="addScore(3)">3</button>
-          <button class="score-btn run" onclick="addScore(4)">4</button>
-          <button class="score-btn run" onclick="addScore(6)">6</button>
-          <button class="score-btn extra" onclick="addScore('WD')">Wd</button>
-          <button class="score-btn extra" onclick="addScore('NB')">Nb</button>
-          <button class="score-btn wk" onclick="addScore('W')">Wkt</button>
-          <button class="score-btn undo" onclick="handleUndo()">↩️ UNDO LAST BALL</button>
+
+          <button class="score-btn run" type="button" onclick="addScore(0)">0</button>
+          <button class="score-btn run" type="button" onclick="addScore(1)">1</button>
+          <button class="score-btn run" type="button" onclick="addScore(2)">2</button>
+
+          <button class="score-btn run" type="button" onclick="addScore(3)">3</button>
+          <button class="score-btn run" type="button" onclick="addScore(4)">4</button>
+          <button class="score-btn run" type="button" onclick="addScore(6)">6</button>
+
+          <button class="score-btn extra" type="button" onclick="addScore('WD')">Wd</button>
+          <button class="score-btn extra" type="button" onclick="addScore('NB')">Nb</button>
+          <button class="score-btn wk" type="button" onclick="addScore('W')">Wkt</button>
+
+          <button
+            class="score-btn undo"
+            type="button"
+            onclick="handleUndo()"
+          >
+            ↩️ UNDO LAST BALL
+          </button>
+
         </div>
+
       </div>
+
     </section>
 
-  </div>
+  </main>
+
 </div>
 
+
 <!-- =========================
-     JAVASCRIPT LOGIC ENGINE
-     ========================= -->
+     JAVASCRIPT
+========================= -->
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      const splash = document.getElementById('splashScreen');
-      if (splash) splash.style.display = 'none';
-    }, 2000);
-    checkTodayBirthdays();
-  });
 
-  let players = JSON.parse(localStorage.getItem('cy_players')) || [];
-  let currentMatch = { runs: 0, wickets: 0, balls: 0, history: [], overLogs: [] };
-  let auctionState = { teamA: 1000, teamB: 1000, currentPlayerIndex: 0 };
+/* =========================
+   APP DATA
+========================= */
 
-  function toggleRegisterSection() {
-    const regBox = document.getElementById('registerSection');
-    regBox.style.display = regBox.style.display === 'none' ? 'block' : 'none';
-    if(regBox.style.display === 'block') document.getElementById('regMobile').value = document.getElementById('authMobile').value;
+let players =
+  JSON.parse(localStorage.getItem("cy_players")) || [];
+
+let matchTeams =
+  JSON.parse(localStorage.getItem("cy_match_teams")) || {
+    teamA:"Titans",
+    teamB:"Warriors"
+  };
+
+let currentMatch =
+  JSON.parse(localStorage.getItem("cy_current_match")) || {
+    runs:0,
+    wickets:0,
+    balls:0,
+    history:[]
+  };
+
+let auctionState =
+  JSON.parse(localStorage.getItem("cy_auction")) || {
+    teamA:1000,
+    teamB:1000,
+    currentPlayerIndex:0,
+    history:[]
+  };
+
+
+/* =========================
+   START APP
+========================= */
+
+window.addEventListener("DOMContentLoaded", function(){
+
+  setTimeout(function(){
+    const splash =
+      document.getElementById("splashScreen");
+
+    if(splash){
+      splash.classList.add("hide");
+
+      setTimeout(function(){
+        splash.style.display = "none";
+      },500);
+    }
+  },1500);
+
+  updateScoreDisplay();
+  checkTodayBirthdays();
+
+});
+
+
+/* =========================
+   LOGIN
+========================= */
+
+function handleLogin(){
+
+  const mobile =
+    document.getElementById("authMobile").value.trim();
+
+  const password =
+    document.getElementById("authPassword").value;
+
+  /* Direct testing login allowed */
+
+  if(!mobile || !password){
+    alert("Mobile number and password enter karo.");
+    return;
   }
 
-  function processUserRegistration() {
-    const mob = document.getElementById('regMobile').value;
-    const pass = document.getElementById('regPassword').value;
-    if(!mob || !pass) { alert("Please input details!"); return; }
-    localStorage.setItem('cy_user_pass_' + mob, pass);
-    alert("🎉 Account Created! Please Login up top.");
-    document.getElementById('authMobile').value = mob;
-    document.getElementById('authPassword').value = pass;
-    document.getElementById('registerSection').style.display = 'none';
-  }
-
-  function toggleResetForm() {
-    const resetSection = document.getElementById('resetPasswordSection');
-    resetSection.style.display = resetSection.style.display === 'none' ? 'block' : 'none';
-    if(resetSection.style.display === 'block') document.getElementById('resetMobile').value = document.getElementById('authMobile').value;
-  }
-
-  function processPasswordReset() {
-    const mobile = document.getElementById('resetMobile').value;
-    const newPass = document.getElementById('resetNewPassword').value;
-    if (!mobile || !newPass) { alert("Fill all details!"); return; }
-    localStorage.setItem('cy_user_pass_' + mobile, newPass);
-    alert("🎉 Password Reset Done!");
-    document.getElementById('resetPasswordSection').style.display = 'none';
-  }
-
-  function handleLogin() {
-  // Bina kisi lock ke direct dashboard khulega!
   proceedToApp();
+
 }
 
-  function generateDummyMobile() {
-    const randomMob = "9" + Math.floor(100000000 + Math.random() * 900000000);
-    document.getElementById('authMobile').value = randomMob;
-    document.getElementById('authPassword').value = "123456";
-    localStorage.setItem('cy_user_pass_' + randomMob, "123456");
-    alert("Preset Account: " + randomMob + "\nPassword: 123456\n\nAb Open App par click karein!");
+
+function proceedToApp(){
+
+  document.getElementById("authPage").style.display =
+    "none";
+
+  document.getElementById("appInterface").style.display =
+    "block";
+
+  openPage("home");
+
+  updateScoreDisplay();
+  checkTodayBirthdays();
+
+}
+
+
+function logout(){
+
+  document.getElementById("appInterface").style.display =
+    "none";
+
+  document.getElementById("authPage").style.display =
+    "block";
+
+  document.getElementById("authPassword").value = "";
+
+}
+
+
+function generateDummyMobile(){
+
+  const randomMob =
+    "9" + Math.floor(
+      100000000 + Math.random() * 900000000
+    );
+
+  document.getElementById("authMobile").value =
+    randomMob;
+
+  document.getElementById("authPassword").value =
+    "123456";
+
+  localStorage.setItem(
+    "cy_user_pass_" + randomMob,
+    "123456"
+  );
+
+  alert(
+    "Test Account Created!\n\n" +
+    "Mobile: " + randomMob +
+    "\nPassword: 123456"
+  );
+
+}
+
+
+/* =========================
+   REGISTER
+========================= */
+
+function toggleRegisterSection(){
+
+  const box =
+    document.getElementById("registerSection");
+
+  if(box.style.display === "none" || !box.style.display){
+
+    box.style.display = "block";
+
+    document.getElementById("regMobile").value =
+      document.getElementById("authMobile").value;
+
+  }else{
+    box.style.display = "none";
   }
 
-  function proceedToApp() {
-    document.getElementById('authPage').style.display = 'none';
-    document.getElementById('appInterface').style.display = 'block';
-    openPage('home');
+}
+
+
+function processUserRegistration(){
+
+  const mobile =
+    document.getElementById("regMobile").value.trim();
+
+  const password =
+    document.getElementById("regPassword").value;
+
+  if(!mobile || !password){
+    alert("Mobile aur password enter karo.");
+    return;
   }
 
-  function logout() {
-    document.getElementById('appInterface').style.display = 'none';
-    document.getElementById('authPage').style.display = 'block';
+  localStorage.setItem(
+    "cy_user_pass_" + mobile,
+    password
+  );
+
+  document.getElementById("authMobile").value =
+    mobile;
+
+  document.getElementById("authPassword").value =
+    password;
+
+  document.getElementById("registerSection").style.display =
+    "none";
+
+  alert("🎉 Account created successfully!");
+
+}
+
+
+/* =========================
+   RESET PASSWORD
+========================= */
+
+function toggleResetForm(){
+
+  const box =
+    document.getElementById("resetPasswordSection");
+
+  if(box.style.display === "none" || !box.style.display){
+
+    box.style.display = "block";
+
+    document.getElementById("resetMobile").value =
+      document.getElementById("authMobile").value;
+
+  }else{
+    box.style.display = "none";
   }
 
-  function openPage(pageId) {
-    document.querySelectorAll('section.page').forEach(p => p.style.display = 'none');
-    const targetPage = document.getElementById(pageId);
-    if(targetPage) targetPage.style.display = 'block';
-    if(pageId === 'auctionTournamentPage') syncAuctionPool();
-    if(pageId === 'normalTournamentPage') renderNormalPlayers();
+}
+
+
+function processPasswordReset(){
+
+  const mobile =
+    document.getElementById("resetMobile").value.trim();
+
+  const password =
+    document.getElementById("resetNewPassword").value;
+
+  if(!mobile || !password){
+    alert("All details fill karo.");
+    return;
   }
 
-  function goHome() { openPage('home'); }
+  localStorage.setItem(
+    "cy_user_pass_" + mobile,
+    password
+  );
 
-  function registerPlayer() {
-    const name = document.getElementById('pName').value;
-    const mob = document.getElementById('pMobile').value;
-    const dob = document.getElementById('pDob').value;
-    if(!name || !mob || !dob) { alert("Name, Mobile & DOB are mandatory!"); return; }
-    players.push({ name, mob, dob, jerseyNo: document.getElementById('pJNo').value || '7', soldTo: null });
-    localStorage.setItem('cy_players', JSON.stringify(players));
-    alert("Player Profile Saved!");
-    goHome();
+  document.getElementById("authPassword").value =
+    password;
+
+  document.getElementById("resetPasswordSection").style.display =
+    "none";
+
+  alert("🎉 Password updated successfully!");
+
+}
+
+
+/* =========================
+   PAGE NAVIGATION
+========================= */
+
+function openPage(pageId){
+
+  const pages =
+    document.querySelectorAll("section.page");
+
+  pages.forEach(function(page){
+    page.style.display = "none";
+    page.classList.remove("active");
+  });
+
+  const target =
+    document.getElementById(pageId);
+
+  if(target){
+
+    target.style.display = "block";
+    target.classList.add("active");
+
   }
 
-  // Birthday detection function
-  function checkTodayBirthdays() {
-    if(players.length === 0) return;
-    const today = new Date();
-    const todayStr = `${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    const bdayPlayer = players.find(p => p.dob && p.dob.substring(5) === todayStr);
-    if(bdayPlayer) {
-      document.getElementById('birthdayPlayerName').innerText = bdayPlayer.name;
-      document.getElementById('birthdayBox').style.display = 'block';
+  if(pageId === "normalTournamentPage"){
+    renderNormalPlayers();
+  }
+
+  if(pageId === "auctionTournamentPage"){
+    syncAuctionPool();
+  }
+
+  if(pageId === "liveScoringPage"){
+    updateScoreDisplay();
+  }
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+function goHome(){
+  openPage("home");
+}
+
+
+/* =========================
+   HEADER BUTTONS
+========================= */
+
+function showSearch(){
+  alert("🔍 Search feature coming soon.");
+}
+
+function showMessage(){
+  alert("💬 Chat feature coming soon.");
+}
+
+function showNotifications(){
+  alert("🔔 No new notifications.");
+}
+
+
+/* =========================
+   MATCH SETUP
+========================= */
+
+function initiateNormalMatch(){
+
+  const teamA =
+    document.getElementById("matchTeamA").value.trim();
+
+  const teamB =
+    document.getElementById("matchTeamB").value.trim();
+
+  if(!teamA || !teamB){
+    alert("Dono team ke naam enter karo.");
+    return;
+  }
+
+  matchTeams.teamA = teamA;
+  matchTeams.teamB = teamB;
+
+  currentMatch = {
+    runs:0,
+    wickets:0,
+    balls:0,
+    history:[]
+  };
+
+  localStorage.setItem(
+    "cy_match_teams",
+    JSON.stringify(matchTeams)
+  );
+
+  saveMatch();
+
+  updateScoreDisplay();
+
+  alert(
+    "🏏 Match Started!\n\n" +
+    teamA + " vs " + teamB
+  );
+
+  openPage("liveScoringPage");
+
+}
+
+
+function saveMatch(){
+
+  localStorage.setItem(
+    "cy_current_match",
+    JSON.stringify(currentMatch)
+  );
+
+}
+
+
+/* =========================
+   SCORE SYSTEM
+========================= */
+
+function addScore(value){
+
+  let event = {
+    type:value,
+    runs:0,
+    wicket:false,
+    legal:false
+  };
+
+
+  /* NORMAL RUN */
+
+  if(typeof value === "number"){
+
+    event.runs = value;
+    event.legal = true;
+
+  }
+
+
+  /* WIDE */
+
+  else if(value === "WD"){
+
+    event.runs = 1;
+    event.legal = false;
+
+  }
+
+
+  /* NO BALL */
+
+  else if(value === "NB"){
+
+    event.runs = 1;
+    event.legal = false;
+
+  }
+
+
+  /* WICKET */
+
+  else if(value === "W"){
+
+    event.wicket = true;
+    event.legal = true;
+
+  }
+
+
+  currentMatch.runs += event.runs;
+
+  if(event.wicket){
+    currentMatch.wickets++;
+  }
+
+  if(event.legal){
+    currentMatch.balls++;
+  }
+
+
+  currentMatch.history.push(event);
+
+  saveMatch();
+
+  updateScoreDisplay();
+
+}
+
+
+/* =========================
+   UNDO
+========================= */
+
+function handleUndo(){
+
+  if(currentMatch.history.length === 0){
+    alert("Undo karne ke liye koi ball nahi hai.");
+    return;
+  }
+
+  const last =
+    currentMatch.history.pop();
+
+  currentMatch.runs -= last.runs;
+
+  if(last.wicket){
+    currentMatch.wickets--;
+  }
+
+  if(last.legal){
+    currentMatch.balls--;
+  }
+
+  if(currentMatch.runs < 0){
+    currentMatch.runs = 0;
+  }
+
+  if(currentMatch.wickets < 0){
+    currentMatch.wickets = 0;
+  }
+
+  if(currentMatch.balls < 0){
+    currentMatch.balls = 0;
+  }
+
+  saveMatch();
+
+  updateScoreDisplay();
+
+}
+
+
+/* =========================
+   SCORE DISPLAY
+========================= */
+
+function updateScoreDisplay(){
+
+  const score =
+    currentMatch.runs +
+    "/" +
+    currentMatch.wickets;
+
+  const overs =
+    Math.floor(currentMatch.balls / 6) +
+    "." +
+    (currentMatch.balls % 6);
+
+  const completedOvers =
+    currentMatch.balls / 6;
+
+  let crr = "0.00";
+
+  if(completedOvers > 0){
+
+    crr =
+      (
+        currentMatch.runs /
+        completedOvers
+      ).toFixed(2);
+
+  }
+
+
+  /* HOME */
+
+  setText(
+    "homeTeamA",
+    matchTeams.teamA.toUpperCase()
+  );
+
+  setText(
+    "homeTeamB",
+    matchTeams.teamB.toUpperCase()
+  );
+
+  setText(
+    "homeScore",
+    score
+  );
+
+  setText(
+    "homeOvers",
+    overs + " Overs"
+  );
+
+  setText(
+    "homeStatus",
+    "CRR: " + crr
+  );
+
+
+  /* LIVE CONSOLE */
+
+  setText(
+    "consoleTeamA",
+    matchTeams.teamA.toUpperCase()
+  );
+
+  setText(
+    "consoleTeamB",
+    matchTeams.teamB.toUpperCase()
+  );
+
+  setText(
+    "consoleScore",
+    score
+  );
+
+  setText(
+    "consoleOvers",
+    "Overs: " + overs
+  );
+
+  setText(
+    "consoleStats",
+    "CRR: " + crr
+  );
+
+
+  /* BALL HISTORY */
+
+  const history =
+    currentMatch.history.map(function(ball){
+
+      if(ball.type === "W"){
+        return "W";
+      }
+
+      if(ball.type === "WD"){
+        return "Wd";
+      }
+
+      if(ball.type === "NB"){
+        return "Nb";
+      }
+
+      return ball.runs;
+
+    }).join(" • ");
+
+  setText(
+    "ballHistoryBox",
+    history
+      ? "History: " + history
+      : "Over History: Start Scoring..."
+  );
+
+}
+
+
+function setText(id,value){
+
+  const element =
+    document.getElementById(id);
+
+  if(element){
+    element.textContent = value;
+  }
+
+}
+
+
+/* =========================
+   PLAYER REGISTRATION
+========================= */
+
+function registerPlayer(){
+
+  const name =
+    document.getElementById("pName").value.trim();
+
+  const mob =
+    document.getElementById("pMobile").value.trim();
+
+  const dob =
+    document.getElementById("pDob").value;
+
+
+  if(!name || !mob || !dob){
+
+    alert(
+      "Name, Mobile aur Date of Birth mandatory hai."
+    );
+
+    return;
+
+  }
+
+
+  const player = {
+
+    id:Date.now(),
+
+    name:name,
+
+    mob:mob,
+
+    dob:dob,
+
+    jerseyNo:
+      document.getElementById("pJNo").value || "7",
+
+    jerseyName:
+      document.getElementById("pJName").value || name,
+
+    jerseySize:
+      document.getElementById("pJSize").value,
+
+    pantSize:
+      document.getElementById("pPSize").value,
+
+    email:
+      document.getElementById("pEmail").value,
+
+    soldTo:null
+
+  };
+
+
+  players.push(player);
+
+
+  localStorage.setItem(
+    "cy_players",
+    JSON.stringify(players)
+  );
+
+
+  clearPlayerForm();
+
+  checkTodayBirthdays();
+
+  alert(
+    "🎉 Player Profile Saved Successfully!"
+  );
+
+  goHome();
+
+}
+
+
+function clearPlayerForm(){
+
+  [
+    "pName",
+    "pMobile",
+    "pJNo",
+    "pJName",
+    "pPSize",
+    "pEmail",
+    "pDob"
+  ].forEach(function(id){
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+      el.value = "";
     }
+
+  });
+
+}
+
+
+/* =========================
+   BIRTHDAY
+========================= */
+
+function checkTodayBirthdays(){
+
+  const box =
+    document.getElementById("birthdayBox");
+
+  const nameBox =
+    document.getElementById("birthdayPlayerName");
+
+  if(!box || !nameBox){
+    return;
   }
 
-  function renderNormalPlayers() {
-    const div = document.getElementById('normalPlayersList');
-    if(players.length === 0) { div.innerHTML = "<p style='color:red;'>No players yet.</p>"; return; }
-    div.innerHTML = players.map(p => `<div class='auction-flex'><span><b>${p.name}</b> (Jrsy: ${p.jerseyNo})</span><span>📞 ${p.mob}</span></div>`).join('');
+
+  const today =
+    new Date();
+
+  const monthDay =
+    String(today.getMonth()+1).padStart(2,"0") +
+    "-" +
+    String(today.getDate()).padStart(2,"0");
+
+
+  const birthdayPlayer =
+    players.find(function(player){
+
+      return (
+        player.dob &&
+        player.dob.substring(5) === monthDay
+      );
+
+    });
+
+
+  if(birthdayPlayer){
+
+    nameBox.textContent =
+      birthdayPlayer.name;
+
+    box.style.display =
+      "block";
+
+  }else{
+
+    box.style.display =
+      "none";
+
   }
 
-  function syncAuctionPool() {
-    const activeName = document.getElementById('auctionPlayerName');
-    const unassigned = players.filter(p => !p.soldTo);
-    if(unassigned.length === 0) { activeName.innerText = "All Players Sold!"; return; }
+}
 
-    </script>
 
-    </body>
-    </html>
+/* =========================
+   NORMAL TOURNAMENT
+========================= */
+
+function renderNormalPlayers(){
+
+  const list =
+    document.getElementById("normalPlayersList");
+
+  if(!list){
+    return;
+  }
+
+
+  if(players.length === 0){
+
+    list.innerHTML =
+      "<div class='emptyBox'>" +
+      "No registered players yet. Add Player first." +
+      "</div>";
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    players.map(function(player){
+
+      return `
+        <div class="auction-flex">
+          <div>
+            <b>${escapeHTML(player.name)}</b>
+            <br>
+            Jersey: ${escapeHTML(String(player.jerseyNo))}
+          </div>
+
+          <div>
+            📞 ${escapeHTML(player.mob)}
+          </div>
+        </div>
+      `;
+
+    }).join("");
+
+}
+
+
+function formTeams(){
+
+  if(players.length < 2){
+
+    alert(
+      "Kam se kam 2 players register karo."
+    );
+
+    return;
+
+  }
+
+
+  const middle =
+    Math.ceil(players.length / 2);
+
+  const teamA =
+    players.slice(0,middle);
+
+  const teamB =
+    players.slice(middle);
+
+
+  let message =
+    "👥 TEST TEAMS FORMED!\n\n";
+
+  message +=
+    "TITANS:\n" +
+    teamA.map(function(p){
+      return p.name;
+    }).join(", ");
+
+  message +=
+    "\n\nWARRIORS:\n" +
+    teamB.map(function(p){
+      return p.name;
+    }).join(", ");
+
+
+  alert(message);
+
+}
+
+
+/* =========================
+   AUCTION
+========================= */
+
+function syncAuctionPool(){
+
+  setText(
+    "teamAPoints",
+    auctionState.teamA
+  );
+
+  setText(
+    "teamBPoints",
+    auctionState.teamB
+  );
+
+
+  const available =
+    players.filter(function(player){
+      return !player.soldTo;
+    });
+
+
+  if(available.length === 0){
+
+    setText(
+      "auctionPlayerName",
+      players.length === 0
+        ? "Add Players First"
+        : "All Players Sold!"
+    );
+
+    renderAuctionHistory();
+
+    return;
+
+  }
+
+
+  setText(
+    "auctionPlayerName",
+    available[0].name
+  );
+
+  setText(
+    "auctionBaseValue",
+    "50"
+  );
+
+  renderAuctionHistory();
+
+}
+
+
+function sellPlayer(team){
+
+  const available =
+    players.filter(function(player){
+      return !player.soldTo;
+    });
+
+
+  if(available.length === 0){
+
+    alert("No players available.");
+
+    return;
+
+  }
+
+
+  const player =
+    available[0];
+
+  const price =
+    50;
+
+
+  if(team === "A"){
+
+    if(auctionState.teamA < price){
+
+      alert("TITANS ke paas points kam hain.");
+
+      return;
+
+    }
+
+    auctionState.teamA -= price;
+
+    player.soldTo =
+      "TITANS";
+
+  }
+
+
+  if(team === "B"){
+
+    if(auctionState.teamB < price){
+
+      alert("WARRIORS ke paas points kam hain.");
+
+      return;
+
+    }
+
+    auctionState.teamB -= price;
+
+    player.soldTo =
+      "WARRIORS";
+
+  }
+
+
+  auctionState.history.unshift({
+    player:player.name,
+    team:player.soldTo,
+    price:price
+  });
+
+
+  localStorage.setItem(
+    "cy_players",
+    JSON.stringify(players)
+  );
+
+
+  localStorage.setItem(
+    "cy_auction",
+    JSON.stringify(auctionState)
+  );
+
+
+  alert(
+    "🪙 " +
+    player.name +
+    " SOLD TO " +
+    player.soldTo +
+    " for " +
+    price +
+    " points!"
+  );
+
+
+  syncAuctionPool();
+
+}
+
+
+function renderAuctionHistory(){
+
+  const log =
+    document.getElementById(
+      "auctionHistoryLog"
+    );
+
+  if(!log){
+    return;
+  }
+
+
+  if(
+    !auctionState.history ||
+    auctionState.history.length === 0
+  ){
+
+    log.innerHTML =
+      "<div class='emptyBox'>" +
+      "No players sold yet." +
+      "</div>";
+
+    return;
+
+  }
+
+
+  log.innerHTML =
+    auctionState.history.map(function(item){
+
+      return `
+        <div class="auction-flex">
+          <div>
+            <b>${escapeHTML(item.player)}</b>
+          </div>
+
+          <div>
+            ${escapeHTML(item.team)}
+            🪙 ${item.price}
+          </div>
+        </div>
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================
+   SAFE HTML
+========================= */
+
+function escapeHTML(value){
+
+  return String(value || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
