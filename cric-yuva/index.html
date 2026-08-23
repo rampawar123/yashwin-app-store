@@ -36,7 +36,7 @@
   </div>
 </div>
 
-<!-- 🔐 LOGIN / AUTH PAGE (App opens with this) -->
+<!-- 🔐 LOGIN / AUTH PAGE -->
 <div id="authPage" class="page active" style="display: block; text-align: center; padding-top: 50px;">
   <h1 style="color:#1e3c72;">CRIC YUVA</h1>
   <div class="auth-container">
@@ -49,12 +49,34 @@
       <label>Password</label>
       <input type="password" id="authPassword" placeholder="Enter password">
     </div>
+    
     <button class="action-btn" onclick="handleLogin()">🔑 Open App</button>
-         <!-- Forgot Password Code -->
+
+    <!-- 🆕 Create Account Link -->
+    <p style="margin-top: 15px; font-size: 13px; color: #00d084; cursor: pointer; text-decoration: underline; font-weight: bold;" onclick="toggleRegisterSection()">
+      🆕 Don't have an account? Create Account
+    </p>
+
+    <!-- Create Account Form Window -->
+    <div id="registerSection" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
+      <h4 style="color: #00d084; margin-bottom: 10px;">Create New App Account</h4>
+      <div class="form-group">
+        <label>Enter Mobile Number</label>
+        <input type="number" id="regMobile" placeholder="e.g. 7218332558">
+      </div>
+      <div class="form-group">
+        <label>Create New Password</label>
+        <input type="password" id="regPassword" placeholder="Set your password">
+      </div>
+      <button class="action-btn" style="background: #00d084;" onclick="processUserRegistration()">📝 Register & Save Account</button>
+    </div>
+
+    <!-- 🔑 Forgot Password Link -->
     <p style="margin-top: 15px; font-size: 13px; color: #168cff; cursor: pointer; text-decoration: underline;" onclick="toggleResetForm()">
       Forgot Password? / Reset Password 🔑
     </p>
 
+    <!-- Reset Password Form Window -->
     <div id="resetPasswordSection" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc;">
       <h4 style="color: #ff3b5c; margin-bottom: 10px;">Reset Your Password</h4>
       <div class="form-group">
@@ -67,11 +89,12 @@
       </div>
       <button class="action-btn" style="background: #28a745;" onclick="processPasswordReset()">💾 Update Password</button>
     </div>
-    <button class="action-btn" style="background:#6c757d;" onclick="generateDummyMobile()">🎲 Generate Dummy Mobile</button>
+
+    <button class="action-btn" style="background:#6c757d; margin-top:15px;" onclick="generateDummyMobile()">🎲 Generate Dummy Mobile</button>
   </div>
 </div>
 
-<!-- MAIN APP INTERFACE (Hidden until Login) -->
+<!-- MAIN APP INTERFACE -->
 <div id="appInterface" style="display: none;">
 
   <!-- HEADER -->
@@ -181,6 +204,7 @@
       <div class="modal-box" style="max-width: 500px;">
         <div class="form-group"><label>Full Name</label><input type="text" id="pName" placeholder="Sachin"></div>
         <div class="form-group"><label>Mobile Number</label><input type="number" id="pMobile" placeholder="98765xxxxx"></div>
+<!-- PASTE THIS IMMEDIATELY BELOW LINE 207 -->
         <div class="form-group"><label>Jersey Number</label><input type="number" id="pJNo" placeholder="7"></div>
         <div class="form-group"><label>Jersey Name</label><input type="text" id="pJName" placeholder="DHONI"></div>
         <div class="form-group"><label>Jersey Size</label>
@@ -193,7 +217,7 @@
       </div>
     </section>
 
-    <!-- NORMAL TOURNAMENT SELECTION PAGE -->
+    <!-- NORMAL TOURNAMENT SECTION -->
     <section id="normalTournamentPage" class="page" style="display:none;">
       <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
       <h2>👥 Normal Tournament Setup</h2>
@@ -204,11 +228,175 @@
       </div>
     </section>
 
-    <!-- AUCTION TOURNAMENT PAGE -->
+    <!-- AUCTION TOURNAMENT SECTION -->
     <section id="auctionTournamentPage" class="page" style="display:none;">
       <button class="backBtn" type="button" onclick="openPage('tournament')">← Back</button>
       <h2>🪙 IPL-Style Auction Table</h2>
-      
       <div class="modal-box" style="max-width: 600px;">
         <div style="display:flex; justify-content: space-between; font-weight: bold; background: #e9ecef; padding: 10px; border-radius: 6px;">
           <div>Team A Points: <span id="teamAPoints">1000</span></div>
+          <div>Team B Points: <span id="teamBPoints">1000</span></div>
+        </div>
+        <div style="margin: 20px 0; border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: center;">
+          <h4 style="margin:0;">Current Player in Pool</h4>
+          <h2 id="auctionPlayerName" style="color:#1e3c72; margin:10px 0;">No Active Player</h2>
+          <p>Base Token Value: <span id="auctionBaseValue">50</span></p>
+          <div style="display:flex; gap: 10px; margin-top:10px;">
+            <button class="action-btn" style="background:#28a745;" onclick="sellPlayer('A')">Sold to Team A</button>
+            <button class="action-btn" style="background:#17a2b8;" onclick="sellPlayer('B')">Sold to Team B</button>
+          </div>
+        </div>
+        <h4>Auction Status / Sold History</h4>
+        <div id="auctionHistoryLog" style="max-height: 150px; overflow-y: auto;">No items sold yet.</div>
+      </div>
+    </section>
+
+    <!-- LIVE SCORING PANEL -->
+    <section id="liveScoringPage" class="page" style="display:none;">
+      <button class="backBtn" type="button" onclick="goHome()">← Back Home</button>
+      <h2 style="text-align: center;">🏏 Live Scoring Console</h2>
+      <div class="modal-box" style="text-align: center; max-width: 500px;">
+        <h2 style="font-size: 32px; margin: 10px 0;" id="consoleScore">0 / 0</h2>
+        <p style="font-size: 18px; color: #555;" id="consoleOvers">Overs: 0.0</p>
+        <p id="consoleStats" style="font-weight: bold; color: #1e3c72;">CRR: 0.00</p>
+        <div style="background:#f1f3f5; padding:10px; border-radius:6px; margin: 15px 0; min-height: 24px; font-weight: bold;" id="ballHistoryBox">Over History: Start Scoring...</div>
+        <div class="scoring-grid">
+          <button class="score-btn run" onclick="addScore(0)">0</button>
+          <button class="score-btn run" onclick="addScore(1)">1</button>
+          <button class="score-btn run" onclick="addScore(2)">2</button>
+          <button class="score-btn run" onclick="addScore(3)">3</button>
+          <button class="score-btn run" onclick="addScore(4)">4</button>
+          <button class="score-btn run" onclick="addScore(6)">6</button>
+          <button class="score-btn extra" onclick="addScore('WD')">Wd</button>
+          <button class="score-btn extra" onclick="addScore('NB')">Nb</button>
+          <button class="score-btn wk" onclick="addScore('W')">Wkt</button>
+          <button class="score-btn undo" onclick="handleUndo()">↩️ UNDO LAST BALL</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- =========================
+     JAVASCRIPT LOGIC ENGINE
+     ========================= -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      const splash = document.getElementById('splashScreen');
+      if (splash) splash.style.display = 'none';
+    }, 2000);
+    checkTodayBirthdays();
+  });
+
+  let players = JSON.parse(localStorage.getItem('cy_players')) || [];
+  let currentMatch = { runs: 0, wickets: 0, balls: 0, history: [], overLogs: [] };
+  let auctionState = { teamA: 1000, teamB: 1000, currentPlayerIndex: 0 };
+
+  function toggleRegisterSection() {
+    const regBox = document.getElementById('registerSection');
+    regBox.style.display = regBox.style.display === 'none' ? 'block' : 'none';
+    if(regBox.style.display === 'block') document.getElementById('regMobile').value = document.getElementById('authMobile').value;
+  }
+
+  function processUserRegistration() {
+    const mob = document.getElementById('regMobile').value;
+    const pass = document.getElementById('regPassword').value;
+    if(!mob || !pass) { alert("Please input details!"); return; }
+    localStorage.setItem('cy_user_pass_' + mob, pass);
+    alert("🎉 Account Created! Please Login up top.");
+    document.getElementById('authMobile').value = mob;
+    document.getElementById('authPassword').value = pass;
+    document.getElementById('registerSection').style.display = 'none';
+  }
+
+  function toggleResetForm() {
+    const resetSection = document.getElementById('resetPasswordSection');
+    resetSection.style.display = resetSection.style.display === 'none' ? 'block' : 'none';
+    if(resetSection.style.display === 'block') document.getElementById('resetMobile').value = document.getElementById('authMobile').value;
+  }
+
+  function processPasswordReset() {
+    const mobile = document.getElementById('resetMobile').value;
+    const newPass = document.getElementById('resetNewPassword').value;
+    if (!mobile || !newPass) { alert("Fill all details!"); return; }
+    localStorage.setItem('cy_user_pass_' + mobile, newPass);
+    alert("🎉 Password Reset Done!");
+    document.getElementById('resetPasswordSection').style.display = 'none';
+  }
+
+  function handleLogin() {
+    const mob = document.getElementById('authMobile').value;
+    const pass = document.getElementById('authPassword').value;
+    if(!mob || !pass) { alert("Enter credentials!"); return; }
+    const savedPassword = localStorage.getItem('cy_user_pass_' + mob);
+    if (savedPassword && pass === savedPassword) {
+      proceedToApp();
+    } else {
+      alert("❌ Invalid account or password! Register first if new.");
+    }
+  }
+
+  function generateDummyMobile() {
+    const randomMob = "9" + Math.floor(100000000 + Math.random() * 900000000);
+    document.getElementById('authMobile').value = randomMob;
+    document.getElementById('authPassword').value = "123456";
+    localStorage.setItem('cy_user_pass_' + randomMob, "123456");
+    alert("Preset Account: " + randomMob + "\nPassword: 123456\n\nAb Open App par click karein!");
+  }
+
+  function proceedToApp() {
+    document.getElementById('authPage').style.display = 'none';
+    document.getElementById('appInterface').style.display = 'block';
+    openPage('home');
+  }
+
+  function logout() {
+    document.getElementById('appInterface').style.display = 'none';
+    document.getElementById('authPage').style.display = 'block';
+  }
+
+  function openPage(pageId) {
+    document.querySelectorAll('section.page').forEach(p => p.style.display = 'none');
+    const targetPage = document.getElementById(pageId);
+    if(targetPage) targetPage.style.display = 'block';
+    if(pageId === 'auctionTournamentPage') syncAuctionPool();
+    if(pageId === 'normalTournamentPage') renderNormalPlayers();
+  }
+
+  function goHome() { openPage('home'); }
+
+  function registerPlayer() {
+    const name = document.getElementById('pName').value;
+    const mob = document.getElementById('pMobile').value;
+    const dob = document.getElementById('pDob').value;
+    if(!name || !mob || !dob) { alert("Name, Mobile & DOB are mandatory!"); return; }
+    players.push({ name, mob, dob, jerseyNo: document.getElementById('pJNo').value || '7', soldTo: null });
+    localStorage.setItem('cy_players', JSON.stringify(players));
+    alert("Player Profile Saved!");
+    goHome();
+  }
+
+  // Birthday detection function
+  function checkTodayBirthdays() {
+    if(players.length === 0) return;
+    const today = new Date();
+    const todayStr = `${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const bdayPlayer = players.find(p => p.dob && p.dob.substring(5) === todayStr);
+    if(bdayPlayer) {
+      document.getElementById('birthdayPlayerName').innerText = bdayPlayer.name;
+      document.getElementById('birthdayBox').style.display = 'block';
+    }
+  }
+
+  function renderNormalPlayers() {
+    const div = document.getElementById('normalPlayersList');
+    if(players.length === 0) { div.innerHTML = "<p style='color:red;'>No players yet.</p>"; return; }
+    div.innerHTML = players.map(p => `<div class='auction-flex'><span><b>${p.name}</b> (Jrsy: ${p.jerseyNo})</span><span>📞 ${p.mob}</span></div>`).join('');
+  }
+
+  function syncAuctionPool() {
+    const activeName = document.getElementById('auctionPlayerName');
+    const unassigned = players.filter(p => !p.soldTo);
+    if(unassigned.length === 0) { activeName.innerText = "All Players Sold!"; return; }
