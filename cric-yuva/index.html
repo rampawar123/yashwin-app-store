@@ -7226,22 +7226,28 @@ document.addEventListener("DOMContentLoaded", function () {
    LOGIN / REGISTER PAGE SWITCHER
 ================================ */
 window.toggleAuthRegistrationView = function(showRegister) {
-
     const loginBox = document.getElementById("loginBox");
     const registerBox = document.getElementById("registerBox");
 
-    if (showRegister) {
-        if (loginBox) loginBox.style.display = "none";
-        if (registerBox) registerBox.style.display = "block";
+    if (showRegister === true) {
+        if (loginBox) {
+            loginBox.style.display = "none";
+        }
+
+        if (registerBox) {
+            registerBox.style.display = "block";
+        }
     } else {
-        if (registerBox) registerBox.style.display = "none";
-        if (loginBox) loginBox.style.display = "block";
+        if (registerBox) {
+            registerBox.style.display = "none";
+        }
+
+        if (loginBox) {
+            loginBox.style.display = "block";
+        }
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    window.scrollTo(0, 0);
 };    
      
 </script>
