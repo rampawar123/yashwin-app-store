@@ -7036,5 +7036,121 @@ function loadUserProfile(){
 
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const splash = document.getElementById("splashScreen");
+  const authPage = document.getElementById("authPage");
+  const appInterface = document.getElementById("superAppInterface");
+
+  /* SPLASH SCREEN FIX */
+  setTimeout(function () {
+    if (splash) {
+      splash.style.opacity = "0";
+      splash.style.pointerEvents = "none";
+
+      setTimeout(function () {
+        splash.style.display = "none";
+      }, 500);
+    }
+  }, 1800);
+
+
+  /* PAGE CONTROL */
+  window.showAppPage = function(pageId) {
+    document.querySelectorAll(".view-shell").forEach(function(page) {
+      page.classList.remove("active");
+      page.style.display = "none";
+    });
+
+    const page = document.getElementById(pageId);
+
+    if (page) {
+      page.style.display = "block";
+      page.classList.add("active");
+      window.scrollTo(0, 0);
+    }
+  };
+
+
+  /* LOGIN */
+  window.executeAppAuth = function () {
+    const mobile = document.getElementById("authMobile").value.trim();
+    const password = document.getElementById("authPassword").value.trim();
+
+    const savedUser = JSON.parse(localStorage.getItem("cricYuvaUser"));
+
+    if (!mobile || !password) {
+      alert("Mobile number aur password dalo.");
+      return;
+    }
+
+    if (savedUser &&
+        savedUser.mobile === mobile &&
+        savedUser.password === password) {
+
+      if (authPage) authPage.style.display = "none";
+
+      if (appInterface) {
+        appInterface.style.display = "block";
+      }
+
+      localStorage.setItem("cricYuvaLoggedIn", "true");
+      localStorage.setItem("cricYuvaActiveUser", mobile);
+
+      showAppPage("homePage");
+      return;
+    }
+
+    alert("Account nahi mila. Pehle registration karo.");
+  };
+
+
+  /* PERMANENT LOGIN CHECK */
+  const loggedIn = localStorage.getItem("cricYuvaLoggedIn");
+  const activeMobile = localStorage.getItem("cricYuvaActiveUser");
+  const savedUser = JSON.parse(localStorage.getItem("cricYuvaUser"));
+
+  if (
+    loggedIn === "true" &&
+    activeMobile &&
+    savedUser &&
+    savedUser.mobile === activeMobile
+  ) {
+    setTimeout(function () {
+      if (authPage) authPage.style.display = "none";
+
+      if (appInterface) {
+        appInterface.style.display = "block";
+      }
+
+      showAppPage("homePage");
+    }, 1900);
+  }
+
+
+  /* LOGOUT */
+  window.logoutCricYuva = function () {
+    localStorage.removeItem("cricYuvaLoggedIn");
+    localStorage.removeItem("cricYuvaActiveUser");
+
+    if (appInterface) {
+      appInterface.style.display = "none";
+    }
+
+    if (authPage) {
+      authPage.style.display = "block";
+    }
+
+    document.getElementById("authMobile").value = "";
+    document.getElementById("authPassword").value = "";
+
+    window.scrollTo(0, 0);
+  };
+
+});
+     
+</script>
+     
 </body>
 </html> 
