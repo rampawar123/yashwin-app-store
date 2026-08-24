@@ -17,59 +17,131 @@
 ========================= -->
 <div id="splashScreen">
   <div class="splashContent">
+
     <div class="splashLogo">
-      <img src="logo.png" alt="CRIC YUVA" onerror="this.style.display='none'">
-      <span>🏏</span>
+      <img
+        src="cric-yuva-logo.png"
+        alt="CRIC YUVA"
+        class="splash-logo-img"
+        onerror="this.style.display='none'; document.getElementById('splashFallback').style.display='flex';"
+      >
+
+      <div id="splashFallback" class="splashFallback" style="display:none;">
+        🏏
+      </div>
     </div>
+
     <h1 class="splashTitle">CRIC YUVA</h1>
     <p class="splashSub">CRICKET SUPER APP</p>
     <div class="splashLine"></div>
+
   </div>
 </div>
-
 
 <!-- =========================
      AUTH / LOGIN PAGE
 ========================= -->
-<section id="authPage">
+<section id="authPage" class="auth-premium-page">
+  <div class="stadium-glow glow-left"></div>
+  <div class="stadium-glow glow-right"></div>
 
-  <div class="auth-container" id="loginBox">
-    <div class="authLogoBox">
-      <img src="logo.png" alt="CRIC YUVA" onerror="this.style.display='none'">
-      <span>🏏</span>
-    </div>
+  <div class="auth-container">
 
-    <h1>CRIC YUVA</h1>
-    <p class="authSub">Login to your cricket profile</p>
-
-    <div class="form-group">
-      <label>Mobile Number</label>
-      <input
-        type="tel"
-        id="authMobile"
-        placeholder="Enter mobile number"
-        maxlength="10"
-        inputmode="numeric"
+    <!-- LOGO -->
+    <div class="auth-logo-wrap">
+      <img
+        src="cric-yuva-logo.png"
+        alt="CRIC YUVA Logo"
+        class="auth-logo"
+        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';"
       >
+
+      <div id="logoFallback" class="logo-fallback" style="display:none;">
+        🏏
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Password</label>
-      <input
-        type="password"
-        id="authPassword"
-        placeholder="Enter password"
+    <!-- APP NAME -->
+    <div class="auth-brand">
+      <h1>
+        <span>CRIC</span> <strong>YUVA</strong>
+      </h1>
+      <p>CRICKET SUPER APP</p>
+    </div>
+
+    <!-- LOGIN CARD -->
+    <div class="premium-login-card">
+
+      <div class="login-title">
+        <span>★</span>
+        <h2>Login to your cricket profile</h2>
+        <span>★</span>
+      </div>
+
+      <div class="premium-input-group">
+        <div class="input-icon">📞</div>
+        <input
+          type="tel"
+          id="authMobile"
+          placeholder="Enter mobile number"
+          inputmode="numeric"
+          maxlength="10"
+          autocomplete="tel"
+        >
+      </div>
+
+      <div class="premium-input-group">
+        <div class="input-icon">🔒</div>
+
+        <input
+          type="password"
+          id="authPassword"
+          placeholder="Enter password"
+          autocomplete="current-password"
+        >
+
+        <button
+          type="button"
+          class="password-toggle"
+          onclick="togglePasswordVisibility()"
+        >👁</button>
+      </div>
+
+      <button
+        class="login-premium-btn"
+        onclick="executeAppAuth()"
       >
+        <span>⇥</span>
+        LOGIN &amp; OPEN APP
+      </button>
+
+      <div class="or-divider">
+        <span></span>
+        <b>OR</b>
+        <span></span>
+      </div>
+
+      <button
+        class="create-account-btn"
+        onclick="toggleAuthRegistrationView(true)"
+      >
+        <span>♙</span>
+        CREATE NEW ACCOUNT
+      </button>
+
     </div>
 
-    <button class="action-btn" onclick="loginUser()">
-      LOGIN & OPEN APP
-    </button>
+    <div class="security-line">
+      <span>🛡</span>
+      100% Secure
+      <i>•</i>
+      Fast
+      <i>•</i>
+      Reliable
+    </div>
 
-    <button class="secondary-btn" onclick="showRegister()">
-      CREATE NEW ACCOUNT
-    </button>
   </div>
+</section>
 
 
   <!-- PLAYER REGISTRATION -->
