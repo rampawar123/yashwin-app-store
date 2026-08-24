@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+function initCricYuvaApp() {
 
     let navigationHistory = [];
     let currentScreen = "screen1";
@@ -929,4 +929,14 @@ document.addEventListener("DOMContentLoaded", function () {
     loadProfileToScreen4();
     loadHomeProfile();
 
-});
+    }
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        initCricYuvaApp
+    );
+} else {
+    initCricYuvaApp();
+}
+
