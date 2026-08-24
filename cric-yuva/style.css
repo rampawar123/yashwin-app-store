@@ -1205,3 +1205,10 @@ button {
         font-size: 12px;
     }
 }
+
+.main-logo {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
