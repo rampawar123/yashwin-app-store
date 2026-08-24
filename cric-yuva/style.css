@@ -111,10 +111,24 @@ body {
 }
 
 
+/* =========================================
+   CRIC YUVA ORIGINAL PNG LOGO
+========================================= */
+
 .logo-box {
     margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+.cric-yuva-logo {
+    width: 220px;
+    max-width: 70vw;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 18px rgba(255, 90, 0, 0.35));
+}
 
 .logo-shield {
     width: 135px;
