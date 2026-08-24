@@ -250,129 +250,147 @@
 
     <section class="app-screen profile-screen" id="screen4">
 
+    <div class="profile-container">
 
-        <!-- PROFILE HEADER -->
-        <div class="profile-header">
+        <!-- PROFILE PHOTO -->
+        <div class="profile-photo-area">
 
-            <button class="header-back" type="button">
-                <i class="fa-solid fa-arrow-left"></i>
+            <div class="profile-photo" id="profilePhoto">
+                <span id="profileInitial">PLAYER</span>
+            </div>
+
+            <button class="photo-edit-btn" id="replacePhotoBtn" type="button">
+                <i class="fa-solid fa-camera"></i>
             </button>
 
-            <h2>PROFILE (EDIT)</h2>
+            <input
+                type="file"
+                id="profilePhotoInput"
+                accept="image/*"
+                style="display:none"
+            >
 
-            <button class="header-save" type="button">
-                <i class="fa-solid fa-check"></i>
-            </button>
+        </div>
+
+        <!-- PLAYER ID -->
+        <div class="player-id">
+            ID: <span id="playerId">CY20240001</span>
+        </div>
+
+
+        <!-- PROFILE DETAILS -->
+        <div class="profile-details">
+
+            <!-- NAME -->
+            <div class="profile-row">
+                <i class="fa-regular fa-user"></i>
+                <span>Name</span>
+                <input
+                    type="text"
+                    id="profileName"
+                    placeholder="Your Name"
+                >
+            </div>
+
+            <!-- MOBILE -->
+            <div class="profile-row">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <span>Mobile</span>
+                <input
+                    type="tel"
+                    id="profileMobile"
+                    placeholder="Mobile Number"
+                >
+            </div>
+
+            <!-- EMAIL -->
+            <div class="profile-row">
+                <i class="fa-regular fa-envelope"></i>
+                <span>Email</span>
+                <input
+                    type="email"
+                    id="profileEmail"
+                    placeholder="Email Address"
+                >
+            </div>
+
+            <!-- JERSEY NAME -->
+            <div class="profile-row">
+                <i class="fa-solid fa-shirt"></i>
+                <span>Jersey Name</span>
+                <input
+                    type="text"
+                    id="jerseyName"
+                    placeholder="Jersey Name"
+                >
+            </div>
+
+            <!-- JERSEY NUMBER -->
+            <div class="profile-row">
+                <i class="fa-solid fa-hashtag"></i>
+                <span>Jersey Number</span>
+                <input
+                    type="number"
+                    id="jerseyNumber"
+                    placeholder="Number"
+                >
+            </div>
+
+            <!-- JERSEY SIZE -->
+            <div class="profile-row">
+                <i class="fa-solid fa-shirt"></i>
+                <span>Jersey Size</span>
+
+                <select id="jerseySize">
+                    <option value="">Select</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="XXXL">XXXL</option>
+                </select>
+            </div>
+
+            <!-- PANT SIZE -->
+            <div class="profile-row">
+                <i class="fa-solid fa-person"></i>
+                <span>Pant Size</span>
+
+                <select id="pantSize">
+                    <option value="">Select</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="XXXL">XXXL</option>
+                </select>
+            </div>
+
+            <!-- DATE OF BIRTH -->
+            <div class="profile-row">
+                <i class="fa-regular fa-calendar"></i>
+                <span>Date of Birth</span>
+                <input
+                    type="date"
+                    id="dateOfBirth"
+                >
+            </div>
 
         </div>
 
 
+        <!-- SAVE -->
+        <button
+            class="save-changes-button"
+            id="saveProfileButton"
+            type="button"
+        >
+            SAVE CHANGES
+        </button>
 
-        <div class="profile-content">
-
-
-            <!-- PROFILE PHOTO -->
-            <div class="profile-photo-area">
-
-                <div class="profile-photo">
-                    <img
-                        id="profileImage"
-                        src="https://placehold.co/300x300/ff5a00/ffffff?text=PLAYER"
-                        alt="Profile Photo"
-                    >
-
-                    <button class="camera-button" type="button">
-                        <i class="fa-solid fa-camera"></i>
-                    </button>
-                </div>
-
-            </div>
-
-
-            <!-- ID -->
-            <p class="player-id">
-                ID: CY20240001
-            </p>
-
-
-
-            <!-- PROFILE DETAILS -->
-            <div class="profile-details">
-
-
-                <div class="profile-row">
-                    <i class="fa-regular fa-user"></i>
-                    <span>Name</span>
-                    <input type="text" value="Your Name">
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-mobile-screen-button"></i>
-                    <span>Mobile</span>
-                    <input type="tel" value="">
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-regular fa-envelope"></i>
-                    <span>Email</span>
-                    <input type="email" value="">
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-shirt"></i>
-                    <span>Jersey Name</span>
-                    <input type="text" value="">
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-hashtag"></i>
-                    <span>Jersey Number</span>
-                    <input type="number" value="">
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-shirt"></i>
-                    <span>Jersey Size</span>
-
-                    <select>
-                        <option>Select</option>
-                        <option>S</option>
-                        <option>M</option>
-                        <option>L</option>
-                        <option>XL</option>
-                        <option>XXL</option>
-                        <option>XXXL</option>
-                    </select>
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-person"></i>
-                    <span>Pant Size</span>
-                    <input type="text" value="">
-                </div>
-
-
-                <div class="profile-row">
-                    <i class="fa-regular fa-calendar"></i>
-                    <span>Date of Birth</span>
-                    <input type="date">
-                </div>
-
-            </div>
-
-
-            <!-- SAVE CHANGES -->
-            <button class="save-changes-button" id="saveProfileButton">
-                SAVE CHANGES
-            </button>
-
-        </div>
+    </div>
 
     </section>
 
