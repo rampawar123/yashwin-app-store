@@ -7248,7 +7248,298 @@ window.toggleAuthRegistrationView = function(showRegister) {
     }
 
     window.scrollTo(0, 0);
-};    
+};   
+
+     /* =========================================================
+   CRIC YUVA - REGISTER + PROFILE FLOW FIX
+   ========================================================= */
+
+/* REGISTER SCREEN OPEN */
+window.toggleAuthRegistrationView = function(showRegister) {
+
+    const authPage = document.getElementById("authPage");
+    const loginBox = document.getElementById("loginBox");
+    const registerBox = document.getElementById("registerBox");
+
+    if (showRegister === true) {
+
+        if (authPage) {
+            authPage.style.display = "block";
+        }
+
+        if (loginBox) {
+            loginBox.style.display = "none";
+        }
+
+        if (registerBox) {
+            registerBox.style.display = "block";
+        }
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    } else {
+
+        if (registerBox) {
+            registerBox.style.display = "none";
+        }
+
+        if (loginBox) {
+            loginBox.style.display = "block";
+        }
+
+        if (authPage) {
+            authPage.style.display = "block";
+        }
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+};
+
+
+/* CREATE ACCOUNT */
+window.createPlayerAccount = function() {
+
+    const name = document.getElementById("regName")?.value.trim();
+    const mobile = document.getElementById("regMobile")?.value.trim();
+    const password = document.getElementById("regPassword")?.value.trim();
+
+    const role = document.getElementById("playerRole")?.value || "Batsman";
+    const jerseyName = document.getElementById("jerseyName")?.value.trim() || name;
+    const jerseyNumber = document.getElementById("jerseyNumber")?.value.trim() || "";
+    const jerseySize = document.getElementById("jerseySize")?.value || "S";
+    const birthDate = document.getElementById("birthDate")?.value || "";
+
+    if (!name || !mobile || !password) {
+        alert("Full Name, Mobile Number aur Password bharna zaroori hai.");
+        return;
+    }
+
+    if (mobile.length !== 10) {
+        alert("Sahi 10 digit mobile number dalo.");
+        return;
+    }
+
+    const userData = {
+        name: name,
+        mobile: mobile,
+        password: password,
+        role: role,
+        jerseyName: jerseyName,
+        jerseyNumber: jerseyNumber,
+        jerseySize: jerseySize,
+        birthDate: birthDate,
+        photo: ""
+    };
+
+    localStorage.setItem("cricYuvaUser", JSON.stringify(userData));
+    localStorage.setItem("cricYuvaActiveUser", mobile);
+    localStorage.setItem("cricYuvaLoggedIn", "true");
+
+    alert("Account successfully created!");
+
+    openPlayerProfile();
+};
+
+
+/* OPEN PROFILE */
+window.openPlayerProfile = function() {
+
+    const savedUser =
+        JSON.parse(localStorage.getItem("cricYuvaUser") || "{}");
+
+    const authPage = document.getElementById("authPage");
+    const appInterface = document.getElementById("appInterface");
+    const registerBox = document.getElementById("registerBox");
+
+    if (authPage) authPage.style.display = "none";
+    if (registerBox) registerBox.style.display = "none";
+    if (appInterface) appInterface.style.display = "block";
+
+    /* Profile page open */
+    if (typeof showAppPage === "function") {
+        showAppPage("profilePage");
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    loadPlayerProfile();
+};
+
+
+/* LOAD PROFILE DATA */
+window.loadPlayerProfile = function() {
+
+    const user =
+        JSON.parse(localStorage.getItem("cricYuvaUser") || "{}");
+
+    if (document.getElementById("profileName")) {
+        document.getElementById("profileName").value = user.name || "";
+    }
+
+    if (document.getElementById("profileMobile")) {
+        document.getElementById("profileMobile").value = user.mobile || "";
+    }
+
+    if (document.getElementById("profileRole")) {
+        document.getElementById("profileRole").value = user.role || "Batsman";
+    }
+
+    if (document.getElementById("profileJerseyName")) {
+        document.getElementById("profileJerseyName").value =
+            user.jerseyName || "";
+    }
+
+    if (document.getElementById("profileJerseyNumber")) {
+        document.getElementById("profileJerseyNumber").value =
+            user.jerseyNumber || "";
+    }
+
+    if (document.getElementById("profileJerseySize")) {
+        document.getElementById("profileJerseySize").value =
+            user.jerseySize || "S";
+    }
+
+    if (document.getElementById("profileBirthDate")) {
+        document.getElementById("profileBirthDate").value =
+            user.birthDate || "";
+    }
+
+    if (user.photo && document.getElementById("profilePhotoPreview")) {
+        document.getElementById("profilePhotoPreview").src = user.photo;
+    }
+};
+
+
+/* PHOTO ADD / CHANGE */
+window.changeProfilePhoto = function() {
+
+    document.getElementById("profilePhotoInput")?.click();
+};
+
+
+window.previewProfilePhoto = function(input) {
+
+    const file = input.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        const preview =
+            document.getElementById("profilePhotoPreview");
+
+        if (preview) {
+            preview.src = e.target.result;
+        }
+
+        const user =
+            JSON.parse(localStorage.getItem("cricYuvaUser") || "{}");
+
+        user.photo = e.target.result;
+
+        localStorage.setItem(
+            "cricYuvaUser",
+            JSON.stringify(user)
+        );
+    };
+
+    reader.readAsDataURL(file);
+};
+
+
+/* SAVE PROFILE */
+window.savePlayerProfile = function() {
+
+    const user =
+        JSON.parse(localStorage.getItem("cricYuvaUser") || "{}");
+
+    user.name =
+        document.getElementById("profileName")?.value.trim() || user.name;
+
+    user.role =
+        document.getElementById("profileRole")?.value || user.role;
+
+    user.jerseyName =
+        document.getElementById("profileJerseyName")?.value.trim()
+        || user.jerseyName;
+
+    user.jerseyNumber =
+        document.getElementById("profileJerseyNumber")?.value.trim()
+        || user.jerseyNumber;
+
+    user.jerseySize =
+        document.getElementById("profileJerseySize")?.value
+        || user.jerseySize;
+
+    user.birthDate =
+        document.getElementById("profileBirthDate")?.value
+        || user.birthDate;
+
+    localStorage.setItem(
+        "cricYuvaUser",
+        JSON.stringify(user)
+    );
+
+    alert("Profile successfully saved!");
+
+    /* SAVE KE BAAD MAIN SCREEN */
+    if (typeof showAppPage === "function") {
+        showAppPage("homePage");
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
+
+
+/* LOGOUT - DIRECT LOGIN SCREEN */
+window.logoutCricYuva = function() {
+
+    localStorage.removeItem("cricYuvaLoggedIn");
+    localStorage.removeItem("cricYuvaActiveUser");
+
+    const authPage = document.getElementById("authPage");
+    const appInterface = document.getElementById("appInterface");
+    const loginBox = document.getElementById("loginBox");
+    const registerBox = document.getElementById("registerBox");
+
+    if (appInterface) {
+        appInterface.style.display = "none";
+    }
+
+    if (registerBox) {
+        registerBox.style.display = "none";
+    }
+
+    if (authPage) {
+        authPage.style.display = "block";
+    }
+
+    if (loginBox) {
+        loginBox.style.display = "block";
+    }
+
+    document.getElementById("authMobile").value = "";
+    document.getElementById("authPassword").value = "";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
      
 </script>
      
