@@ -1,5 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+ // ==========================================
+// SPLASH SCREEN AUTO NEXT
+// ==========================================
+setTimeout(function () {
+
+    document.getElementById("screen1").classList.remove("active");
+    document.getElementById("screen2").classList.add("active");
+
+}, 2500);
+
     // ==========================================
     // SCREEN FUNCTION
     // ==========================================
