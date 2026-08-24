@@ -17,6 +17,7 @@
   --card:#112240;
   --card2:#162b4d;
   --blue:#00f0ff;
+  --neon-blue:#00f0ff;
   --blue2:#0077ff;
   --green:#39ff14;
   --red:#ff1744;
@@ -73,25 +74,25 @@ body{
   text-align:center;
 }
 
-.splashLogo {
-  width: 110px;
-  height: 110px;
-  margin: 0 auto 18px;
-  border-radius: 28px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #07111f;
-  border: 2px solid var(--neon-blue);
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.45);
+.splashLogo{
+  width:110px;
+  height:110px;
+  margin:0 auto 18px;
+  border-radius:28px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#07111f;
+  border:2px solid var(--neon-blue);
+  box-shadow:0 0 35px rgba(0,240,255,.45);
 }
 
-.splashLogo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+.splashLogo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
 }
 
 .splashBlock h2{
@@ -203,14 +204,13 @@ body{
 .iconBtn{
   width:38px;
   height:38px;
-  border:none;
+  border:1px solid var(--border);
   border-radius:12px;
   display:flex;
   align-items:center;
   justify-content:center;
   color:var(--white);
   background:var(--surface);
-  border:1px solid var(--border);
   font-size:17px;
   cursor:pointer;
 }
@@ -268,12 +268,14 @@ body{
    FORMS
    ========================================================= */
 
-.form-element{
+.form-element,
+.form-group{
   margin-bottom:14px;
   text-align:left;
 }
 
-.form-element label{
+.form-element label,
+.form-group label{
   display:block;
   margin-bottom:6px;
   color:var(--muted);
@@ -285,7 +287,10 @@ body{
 
 .form-element input,
 .form-element select,
-.form-element textarea{
+.form-element textarea,
+.form-group input,
+.form-group select,
+.form-group textarea{
   width:100%;
   min-height:46px;
   padding:12px 14px;
@@ -297,19 +302,24 @@ body{
   font-size:14px;
 }
 
-.form-element textarea{
+.form-element textarea,
+.form-group textarea{
   min-height:90px;
   resize:vertical;
 }
 
 .form-element input:focus,
 .form-element select:focus,
-.form-element textarea:focus{
+.form-element textarea:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
   border-color:var(--blue);
   box-shadow:0 0 0 3px rgba(0,240,255,.08);
 }
 
-.form-element option{
+.form-element option,
+.form-group option{
   background:#07111f;
   color:white;
 }
@@ -319,7 +329,8 @@ body{
    ========================================================= */
 
 .master-cta,
-.premium-action-btn{
+.premium-action-btn,
+.primary-btn{
   width:100%;
   min-height:48px;
   padding:12px;
@@ -335,7 +346,8 @@ body{
 }
 
 .master-cta:active,
-.premium-action-btn:active{
+.premium-action-btn:active,
+.primary-btn:active{
   transform:scale(.98);
 }
 
@@ -361,7 +373,8 @@ body{
 }
 
 .back-link,
-.back-nav-link{
+.back-nav-link,
+.backBtn{
   display:inline-flex;
   align-items:center;
   gap:6px;
@@ -612,7 +625,7 @@ body{
 }
 
 /* =========================================================
-   BALL HISTORY – ROUND BALLS
+   BALL HISTORY
    ========================================================= */
 
 .ballHistory{
@@ -726,7 +739,7 @@ body{
 }
 
 /* =========================================================
-   WAGON WHEEL / LB SHOT SELECTION
+   WAGON WHEEL
    ========================================================= */
 
 .wheelContainer{
@@ -805,7 +818,7 @@ body{
 }
 
 /* =========================================================
-   WICKET / NEXT BATSMAN MODAL
+   MODAL
    ========================================================= */
 
 .modalOverlay{
@@ -840,6 +853,10 @@ body{
   from{
     transform:translateY(40px);
     opacity:0;
+  }
+  to{
+    transform:translateY(0);
+    opacity:1;
   }
 }
 
@@ -876,7 +893,7 @@ body{
 }
 
 /* =========================================================
-   TOSS SCREEN
+   TOSS
    ========================================================= */
 
 .tossCard{
@@ -1127,7 +1144,7 @@ body{
 }
 
 /* =========================================================
-   LISTS / TABLES
+   LISTS
    ========================================================= */
 
 .listItem{
@@ -1204,6 +1221,512 @@ body{
 }
 
 /* =========================================================
+   PREMIUM AUTH / LOGIN / REGISTER / RESET
+   ========================================================= */
+
+.auth-premium-page{
+  min-height:100vh;
+  width:100%;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  padding:35px 16px 100px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(0,115,255,.35),transparent 32%),
+    radial-gradient(circle at 0% 35%,rgba(0,240,255,.14),transparent 28%),
+    radial-gradient(circle at 100% 35%,rgba(0,240,255,.14),transparent 28%),
+    linear-gradient(180deg,#07192e 0%,#050b14 48%,#020712 100%);
+}
+
+.auth-premium-page::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.7;
+  background:
+    linear-gradient(110deg,transparent 0%,transparent 18%,rgba(255,255,255,.035) 18.2%,transparent 18.5%),
+    linear-gradient(70deg,transparent 0%,transparent 75%,rgba(0,170,255,.06) 75.2%,transparent 75.5%);
+}
+
+.auth-premium-page::after{
+  content:"";
+  position:absolute;
+  left:-20%;
+  right:-20%;
+  bottom:-130px;
+  height:320px;
+  border-radius:50% 50% 0 0;
+  background:radial-gradient(ellipse at center top,rgba(15,104,50,.32),transparent 65%);
+  pointer-events:none;
+}
+
+.auth-container{
+  width:100%;
+  max-width:470px;
+  position:relative;
+  z-index:2;
+}
+
+.stadium-glow{
+  position:fixed;
+  top:210px;
+  width:180px;
+  height:380px;
+  z-index:1;
+  pointer-events:none;
+  opacity:.45;
+  filter:blur(3px);
+}
+
+.glow-left{
+  left:-110px;
+  background:
+    radial-gradient(circle at right 25%,#ffffff 0 2px,transparent 3px),
+    radial-gradient(circle at right 38%,#4ecbff 0 3px,transparent 4px),
+    radial-gradient(ellipse at right center,rgba(0,140,255,.9),transparent 55%);
+}
+
+.glow-right{
+  right:-110px;
+  background:
+    radial-gradient(circle at left 25%,#ffffff 0 2px,transparent 3px),
+    radial-gradient(circle at left 38%,#4ecbff 0 3px,transparent 4px),
+    radial-gradient(ellipse at left center,rgba(0,140,255,.9),transparent 55%);
+}
+
+.auth-logo-wrap{
+  width:150px;
+  height:150px;
+  margin:5px auto 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.auth-logo-wrap::before{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border-radius:50%;
+  background:rgba(0,140,255,.14);
+  filter:blur(16px);
+  transform:scale(1.12);
+}
+
+.auth-logo{
+  position:relative;
+  z-index:2;
+  width:135px;
+  height:135px;
+  object-fit:contain;
+  display:block;
+  filter:
+    drop-shadow(0 0 10px rgba(0,180,255,.75))
+    drop-shadow(0 0 28px rgba(0,100,255,.35));
+}
+
+.logo-fallback{
+  position:relative;
+  z-index:3;
+  width:120px;
+  height:120px;
+  border-radius:30px;
+  font-size:55px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#00c6ff,#1264dc);
+  box-shadow:0 0 35px rgba(0,180,255,.5);
+}
+
+.auth-brand{
+  text-align:center;
+  margin-bottom:26px;
+}
+
+.auth-brand h1{
+  margin:0;
+  font-size:clamp(42px,11vw,64px);
+  line-height:.95;
+  letter-spacing:1px;
+  font-weight:1000;
+  font-style:italic;
+}
+
+.auth-brand h1 span{
+  color:#f5f7fa;
+  text-shadow:0 5px 18px rgba(255,255,255,.08);
+}
+
+.auth-brand h1 strong{
+  color:#18a7ff;
+  text-shadow:0 0 22px rgba(0,150,255,.45);
+}
+
+.auth-brand p{
+  margin:9px 0 0;
+  color:#c8d0dc;
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:4px;
+}
+
+.premium-login-card{
+  width:100%;
+  padding:24px 18px 20px;
+  border-radius:28px;
+  border:1px solid rgba(0,160,255,.7);
+  background:linear-gradient(145deg,rgba(14,35,65,.95),rgba(3,11,25,.97));
+  box-shadow:
+    0 0 0 1px rgba(0,110,255,.08) inset,
+    0 0 25px rgba(0,136,255,.2),
+    0 22px 50px rgba(0,0,0,.55);
+  backdrop-filter:blur(14px);
+}
+
+.login-title{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  margin-bottom:24px;
+  color:#eaf5ff;
+}
+
+.login-title span{
+  color:#1c9fff;
+  font-size:24px;
+}
+
+.login-title h2{
+  margin:0;
+  font-size:clamp(17px,4vw,21px);
+  font-weight:800;
+  text-align:center;
+}
+
+.premium-input-group{
+  width:100%;
+  height:70px;
+  margin-bottom:15px;
+  display:flex;
+  align-items:center;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid rgba(0,140,255,.55);
+  background:rgba(2,10,22,.82);
+  transition:.2s ease;
+}
+
+.premium-input-group:focus-within{
+  border-color:#00c8ff;
+  box-shadow:0 0 0 3px rgba(0,190,255,.08);
+}
+
+.input-icon{
+  width:70px;
+  height:100%;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:27px;
+  background:rgba(0,106,185,.15);
+  border-right:1px solid rgba(0,140,255,.2);
+}
+
+.premium-input-group input{
+  min-width:0;
+  flex:1;
+  height:100%;
+  border:none !important;
+  outline:none !important;
+  padding:0 16px !important;
+  background:transparent !important;
+  color:#ffffff !important;
+  font-size:17px !important;
+  box-shadow:none !important;
+}
+
+.premium-input-group input::placeholder{
+  color:#8996a8;
+  opacity:1;
+}
+
+.password-toggle{
+  width:60px;
+  height:100%;
+  border:none;
+  background:transparent;
+  color:#b7c7d8;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.login-premium-btn{
+  width:100%;
+  min-height:70px;
+  margin-top:12px;
+  border:none;
+  border-radius:16px;
+  cursor:pointer;
+  color:#ffffff;
+  background:linear-gradient(135deg,#1cc7ff 0%,#087be8 52%,#223fc9 100%);
+  font-size:clamp(17px,4vw,21px);
+  font-weight:950;
+  letter-spacing:.5px;
+  box-shadow:
+    0 10px 24px rgba(0,113,255,.3),
+    inset 0 1px 1px rgba(255,255,255,.35);
+}
+
+.login-premium-btn span{
+  font-size:32px;
+  vertical-align:middle;
+  margin-right:12px;
+}
+
+.login-premium-btn:active{
+  transform:scale(.98);
+  box-shadow:none;
+}
+
+.create-account-btn{
+  width:100%;
+  min-height:64px;
+  border-radius:16px;
+  border:2px solid #148eff;
+  background:rgba(3,15,34,.7);
+  color:#55b9ff;
+  cursor:pointer;
+  font-size:clamp(16px,4vw,19px);
+  font-weight:900;
+  letter-spacing:.5px;
+}
+
+.create-account-btn span{
+  font-size:25px;
+  margin-right:12px;
+}
+
+.create-account-btn:active{
+  transform:scale(.98);
+  background:rgba(0,120,255,.12);
+}
+
+.or-divider{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin:22px 0;
+  color:#aeb9c8;
+}
+
+.or-divider span{
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,140,255,.65));
+}
+
+.or-divider span:last-child{
+  background:linear-gradient(90deg,rgba(0,140,255,.65),transparent);
+}
+
+.or-divider b{
+  font-size:15px;
+}
+
+.security-line{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:22px;
+  color:#c9d1dc;
+  font-size:16px;
+  font-weight:600;
+}
+
+.security-line span{
+  color:#1c9fff;
+  font-size:23px;
+}
+
+.security-line i{
+  color:#168fff;
+  font-style:normal;
+}
+
+/* =========================================================
+   LOGIN / REGISTER / RESET VISIBILITY FIX
+   IMPORTANT: JS will control these boxes.
+   ========================================================= */
+
+#loginBox,
+#registerBox,
+#resetBox{
+  width:100%;
+}
+
+#registerBox,
+#resetBox{
+  display:none;
+}
+
+/* Active class controlled by JavaScript */
+#loginBox.auth-active,
+#registerBox.auth-active,
+#resetBox.auth-active{
+  display:block;
+}
+
+/* Hide inactive boxes safely */
+#loginBox.auth-hidden,
+#registerBox.auth-hidden,
+#resetBox.auth-hidden{
+  display:none !important;
+}
+
+/* Registration and reset form design */
+#registerBox,
+#resetBox{
+  min-height:100vh;
+  padding:30px 18px 60px;
+  background:
+    radial-gradient(circle at top,rgba(28,133,211,.20),transparent 35%),
+    linear-gradient(180deg,#071426 0%,#030914 100%);
+}
+
+#registerBox .form-group,
+#resetBox .form-group{
+  width:100%;
+  margin-bottom:18px;
+}
+
+#registerBox label,
+#resetBox label{
+  display:block;
+  color:#dcecff;
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+#registerBox input,
+#registerBox select,
+#resetBox input,
+#resetBox select{
+  width:100%;
+  min-height:54px;
+  border:1px solid #2389df;
+  border-radius:14px;
+  padding:12px 16px;
+  background:#081323;
+  color:white;
+  font-size:16px;
+  outline:none;
+}
+
+#registerBox input:focus,
+#registerBox select:focus,
+#resetBox input:focus,
+#resetBox select:focus{
+  border-color:#00d9ff;
+  box-shadow:0 0 0 3px rgba(0,217,255,.1);
+}
+
+#registerBox h2,
+#resetBox h2{
+  color:white;
+  text-align:center;
+  font-size:28px;
+  margin:20px 0 10px;
+}
+
+.authSub{
+  color:#a9bfd7;
+  text-align:center;
+  line-height:1.5;
+  margin-bottom:25px;
+}
+
+#registerBox .backBtn,
+#resetBox .backBtn{
+  border:1px solid #318ee5;
+  background:rgba(9,27,48,.9);
+  color:#9fd2ff;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:700;
+  margin-bottom:15px;
+  cursor:pointer;
+}
+
+#registerBox .primary-btn,
+#resetBox .primary-btn{
+  width:100%;
+  min-height:56px;
+  border:none;
+  border-radius:16px;
+  margin-top:15px;
+  background:linear-gradient(135deg,#29aee4,#2451d6);
+  color:white;
+  font-size:16px;
+  font-weight:800;
+  letter-spacing:.5px;
+  cursor:pointer;
+}
+
+/* Password reset link */
+.forgot-password-link{
+  display:block;
+  width:max-content;
+  margin:4px 0 14px auto;
+  color:#55b9ff;
+  background:none;
+  border:none;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+/* Profile photo upload */
+.profile-upload-area{
+  width:120px;
+  height:120px;
+  margin:0 auto 20px;
+  position:relative;
+  border-radius:50%;
+  overflow:hidden;
+  border:3px solid var(--blue);
+  cursor:pointer;
+  background:#07111f;
+}
+
+.profile-upload-area img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.profile-upload-area .upload-overlay{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:8px 4px;
+  text-align:center;
+  background:rgba(0,0,0,.65);
+  color:white;
+  font-size:10px;
+  font-weight:800;
+}
+
+/* =========================================================
    MOBILE RESPONSIVE
    ========================================================= */
 
@@ -1241,6 +1764,43 @@ body{
   .brand h2{
     font-size:15px;
   }
+
+  .auth-premium-page{
+    padding-left:11px;
+    padding-right:11px;
+  }
+
+  .auth-logo-wrap{
+    width:120px;
+    height:120px;
+  }
+
+  .auth-logo{
+    width:110px;
+    height:110px;
+  }
+
+  .premium-login-card{
+    padding:20px 13px 17px;
+    border-radius:23px;
+  }
+
+  .premium-input-group{
+    height:62px;
+  }
+
+  .input-icon{
+    width:58px;
+    font-size:22px;
+  }
+
+  .login-premium-btn{
+    min-height:62px;
+  }
+
+  .create-account-btn{
+    min-height:58px;
+  }
 }
 
 @media(min-width:700px){
@@ -1255,523 +1815,4 @@ body{
   .view-shell{
     max-width:650px;
   }
-}
-
-/* =========================================================
-   CRIC YUVA - PREMIUM STADIUM LOGIN SCREEN
-   ========================================================= */
-
-.auth-premium-page {
-  min-height: 100vh;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  padding: 35px 16px 100px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(0, 115, 255, 0.35), transparent 32%),
-    radial-gradient(circle at 0% 35%, rgba(0, 240, 255, 0.14), transparent 28%),
-    radial-gradient(circle at 100% 35%, rgba(0, 240, 255, 0.14), transparent 28%),
-    linear-gradient(180deg, #07192e 0%, #050b14 48%, #020712 100%);
-}
-
-.auth-premium-page::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.7;
-  background:
-    linear-gradient(110deg, transparent 0%, transparent 18%, rgba(255,255,255,0.035) 18.2%, transparent 18.5%),
-    linear-gradient(70deg, transparent 0%, transparent 75%, rgba(0,170,255,0.06) 75.2%, transparent 75.5%);
-}
-
-.auth-premium-page::after {
-  content: "";
-  position: absolute;
-  left: -20%;
-  right: -20%;
-  bottom: -130px;
-  height: 320px;
-  border-radius: 50% 50% 0 0;
-  background:
-    radial-gradient(ellipse at center top, rgba(15, 104, 50, 0.32), transparent 65%);
-  pointer-events: none;
-}
-
-.auth-container {
-  width: 100%;
-  max-width: 470px;
-  position: relative;
-  z-index: 2;
-}
-
-/* SIDE STADIUM LIGHT EFFECT */
-
-.stadium-glow {
-  position: fixed;
-  top: 210px;
-  width: 180px;
-  height: 380px;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.45;
-  filter: blur(3px);
-}
-
-.glow-left {
-  left: -110px;
-  background:
-    radial-gradient(circle at right 25%, #ffffff 0 2px, transparent 3px),
-    radial-gradient(circle at right 38%, #4ecbff 0 3px, transparent 4px),
-    radial-gradient(ellipse at right center, rgba(0, 140, 255, 0.9), transparent 55%);
-}
-
-.glow-right {
-  right: -110px;
-  background:
-    radial-gradient(circle at left 25%, #ffffff 0 2px, transparent 3px),
-    radial-gradient(circle at left 38%, #4ecbff 0 3px, transparent 4px),
-    radial-gradient(ellipse at left center, rgba(0, 140, 255, 0.9), transparent 55%);
-}
-
-/* =========================================================
-   LOGO
-   ========================================================= */
-
-.auth-logo-wrap {
-  width: 150px;
-  height: 150px;
-  margin: 5px auto 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.auth-logo-wrap::before {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border-radius: 50%;
-  background: rgba(0, 140, 255, 0.14);
-  filter: blur(16px);
-  transform: scale(1.12);
-}
-
-.auth-logo {
-  position: relative;
-  z-index: 2;
-  width: 135px;
-  height: 135px;
-  object-fit: contain;
-  display: block;
-  filter:
-    drop-shadow(0 0 10px rgba(0, 180, 255, 0.75))
-    drop-shadow(0 0 28px rgba(0, 100, 255, 0.35));
-}
-
-.logo-fallback {
-  position: relative;
-  z-index: 3;
-  width: 120px;
-  height: 120px;
-  border-radius: 30px;
-  font-size: 55px;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #00c6ff, #1264dc);
-  box-shadow: 0 0 35px rgba(0, 180, 255, 0.5);
-}
-
-/* =========================================================
-   BRAND NAME
-   ========================================================= */
-
-.auth-brand {
-  text-align: center;
-  margin-bottom: 26px;
-}
-
-.auth-brand h1 {
-  margin: 0;
-  font-size: clamp(42px, 11vw, 64px);
-  line-height: 0.95;
-  letter-spacing: 1px;
-  font-weight: 1000;
-  font-style: italic;
-}
-
-.auth-brand h1 span {
-  color: #f5f7fa;
-  text-shadow: 0 5px 18px rgba(255,255,255,0.08);
-}
-
-.auth-brand h1 strong {
-  color: #18a7ff;
-  text-shadow: 0 0 22px rgba(0, 150, 255, 0.45);
-}
-
-.auth-brand p {
-  margin: 9px 0 0;
-  color: #c8d0dc;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 4px;
-}
-
-/* =========================================================
-   PREMIUM LOGIN CARD
-   ========================================================= */
-
-.premium-login-card {
-  width: 100%;
-  padding: 24px 18px 20px;
-  border-radius: 28px;
-  border: 1px solid rgba(0, 160, 255, 0.7);
-  background:
-    linear-gradient(145deg, rgba(14, 35, 65, 0.95), rgba(3, 11, 25, 0.97));
-  box-shadow:
-    0 0 0 1px rgba(0, 110, 255, 0.08) inset,
-    0 0 25px rgba(0, 136, 255, 0.2),
-    0 22px 50px rgba(0,0,0,0.55);
-  backdrop-filter: blur(14px);
-}
-
-.login-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 13px;
-  margin-bottom: 24px;
-  color: #eaf5ff;
-}
-
-.login-title span {
-  color: #1c9fff;
-  font-size: 24px;
-  text-shadow: 0 0 15px rgba(0, 160, 255, 0.7);
-}
-
-.login-title h2 {
-  margin: 0;
-  font-size: clamp(17px, 4vw, 21px);
-  font-weight: 800;
-  text-align: center;
-}
-
-/* =========================================================
-   INPUTS
-   ========================================================= */
-
-.premium-input-group {
-  width: 100%;
-  height: 70px;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 140, 255, 0.55);
-  background: rgba(2, 10, 22, 0.82);
-  transition: 0.2s ease;
-}
-
-.premium-input-group:focus-within {
-  border-color: #00c8ff;
-  box-shadow: 0 0 0 3px rgba(0, 190, 255, 0.08);
-}
-
-.input-icon {
-  width: 70px;
-  height: 100%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 27px;
-  background: rgba(0, 106, 185, 0.15);
-  border-right: 1px solid rgba(0, 140, 255, 0.2);
-}
-
-.premium-input-group input {
-  min-width: 0;
-  flex: 1;
-  height: 100%;
-  border: none !important;
-  outline: none !important;
-  padding: 0 16px !important;
-  background: transparent !important;
-  color: #ffffff !important;
-  font-size: 17px !important;
-  box-shadow: none !important;
-}
-
-.premium-input-group input::placeholder {
-  color: #8996a8;
-  opacity: 1;
-}
-
-.password-toggle {
-  width: 60px;
-  height: 100%;
-  border: none;
-  background: transparent;
-  color: #b7c7d8;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
-.login-premium-btn {
-  width: 100%;
-  min-height: 70px;
-  margin-top: 12px;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  color: #ffffff;
-  background:
-    linear-gradient(135deg, #1cc7ff 0%, #087be8 52%, #223fc9 100%);
-  font-size: clamp(17px, 4vw, 21px);
-  font-weight: 950;
-  letter-spacing: 0.5px;
-  box-shadow:
-    0 10px 24px rgba(0, 113, 255, 0.3),
-    inset 0 1px 1px rgba(255,255,255,0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.login-premium-btn span {
-  font-size: 32px;
-  vertical-align: middle;
-  margin-right: 12px;
-}
-
-.login-premium-btn:active {
-  transform: scale(0.98);
-  box-shadow: none;
-}
-
-.or-divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 22px 0;
-  color: #aeb9c8;
-}
-
-.or-divider span {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 140, 255, 0.65));
-}
-
-.or-divider span:last-child {
-  background: linear-gradient(90deg, rgba(0, 140, 255, 0.65), transparent);
-}
-
-.or-divider b {
-  font-size: 15px;
-}
-
-.create-account-btn {
-  width: 100%;
-  min-height: 64px;
-  border-radius: 16px;
-  border: 2px solid #148eff;
-  background: rgba(3, 15, 34, 0.7);
-  color: #55b9ff;
-  cursor: pointer;
-  font-size: clamp(16px, 4vw, 19px);
-  font-weight: 900;
-  letter-spacing: 0.5px;
-  transition: 0.15s ease;
-}
-
-.create-account-btn span {
-  font-size: 25px;
-  margin-right: 12px;
-}
-
-.create-account-btn:active {
-  transform: scale(0.98);
-  background: rgba(0, 120, 255, 0.12);
-}
-
-/* =========================================================
-   SECURITY FOOTER
-   ========================================================= */
-
-.security-line {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 22px;
-  color: #c9d1dc;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.security-line span {
-  color: #1c9fff;
-  font-size: 23px;
-}
-
-.security-line i {
-  color: #168fff;
-  font-style: normal;
-}
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 380px) {
-  .auth-premium-page {
-    padding-left: 11px;
-    padding-right: 11px;
-  }
-
-  .auth-logo-wrap {
-    width: 120px;
-    height: 120px;
-  }
-
-  .auth-logo {
-    width: 110px;
-    height: 110px;
-  }
-
-  .premium-login-card {
-    padding: 20px 13px 17px;
-    border-radius: 23px;
-  }
-
-  .premium-input-group {
-    height: 62px;
-  }
-
-  .input-icon {
-    width: 58px;
-    font-size: 22px;
-  }
-
-  .login-premium-btn {
-    min-height: 62px;
-  }
-
-  .create-account-btn {
-    min-height: 58px;
-  }
-}
-
-/* =========================================
-   REGISTER / LOGIN SCREEN FIX
-   ========================================= */
-
-#loginBox,
-#registerBox {
-    width: 100%;
-}
-
-/* Jab hidden ho to forcefully hide hoga */
-#loginBox[style*="display: none"],
-#registerBox[style*="display: none"] {
-    display: none !important;
-}
-
-/* Registration screen */
-#registerBox {
-    display: none;
-    min-height: 100vh;
-    width: 100%;
-    padding: 30px 18px 60px;
-    box-sizing: border-box;
-    background:
-        radial-gradient(circle at top, rgba(28, 133, 211, 0.20), transparent 35%),
-        linear-gradient(180deg, #071426 0%, #030914 100%);
-}
-
-/* Registration active hone par */
-#registerBox:not([style*="display: none"]) {
-    display: block;
-}
-
-/* Register form ko proper card */
-#registerBox {
-    max-width: 100%;
-}
-
-#registerBox .form-group {
-    width: 100%;
-    margin-bottom: 18px;
-}
-
-#registerBox label {
-    display: block;
-    color: #dcecff;
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-#registerBox input,
-#registerBox select {
-    width: 100%;
-    height: 54px;
-    box-sizing: border-box;
-    border: 1px solid #2389df;
-    border-radius: 14px;
-    padding: 0 16px;
-    background: #081323;
-    color: white;
-    font-size: 16px;
-    outline: none;
-}
-
-#registerBox h2 {
-    color: white;
-    text-align: center;
-    font-size: 28px;
-    margin: 20px 0 10px;
-}
-
-#registerBox .authSub {
-    color: #a9bfd7;
-    text-align: center;
-    line-height: 1.5;
-    margin-bottom: 25px;
-}
-
-/* Back button */
-#registerBox .backBtn {
-    border: 1px solid #318ee5;
-    background: rgba(9, 27, 48, 0.9);
-    color: #9fd2ff;
-    padding: 12px 18px;
-    border-radius: 12px;
-    font-weight: 700;
-    margin-bottom: 15px;
-}
-
-/* Save account button */
-#registerBox .primary-btn,
-#registerBox button:last-child {
-    width: 100%;
-    min-height: 56px;
-    border: none;
-    border-radius: 16px;
-    margin-top: 15px;
-    background: linear-gradient(135deg, #29aee4, #2451d6);
-    color: white;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-}
+   }
