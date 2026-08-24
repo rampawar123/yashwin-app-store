@@ -1671,3 +1671,107 @@ body{
     min-height: 58px;
   }
 }
+
+/* =========================================
+   REGISTER / LOGIN SCREEN FIX
+   ========================================= */
+
+#loginBox,
+#registerBox {
+    width: 100%;
+}
+
+/* Jab hidden ho to forcefully hide hoga */
+#loginBox[style*="display: none"],
+#registerBox[style*="display: none"] {
+    display: none !important;
+}
+
+/* Registration screen */
+#registerBox {
+    display: none;
+    min-height: 100vh;
+    width: 100%;
+    padding: 30px 18px 60px;
+    box-sizing: border-box;
+    background:
+        radial-gradient(circle at top, rgba(28, 133, 211, 0.20), transparent 35%),
+        linear-gradient(180deg, #071426 0%, #030914 100%);
+}
+
+/* Registration active hone par */
+#registerBox:not([style*="display: none"]) {
+    display: block;
+}
+
+/* Register form ko proper card */
+#registerBox {
+    max-width: 100%;
+}
+
+#registerBox .form-group {
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+#registerBox label {
+    display: block;
+    color: #dcecff;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+#registerBox input,
+#registerBox select {
+    width: 100%;
+    height: 54px;
+    box-sizing: border-box;
+    border: 1px solid #2389df;
+    border-radius: 14px;
+    padding: 0 16px;
+    background: #081323;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+#registerBox h2 {
+    color: white;
+    text-align: center;
+    font-size: 28px;
+    margin: 20px 0 10px;
+}
+
+#registerBox .authSub {
+    color: #a9bfd7;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+/* Back button */
+#registerBox .backBtn {
+    border: 1px solid #318ee5;
+    background: rgba(9, 27, 48, 0.9);
+    color: #9fd2ff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* Save account button */
+#registerBox .primary-btn,
+#registerBox button:last-child {
+    width: 100%;
+    min-height: 56px;
+    border: none;
+    border-radius: 16px;
+    margin-top: 15px;
+    background: linear-gradient(135deg, #29aee4, #2451d6);
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
