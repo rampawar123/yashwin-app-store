@@ -162,3 +162,150 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+/* =========================================
+   CRIC YUVA - SCREEN 4 PROFILE
+========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const replacePhotoBtn = document.getElementById("replacePhotoBtn");
+    const profilePhotoInput = document.getElementById("profilePhotoInput");
+    const profilePhoto = document.getElementById("profilePhoto");
+
+    /* REPLACE PHOTO */
+    if (replacePhotoBtn && profilePhotoInput) {
+
+        replacePhotoBtn.addEventListener("click", function () {
+            profilePhotoInput.click();
+        });
+
+        profilePhotoInput.addEventListener("change", function () {
+
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                profilePhoto.innerHTML = "";
+
+                profilePhoto.style.backgroundImage =
+                    "url('" + event.target.result + "')";
+
+                profilePhoto.style.backgroundSize = "cover";
+                profilePhoto.style.backgroundPosition = "center";
+
+                localStorage.setItem(
+                    "cricYuvaProfilePhoto",
+                    event.target.result
+                );
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+
+    /* LOAD SAVED PHOTO */
+    const savedPhoto = localStorage.getItem("cricYuvaProfilePhoto");
+
+    if (savedPhoto && profilePhoto) {
+
+        profilePhoto.innerHTML = "";
+
+        profilePhoto.style.backgroundImage =
+            "url('" + savedPhoto + "')";
+
+        profilePhoto.style.backgroundSize = "cover";
+        profilePhoto.style.backgroundPosition = "center";
+    }
+
+
+    /* SAVE PROFILE */
+    const saveProfileButton =
+        document.getElementById("saveProfileButton");
+
+    if (saveProfileButton) {
+
+        saveProfileButton.addEventListener("click", function () {
+
+            const profileData = {
+
+                name:
+                    document.getElementById("profileName").value.trim(),
+
+                mobile:
+                    document.getElementById("profileMobile").value.trim(),
+
+                email:
+                    document.getElementById("profileEmail").value.trim(),
+
+                jerseyName:
+                    document.getElementById("jerseyName").value.trim(),
+
+                jerseyNumber:
+                    document.getElementById("jerseyNumber").value.trim(),
+
+                jerseySize:
+                    document.getElementById("jerseySize").value,
+
+                pantSize:
+                    document.getElementById("pantSize").value,
+
+                dateOfBirth:
+                    document.getElementById("dateOfBirth").value
+            };
+
+
+            if (profileData.name === "") {
+                alert("Please enter your name");
+                return;
+            }
+
+            localStorage.setItem(
+                "cricYuvaProfile",
+                JSON.stringify(profileData)
+            );
+
+            alert("Profile Saved Successfully!");
+        });
+
+    }
+
+    /* LOAD SAVED PROFILE */
+    const savedProfile =
+        localStorage.getItem("cricYuvaProfile");
+
+    if (savedProfile) {
+
+        const data = JSON.parse(savedProfile);
+
+        document.getElementById("profileName").value =
+            data.name || "";
+
+        document.getElementById("profileMobile").value =
+            data.mobile || "";
+
+        document.getElementById("profileEmail").value =
+            data.email || "";
+
+        document.getElementById("jerseyName").value =
+            data.jerseyName || "";
+
+        document.getElementById("jerseyNumber").value =
+            data.jerseyNumber || "";
+
+        document.getElementById("jerseySize").value =
+            data.jerseySize || "";
+
+        document.getElementById("pantSize").value =
+            data.pantSize || "";
+
+        document.getElementById("dateOfBirth").value =
+            data.dateOfBirth || "";
+    }
+
+});
