@@ -2,84 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>CRIC YUVA</title>
+    <title>CRIC YUVA V1.0</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- FONT AWESOME ICONS -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    >
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
 
-
-<!-- =========================================
-     CRIC YUVA APP
-========================================= -->
-
-
-<!-- =========================================
-     SCREEN 1 - SPLASH SCREEN
-========================================= -->
-
-<section
-    class="app-screen splash-screen active"
-    id="screen1"
->
+<!-- =====================================================
+     SCREEN 1 - SPLASH
+===================================================== -->
+<section class="app-screen splash-screen active" id="screen1">
 
     <div class="splash-bg"></div>
 
     <div class="splash-content">
 
         <div class="logo-box">
-
-            <img
-                src="cric-yuva-logo.png"
-                alt="Cric Yuva Logo"
-                class="cric-yuva-logo"
-            >
-
+            <img src="cric-yuva-logo.png"
+                 alt="Cric Yuva Logo"
+                 class="cric-yuva-logo">
         </div>
 
-
         <h1 class="app-name">
-
             <span>CRIC</span>
-
-            <span class="orange-text">
-                YUVA
-            </span>
-
+            <span class="orange-text">YUVA</span>
         </h1>
 
+        <p class="tagline">PLAY TOGETHER, WIN TOGETHER</p>
 
-        <p class="tagline">
-            PLAY TOGETHER, WIN TOGETHER
-        </p>
-
-
-        <p class="version-text">
-            Version 1.0
-        </p>
-
+        <p class="version-text">Version 1.0</p>
 
         <div class="loading-box">
-
             <div class="loading-line">
                 <span></span>
             </div>
-
             <p>Loading...</p>
-
         </div>
 
     </div>
@@ -87,15 +50,10 @@
 </section>
 
 
-
-<!-- =========================================
+<!-- =====================================================
      SCREEN 2 - LOGIN
-========================================= -->
-
-<section
-    class="app-screen login-screen"
-    id="screen2"
->
+===================================================== -->
+<section class="app-screen login-screen" id="screen2">
 
     <div class="login-top">
 
@@ -103,705 +61,823 @@
             <i class="fa-solid fa-baseball-bat-ball"></i>
         </div>
 
+        <h1>CRIC <span>YUVA</span></h1>
 
-        <h1>
-            CRIC
-            <span>YUVA</span>
-        </h1>
-
-
-        <h2>
-            Welcome Back!
-        </h2>
-
-
-        <p>
-            Please login to continue
-        </p>
+        <h2>Welcome Back!</h2>
+        <p>Please login to continue</p>
 
     </div>
 
-
-
     <div class="login-card">
 
-
-        <!-- MOBILE NUMBER -->
-
         <div class="input-box">
-
             <i class="fa-solid fa-mobile-screen-button"></i>
 
             <div class="input-content">
-
-                <label>
-                    Mobile Number
-                </label>
-
-                <input
-                    type="tel"
-                    id="loginMobile"
-                    inputmode="numeric"
-                    maxlength="10"
-                    placeholder="Enter your mobile number"
-                >
-
+                <label>Mobile Number</label>
+                <input type="tel"
+                       id="loginMobile"
+                       inputmode="numeric"
+                       maxlength="10"
+                       placeholder="Enter your mobile number">
             </div>
-
         </div>
 
-
-
-        <!-- PASSWORD -->
-
         <div class="input-box">
-
             <i class="fa-solid fa-lock"></i>
 
             <div class="input-content">
-
-                <label>
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Enter your password"
-                >
-
+                <label>Password</label>
+                <input type="password"
+                       id="loginPassword"
+                       placeholder="Enter your password">
             </div>
 
-
-            <button
-                class="eye-button"
-                id="loginEyeButton"
-                type="button"
-                aria-label="Show password"
-            >
-
+            <button class="eye-button"
+                    id="loginEyeButton"
+                    type="button"
+                    aria-label="Show password">
                 <i class="fa-regular fa-eye"></i>
-
             </button>
-
         </div>
 
-
-
-        <!-- LOGIN -->
-
-        <button
-            class="main-button"
-            id="loginButton"
-            type="button"
-        >
+        <button class="main-button"
+                id="loginButton"
+                type="button">
             LOG IN
         </button>
 
-
-
         <div class="or-line">
-
             <span></span>
-
             <b>OR</b>
-
             <span></span>
-
         </div>
-
-
 
         <p class="account-question">
             Don't have an account?
         </p>
 
-
-
-        <!-- CREATE ACCOUNT -->
-
-        <button
-            class="outline-button"
-            id="createAccountButton"
-            type="button"
-        >
-
+        <button class="outline-button"
+                id="createAccountButton"
+                type="button">
             <i class="fa-regular fa-id-card"></i>
-
             CREATE NEW ACCOUNT
-
         </button>
 
-
-
-        <!-- FORGOT PASSWORD -->
-
-        <button
-            class="text-button"
-            id="forgotPasswordButton"
-            type="button"
-        >
+        <button class="text-button"
+                id="forgotPasswordButton"
+                type="button">
             Forgot Password?
         </button>
 
-
     </div>
 
 </section>
 
 
+<!-- =====================================================
+     SCREEN 3 - CREATE ACCOUNT
+===================================================== -->
+<section class="app-screen create-screen" id="screen3">
 
-<!-- =========================================
-     SCREEN 3 - CREATE NEW ACCOUNT
-========================================= -->
-
-<section
-    class="app-screen create-screen"
-    id="screen3"
->
-
-
-    <!-- HEADER -->
-
-    <div class="create-header">
-
-        <button
-            class="back-button"
-            id="createBackButton"
-            type="button"
-        >
-
+    <div class="page-header">
+        <button class="back-button"
+                id="createBackButton"
+                type="button">
             <i class="fa-solid fa-arrow-left"></i>
-
         </button>
-
-
-        <div class="header-brand">
-            CRIC <span>YUVA</span>
-        </div>
-
-
-        <div class="header-space"></div>
-
     </div>
-
-
 
     <div class="create-content">
 
-
         <div class="create-title">
-
-            <div class="create-icon">
-
-                <i class="fa-solid fa-user-plus"></i>
-
-            </div>
-
 
             <h1>
                 CREATE<br>
-
-                <span>
-                    NEW ACCOUNT
-                </span>
-
+                <span>NEW ACCOUNT</span>
             </h1>
 
-
-            <p>
-                Join Cric Yuva Family!
-            </p>
+            <p>Join Cric Yuva Family!</p>
 
         </div>
 
-
-
-        <!-- MOBILE -->
-
         <div class="form-input">
-
             <i class="fa-solid fa-mobile-screen-button"></i>
 
-
             <div>
-
-                <label>
-                    Mobile Number
-                </label>
-
-
-                <input
-                    type="tel"
-                    id="newMobile"
-                    inputmode="numeric"
-                    maxlength="10"
-                    placeholder="Enter your mobile number"
-                >
-
+                <label>Mobile Number</label>
+                <input type="tel"
+                       id="newMobile"
+                       inputmode="numeric"
+                       maxlength="10"
+                       placeholder="Enter your mobile number">
             </div>
-
         </div>
 
-
-
-        <!-- PASSWORD -->
-
         <div class="form-input">
-
             <i class="fa-solid fa-lock"></i>
 
-
             <div>
-
-                <label>
-                    Password
-                </label>
-
-
-                <input
-                    type="password"
-                    id="newPassword"
-                    placeholder="Enter your password"
-                >
-
+                <label>Password</label>
+                <input type="password"
+                       id="newPassword"
+                       placeholder="Enter your password">
             </div>
 
-
-            <button
-                class="eye-button"
-                id="newPasswordEye"
-                type="button"
-                aria-label="Show password"
-            >
-
+            <button class="eye-button"
+                    id="newPasswordEye"
+                    type="button">
                 <i class="fa-regular fa-eye"></i>
-
             </button>
-
         </div>
-
-
-
-        <!-- VERIFY PASSWORD -->
 
         <div class="form-input">
-
-            <i class="fa-solid fa-shield-halved"></i>
-
+            <i class="fa-solid fa-lock"></i>
 
             <div>
-
-                <label>
-                    Verify Password
-                </label>
-
-
-                <input
-                    type="password"
-                    id="verifyPassword"
-                    placeholder="Re-enter your password"
-                >
-
+                <label>Verify Password</label>
+                <input type="password"
+                       id="verifyPassword"
+                       placeholder="Re-enter your password">
             </div>
 
-
-            <button
-                class="eye-button"
-                id="verifyPasswordEye"
-                type="button"
-                aria-label="Show password"
-            >
-
+            <button class="eye-button"
+                    id="verifyPasswordEye"
+                    type="button">
                 <i class="fa-regular fa-eye"></i>
-
             </button>
-
         </div>
 
-
-
-        <!-- SAVE -->
-
-        <button
-            class="save-button"
-            id="saveAccountButton"
-            type="button"
-        >
-
-            <i class="fa-solid fa-check"></i>
-
-            SAVE & CONTINUE
-
+        <button class="save-button"
+                id="saveAccountButton"
+                type="button">
+            SAVE
         </button>
-
-
-        <p class="create-bottom-text">
-            Your Cric Yuva profile will be created next.
-        </p>
-
 
     </div>
 
 </section>
 
 
-
-<!-- =========================================
-     SCREEN 4 - PLAYER PROFILE
-========================================= -->
-
-<section
-    class="app-screen profile-screen"
-    id="screen4"
->
-
-
-    <!-- PROFILE HEADER -->
-
-    <div class="profile-header">
-
-        <button
-            class="profile-back-button"
-            id="profileBackButton"
-            type="button"
-        >
-
-            <i class="fa-solid fa-arrow-left"></i>
-
-        </button>
-
-
-        <div>
-
-            <small>CRIC YUVA</small>
-
-            <h2>
-                PLAYER PROFILE
-            </h2>
-
-        </div>
-
-
-        <div class="header-profile-icon">
-
-            <i class="fa-solid fa-user"></i>
-
-        </div>
-
-    </div>
-
-
+<!-- =====================================================
+     SCREEN 4 - PROFILE
+===================================================== -->
+<section class="app-screen profile-screen" id="screen4">
 
     <div class="profile-container">
 
+        <div class="profile-page-top">
+            <button class="back-button dark-back"
+                    id="profileBackButton"
+                    type="button">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
 
-        <!-- PROFILE PHOTO SECTION -->
+            <h2>PLAYER PROFILE</h2>
 
-        <div class="profile-top-card">
+            <span></span>
+        </div>
 
+        <div class="profile-photo-area">
 
-            <div class="profile-photo-area">
+            <div class="profile-photo"
+                 id="profilePhoto">
+                <span id="profileInitial">PLAYER</span>
+            </div>
 
-
-                <div
-                    class="profile-photo"
-                    id="profilePhoto"
-                >
-
-                    <span id="profileInitial">
-                        PLAYER
-                    </span>
-
-                </div>
-
-
-
-                <button
-                    class="photo-edit-btn"
+            <button class="photo-edit-btn"
                     id="replacePhotoBtn"
-                    type="button"
-                >
+                    type="button">
+                <i class="fa-solid fa-camera"></i>
+            </button>
 
-                    <i class="fa-solid fa-camera"></i>
-
-                </button>
-
-
-
-                <input
-                    type="file"
-                    id="profilePhotoInput"
-                    accept="image/*"
-                >
-
-            </div>
-
-
-
-            <div class="profile-name-preview">
-
-                <h3 id="profilePreviewName">
-                    YOUR NAME
-                </h3>
-
-
-                <p>
-                    PLAYER ID:
-                    <span id="playerId">
-                        CY20240001
-                    </span>
-                </p>
-
-            </div>
-
+            <input type="file"
+                   id="profilePhotoInput"
+                   accept="image/*"
+                   hidden>
 
         </div>
 
-
-
-        <!-- PROFILE FORM -->
+        <div class="player-id">
+            ID: <span id="playerId">CY00000001</span>
+        </div>
 
         <div class="profile-details">
 
-
-            <!-- NAME -->
-
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-regular fa-user"></i>
-
-                    <span>Name</span>
-
-                </div>
-
-
-                <input
-                    type="text"
-                    id="profileName"
-                    placeholder="Your Name"
-                >
-
+                <i class="fa-regular fa-user"></i>
+                <span>Name</span>
+                <input type="text"
+                       id="profileName"
+                       placeholder="Your Name">
             </div>
 
-
-
-            <!-- MOBILE -->
-
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-solid fa-mobile-screen-button"></i>
-
-                    <span>Mobile</span>
-
-                </div>
-
-
-                <input
-                    type="tel"
-                    id="profileMobile"
-                    inputmode="numeric"
-                    maxlength="10"
-                    placeholder="Mobile Number"
-                >
-
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <span>Mobile</span>
+                <input type="tel"
+                       id="profileMobile"
+                       inputmode="numeric"
+                       readonly>
             </div>
 
-
-
-            <!-- EMAIL -->
-
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-regular fa-envelope"></i>
-
-                    <span>Email</span>
-
-                </div>
-
-
-                <input
-                    type="email"
-                    id="profileEmail"
-                    placeholder="Email Address"
-                >
-
+                <i class="fa-regular fa-envelope"></i>
+                <span>Email</span>
+                <input type="email"
+                       id="profileEmail"
+                       placeholder="Email Address">
             </div>
 
-
-
-            <!-- JERSEY NAME -->
-
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-solid fa-shirt"></i>
-
-                    <span>Jersey Name</span>
-
-                </div>
-
-
-                <input
-                    type="text"
-                    id="jerseyName"
-                    placeholder="Jersey Name"
-                >
-
+                <i class="fa-solid fa-shirt"></i>
+                <span>Jersey Name</span>
+                <input type="text"
+                       id="jerseyName"
+                       placeholder="Jersey Name">
             </div>
 
-
-
-            <!-- JERSEY NUMBER -->
-
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-solid fa-hashtag"></i>
-
-                    <span>Jersey Number</span>
-
-                </div>
-
-
-                <input
-                    type="number"
-                    id="jerseyNumber"
-                    min="0"
-                    inputmode="numeric"
-                    placeholder="Number"
-                >
-
+                <i class="fa-solid fa-hashtag"></i>
+                <span>Jersey Number</span>
+                <input type="number"
+                       id="jerseyNumber"
+                       inputmode="numeric"
+                       placeholder="Number">
             </div>
 
-
-
-            <!-- JERSEY SIZE -->
-
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-solid fa-shirt"></i>
-
-                    <span>Jersey Size</span>
-
-                </div>
-
+                <i class="fa-solid fa-shirt"></i>
+                <span>Jersey Size</span>
 
                 <select id="jerseySize">
-
-                    <option value="">
-                        Select
-                    </option>
-
-                    <option value="S">
-                        S
-                    </option>
-
-                    <option value="M">
-                        M
-                    </option>
-
-                    <option value="L">
-                        L
-                    </option>
-
-                    <option value="XL">
-                        XL
-                    </option>
-
-                    <option value="XXL">
-                        XXL
-                    </option>
-
-                    <option value="XXXL">
-                        XXXL
-                    </option>
-
+                    <option value="">Select</option>
+                    <option>S</option>
+                    <option>M</option>
+                    <option>L</option>
+                    <option>XL</option>
+                    <option>XXL</option>
+                    <option>XXXL</option>
                 </select>
-
             </div>
-
-
-
-            <!-- PANT SIZE - NUMBER -->
 
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-solid fa-ruler-horizontal"></i>
-
-                    <span>Pant Size</span>
-
-                </div>
-
-
-                <input
-                    type="number"
-                    id="pantSize"
-                    min="0"
-                    inputmode="numeric"
-                    placeholder="Size Number"
-                >
-
+                <i class="fa-solid fa-ruler-horizontal"></i>
+                <span>Pant Size</span>
+                <input type="number"
+                       id="pantSize"
+                       inputmode="numeric"
+                       placeholder="Number">
             </div>
-
-
-
-            <!-- DATE OF BIRTH -->
 
             <div class="profile-row">
-
-                <div class="profile-label">
-
-                    <i class="fa-regular fa-calendar"></i>
-
-                    <span>Date of Birth</span>
-
-                </div>
-
-
-                <input
-                    type="date"
-                    id="dateOfBirth"
-                >
-
+                <i class="fa-regular fa-calendar"></i>
+                <span>Date of Birth</span>
+                <input type="date"
+                       id="dateOfBirth">
             </div>
-
 
         </div>
 
-
-
-        <!-- SAVE PROFILE -->
-
-        <button
-            class="save-changes-button"
-            id="saveProfileButton"
-            type="button"
-        >
-
-            <i class="fa-solid fa-floppy-disk"></i>
-
+        <button class="save-changes-button"
+                id="saveProfileButton"
+                type="button">
             SAVE CHANGES
-
         </button>
-
 
     </div>
 
 </section>
 
+
+<!-- =====================================================
+     SCREEN 5 - MAIN HOME
+===================================================== -->
+<section class="app-screen home-screen" id="screen5">
+
+    <!-- HEADER -->
+    <header class="home-header">
+
+        <button class="header-icon-btn"
+                id="menuButton"
+                type="button">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <img src="cric-yuva-logo.png" alt="CRIC YUVA Logo" class="main-logo">
+
+        <div class="home-brand">
+            <strong>CRIC <span>YUVA</span></strong>
+            <small>PLAY TOGETHER, WIN TOGETHER</small>
+        </div>
+
+        <button class="header-icon-btn notification-btn"
+                id="notificationButton"
+                type="button">
+            <i class="fa-regular fa-bell"></i>
+            <b id="notificationDot"></b>
+        </button>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="home-content">
+
+        <!-- PLAYER WELCOME -->
+        <section class="welcome-card">
+
+            <div class="welcome-user">
+
+                <div class="home-profile-photo"
+                     id="homeProfilePhoto">
+                    <span id="homeInitial">P</span>
+                </div>
+
+                <div>
+                    <small>WELCOME BACK</small>
+                    <h2 id="homePlayerName">CRIC YUVA PLAYER</h2>
+                    <p id="homePlayerId">ID: CY00000001</p>
+                </div>
+
+            </div>
+
+            <button class="welcome-arrow"
+                    id="openProfileFromHome"
+                    type="button">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+        </section>
+
+
+        <!-- LIVE STREAMING -->
+        <section class="section-block">
+
+            <div class="section-title">
+                <h3>LIVE CRICKET</h3>
+                <button class="see-all-button"
+                        data-action="live"
+                        type="button">
+                    VIEW ALL
+                </button>
+            </div>
+
+            <div class="live-card">
+
+                <div class="live-top">
+                    <span class="live-badge">
+                        <i class="fa-solid fa-circle"></i> LIVE
+                    </span>
+                    <span class="viewer-text">
+                        <i class="fa-regular fa-eye"></i> 0 watching
+                    </span>
+                </div>
+
+                <div class="live-placeholder">
+                    <i class="fa-solid fa-play"></i>
+                    <span>LIVE MATCH STREAM</span>
+                </div>
+
+                <button class="watch-live-button"
+                        id="watchLiveButton"
+                        type="button">
+                    <i class="fa-solid fa-play"></i>
+                    WATCH LIVE
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- NEXT MATCH -->
+        <section class="section-block">
+
+            <div class="section-title">
+                <h3>UPCOMING MATCH</h3>
+                <button class="see-all-button"
+                        data-action="matches"
+                        type="button">
+                    VIEW ALL
+                </button>
+            </div>
+
+            <div class="next-match-card">
+
+                <div class="match-status">
+                    NEXT MATCH
+                </div>
+
+                <div class="teams-row">
+
+                    <div class="team-box">
+                        <div class="team-logo">A</div>
+                        <strong>TEAM A</strong>
+                    </div>
+
+                    <div class="vs-box">
+                        <b>VS</b>
+                        <small>CRIC YUVA</small>
+                    </div>
+
+                    <div class="team-box">
+                        <div class="team-logo">B</div>
+                        <strong>TEAM B</strong>
+                    </div>
+
+                </div>
+
+                <div class="match-info">
+                    <span><i class="fa-regular fa-calendar"></i> Coming Soon</span>
+                    <span><i class="fa-solid fa-location-dot"></i> Ground</span>
+                </div>
+
+                <button class="match-details-button"
+                        id="matchDetailsButton"
+                        type="button">
+                    MATCH DETAILS
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUICK ACCESS -->
+        <section class="section-block">
+
+            <div class="section-title">
+                <h3>QUICK ACCESS</h3>
+            </div>
+
+            <div class="quick-grid">
+
+                <button class="quick-card"
+                        data-action="team"
+                        type="button">
+                    <i class="fa-solid fa-users"></i>
+                    <span>My Team</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="matches"
+                        type="button">
+                    <i class="fa-solid fa-cricket-bat-ball"></i>
+                    <span>My Matches</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="tournament"
+                        type="button">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Tournament</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="statistics"
+                        type="button">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span>Statistics</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="leaderboard"
+                        type="button">
+                    <i class="fa-solid fa-medal"></i>
+                    <span>Leaderboard</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="subscription"
+                        type="button">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>Subscription</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="payment"
+                        type="button">
+                    <i class="fa-solid fa-credit-card"></i>
+                    <span>Payment</span>
+                </button>
+
+                <button class="quick-card"
+                        data-action="updates"
+                        type="button">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Updates</span>
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- HOME FEED -->
+        <section class="section-block feed-block">
+
+            <div class="section-title">
+                <h3>HOME FEED</h3>
+            </div>
+
+            <div class="feed-card">
+                <div class="feed-icon">
+                    <i class="fa-solid fa-bullhorn"></i>
+                </div>
+
+                <div>
+                    <strong>Welcome to CRIC YUVA V1.0</strong>
+                    <p>All your cricket activities will appear here.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+
+        <button class="bottom-nav-btn active-nav"
+                data-action="home"
+                type="button">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </button>
+
+        <button class="bottom-nav-btn"
+                data-action="matches"
+                type="button">
+            <i class="fa-solid fa-cricket-bat-ball"></i>
+            <span>Matches</span>
+        </button>
+
+        <button class="center-nav-btn"
+                id="centerActionButton"
+                type="button">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+
+        <button class="bottom-nav-btn"
+                data-action="updates"
+                type="button">
+            <i class="fa-regular fa-bell"></i>
+            <span>Updates</span>
+        </button>
+
+        <button class="bottom-nav-btn"
+                data-action="profile"
+                type="button">
+            <i class="fa-regular fa-user"></i>
+            <span>Profile</span>
+        </button>
+
+    </nav>
+
+</section>
+
+
+<!-- =====================================================
+     SIDE MENU
+===================================================== -->
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<aside class="side-menu" id="sideMenu">
+
+    <div class="side-menu-top">
+
+        <button class="close-menu-button"
+                id="closeMenuButton"
+                type="button">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="menu-user">
+
+            <div class="menu-profile-photo"
+                 id="menuProfilePhoto">
+                <span id="menuInitial">P</span>
+            </div>
+
+            <div>
+                <strong id="menuPlayerName">CRIC YUVA PLAYER</strong>
+                <small id="menuPlayerId">CY00000001</small>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="menu-scroll">
+
+        <p class="menu-heading">MAIN MENU</p>
+
+        <button class="menu-item" data-action="profile">
+            <i class="fa-regular fa-user"></i>
+            <span>Profile</span>
+        </button>
+
+        <button class="menu-item" data-action="team">
+            <i class="fa-solid fa-users"></i>
+            <span>My Team</span>
+        </button>
+
+        <button class="menu-item" data-action="matches">
+            <i class="fa-solid fa-cricket-bat-ball"></i>
+            <span>My Match</span>
+        </button>
+
+        <button class="menu-item" data-action="tournament">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Tournament & Series</span>
+        </button>
+
+        <button class="menu-item" data-action="statistics">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Statistics</span>
+        </button>
+
+        <button class="menu-item" data-action="leaderboard">
+            <i class="fa-solid fa-ranking-star"></i>
+            <span>Leaderboard</span>
+        </button>
+
+        <button class="menu-item" data-action="subscription">
+            <i class="fa-solid fa-crown"></i>
+            <span>Subscription</span>
+        </button>
+
+        <button class="menu-item" data-action="payment">
+            <i class="fa-solid fa-credit-card"></i>
+            <span>Payment Settings</span>
+        </button>
+
+        <button class="menu-item" data-action="updates">
+            <i class="fa-solid fa-bell"></i>
+            <span>Updates</span>
+        </button>
+
+        <button class="menu-item" data-action="share">
+            <i class="fa-solid fa-share-nodes"></i>
+            <span>Share App</span>
+        </button>
+
+        <button class="menu-item" data-action="contact">
+            <i class="fa-regular fa-comment-dots"></i>
+            <span>Contact</span>
+        </button>
+
+        <p class="menu-heading">MORE</p>
+
+        <button class="menu-item" data-action="language">
+            <i class="fa-solid fa-language"></i>
+            <span>Change Language</span>
+        </button>
+
+        <button class="menu-item" data-action="youtube">
+            <i class="fa-brands fa-youtube"></i>
+            <span>YouTube</span>
+        </button>
+
+        <button class="menu-item" data-action="instagram">
+            <i class="fa-brands fa-instagram"></i>
+            <span>Instagram</span>
+        </button>
+
+        <button class="menu-item" data-action="whatsapp">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>WhatsApp</span>
+        </button>
+
+        <button class="menu-item" data-action="facebook">
+            <i class="fa-brands fa-facebook"></i>
+            <span>Facebook</span>
+        </button>
+
+        <button class="menu-item" data-action="x">
+            <i class="fa-brands fa-x-twitter"></i>
+            <span>X</span>
+        </button>
+
+        <button class="menu-item" data-action="about">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>About</span>
+        </button>
+
+        <button class="menu-item" data-action="blogs">
+            <i class="fa-solid fa-newspaper"></i>
+            <span>Blogs</span>
+        </button>
+
+        <button class="menu-item" data-action="privacy">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Privacy Policy</span>
+        </button>
+
+        <button class="menu-item" data-action="terms">
+            <i class="fa-solid fa-file-contract"></i>
+            <span>Paid Service Terms</span>
+        </button>
+
+        <button class="menu-item logout-menu-item"
+                id="logoutButton"
+                type="button">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Log Out</span>
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     GENERIC FEATURE PAGE
+===================================================== -->
+<section class="app-screen feature-screen" id="featureScreen">
+
+    <header class="feature-header">
+
+        <button class="back-button feature-back-button"
+                id="featureBackButton"
+                type="button">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <h2 id="featureTitle">PAGE</h2>
+
+        <span></span>
+
+    </header>
+
+    <main class="feature-content">
+
+        <div class="feature-icon-box"
+             id="featureIcon">
+            <i class="fa-solid fa-circle-info"></i>
+        </div>
+
+        <h1 id="featureMainTitle">COMING SOON</h1>
+
+        <p id="featureText">
+            This feature will be added in the next step.
+        </p>
+
+        <button class="feature-home-button"
+                id="featureHomeButton"
+                type="button">
+            BACK TO HOME
+        </button>
+
+    </main>
+
+</section>
+
+
+<!-- =====================================================
+     QUICK ACTION MODAL
+===================================================== -->
+<div class="modal-overlay" id="quickModalOverlay">
+
+    <div class="quick-modal">
+
+        <button class="modal-close"
+                id="quickModalClose"
+                type="button">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <h3>QUICK ACTION</h3>
+
+        <div class="quick-modal-grid">
+
+            <button data-action="team">
+                <i class="fa-solid fa-users"></i>
+                <span>Team</span>
+            </button>
+
+            <button data-action="matches">
+                <i class="fa-solid fa-cricket-bat-ball"></i>
+                <span>Match</span>
+            </button>
+
+            <button data-action="live">
+                <i class="fa-solid fa-video"></i>
+                <span>Live</span>
+            </button>
+
+            <button data-action="tournament">
+                <i class="fa-solid fa-trophy"></i>
+                <span>Tournament</span>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
 
 <script src="script.js"></script>
