@@ -131,3 +131,34 @@ eyeButtons.forEach(function (button) {
     });
 
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const saveButton = document.getElementById("saveAccountButton");
+
+    if (saveButton) {
+        saveButton.addEventListener("click", function () {
+
+            const mobile = document.getElementById("newMobile").value.trim();
+            const password = document.getElementById("newPassword").value;
+            const verifyPassword = document.getElementById("verifyPassword").value;
+
+            if (mobile === "" || password === "" || verifyPassword === "") {
+                alert("Please fill all fields");
+                return;
+            }
+
+            if (password !== verifyPassword) {
+                alert("Passwords do not match");
+                return;
+            }
+
+            localStorage.setItem("cricYuvaMobile", mobile);
+            localStorage.setItem("cricYuvaPassword", password);
+
+            document.getElementById("screen3").classList.remove("active");
+            document.getElementById("screen4").classList.add("active");
+        });
+    }
+
+});
