@@ -2,206 +2,371 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>CRIC YUVA</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- ICONS -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- FONT AWESOME ICONS -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 </head>
 
 <body>
 
-    <!-- =========================================
-         CRIC YUVA APP
-         SCREEN 1 - SPLASH SCREEN
-    ========================================== -->
 
-    <section class="app-screen splash-screen active" id="screen1">
-
-        <div class="splash-bg"></div>
-
-        <div class="splash-content">
-
-            <div class="logo-box">
-    <img src="cric-yuva-logo.png" alt="Cric Yuva Logo" class="cric-yuva-logo">
-            </div>
-
-            <h1 class="app-name">
-                <span>CRIC</span>
-                <span class="orange-text">YUVA</span>
-            </h1>
-
-            <p class="tagline">
-                PLAY TOGETHER, WIN TOGETHER
-            </p>
-
-            <p class="version-text">
-                Version 1.0
-            </p>
-
-            <div class="loading-box">
-                <div class="loading-line">
-                    <span></span>
-                </div>
-                <p>Loading...</p>
-            </div>
-
-        </div>
-
-    </section>
+<!-- =========================================
+     CRIC YUVA APP
+========================================= -->
 
 
+<!-- =========================================
+     SCREEN 1 - SPLASH SCREEN
+========================================= -->
 
-    <!-- =========================================
-         SCREEN 2 - LOGIN
-    ========================================== -->
+<section
+    class="app-screen splash-screen active"
+    id="screen1"
+>
 
-    <section class="app-screen login-screen" id="screen2">
+    <div class="splash-bg"></div>
 
-        <div class="login-top">
+    <div class="splash-content">
 
-            <div class="mini-logo">
-                <i class="fa-solid fa-baseball-bat-ball"></i>
-            </div>
+        <div class="logo-box">
 
-            <h1>
-                CRIC <span>YUVA</span>
-            </h1>
-
-            <h2>Welcome Back!</h2>
-
-            <p>Please login to continue</p>
+            <img
+                src="cric-yuva-logo.png"
+                alt="Cric Yuva Logo"
+                class="cric-yuva-logo"
+            >
 
         </div>
 
 
-        <div class="login-card">
+        <h1 class="app-name">
 
-            <!-- MOBILE -->
-            <div class="input-box">
-                <i class="fa-solid fa-mobile-screen-button"></i>
+            <span>CRIC</span>
 
-                <div class="input-content">
-                    <label>Mobile Number</label>
-                    <input
-                        type="tel"
-                        id="loginMobile"
-                        placeholder="Enter your mobile number"
-                    >
-                </div>
-            </div>
+            <span class="orange-text">
+                YUVA
+            </span>
+
+        </h1>
 
 
-            <!-- PASSWORD -->
-            <div class="input-box">
-                <i class="fa-solid fa-lock"></i>
-
-                <div class="input-content">
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        id="loginPassword"
-                        placeholder="Enter your password"
-                    >
-                </div>
-
-                <button class="eye-button" type="button">
-                    <i class="fa-regular fa-eye"></i>
-                </button>
-            </div>
+        <p class="tagline">
+            PLAY TOGETHER, WIN TOGETHER
+        </p>
 
 
-            <!-- LOGIN BUTTON -->
-            <button class="main-button" id="loginButton">
-                LOG IN
-            </button>
+        <p class="version-text">
+            Version 1.0
+        </p>
 
 
-            <div class="or-line">
-                <span></span>
-                <b>OR</b>
+        <div class="loading-box">
+
+            <div class="loading-line">
                 <span></span>
             </div>
 
-
-            <p class="account-question">
-                Don't have an account?
-            </p>
-
-
-            <!-- CREATE ACCOUNT -->
-            <button class="outline-button" id="createAccountButton">
-                <i class="fa-regular fa-id-card"></i>
-                CREATE NEW ACCOUNT
-            </button>
-
-
-            <!-- FORGOT PASSWORD -->
-            <button class="text-button" id="forgotPasswordButton">
-                Forgot Password?
-            </button>
+            <p>Loading...</p>
 
         </div>
 
-    </section>
-
- <!-- =========================================
-     SCREEN 3 - CREATE ACCOUNT
-========================================== -->
-
-<section class="app-screen create-screen" id="screen3">
-
-    <div class="page-header light-header">
-        <button class="back-button" type="button" aria-label="Back">
-            <i class="fa-solid fa-arrow-left"></i>
-        </button>
     </div>
+
+</section>
+
+
+
+<!-- =========================================
+     SCREEN 2 - LOGIN
+========================================= -->
+
+<section
+    class="app-screen login-screen"
+    id="screen2"
+>
+
+    <div class="login-top">
+
+        <div class="mini-logo">
+            <i class="fa-solid fa-baseball-bat-ball"></i>
+        </div>
+
+
+        <h1>
+            CRIC
+            <span>YUVA</span>
+        </h1>
+
+
+        <h2>
+            Welcome Back!
+        </h2>
+
+
+        <p>
+            Please login to continue
+        </p>
+
+    </div>
+
+
+
+    <div class="login-card">
+
+
+        <!-- MOBILE NUMBER -->
+
+        <div class="input-box">
+
+            <i class="fa-solid fa-mobile-screen-button"></i>
+
+            <div class="input-content">
+
+                <label>
+                    Mobile Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="loginMobile"
+                    inputmode="numeric"
+                    maxlength="10"
+                    placeholder="Enter your mobile number"
+                >
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PASSWORD -->
+
+        <div class="input-box">
+
+            <i class="fa-solid fa-lock"></i>
+
+            <div class="input-content">
+
+                <label>
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter your password"
+                >
+
+            </div>
+
+
+            <button
+                class="eye-button"
+                id="loginEyeButton"
+                type="button"
+                aria-label="Show password"
+            >
+
+                <i class="fa-regular fa-eye"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- LOGIN -->
+
+        <button
+            class="main-button"
+            id="loginButton"
+            type="button"
+        >
+            LOG IN
+        </button>
+
+
+
+        <div class="or-line">
+
+            <span></span>
+
+            <b>OR</b>
+
+            <span></span>
+
+        </div>
+
+
+
+        <p class="account-question">
+            Don't have an account?
+        </p>
+
+
+
+        <!-- CREATE ACCOUNT -->
+
+        <button
+            class="outline-button"
+            id="createAccountButton"
+            type="button"
+        >
+
+            <i class="fa-regular fa-id-card"></i>
+
+            CREATE NEW ACCOUNT
+
+        </button>
+
+
+
+        <!-- FORGOT PASSWORD -->
+
+        <button
+            class="text-button"
+            id="forgotPasswordButton"
+            type="button"
+        >
+            Forgot Password?
+        </button>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     SCREEN 3 - CREATE NEW ACCOUNT
+========================================= -->
+
+<section
+    class="app-screen create-screen"
+    id="screen3"
+>
+
+
+    <!-- HEADER -->
+
+    <div class="create-header">
+
+        <button
+            class="back-button"
+            id="createBackButton"
+            type="button"
+        >
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+        </button>
+
+
+        <div class="header-brand">
+            CRIC <span>YUVA</span>
+        </div>
+
+
+        <div class="header-space"></div>
+
+    </div>
+
+
 
     <div class="create-content">
 
+
         <div class="create-title">
-            <div class="screen-number">SCREEN 3</div>
+
+            <div class="create-icon">
+
+                <i class="fa-solid fa-user-plus"></i>
+
+            </div>
+
 
             <h1>
                 CREATE<br>
-                <span>NEW ACCOUNT</span>
+
+                <span>
+                    NEW ACCOUNT
+                </span>
+
             </h1>
 
-            <p>Join Cric Yuva Family!</p>
+
+            <p>
+                Join Cric Yuva Family!
+            </p>
+
         </div>
 
+
+
         <!-- MOBILE -->
+
         <div class="form-input">
+
             <i class="fa-solid fa-mobile-screen-button"></i>
 
+
             <div>
-                <label>Mobile Number</label>
+
+                <label>
+                    Mobile Number
+                </label>
+
+
                 <input
                     type="tel"
                     id="newMobile"
-                    maxlength="10"
                     inputmode="numeric"
+                    maxlength="10"
                     placeholder="Enter your mobile number"
                 >
+
             </div>
+
         </div>
 
+
+
         <!-- PASSWORD -->
+
         <div class="form-input">
+
             <i class="fa-solid fa-lock"></i>
 
+
             <div>
-                <label>Password</label>
+
+                <label>
+                    Password
+                </label>
+
+
                 <input
                     type="password"
                     id="newPassword"
                     placeholder="Enter your password"
                 >
+
             </div>
+
 
             <button
                 class="eye-button"
@@ -209,22 +374,37 @@
                 type="button"
                 aria-label="Show password"
             >
+
                 <i class="fa-regular fa-eye"></i>
+
             </button>
+
         </div>
 
+
+
         <!-- VERIFY PASSWORD -->
+
         <div class="form-input">
-            <i class="fa-solid fa-lock"></i>
+
+            <i class="fa-solid fa-shield-halved"></i>
+
 
             <div>
-                <label>Verify Password</label>
+
+                <label>
+                    Verify Password
+                </label>
+
+
                 <input
                     type="password"
                     id="verifyPassword"
                     placeholder="Re-enter your password"
                 >
+
             </div>
+
 
             <button
                 class="eye-button"
@@ -232,193 +412,399 @@
                 type="button"
                 aria-label="Show password"
             >
+
                 <i class="fa-regular fa-eye"></i>
+
             </button>
+
         </div>
+
+
+
+        <!-- SAVE -->
 
         <button
             class="save-button"
             id="saveAccountButton"
             type="button"
         >
-            SAVE
+
+            <i class="fa-solid fa-check"></i>
+
+            SAVE & CONTINUE
+
         </button>
+
+
+        <p class="create-bottom-text">
+            Your Cric Yuva profile will be created next.
+        </p>
+
 
     </div>
 
 </section>
 
 
+
 <!-- =========================================
      SCREEN 4 - PLAYER PROFILE
-========================================== -->
+========================================= -->
 
-<section class="app-screen profile-screen" id="screen4">
+<section
+    class="app-screen profile-screen"
+    id="screen4"
+>
 
-    <div class="profile-page">
 
-        <div class="profile-top">
+    <!-- PROFILE HEADER -->
 
-            <button
-                class="profile-back-button"
-                id="profileBackButton"
-                type="button"
-                aria-label="Back"
-            >
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
+    <div class="profile-header">
 
-            <div>
-                <div class="screen-number light-number">SCREEN 4</div>
-                <h2>PLAYER PROFILE</h2>
-            </div>
+        <button
+            class="profile-back-button"
+            id="profileBackButton"
+            type="button"
+        >
 
-            <div class="profile-top-space"></div>
+            <i class="fa-solid fa-arrow-left"></i>
+
+        </button>
+
+
+        <div>
+
+            <small>CRIC YUVA</small>
+
+            <h2>
+                PLAYER PROFILE
+            </h2>
 
         </div>
 
 
-        <div class="profile-container">
+        <div class="header-profile-icon">
 
-            <!-- PHOTO -->
+            <i class="fa-solid fa-user"></i>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="profile-container">
+
+
+        <!-- PROFILE PHOTO SECTION -->
+
+        <div class="profile-top-card">
+
+
             <div class="profile-photo-area">
 
-                <div class="profile-photo" id="profilePhoto">
-                    <span id="profileInitial">PLAYER</span>
+
+                <div
+                    class="profile-photo"
+                    id="profilePhoto"
+                >
+
+                    <span id="profileInitial">
+                        PLAYER
+                    </span>
+
                 </div>
+
+
 
                 <button
                     class="photo-edit-btn"
                     id="replacePhotoBtn"
                     type="button"
-                    aria-label="Replace profile photo"
                 >
+
                     <i class="fa-solid fa-camera"></i>
+
                 </button>
+
+
 
                 <input
                     type="file"
                     id="profilePhotoInput"
                     accept="image/*"
-                    hidden
                 >
 
             </div>
 
 
-            <div class="player-id">
-                PLAYER ID: <span id="playerId">CY20240001</span>
-            </div>
+
+            <div class="profile-name-preview">
+
+                <h3 id="profilePreviewName">
+                    YOUR NAME
+                </h3>
 
 
-            <div class="profile-details">
-
-                <div class="profile-row">
-                    <i class="fa-regular fa-user"></i>
-                    <span>Name</span>
-                    <input
-                        type="text"
-                        id="profileName"
-                        placeholder="Your Name"
-                    >
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-mobile-screen-button"></i>
-                    <span>Mobile</span>
-                    <input
-                        type="tel"
-                        id="profileMobile"
-                        maxlength="10"
-                        inputmode="numeric"
-                        placeholder="Mobile Number"
-                    >
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-regular fa-envelope"></i>
-                    <span>Email</span>
-                    <input
-                        type="email"
-                        id="profileEmail"
-                        placeholder="Email Address"
-                    >
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-shirt"></i>
-                    <span>Jersey Name</span>
-                    <input
-                        type="text"
-                        id="jerseyName"
-                        placeholder="Jersey Name"
-                    >
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-hashtag"></i>
-                    <span>Jersey Number</span>
-                    <input
-                        type="number"
-                        id="jerseyNumber"
-                        min="0"
-                        placeholder="Number"
-                    >
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-shirt"></i>
-                    <span>Jersey Size</span>
-
-                    <select id="jerseySize">
-                        <option value="">Select</option>
-                        <option value="S">S</option>
-                        <option value="M">M</option>
-                        <option value="L">L</option>
-                        <option value="XL">XL</option>
-                        <option value="XXL">XXL</option>
-                        <option value="XXXL">XXXL</option>
-                    </select>
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-solid fa-ruler-horizontal"></i>
-                    <span>Pant Size</span>
-                    <input
-                        type="number"
-                        id="pantSize"
-                        min="0"
-                        placeholder="Size"
-                    >
-                </div>
-
-                <div class="profile-row">
-                    <i class="fa-regular fa-calendar"></i>
-                    <span>Date of Birth</span>
-                    <input
-                        type="date"
-                        id="dateOfBirth"
-                    >
-                </div>
+                <p>
+                    PLAYER ID:
+                    <span id="playerId">
+                        CY20240001
+                    </span>
+                </p>
 
             </div>
 
-
-            <button
-                class="save-changes-button"
-                id="saveProfileButton"
-                type="button"
-            >
-                SAVE CHANGES
-            </button>
 
         </div>
+
+
+
+        <!-- PROFILE FORM -->
+
+        <div class="profile-details">
+
+
+            <!-- NAME -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-regular fa-user"></i>
+
+                    <span>Name</span>
+
+                </div>
+
+
+                <input
+                    type="text"
+                    id="profileName"
+                    placeholder="Your Name"
+                >
+
+            </div>
+
+
+
+            <!-- MOBILE -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+
+                    <span>Mobile</span>
+
+                </div>
+
+
+                <input
+                    type="tel"
+                    id="profileMobile"
+                    inputmode="numeric"
+                    maxlength="10"
+                    placeholder="Mobile Number"
+                >
+
+            </div>
+
+
+
+            <!-- EMAIL -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-regular fa-envelope"></i>
+
+                    <span>Email</span>
+
+                </div>
+
+
+                <input
+                    type="email"
+                    id="profileEmail"
+                    placeholder="Email Address"
+                >
+
+            </div>
+
+
+
+            <!-- JERSEY NAME -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-solid fa-shirt"></i>
+
+                    <span>Jersey Name</span>
+
+                </div>
+
+
+                <input
+                    type="text"
+                    id="jerseyName"
+                    placeholder="Jersey Name"
+                >
+
+            </div>
+
+
+
+            <!-- JERSEY NUMBER -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-solid fa-hashtag"></i>
+
+                    <span>Jersey Number</span>
+
+                </div>
+
+
+                <input
+                    type="number"
+                    id="jerseyNumber"
+                    min="0"
+                    inputmode="numeric"
+                    placeholder="Number"
+                >
+
+            </div>
+
+
+
+            <!-- JERSEY SIZE -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-solid fa-shirt"></i>
+
+                    <span>Jersey Size</span>
+
+                </div>
+
+
+                <select id="jerseySize">
+
+                    <option value="">
+                        Select
+                    </option>
+
+                    <option value="S">
+                        S
+                    </option>
+
+                    <option value="M">
+                        M
+                    </option>
+
+                    <option value="L">
+                        L
+                    </option>
+
+                    <option value="XL">
+                        XL
+                    </option>
+
+                    <option value="XXL">
+                        XXL
+                    </option>
+
+                    <option value="XXXL">
+                        XXXL
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- PANT SIZE - NUMBER -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-solid fa-ruler-horizontal"></i>
+
+                    <span>Pant Size</span>
+
+                </div>
+
+
+                <input
+                    type="number"
+                    id="pantSize"
+                    min="0"
+                    inputmode="numeric"
+                    placeholder="Size Number"
+                >
+
+            </div>
+
+
+
+            <!-- DATE OF BIRTH -->
+
+            <div class="profile-row">
+
+                <div class="profile-label">
+
+                    <i class="fa-regular fa-calendar"></i>
+
+                    <span>Date of Birth</span>
+
+                </div>
+
+
+                <input
+                    type="date"
+                    id="dateOfBirth"
+                >
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- SAVE PROFILE -->
+
+        <button
+            class="save-changes-button"
+            id="saveProfileButton"
+            type="button"
+        >
+
+            <i class="fa-solid fa-floppy-disk"></i>
+
+            SAVE CHANGES
+
+        </button>
+
 
     </div>
 
 </section>
 
-    <script src="script.js"></script>
-    
+
+
+<script src="script.js"></script>
+
 </body>
 </html>
