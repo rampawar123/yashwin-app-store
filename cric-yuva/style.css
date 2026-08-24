@@ -1,393 +1,863 @@
-/* ==========================================================================
-   CRIC YUVA SUPER APP - PREMIUM BRAND COMPREHENSIVE STYLE SHEETS
-   ========================================================================== */
+/* =========================================
+   CRIC YUVA APP V1.0
+   SCREEN 1 TO SCREEN 4
+   ORANGE THEME
+========================================= */
 
-*{
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
+
+/* =========================================
+   ROOT
+========================================= */
 
 :root {
-  --brand-dark: #050b14;
-  --brand-surface: #0b1528;
-  --brand-card: #112240;
-  --brand-accent: #00f0ff;  /* Future Neon Blue */
-  --brand-success: #39ff14; /* Vivid Neon Green */
-  --brand-danger: #ff1744;  /* Vivid Neon Red */
-  --brand-warning: #ffd700; /* Neon Gold */
-  --text-primary: #ffffff;
-  --text-muted: #7e91b3;
-  --border-custom: rgba(0, 240, 255, 0.15);
+    --orange: #ff5a00;
+    --dark-orange: #e84d00;
+    --black: #070707;
+    --dark: #101010;
+    --white: #ffffff;
+    --light: #f4f4f4;
+    --gray: #777777;
+    --border: #dddddd;
 }
 
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html,
 body {
-  min-height: 100vh;
-  font-family: 'Segoe UI', -apple-system, Roboto, sans-serif;
-  /* 🖼️ BRAND BACKGROUND (CUSTOM IMAGE CAPABILITY ENFORCED) */
-  background: url('app-bg-texture.png'), radial-gradient(circle at top, #0f2547 0%, var(--brand-dark) 60%);
-  background-size: cover;
-  background-attachment: fixed;
-  color: var(--text-primary);
-  padding-bottom: 85px;
-  overflow-x: hidden;
+    width: 100%;
+    min-height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #000000;
+    color: #ffffff;
 }
 
-/* ==========================================
-   HEADER AND TOP BRAND BAR
-   ========================================== */
-.customAppHeader {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  min-height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: rgba(5, 11, 20, 0.85);
-  backdrop-filter: blur(15px);
-  border-bottom: 1px solid var(--border-custom);
+
+/* =========================================
+   APP SCREEN
+========================================= */
+
+.app-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: none;
+    overflow-x: hidden;
 }
 
-.brandWrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+
+.app-screen.active {
+    display: block;
 }
 
-/* 🖼️ PNG CUSTOM IMAGE CONTAINERS MASK */
-.customImageFrame {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid var(--brand-accent);
-  overflow: hidden;
+
+/* =========================================
+   SCREEN 1 - SPLASH
+========================================= */
+
+.splash-screen {
+    position: relative;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255, 90, 0, 0.15),
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            #050505 0%,
+            #101010 55%,
+            #160800 100%
+        );
 }
 
-.customImageFrame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+
+.splash-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.7;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 45%,
+            rgba(255, 90, 0, 0.15) 75%,
+            #050505 100%
+        );
 }
 
-.headerIcons {
-  display: flex;
-  gap: 10px;
+
+.splash-content {
+    position: relative;
+    z-index: 2;
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px 20px;
+    text-align: center;
 }
 
-.iconBtn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--brand-surface);
-  border: 1px solid var(--border-custom);
-  color: var(--text-primary);
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+
+.logo-box {
+    margin-bottom: 25px;
 }
 
-/* ==========================================
-   REUSABLE PREMIUM CARDS (ZABARDAST LOOK)
-   ========================================== */
-.yuva-card, .custom-premium-card {
-  position: relative;
-  background: url('card-bg-mask.png'), var(--brand-surface);
-  background-size: cover;
-  border: 1px solid var(--border-custom);
-  border-radius: 24px;
-  padding: 22px;
-  margin-bottom: 20px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.1);
-  overflow: hidden;
+
+.logo-shield {
+    width: 135px;
+    height: 155px;
+
+    border: 5px solid var(--orange);
+
+    border-radius:
+        50px 50px
+        65px 65px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            #191919,
+            #050505
+        );
+
+    box-shadow:
+        0 0 25px rgba(255, 90, 0, 0.5),
+        inset 0 0 20px rgba(255, 90, 0, 0.1);
+
+    transform: rotate(45deg);
 }
 
-/* CRICHEROES STYLE LIVE CARD BACKDROP */
-.sunnyMatchCard {
-  position: relative;
-  min-height: 180px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #112240 0%, #07111f 100%);
-  padding: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-  margin-bottom: 20px;
-  border: 1px solid var(--border-custom);
+
+.logo-shield::after {
+    content: "";
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    background: var(--orange);
+    border-radius: 50%;
+    right: -15px;
+    bottom: 18px;
+    box-shadow: 0 0 15px rgba(255, 90, 0, 0.8);
 }
 
-.liveRibbon {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  background: rgba(255, 23, 68, 0.15);
-  border: 1px solid var(--brand-danger);
-  color: var(--brand-danger);
-  font-size: 10px;
-  font-weight: bold;
-  border-radius: 20px;
-  margin-bottom: 10px;
+
+.logo-shield i:first-child {
+    font-size: 65px;
+    color: white;
+    transform: rotate(-45deg);
 }
 
-.liveDot {
-  width: 7px;
-  height: 7px;
-  background: var(--brand-danger);
-  border-radius: 50%;
-  animation: livePulse 1s infinite;
+
+.bat-icon {
+    position: absolute;
+    font-size: 40px;
+    color: white;
+    top: 18px;
+    left: 48px;
+    transform: rotate(-80deg);
 }
 
-@keyframes livePulse {
-  0% { opacity: 0.3; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 0.3; transform: scale(0.9); }
+
+.app-name {
+    font-size: 46px;
+    font-weight: 900;
+    letter-spacing: -1px;
 }
 
-/* ==========================================
-   FORMS & LAYOUT INTERACTIVE INPUTS
-   ========================================== */
-.form-element {
-  margin-bottom: 16px;
-  text-align: left;
+
+.orange-text {
+    color: var(--orange);
 }
 
-.form-element label {
-  display: block;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  font-weight: bold;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+
+.tagline {
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: #dddddd;
 }
 
-.form-element input, .form-element select {
-  width: 100%;
-  padding: 14px;
-  background: rgba(10, 17, 40, 0.7) !important;
-  border: 1px solid var(--border-custom) !important;
-  border-radius: 14px;
-  color: var(--text-primary) !important;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
+
+.version-text {
+    margin-top: 80px;
+    font-size: 14px;
+    color: #eeeeee;
 }
 
-.form-element input:focus, .form-element select:focus {
-  border-color: var(--brand-accent) !important;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+
+.loading-box {
+    margin-top: 35px;
+    width: 160px;
 }
 
-/* MASTER CALL TO ACTION BUTTONS */
-.premium-action-btn, .master-cta {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, var(--brand-accent), #0086ff) !important;
-  color: #000000 !important;
-  border: none;
-  border-radius: 16px;
-  font-size: 15px;
-  font-weight: 900;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3);
-  text-transform: uppercase;
-  transition: 0.2s;
+
+.loading-line {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    overflow: hidden;
 }
 
-.premium-action-btn:active, .master-cta:active {
-  transform: scale(0.97);
-  box-shadow: none;
+
+.loading-line span {
+    display: block;
+    width: 55%;
+    height: 100%;
+    background: var(--orange);
+    border-radius: 20px;
 }
 
-.back-nav-link, .back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 12px;
-  color: var(--brand-accent) !important;
-  background: rgba(0, 229, 255, 0.08) !important;
-  font-weight: bold;
-  margin-bottom: 15px;
-  cursor: pointer;
-  font-size: 12px;
+
+.loading-box p {
+    margin-top: 12px;
+    color: var(--orange);
+    font-size: 13px;
 }
 
-/* ==========================================
-   NAVIGATION BOTTOM DOCK PANEL
-   ========================================== */
-.bottomDock {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 65px;
-  background: #070d19;
-  border-top: 1px solid var(--border-custom);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 9999;
+
+/* =========================================
+   SCREEN 2 - LOGIN
+========================================= */
+
+.login-screen {
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            145deg,
+            #160700,
+            #070707 35%,
+            #000000 100%
+        );
+
+    padding: 45px 20px 35px;
 }
 
-.dockTab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: var(--text-muted);
-  font-size: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  background: none;
-  border: none;
+
+.login-top {
+    text-align: center;
 }
 
-.dockTab.active {
-  color: var(--brand-accent) !important;
+
+.mini-logo {
+    width: 55px;
+    height: 55px;
+
+    margin: 0 auto 15px;
+
+    border: 2px solid var(--orange);
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--orange);
+    font-size: 25px;
 }
 
-.dockTab span {
-  font-size: 20px;
-  margin-bottom: 2px;
+
+.login-top h1 {
+    font-size: 37px;
+    font-weight: 900;
 }
 
-/* ==========================================
-   CRICHEROES LIVE SCORING PANEL WIDGETS
-   ========================================== */
-.console-tabs {
-  display: flex;
-  gap: 5px;
-  margin: 12px 0;
-  background: var(--brand-dark);
-  padding: 4px;
-  border-radius: 10px;
+
+.login-top h1 span {
+    color: var(--orange);
 }
 
-.subtab {
-  flex: 1;
-  text-align: center;
-  padding: 8px;
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--text-muted);
-  border-radius: 8px;
-  cursor: pointer;
+
+.login-top h2 {
+    margin-top: 15px;
+    font-size: 19px;
 }
 
-.subtab.active {
-  background: var(--brand-card);
-  color: var(--brand-accent);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+
+.login-top p {
+    margin-top: 8px;
+    color: #b8b8b8;
+    font-size: 14px;
 }
 
-/* SCORING GRID MATRIX ARRAYS */
-.matrix-scoring-grid, .padGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 20px;
+
+.login-card {
+    margin: 35px auto 0;
+
+    max-width: 460px;
+
+    padding: 25px 18px;
+
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #eeeeee
+        );
+
+    color: #222222;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.45);
 }
 
-.matrix-btn, .padBtn {
-  padding: 18px 10px;
-  font-size: 20px;
-  font-weight: 900;
-  border-radius: 16px;
-  border: 1px solid var(--border-custom);
-  background: var(--brand-surface);
-  color: var(--text-primary);
-  cursor: pointer;
+
+.input-box {
+    min-height: 82px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 12px 15px;
+
+    margin-bottom: 14px;
+
+    background: #ffffff;
+
+    border: 1px solid #dddddd;
+    border-radius: 14px;
 }
 
-.matrix-btn.runs, .padBtn.fn-run {
-  background: rgba(0, 230, 118, 0.1);
-  border-color: rgba(0, 230, 118, 0.3);
-  color: var(--brand-success);
+
+.input-box > i {
+    color: #222222;
+    font-size: 22px;
 }
 
-.matrix-btn.extras, .padBtn.fn-ex {
-  background: rgba(255, 234, 0, 0.1);
-  border-color: rgba(255, 234, 0, 0.3);
-  color: var(--brand-warning);
+
+.input-content {
+    flex: 1;
 }
 
-.matrix-btn.wickets, .padBtn.fn-wk {
-  background: rgba(255, 23, 68, 0.15);
-  border-color: rgba(255, 23, 68, 0.4);
-  color: var(--brand-danger);
+
+.input-content label {
+    display: block;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    margin-bottom: 5px;
 }
 
-.matrix-btn.undo-control, .padBtn.undo-control {
-  grid-column: span 3;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: bold;
+
+.input-content input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+
+    background: transparent;
 }
 
-.padBtn.active-run {
-  background: rgba(0, 240, 255, 0.25) !important;
-  border-color: var(--brand-accent) !important;
-  color: var(--brand-accent) !important;
+
+.eye-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #333333;
+    font-size: 18px;
 }
 
-/* ==========================================
-   AUCTION TRANSACTIONS LOGS STYLES
-   ========================================== */
-.dashboard-pill-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 25px;
+
+.main-button,
+.save-button,
+.save-changes-button {
+    width: 100%;
+    height: 58px;
+
+    border: none;
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f04c00,
+            #ff6500
+        );
+
+    color: white;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 18px rgba(255, 90, 0, 0.25);
 }
 
-.dashboard-pill-card {
-  background: var(--brand-surface);
-  border: 1px solid var(--border-custom);
-  border-radius: 16px;
-  padding: 14px 8px;
-  text-align: center;
-  color: white;
-  cursor: pointer;
+
+.or-line {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    margin: 28px 0;
 }
 
-.pill-icon {
-  display: block;
-  font-size: 26px;
-  margin-bottom: 6px;
+
+.or-line span {
+    flex: 1;
+    height: 1px;
+    background: #cccccc;
 }
 
-.birthday-container-alert, .birthday-alert-box {
-  background: linear-gradient(135deg, rgba(255,234,0,0.15), rgba(0,0,0,0));
-  border-left: 5px solid var(--brand-warning);
-  padding: 14px;
-  border-radius: 14px;
-  color: var(--brand-warning);
-  margin-bottom: 20px;
-  font-size: 13px;
-  font-weight: bold;
-  border-top: 1px solid rgba(255,234,0,0.1);
+
+.or-line b {
+    font-size: 13px;
+    font-weight: 500;
 }
 
-.auction-row-log, .auction-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(16, 31, 66, 0.5);
-  padding: 12px 16px;
-  border-radius: 14px;
-  margin-bottom: 10px;
-  border: 1px solid var(--border-custom);
-  font-size: 14px;
-  color: var(--text-primary);
+
+.account-question {
+    text-align: center;
+    font-size: 14px;
+    color: #555555;
+
+    margin-bottom: 15px;
+}
+
+
+.outline-button {
+    width: 100%;
+    min-height: 58px;
+
+    border: 1.5px solid var(--orange);
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: #d94a00;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+.outline-button i {
+    margin-right: 8px;
+}
+
+
+.text-button {
+    width: 100%;
+
+    border: none;
+    background: transparent;
+
+    color: #d94a00;
+
+    margin-top: 25px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* =========================================
+   SCREEN 3 - CREATE ACCOUNT
+========================================= */
+
+.create-screen {
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #eeeeee 75%,
+            #ffe5d6
+        );
+
+    color: #222222;
+}
+
+
+.page-header {
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 22px;
+}
+
+
+.back-button,
+.header-back,
+.header-save {
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+    font-size: 22px;
+}
+
+
+.create-content {
+    width: 100%;
+    max-width: 500px;
+
+    margin: auto;
+
+    padding: 25px 22px 50px;
+}
+
+
+.create-title {
+    text-align: center;
+
+    margin-bottom: 45px;
+}
+
+
+.create-title h1 {
+    font-size: 34px;
+    line-height: 1.15;
+}
+
+
+.create-title h1 span {
+    color: var(--orange);
+}
+
+
+.create-title p {
+    margin-top: 15px;
+    color: #777777;
+    font-size: 15px;
+}
+
+
+.form-input {
+    min-height: 95px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px 15px;
+
+    margin-bottom: 15px;
+
+    border: 1px solid #d2d2d2;
+    border-radius: 15px;
+
+    background: rgba(255,255,255,0.65);
+}
+
+
+.form-input > i {
+    color: #333333;
+    font-size: 21px;
+}
+
+
+.form-input > div {
+    flex: 1;
+}
+
+
+.form-input label {
+    display: block;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    margin-bottom: 7px;
+}
+
+
+.form-input input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    font-size: 14px;
+}
+
+
+.save-button {
+    margin-top: 25px;
+}
+
+
+/* =========================================
+   SCREEN 4 - PROFILE
+========================================= */
+
+.profile-screen {
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8f8f8,
+            #eaeaea
+        );
+
+    color: #222222;
+}
+
+
+.profile-header {
+    height: 75px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f24c00,
+            #ff6500
+        );
+
+    color: white;
+}
+
+
+.profile-header h2 {
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+
+.profile-header button {
+    color: white;
+}
+
+
+.profile-content {
+    width: 100%;
+    max-width: 550px;
+
+    margin: auto;
+
+    padding: 20px 15px 40px;
+}
+
+
+.profile-photo-area {
+    display: flex;
+    justify-content: center;
+}
+
+
+.profile-photo {
+    width: 145px;
+    height: 145px;
+
+    position: relative;
+
+    border: 2px solid var(--orange);
+    border-radius: 50%;
+
+    overflow: visible;
+}
+
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+}
+
+
+.camera-button {
+    position: absolute;
+
+    right: -5px;
+    bottom: 5px;
+
+    width: 48px;
+    height: 48px;
+
+    border: 4px solid white;
+    border-radius: 50%;
+
+    background: var(--orange);
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 18px;
+}
+
+
+.player-id {
+    text-align: center;
+
+    margin: 15px 0 25px;
+
+    color: #d94a00;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+
+.profile-details {
+    overflow: hidden;
+
+    border: 1px solid #d6d6d6;
+    border-radius: 14px;
+
+    background: rgba(255,255,255,0.8);
+}
+
+
+.profile-row {
+    min-height: 62px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 8px 14px;
+
+    border-bottom: 1px solid #dddddd;
+}
+
+
+.profile-row:last-child {
+    border-bottom: none;
+}
+
+
+.profile-row > i {
+    width: 22px;
+
+    color: var(--orange);
+
+    text-align: center;
+
+    font-size: 19px;
+}
+
+
+.profile-row span {
+    width: 120px;
+
+    font-size: 14px;
+}
+
+
+.profile-row input,
+.profile-row select {
+    flex: 1;
+
+    min-width: 0;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    text-align: right;
+
+    font-size: 14px;
+    color: #333333;
+}
+
+
+.profile-row select {
+    cursor: pointer;
+}
+
+
+.save-changes-button {
+    margin-top: 28px;
+}
+
+
+/* =========================================
+   TABLET AND DESKTOP
+========================================= */
+
+@media (min-width: 700px) {
+
+    .app-screen {
+        max-width: 520px;
+        margin: auto;
+    }
+
+    body {
+        background:
+            linear-gradient(
+                135deg,
+                #111111,
+                #000000
+            );
+    }
+
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+
+    .app-name {
+        font-size: 39px;
+    }
+
+    .login-top h1 {
+        font-size: 32px;
+    }
+
+    .create-title h1 {
+        font-size: 29px;
+    }
+
+    .profile-row span {
+        width: 105px;
+        font-size: 12px;
+    }
+
 }
