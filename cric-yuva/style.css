@@ -1,877 +1,274 @@
 /* =========================================
-   CRIC YUVA APP V1.0
-   SCREEN 1 TO SCREEN 4
-   ORANGE THEME
+   SCREEN 3 + 4 FINAL DESIGN FIX
 ========================================= */
 
-
-/* =========================================
-   ROOT
-========================================= */
-
-:root {
-    --orange: #ff5a00;
-    --dark-orange: #e84d00;
-    --black: #070707;
-    --dark: #101010;
-    --white: #ffffff;
-    --light: #f4f4f4;
-    --gray: #777777;
-    --border: #dddddd;
-}
-
-
-/* =========================================
-   RESET
-========================================= */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-
-html,
-body {
-    width: 100%;
-    min-height: 100%;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #000000;
-    color: #ffffff;
-}
-
-
-/* =========================================
-   APP SCREEN
-========================================= */
-
-.app-screen {
-    width: 100%;
-    min-height: 100vh;
-    display: none;
-    overflow-x: hidden;
-}
-
-
-.app-screen.active {
-    display: block;
-}
-
-
-/* =========================================
-   SCREEN 1 - SPLASH
-========================================= */
-
-.splash-screen {
-    position: relative;
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(255, 90, 0, 0.15),
-            transparent 35%
-        ),
-        linear-gradient(
-            180deg,
-            #050505 0%,
-            #101010 55%,
-            #160800 100%
-        );
-}
-
-
-.splash-bg {
-    position: absolute;
-    inset: 0;
-    opacity: 0.7;
-
-    background:
-        linear-gradient(
-            180deg,
-            transparent 45%,
-            rgba(255, 90, 0, 0.15) 75%,
-            #050505 100%
-        );
-}
-
-
-.splash-content {
-    position: relative;
-    z-index: 2;
-
-    min-height: 100vh;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    padding: 30px 20px;
-    text-align: center;
-}
-
-
-/* =========================================
-   CRIC YUVA ORIGINAL PNG LOGO
-========================================= */
-
-.logo-box {
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.cric-yuva-logo {
-    width: 220px;
-    max-width: 70vw;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 0 18px rgba(255, 90, 0, 0.35));
-}
-
-.logo-shield {
-    width: 135px;
-    height: 155px;
-
-    border: 5px solid var(--orange);
-
-    border-radius:
-        50px 50px
-        65px 65px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    position: relative;
-
-    background:
-        linear-gradient(
-            145deg,
-            #191919,
-            #050505
-        );
-
-    box-shadow:
-        0 0 25px rgba(255, 90, 0, 0.5),
-        inset 0 0 20px rgba(255, 90, 0, 0.1);
-
-    transform: rotate(45deg);
-}
-
-
-.logo-shield::after {
-    content: "";
-    position: absolute;
-    width: 45px;
-    height: 45px;
-    background: var(--orange);
-    border-radius: 50%;
-    right: -15px;
-    bottom: 18px;
-    box-shadow: 0 0 15px rgba(255, 90, 0, 0.8);
-}
-
-
-.logo-shield i:first-child {
-    font-size: 65px;
-    color: white;
-    transform: rotate(-45deg);
-}
-
-
-.bat-icon {
-    position: absolute;
-    font-size: 40px;
-    color: white;
-    top: 18px;
-    left: 48px;
-    transform: rotate(-80deg);
-}
-
-
-.app-name {
-    font-size: 46px;
-    font-weight: 900;
-    letter-spacing: -1px;
-}
-
-
-.orange-text {
-    color: var(--orange);
-}
-
-
-.tagline {
-    margin-top: 12px;
-    font-size: 13px;
-    letter-spacing: 1px;
-    color: #dddddd;
-}
-
-
-.version-text {
-    margin-top: 80px;
-    font-size: 14px;
-    color: #eeeeee;
-}
-
-
-.loading-box {
-    margin-top: 35px;
-    width: 160px;
-}
-
-
-.loading-line {
-    width: 100%;
-    height: 4px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-
-.loading-line span {
-    display: block;
-    width: 55%;
-    height: 100%;
-    background: var(--orange);
-    border-radius: 20px;
-}
-
-
-.loading-box p {
-    margin-top: 12px;
-    color: var(--orange);
-    font-size: 13px;
-}
-
-
-/* =========================================
-   SCREEN 2 - LOGIN
-========================================= */
-
-.login-screen {
-    min-height: 100vh;
-
-    background:
-        linear-gradient(
-            145deg,
-            #160700,
-            #070707 35%,
-            #000000 100%
-        );
-
-    padding: 45px 20px 35px;
-}
-
-
-.login-top {
-    text-align: center;
-}
-
-
-.mini-logo {
-    width: 55px;
-    height: 55px;
-
-    margin: 0 auto 15px;
-
-    border: 2px solid var(--orange);
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: var(--orange);
-    font-size: 25px;
-}
-
-
-.login-top h1 {
-    font-size: 37px;
-    font-weight: 900;
-}
-
-
-.login-top h1 span {
-    color: var(--orange);
-}
-
-
-.login-top h2 {
-    margin-top: 15px;
-    font-size: 19px;
-}
-
-
-.login-top p {
-    margin-top: 8px;
-    color: #b8b8b8;
-    font-size: 14px;
-}
-
-
-.login-card {
-    margin: 35px auto 0;
-
-    max-width: 460px;
-
-    padding: 25px 18px;
-
-    border-radius: 25px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff,
-            #eeeeee
-        );
-
-    color: #222222;
-
-    box-shadow:
-        0 15px 40px rgba(0,0,0,0.45);
-}
-
-
-.input-box {
-    min-height: 82px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 15px;
-
-    padding: 12px 15px;
-
-    margin-bottom: 14px;
-
-    background: #ffffff;
-
-    border: 1px solid #dddddd;
-    border-radius: 14px;
-}
-
-
-.input-box > i {
-    color: #222222;
-    font-size: 22px;
-}
-
-
-.input-content {
-    flex: 1;
-}
-
-
-.input-content label {
-    display: block;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    margin-bottom: 5px;
-}
-
-
-.input-content input {
-    width: 100%;
-
-    border: none;
-    outline: none;
-
-    font-size: 14px;
-
-    background: transparent;
-}
-
-
-.eye-button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    color: #333333;
-    font-size: 18px;
-}
-
-
-.main-button,
-.save-button,
-.save-changes-button {
-    width: 100%;
-    height: 58px;
-
-    border: none;
-    border-radius: 10px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #f04c00,
-            #ff6500
-        );
-
-    color: white;
-
-    font-size: 17px;
+.screen-number {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 10px;
     font-weight: 800;
+    letter-spacing: 1.8px;
+    color: #999999;
+}
 
-    letter-spacing: 0.5px;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 8px 18px rgba(255, 90, 0, 0.25);
+.light-number {
+    color: rgba(255, 255, 255, 0.75);
 }
 
 
-.or-line {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-
-    margin: 28px 0;
-}
-
-
-.or-line span {
-    flex: 1;
-    height: 1px;
-    background: #cccccc;
-}
-
-
-.or-line b {
-    font-size: 13px;
-    font-weight: 500;
-}
-
-
-.account-question {
-    text-align: center;
-    font-size: 14px;
-    color: #555555;
-
-    margin-bottom: 15px;
-}
-
-
-.outline-button {
-    width: 100%;
-    min-height: 58px;
-
-    border: 1.5px solid var(--orange);
-    border-radius: 10px;
-
-    background: transparent;
-
-    color: #d94a00;
-
-    font-size: 15px;
-    font-weight: 800;
-
-    cursor: pointer;
-}
-
-
-.outline-button i {
-    margin-right: 8px;
-}
-
-
-.text-button {
-    width: 100%;
-
-    border: none;
-    background: transparent;
-
-    color: #d94a00;
-
-    margin-top: 25px;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-
-/* =========================================
-   SCREEN 3 - CREATE ACCOUNT
-========================================= */
-
+/* SCREEN 3 */
 .create-screen {
-    background:
-        linear-gradient(
-            135deg,
-            #ffffff,
-            #eeeeee 75%,
-            #ffe5d6
-        );
-
-    color: #222222;
+    min-height: 100vh;
+    padding-bottom: 30px;
 }
-
-
-.page-header {
-    height: 70px;
-
-    display: flex;
-    align-items: center;
-
-    padding: 0 22px;
-}
-
-
-.back-button,
-.header-back,
-.header-save {
-    border: none;
-    background: transparent;
-
-    cursor: pointer;
-    font-size: 22px;
-}
-
 
 .create-content {
-    width: 100%;
-    max-width: 500px;
-
-    margin: auto;
-
-    padding: 25px 22px 50px;
+    padding-top: 10px;
 }
-
 
 .create-title {
-    text-align: center;
-
-    margin-bottom: 45px;
+    margin-bottom: 35px;
 }
-
 
 .create-title h1 {
-    font-size: 34px;
-    line-height: 1.15;
+    font-size: clamp(30px, 8vw, 38px);
 }
 
 
-.create-title h1 span {
-    color: var(--orange);
-}
-
-
-.create-title p {
-    margin-top: 15px;
-    color: #777777;
-    font-size: 15px;
-}
-
-
-.form-input {
-    min-height: 95px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 14px;
-
-    padding: 14px 15px;
-
-    margin-bottom: 15px;
-
-    border: 1px solid #d2d2d2;
-    border-radius: 15px;
-
-    background: rgba(255,255,255,0.65);
-}
-
-
-.form-input > i {
-    color: #333333;
-    font-size: 21px;
-}
-
-
-.form-input > div {
-    flex: 1;
-}
-
-
-.form-input label {
-    display: block;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    margin-bottom: 7px;
-}
-
-
-.form-input input {
-    width: 100%;
-
-    border: none;
-    outline: none;
-
-    background: transparent;
-
-    font-size: 14px;
-}
-
-
-.save-button {
-    margin-top: 25px;
-}
-
-
-/* =========================================
-   SCREEN 4 - PROFILE
-========================================= */
-
+/* PROFILE PAGE */
 .profile-screen {
     min-height: 100vh;
-
     background:
         linear-gradient(
             180deg,
-            #f8f8f8,
-            #eaeaea
+            #ff5a00 0,
+            #ff5a00 190px,
+            #f3f3f3 190px,
+            #e9e9e9 100%
         );
-
-    color: #222222;
 }
 
+.profile-page {
+    min-height: 100vh;
+}
 
-.profile-header {
-    height: 75px;
+.profile-top {
+    height: 88px;
+    max-width: 550px;
+    margin: auto;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 0 20px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #f24c00,
-            #ff6500
-        );
+    padding: 12px 20px;
 
     color: white;
 }
 
+.profile-top h2 {
+    font-size: 20px;
+    letter-spacing: 0.4px;
+}
 
-.profile-header h2 {
+.profile-top-space {
+    width: 40px;
+}
+
+.profile-back-button {
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.18);
+    color: white;
+
     font-size: 18px;
-    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+.profile-container {
+    width: calc(100% - 30px);
+    max-width: 520px;
+
+    margin: 55px auto 0;
+    padding: 0 15px 28px;
+
+    border-radius: 26px 26px 0 0;
+
+    background: #ffffff;
+
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.10);
 }
 
 
-.profile-header button {
-    color: white;
-}
-
-
-.profile-content {
-    width: 100%;
-    max-width: 550px;
-
-    margin: auto;
-
-    padding: 20px 15px 40px;
-}
-
-
+/* PROFILE PHOTO */
 .profile-photo-area {
-    display: flex;
-    justify-content: center;
-}
-
-
-.profile-photo {
-    width: 145px;
-    height: 145px;
-
     position: relative;
 
-    border: 2px solid var(--orange);
-    border-radius: 50%;
+    width: 130px;
+    height: 130px;
 
-    overflow: visible;
+    margin: -48px auto 0;
+
+    display: block;
 }
 
-
-.profile-photo img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    border-radius: 50%;
-}
-
-
-.camera-button {
-    position: absolute;
-
-    right: -5px;
-    bottom: 5px;
-
-    width: 48px;
-    height: 48px;
-
-    border: 4px solid white;
-    border-radius: 50%;
-
-    background: var(--orange);
-    color: white;
-
-    cursor: pointer;
-
-    font-size: 18px;
-}
-
-
-.player-id {
-    text-align: center;
-
-    margin: 15px 0 25px;
-
-    color: #d94a00;
-
-    font-size: 14px;
-    font-weight: 800;
-
-    letter-spacing: 1px;
-}
-
-
-.profile-details {
-    overflow: hidden;
-
-    border: 1px solid #d6d6d6;
-    border-radius: 14px;
-
-    background: rgba(255,255,255,0.8);
-}
-
-
-.profile-row {
-    min-height: 62px;
+.profile-photo {
+    width: 130px;
+    height: 130px;
 
     display: flex;
     align-items: center;
+    justify-content: center;
 
-    gap: 12px;
+    overflow: hidden;
 
-    padding: 8px 14px;
+    border: 5px solid #ffffff;
+    border-radius: 50%;
 
-    border-bottom: 1px solid #dddddd;
+    background:
+        linear-gradient(
+            145deg,
+            #222222,
+            #080808
+        );
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.25);
 }
 
-
-.profile-row:last-child {
-    border-bottom: none;
-}
-
-
-.profile-row > i {
-    width: 22px;
-
+.profile-photo span {
     color: var(--orange);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.photo-edit-btn {
+    position: absolute;
+
+    right: 0;
+    bottom: 3px;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+
+    background: var(--orange);
+    color: #ffffff;
+
+    font-size: 16px;
+    cursor: pointer;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+
+/* PLAYER ID */
+.player-id {
+    margin: 15px 0 20px;
 
     text-align: center;
 
-    font-size: 19px;
+    color: #777777;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
 }
 
+.player-id span {
+    color: var(--orange);
+}
+
+
+/* PROFILE DETAILS */
+.profile-details {
+    border-radius: 16px;
+    overflow: hidden;
+
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+}
+
+.profile-row {
+    min-height: 58px;
+
+    padding: 7px 12px;
+
+    gap: 10px;
+
+    background: #ffffff;
+}
+
+.profile-row > i {
+    width: 24px;
+    flex-shrink: 0;
+
+    color: var(--orange);
+    font-size: 17px;
+}
 
 .profile-row span {
-    width: 120px;
+    width: 105px;
+    flex-shrink: 0;
 
-    font-size: 14px;
+    color: #555555;
+    font-size: 12px;
+    font-weight: 600;
 }
-
 
 .profile-row input,
 .profile-row select {
-    flex: 1;
-
     min-width: 0;
 
-    border: none;
-    outline: none;
-
-    background: transparent;
+    color: #222222;
+    font-size: 13px;
+    font-weight: 600;
 
     text-align: right;
+}
 
-    font-size: 14px;
-    color: #333333;
+.profile-row input::placeholder {
+    color: #aaaaaa;
+    font-weight: 400;
 }
 
 
-.profile-row select {
-    cursor: pointer;
-}
-
-
+/* SAVE BUTTON */
 .save-changes-button {
-    margin-top: 28px;
+    height: 54px;
+
+    margin-top: 20px;
+
+    border-radius: 13px;
 }
 
 
-/* =========================================
-   TABLET AND DESKTOP
-========================================= */
-
-@media (min-width: 700px) {
-
-    .app-screen {
-        max-width: 520px;
-        margin: auto;
-    }
-
-    body {
-        background:
-            linear-gradient(
-                135deg,
-                #111111,
-                #000000
-            );
-    }
-
-}
-
-
-/* =========================================
-   SMALL MOBILE
-========================================= */
-
+/* MOBILE */
 @media (max-width: 380px) {
 
-    .app-name {
-        font-size: 39px;
-    }
-
-    .login-top h1 {
-        font-size: 32px;
-    }
-
-    .create-title h1 {
-        font-size: 29px;
+    .profile-container {
+        width: calc(100% - 20px);
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .profile-row span {
-        width: 105px;
-        font-size: 12px;
+        width: 92px;
+        font-size: 11px;
     }
 
+    .profile-row input,
+    .profile-row select {
+        font-size: 12px;
+    }
 }
