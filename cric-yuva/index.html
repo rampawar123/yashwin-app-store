@@ -1,1444 +1,1123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
+<!DOCTYPE html>  <html lang="en">  <head>    <meta charset="UTF-8">  <meta name="viewport"    
+  content="width=device-width, initial-scale=1.0">
 
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CRIC YUVA V1.0</title>    <link rel="stylesheet"    
+      href="style.css">    <link rel="stylesheet"    
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">  </head>  <body>  <!-- =====================================================    
+     SCREEN 1 - SPLASH    
+===================================================== -->  <section class="app-screen splash-screen active"    
+         id="screen1">  <div class="splash-bg"></div>    <div class="splash-content">    <div class="logo-box">    
 
-  <meta name="theme-color" content="#ff5a00">
+    <img src="cric-yuva-logo.png"    
+         alt="Cric Yuva Logo"    
+         class="cric-yuva-logo">    
 
-  <title>CRIC YUVA</title>
+</div>    
 
-  <!-- FONT AWESOME -->
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-  <!-- YOUR CSS -->
-  <link rel="stylesheet" href="style.css">
-</head>
+<h1 class="app-name">    
 
-<body>
+    <span>CRIC</span>    
+    <span class="orange-text">YUVA</span>    
 
+</h1>    
 
-<!-- =====================================================
-     SCREEN 1 - SPLASH SCREEN
-===================================================== -->
 
-<section class="app-screen splash-screen active" id="screen1">
+<p class="tagline">    
+    PLAY TOGETHER, WIN TOGETHER    
+</p>    
 
-  <div class="splash-content">
 
-    <div class="logo-box">
-      <img
-        src="logo.png"
-        class="cric-yuva-logo"
-        alt="Cric Yuva Logo"
-        onerror="this.style.display='none'">
-    </div>
+<p class="version-text">    
+    Version 1.0    
+</p>    
 
-    <h1 class="app-name">
-      CRIC <span class="orange-text">YUVA</span>
-    </h1>
 
-    <p class="tagline">
-      PLAY • CONNECT • GROW
-    </p>
+<div class="loading-box">    
 
-    <p class="version-text">
-      VERSION 1.0
-    </p>
+    <div class="loading-line">    
+        <span></span>    
+    </div>    
 
-    <div class="loading-box">
-
-      <div class="loading-line">
-        <span></span>
-      </div>
-
-      <p>Loading Cric Yuva...</p>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     SCREEN 2 - LOGIN SCREEN
-===================================================== -->
-
-<section class="app-screen login-screen" id="screen2">
-
-  <div class="login-top">
-
-    <div class="mini-logo">
-      <i class="fa-solid fa-baseball-bat-ball"></i>
-    </div>
-
-    <h1>
-      CRIC <span>YUVA</span>
-    </h1>
-
-    <h2>Welcome Back!</h2>
-
-    <p>
-      Login to continue your cricket journey
-    </p>
-
-  </div>
-
-
-  <div class="login-card">
-
-    <!-- MOBILE -->
-
-    <div class="input-box">
-
-      <i class="fa-solid fa-mobile-screen-button"></i>
-
-      <div class="input-content">
-
-        <label for="loginMobile">
-          Mobile Number
-        </label>
-
-        <input
-          type="tel"
-          id="loginMobile"
-          placeholder="Enter mobile number"
-          maxlength="10">
-
-      </div>
-
-    </div>
-
-
-    <!-- PASSWORD -->
-
-    <div class="input-box">
-
-      <i class="fa-solid fa-lock"></i>
-
-      <div class="input-content">
-
-        <label for="loginPassword">
-          Password
-        </label>
-
-        <input
-          type="password"
-          id="loginPassword"
-          placeholder="Enter password">
-
-      </div>
-
-      <button
-        type="button"
-        class="eye-button"
-        id="loginEyeButton">
-
-        <i class="fa-solid fa-eye"></i>
-
-      </button>
-
-    </div>
-
-
-    <button
-      class="main-button"
-      id="loginButton"
-      type="button">
-
-      LOGIN
-
-    </button>
-
-
-    <button
-      class="text-button"
-      id="forgotPasswordButton"
-      type="button">
-
-      Forgot Password?
-
-    </button>
-
-
-    <div class="or-line">
-
-      <span></span>
-
-      <b>OR</b>
-
-      <span></span>
-
-    </div>
-
-
-    <p class="account-question">
-      Don't have an account?
-    </p>
-
-
-    <button
-      class="outline-button"
-      id="createAccountButton"
-      type="button">
-
-      CREATE ACCOUNT
-
-    </button>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     SCREEN 3 - CREATE PROFILE
-===================================================== -->
-
-<section class="app-screen create-screen" id="screen3">
-
-  <header class="page-header">
-
-    <button
-      class="back-button"
-      id="createBackButton"
-      type="button">
-
-      <i class="fa-solid fa-arrow-left"></i>
-
-    </button>
-
-  </header>
-
-
-  <main class="create-content">
-
-    <div class="create-title">
-
-      <h1>
-        CREATE YOUR <span>PROFILE</span>
-      </h1>
-
-      <p>
-        Join the Cric Yuva community
-      </p>
-
-    </div>
-
-
-    <!-- NAME -->
-
-    <div class="form-input">
-
-      <i class="fa-solid fa-user"></i>
-
-      <div>
-
-        <label for="createName">
-          Full Name
-        </label>
-
-        <input
-          type="text"
-          id="createName"
-          placeholder="Enter your full name">
-
-      </div>
-
-    </div>
-
-
-    <!-- MOBILE -->
-
-    <div class="form-input">
-
-      <i class="fa-solid fa-mobile-screen-button"></i>
-
-      <div>
-
-        <label for="createMobile">
-          Mobile Number
-        </label>
-
-        <input
-          type="tel"
-          id="createMobile"
-          maxlength="10"
-          placeholder="Enter mobile number">
-
-      </div>
-
-    </div>
-
-
-    <!-- EMAIL -->
-
-    <div class="form-input">
-
-      <i class="fa-solid fa-envelope"></i>
-
-      <div>
-
-        <label for="createEmail">
-          Email Address
-        </label>
-
-        <input
-          type="email"
-          id="createEmail"
-          placeholder="Enter email address">
-
-      </div>
-
-    </div>
-
-
-    <!-- PASSWORD -->
-
-    <div class="form-input">
-
-      <i class="fa-solid fa-lock"></i>
-
-      <div>
-
-        <label for="createPassword">
-          Password
-        </label>
-
-        <input
-          type="password"
-          id="createPassword"
-          placeholder="Create password">
-
-      </div>
-
-    </div>
-
-
-    <button
-      class="save-button"
-      id="createProfileButton"
-      type="button">
-
-      CREATE PROFILE
-
-    </button>
-
-  </main>
-
-</section>
-
-
-<!-- =====================================================
-     SCREEN 4 - PROFILE
-===================================================== -->
-
-<section class="app-screen profile-screen" id="screen4">
-
-  <div class="profile-container">
-
-
-    <div class="profile-page-top">
-
-      <button
-        class="back-button dark-back"
-        id="profileBackButton"
-        type="button">
-
-        <i class="fa-solid fa-arrow-left"></i>
-
-      </button>
-
-
-      <h2>MY PROFILE</h2>
-
-      <span></span>
-
-    </div>
-
-
-    <!-- PHOTO -->
-
-    <div class="profile-photo-area">
-
-      <div class="profile-photo" id="profilePhotoPreview">
-
-        <span id="profileInitials">
-          CY
-        </span>
-
-      </div>
-
-
-      <button
-        class="photo-edit-btn"
-        id="photoEditButton"
-        type="button">
-
-        <i class="fa-solid fa-camera"></i>
-
-      </button>
-
-
-      <input
-        type="file"
-        id="profilePhotoInput"
-        accept="image/*"
-        hidden>
-
-    </div>
-
-
-    <div class="player-id">
-      PLAYER ID: <span id="profilePlayerId">CY000001</span>
-    </div>
-
-
-    <!-- PROFILE DETAILS -->
-
-    <div class="profile-details">
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-user"></i>
-
-        <span>Full Name</span>
-
-        <input
-          type="text"
-          id="profileName"
-          placeholder="Your name">
-
-      </div>
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-mobile-screen-button"></i>
-
-        <span>Mobile</span>
-
-        <input
-          type="tel"
-          id="profileMobile"
-          placeholder="Mobile number">
-
-      </div>
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-envelope"></i>
-
-        <span>Email</span>
-
-        <input
-          type="email"
-          id="profileEmail"
-          placeholder="Email address">
-
-      </div>
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-shirt"></i>
-
-        <span>Jersey Name</span>
-
-        <input
-          type="text"
-          id="profileJerseyName"
-          placeholder="Jersey name">
-
-      </div>
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-hashtag"></i>
-
-        <span>Jersey Number</span>
-
-        <input
-          type="number"
-          id="profileJerseyNumber"
-          placeholder="Number">
-
-      </div>
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-ruler"></i>
-
-        <span>Jersey Size</span>
-
-        <select id="profileJerseySize">
-
-          <option value="">Select Size</option>
-          <option>S</option>
-          <option>M</option>
-          <option>L</option>
-          <option>XL</option>
-          <option>XXL</option>
-          <option>XXXL</option>
-
-        </select>
-
-      </div>
-
-
-      <div class="profile-row">
-
-        <i class="fa-solid fa-cake-candles"></i>
-
-        <span>Birth Date</span>
-
-        <input
-          type="date"
-          id="profileBirthDate">
-
-      </div>
-
-
-    </div>
-
-
-    <button
-      class="save-changes-button"
-      id="saveProfileButton"
-      type="button">
-
-      SAVE CHANGES
-
-    </button>
-
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     SCREEN 5 - MAIN HOME
-===================================================== -->
-
-<section class="app-screen home-screen" id="screen5">
-
-
-  <div class="cric-home-page">
-
-
-    <!-- HEADER -->
-
-    <header class="cric-home-header">
-
-
-      <button
-        class="home-header-menu"
-        id="menuButton"
-        type="button">
-
-        <i class="fa-solid fa-bars"></i>
-
-      </button>
-
-
-      <div class="home-brand">
-
-        <div class="home-logo-box">
-
-          <img
-            src="logo.png"
-            class="cric-yuva-main-logo"
-            alt="Cric Yuva"
-            onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';">
-
-          <div
-            class="logo-fallback"
-            id="logoFallback"
-            style="display:none;">
-
-            CY
-
-          </div>
-
-        </div>
-
-
-        <div class="home-brand-text">
-
-          <div class="home-brand-name">
-            CRIC <strong>YUVA</strong>
-          </div>
-
-          <div class="home-brand-tagline">
-            PLAY • CONNECT • GROW
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="home-header-actions">
-
-
-        <button
-          class="header-icon-btn"
-          id="notificationButton"
-          type="button">
-
-          <i class="fa-regular fa-bell"></i>
-
-          <b id="notificationDot"></b>
-
-        </button>
-
-
-        <button
-          class="header-icon-btn"
-          id="profileHeaderButton"
-          type="button">
-
-          <i class="fa-regular fa-user"></i>
-
-        </button>
-
-
-      </div>
-
-
-    </header>
-
-
-    <!-- MAIN CONTENT -->
-
-    <main class="home-content">
-
-
-      <!-- WELCOME PROFILE -->
-
-      <div
-        class="welcome-profile-card welcome-card"
-        id="welcomeProfileCard">
-
-        <div class="welcome-user">
-
-          <div
-            class="home-profile-avatar home-profile-photo"
-            id="homeProfilePhoto">
-
-            <span id="homeProfileInitials">
-              CY
-            </span>
-
-          </div>
-
-
-          <div class="welcome-profile-info">
-
-            <div class="welcome-small">
-              WELCOME BACK
-            </div>
-
-            <h2 id="homeUserName">
-              Cric Yuva Player
-            </h2>
-
-            <div
-              class="home-player-id"
-              id="homePlayerId">
-
-              CY000001
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <button
-          class="welcome-arrow"
-          id="welcomeProfileButton"
-          type="button">
-
-          <i class="fa-solid fa-arrow-right"></i>
-
-        </button>
-
-
-      </div>
-
-
-
-      <!-- LIVE MATCH -->
-
-      <section class="home-section">
-
-        <div class="section-heading">
-
-          <h2>LIVE CRICKET</h2>
-
-          <button
-            type="button"
-            id="liveSeeAllButton">
-
-            SEE ALL
-
-          </button>
-
-        </div>
-
-
-        <div class="live-match-card live-card">
-
-
-          <div class="live-card-top">
-
-            <div class="live-badge">
-
-              <i class="fa-solid fa-circle"></i>
-
-              LIVE
-
-            </div>
-
-
-            <div class="watching-count">
-              <i class="fa-solid fa-eye"></i>
-              0 Watching
-            </div>
-
-          </div>
-
-
-          <div class="stadium-visual">
-
-            <div class="stadium-light left-light"></div>
-
-            <div class="stadium-light right-light"></div>
-
-
-            <div
-              class="live-play-button"
-              id="livePlayButton">
-
-              <i class="fa-solid fa-play"></i>
-
-            </div>
-
-
-            <h2>
-              NO LIVE MATCH NOW
-            </h2>
-
-          </div>
-
-
-          <button
-            class="watch-live-btn"
-            id="watchLiveButton"
-            type="button">
-
-            <i class="fa-solid fa-circle-play"></i>
-
-            WATCH LIVE
-
-          </button>
-
-
-        </div>
-
-      </section>
-
-
-
-      <!-- UPCOMING MATCH -->
-
-      <section class="home-section">
-
-        <div class="section-heading">
-
-          <h2>UPCOMING MATCH</h2>
-
-          <button
-            type="button"
-            id="upcomingSeeAllButton">
-
-            SEE ALL
-
-          </button>
-
-        </div>
-
-
-        <div class="upcoming-match-card next-match-card">
-
-
-          <div class="next-match-title">
-            NO UPCOMING MATCH
-          </div>
-
-
-          <div class="teams-row">
-
-
-            <div class="team-side">
-
-              <div class="team-logo team-a">
-                A
-              </div>
-
-              <strong>TEAM A</strong>
-
-            </div>
-
-
-            <div class="vs-area">
-
-              <div class="vs-text">
-                VS
-              </div>
-
-              <div class="vs-subtitle">
-                WAITING
-              </div>
-
-            </div>
-
-
-            <div class="team-side">
-
-              <div class="team-logo team-b">
-                B
-              </div>
-
-              <strong>TEAM B</strong>
-
-            </div>
-
-
-          </div>
-
-
-          <div class="match-info-row">
-
-            <div>
-
-              <i class="fa-regular fa-calendar"></i>
-
-              Coming Soon
-
-            </div>
-
-
-            <div>
-
-              <i class="fa-solid fa-location-dot"></i>
-
-              Ground TBA
-
-            </div>
-
-          </div>
-
-
-          <button
-            class="match-details-btn"
-            id="matchDetailsButton"
-            type="button">
-
-            MATCH DETAILS
-
-            <i class="fa-solid fa-arrow-right"></i>
-
-          </button>
-
-
-        </div>
-
-      </section>
-
-
-
-      <!-- QUICK ACCESS -->
-
-      <section class="home-section">
-
-        <div class="section-heading">
-
-          <h2>QUICK ACCESS</h2>
-
-          <button
-            type="button"
-            id="quickSeeAllButton">
-
-            SEE ALL
-
-          </button>
-
-        </div>
-
-
-        <div class="quick-access-grid quick-grid">
-
-
-          <button
-            class="quick-access-item quick-card"
-            data-feature="My Matches"
-            type="button">
-
-            <i class="fa-solid fa-calendar-days"></i>
-
-            <span>My Matches</span>
-
-          </button>
-
-
-          <button
-            class="quick-access-item quick-card"
-            data-feature="Tournament"
-            type="button">
-
-            <i class="fa-solid fa-trophy"></i>
-
-            <span>Tournament</span>
-
-          </button>
-
-
-          <button
-            class="quick-access-item quick-card"
-            data-feature="Players"
-            type="button">
-
-            <i class="fa-solid fa-users"></i>
-
-            <span>Players</span>
-
-          </button>
-
-
-          <button
-            class="quick-access-item quick-card"
-            data-feature="Statistics"
-            type="button">
-
-            <i class="fa-solid fa-chart-column"></i>
-
-            <span>Stats</span>
-
-          </button>
-
-
-        </div>
-
-      </section>
-
-
-
-      <!-- LATEST UPDATE -->
-
-      <section class="home-section">
-
-        <div class="section-heading no-view-all">
-
-          <h2>LATEST UPDATE</h2>
-
-        </div>
-
-
-        <div class="home-feed-card feed-card">
-
-          <div class="feed-icon">
-
-            <i class="fa-solid fa-bullhorn"></i>
-
-          </div>
-
-
-          <div class="feed-content">
-
-            <h3>
-              Welcome to Cric Yuva
-            </h3>
-
-            <p>
-              Create your profile, join players, tournaments and enjoy cricket together.
-            </p>
-
-          </div>
-
-        </div>
-
-
-      </section>
-
-
-      <div class="home-bottom-space"></div>
-
-
-    </main>
-
-
-  </div>
-
-
-  <!-- BOTTOM NAVIGATION -->
-
-  <nav class="cric-bottom-nav bottom-nav">
-
-
-    <button
-      class="bottom-nav-item active"
-      id="homeNavButton"
-      type="button">
-
-      <i class="fa-solid fa-house"></i>
-
-      <span>Home</span>
-
-    </button>
-
-
-    <button
-      class="bottom-nav-item matches-nav-item"
-      id="matchesNavButton"
-      type="button">
-
-      <i class="fa-solid fa-calendar-days"></i>
-
-      <span>Matches</span>
-
-    </button>
-
-
-    <button
-      class="bottom-nav-center center-nav-btn"
-      id="centerAddButton"
-      type="button">
-
-      <i class="fa-solid fa-plus"></i>
-
-    </button>
-
-
-    <button
-      class="bottom-nav-item"
-      id="tournamentNavButton"
-      type="button">
-
-      <i class="fa-solid fa-trophy"></i>
-
-      <span>League</span>
-
-    </button>
-
-
-    <button
-      class="bottom-nav-item"
-      id="statsNavButton"
-      type="button">
-
-      <i class="fa-solid fa-chart-line"></i>
-
-      <span>Stats</span>
-
-    </button>
-
-
-  </nav>
-
-
-</section>
-
-
-
-<!-- =====================================================
-     SIDE MENU OVERLAY
-===================================================== -->
-
-<div
-  class="menu-overlay"
-  id="menuOverlay">
+    <p>Loading...</p>    
 
 </div>
 
+</div>  </section>  <!-- =====================================================    
+     SCREEN 2 - LOGIN    
+===================================================== -->  <section class="app-screen login-screen"    
+         id="screen2">  <div class="login-top">    <div class="mini-logo">    
+    <i class="fa-solid fa-baseball-bat-ball"></i>    
+</div>    
 
 
-<!-- =====================================================
-     SIDE MENU
-===================================================== -->
+<h1>    
+    CRIC <span>YUVA</span>    
+</h1>    
 
-<aside
-  class="side-menu"
-  id="sideMenu">
 
+<h2>Welcome Back!</h2>    
 
-  <div class="side-menu-top">
+<p>Please login to continue</p>
 
+</div>    <div class="login-card">    <div class="input-box">    
 
-    <button
-      class="close-menu-button"
-      id="closeMenuButton"
-      type="button">
+    <i class="fa-solid fa-mobile-screen-button"></i>    
 
-      <i class="fa-solid fa-xmark"></i>
 
-    </button>
+    <div class="input-content">    
 
+        <label>Mobile Number</label>    
 
-    <div class="menu-user">
+        <input type="tel"    
+               id="loginMobile"    
+               inputmode="numeric"    
+               maxlength="10"    
+               placeholder="Enter your mobile number">    
 
+    </div>    
 
-      <div
-        class="menu-profile-photo"
-        id="menuProfilePhoto">
+</div>    
 
-        <span id="menuProfileInitials">
-          CY
-        </span>
 
-      </div>
 
+<div class="input-box">    
 
-      <div>
+    <i class="fa-solid fa-lock"></i>    
 
-        <strong id="menuUserName">
-          Cric Yuva Player
-        </strong>
 
-        <small id="menuPlayerId">
-          CY000001
-        </small>
+    <div class="input-content">    
 
-      </div>
+        <label>Password</label>    
 
+        <input type="password"    
+               id="loginPassword"    
+               placeholder="Enter your password">    
 
-    </div>
+    </div>    
 
 
-  </div>
+    <button class="eye-button"    
+            id="loginEyeButton"    
+            type="button"    
+            aria-label="Show password">    
 
+        <i class="fa-regular fa-eye"></i>    
 
+    </button>    
 
-  <div class="menu-scroll">
+</div>    
 
 
-    <div class="menu-heading">
-      MAIN MENU
-    </div>
 
+<button class="main-button"    
+        id="loginButton"    
+        type="button">    
 
-    <button
-      class="menu-item"
-      data-menu="Home"
-      type="button">
+    LOG IN    
 
-      <i class="fa-solid fa-house"></i>
+</button>    
 
-      <span>Home</span>
 
-    </button>
 
+<div class="or-line">    
 
-    <button
-      class="menu-item"
-      id="menuProfileButton"
-      type="button">
+    <span></span>    
 
-      <i class="fa-solid fa-user"></i>
+    <b>OR</b>    
 
-      <span>My Profile</span>
+    <span></span>    
 
-    </button>
+</div>    
 
 
-    <button
-      class="menu-item"
-      data-menu="My Matches"
-      type="button">
 
-      <i class="fa-solid fa-calendar-days"></i>
+<p class="account-question">    
+    Don't have an account?    
+</p>    
 
-      <span>My Matches</span>
 
-    </button>
 
+<button class="outline-button"    
+        id="createAccountButton"    
+        type="button">    
 
-    <button
-      class="menu-item"
-      data-menu="Tournament"
-      type="button">
+    <i class="fa-regular fa-id-card"></i>    
 
-      <i class="fa-solid fa-trophy"></i>
+    CREATE NEW ACCOUNT    
 
-      <span>Tournament</span>
+</button>    
 
-    </button>
 
 
-    <button
-      class="menu-item"
-      data-menu="Players"
-      type="button">
+<button class="text-button"    
+        id="forgotPasswordButton"    
+        type="button">    
 
-      <i class="fa-solid fa-users"></i>
+    Forgot Password?    
 
-      <span>Players</span>
+</button>
 
-    </button>
+</div>  </section>  <!-- =====================================================    
+     SCREEN 3 - CREATE ACCOUNT    
+===================================================== -->  <section class="app-screen create-screen"    
+         id="screen3">  <div class="page-header">    <button class="back-button"    
+        id="createBackButton"    
+        type="button">    
 
+    <i class="fa-solid fa-arrow-left"></i>    
 
-    <button
-      class="menu-item"
-      data-menu="Statistics"
-      type="button">
+</button>
 
-      <i class="fa-solid fa-chart-line"></i>
+</div>    <div class="create-content">    <div class="create-title">    
 
-      <span>Statistics</span>
+    <h1>    
 
-    </button>
+        CREATE<br>    
 
+        <span>NEW ACCOUNT</span>    
 
+    </h1>    
 
-    <div class="menu-heading">
-      SETTINGS
-    </div>
+    <p>Join Cric Yuva Family!</p>    
 
+</div>    
 
-    <button
-      class="menu-item"
-      data-menu="Notifications"
-      type="button">
 
-      <i class="fa-regular fa-bell"></i>
 
-      <span>Notifications</span>
+<div class="form-input">    
 
-    </button>
+    <i class="fa-solid fa-mobile-screen-button"></i>    
 
 
-    <button
-      class="menu-item"
-      data-menu="Settings"
-      type="button">
+    <div>    
 
-      <i class="fa-solid fa-gear"></i>
+        <label>Mobile Number</label>    
 
-      <span>Settings</span>
+        <input type="tel"    
+               id="newMobile"    
+               inputmode="numeric"    
+               maxlength="10"    
+               placeholder="Enter your mobile number">    
 
-    </button>
+    </div>    
 
+</div>    
 
-    <button
-      class="menu-item"
-      data-menu="Help & Support"
-      type="button">
 
-      <i class="fa-regular fa-circle-question"></i>
 
-      <span>Help & Support</span>
+<div class="form-input">    
 
-    </button>
+    <i class="fa-solid fa-lock"></i>    
 
 
-    <button
-      class="menu-item logout-menu-item"
-      id="logoutButton"
-      type="button">
+    <div>    
 
-      <i class="fa-solid fa-right-from-bracket"></i>
+        <label>Password</label>    
 
-      <span>Logout</span>
+        <input type="password"    
+               id="newPassword"    
+               placeholder="Enter your password">    
 
-    </button>
+    </div>    
 
 
-  </div>
+    <button class="eye-button"    
+            id="newPasswordEye"    
+            type="button">    
 
+        <i class="fa-regular fa-eye"></i>    
 
-</aside>
+    </button>    
 
+</div>    
 
 
-<!-- =====================================================
-     QUICK ACCESS MODAL
-===================================================== -->
 
-<div
-  class="modal-overlay"
-  id="quickModalOverlay">
+<div class="form-input">    
 
+    <i class="fa-solid fa-lock"></i>    
 
-  <div class="quick-modal">
 
+    <div>    
 
-    <button
-      class="modal-close"
-      id="quickModalClose"
-      type="button">
+        <label>Verify Password</label>    
 
-      <i class="fa-solid fa-xmark"></i>
+        <input type="password"    
+               id="verifyPassword"    
+               placeholder="Re-enter your password">    
 
-    </button>
+    </div>    
 
 
-    <h3>
-      QUICK ACCESS
-    </h3>
+    <button class="eye-button"    
+            id="verifyPasswordEye"    
+            type="button">    
 
+        <i class="fa-regular fa-eye"></i>    
 
-    <div class="quick-modal-grid">
+    </button>    
 
+</div>    
 
-      <button
-        class="modal-feature-button"
-        data-feature="My Matches"
-        type="button">
 
-        <i class="fa-solid fa-calendar-days"></i>
 
-        <span>My Matches</span>
+<button class="save-button"    
+        id="saveAccountButton"    
+        type="button">    
 
-      </button>
+    SAVE    
 
+</button>
 
-      <button
-        class="modal-feature-button"
-        data-feature="Tournament"
-        type="button">
+</div>  </section>  <!-- =====================================================    
+     SCREEN 4 - PROFILE    
+===================================================== -->  <section class="app-screen profile-screen"    
+         id="screen4">  <div class="profile-container">    <div class="profile-page-top">    
 
-        <i class="fa-solid fa-trophy"></i>
+    <button class="back-button dark-back"    
+            id="profileBackButton"    
+            type="button">    
 
-        <span>Tournament</span>
+        <i class="fa-solid fa-arrow-left"></i>    
 
-      </button>
+    </button>    
 
 
-      <button
-        class="modal-feature-button"
-        data-feature="Players"
-        type="button">
+    <h2>PLAYER PROFILE</h2>    
 
-        <i class="fa-solid fa-users"></i>
+    <span></span>    
 
-        <span>Players</span>
+</div>    
 
-      </button>
 
 
-      <button
-        class="modal-feature-button"
-        data-feature="Statistics"
-        type="button">
+<div class="profile-photo-area">    
 
-        <i class="fa-solid fa-chart-column"></i>
 
-        <span>Statistics</span>
+    <div class="profile-photo"    
+         id="profilePhoto">    
 
-      </button>
+        <span id="profileInitial">    
+            PLAYER    
+        </span>    
 
+    </div>    
 
-    </div>
 
 
-  </div>
+    <button class="photo-edit-btn"    
+            id="replacePhotoBtn"    
+            type="button">    
 
+        <i class="fa-solid fa-camera"></i>    
 
+    </button>    
+
+
+
+    <input type="file"    
+           id="profilePhotoInput"    
+           accept="image/*"    
+           hidden>    
+
+
+</div>    
+
+
+
+<div class="player-id">    
+
+    ID:    
+    <span id="playerId">    
+        CY00000001    
+    </span>    
+
+</div>    
+
+
+
+<div class="profile-details">    
+
+
+    <div class="profile-row">    
+
+        <i class="fa-regular fa-user"></i>    
+
+        <span>Name</span>    
+
+        <input type="text"    
+               id="profileName"    
+               placeholder="Your Name">    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-solid fa-mobile-screen-button"></i>    
+
+        <span>Mobile</span>    
+
+        <input type="tel"    
+               id="profileMobile"    
+               inputmode="numeric"    
+               readonly>    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-regular fa-envelope"></i>    
+
+        <span>Email</span>    
+
+        <input type="email"    
+               id="profileEmail"    
+               placeholder="Email Address">    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-solid fa-shirt"></i>    
+
+        <span>Jersey Name</span>    
+
+        <input type="text"    
+               id="jerseyName"    
+               placeholder="Jersey Name">    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-solid fa-hashtag"></i>    
+
+        <span>Jersey Number</span>    
+
+        <input type="number"    
+               id="jerseyNumber"    
+               inputmode="numeric"    
+               placeholder="Number">    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-solid fa-shirt"></i>    
+
+        <span>Jersey Size</span>    
+
+
+        <select id="jerseySize">    
+
+            <option value="">Select</option>    
+            <option>S</option>    
+            <option>M</option>    
+            <option>L</option>    
+            <option>XL</option>    
+            <option>XXL</option>    
+            <option>XXXL</option>    
+
+        </select>    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-solid fa-ruler-horizontal"></i>    
+
+        <span>Pant Size</span>    
+
+        <input type="number"    
+               id="pantSize"    
+               inputmode="numeric"    
+               placeholder="Number">    
+
+    </div>    
+
+
+
+    <div class="profile-row">    
+
+        <i class="fa-regular fa-calendar"></i>    
+
+        <span>Date of Birth</span>    
+
+        <input type="date"    
+               id="dateOfBirth">    
+
+    </div>    
+
+
+</div>    
+
+
+
+<button class="save-changes-button"    
+        id="saveProfileButton"    
+        type="button">    
+
+    SAVE CHANGES    
+
+</button>
+
+</div>  </section>  <!-- =====================================================    
+     SCREEN 5 - CRIC YUVA HOME PAGE    
+===================================================== -->  <section id="screen5"    
+         class="app-screen">  <div class="cric-home-page">    <!-- ================= HEADER ================= -->    
+
+<header class="cric-home-header">    
+
+
+    <button class="home-header-menu"    
+            id="menuButton"    
+            type="button"    
+            aria-label="Open Menu">    
+
+        <i class="fa-solid fa-bars"></i>    
+
+    </button>    
+
+    <div class="home-brand">    
+
+        <img    
+           src="cric-yuva-logo.png?v=11"    
+           alt="CRIC YUVA"    
+           class="cric-yuva-main-logo"    
+        >
+
+<div class="home-brand-text">    
+    <div class="home-brand-name">    
+        <span>CRIC</span><strong>YUVA</strong>    
+    </div>    <div class="home-brand-tagline">    
+    PLAY TOGETHER, WIN TOGETHER    
 </div>
 
+</div>    </div>    
 
 
-<!-- =====================================================
-     SCREEN 6 - FEATURE PAGE
-===================================================== -->
-
-<section
-  class="app-screen feature-screen"
-  id="screen6">
+    <div class="home-header-actions">    
 
 
-  <header class="feature-header">
+        <button class="header-icon-btn"    
+                id="notificationButton"    
+                type="button"    
+                aria-label="Notifications">    
+
+            <i class="fa-regular fa-bell"></i>    
+
+            <span id="notificationDot"></span>    
+
+        </button>    
 
 
-    <button
-      class="back-button"
-      id="featureBackButton"
-      type="button">
 
-      <i class="fa-solid fa-arrow-left"></i>
+        <button class="header-icon-btn"    
+                type="button"    
+                data-action="contact"    
+                aria-label="Messages">    
+
+            <i class="fa-regular fa-comment-dots"></i>    
+
+        </button>    
+
+
+    </div>    
+
+
+</header>    
+
+
+
+<!-- ================= WELCOME PROFILE ================= -->    
+
+<section class="welcome-profile-card"    
+         id="openProfileFromHome">    
+
+
+    <div class="home-profile-avatar"    
+         id="homeProfilePhoto">    
+
+        <span id="homeInitial">P</span>    
+
+    </div>    
+
+
+
+    <div class="welcome-profile-info">    
+
+
+        <span class="welcome-small">    
+
+            WELCOME BACK    
+
+        </span>    
+
+
+
+        <h2 id="homePlayerName">    
+
+            CRIC YUVA PLAYER    
+
+        </h2>    
+
+
+
+        <span class="home-player-id"    
+              id="homePlayerId">    
+
+            ID: CY0000001    
+
+        </span>    
+
+
+    </div>    
+
+
+
+    <div class="welcome-arrow">    
+
+        <i class="fa-solid fa-chevron-right"></i>    
+
+    </div>    
+
+
+</section>    
+
+
+
+<!-- ================= LIVE CRICKET ================= -->    
+
+<section class="home-section live-section">    
+
+
+    <div class="section-heading">    
+
+
+        <h2>    
+            LIVE CRICKET    
+        </h2>    
+
+
+
+        <button type="button"    
+                data-action="live">    
+
+            VIEW ALL    
+
+        </button>    
+
+
+    </div>    
+
+
+
+    <div class="live-match-card"    
+         id="watchLiveButton">    
+
+
+        <div class="live-card-top">    
+
+
+            <span class="live-badge">    
+
+                <i class="fa-solid fa-circle"></i>    
+
+                LIVE    
+
+            </span>    
+
+
+
+            <span class="watching-count">    
+
+                <i class="fa-regular fa-eye"></i>    
+
+                0 watching    
+
+            </span>    
+
+
+        </div>    
+
+
+
+        <div class="stadium-visual">    
+
+
+            <div class="stadium-light left-light"></div>    
+
+            <div class="stadium-light right-light"></div>    
+
+            <div class="stadium-stands"></div>    
+
+
+
+            <div class="live-play-button">    
+
+                <i class="fa-solid fa-play"></i>    
+
+            </div>    
+
+
+
+            <h2>    
+                LIVE MATCH STREAM    
+            </h2>    
+
+
+        </div>    
+
+
+
+        <button class="watch-live-btn"    
+                type="button">    
+
+            <i class="fa-solid fa-play"></i>    
+
+            WATCH LIVE    
+
+        </button>    
+
+
+    </div>    
+
+
+</section>    
+
+
+
+<!-- ================= UPCOMING MATCH ================= -->    
+
+<section class="home-section upcoming-section">    
+
+
+    <div class="section-heading">    
+
+
+        <h2>    
+            UPCOMING MATCH    
+        </h2>    
+
+
+
+        <button type="button"    
+                data-action="matches">    
+
+            VIEW ALL    
+
+        </button>    
+
+
+    </div>    
+
+
+
+    <div class="upcoming-match-card"    
+         id="matchDetailsButton">    
+
+
+        <div class="next-match-title">    
+
+            NEXT MATCH    
+
+        </div>    
+
+
+
+        <div class="teams-row">    
+
+
+            <div class="team-side">    
+
+
+                <div class="team-logo team-a">    
+
+                    <span>A</span>    
+
+                </div>    
+
+
+
+                <strong>    
+                    TEAM A    
+                </strong>    
+
+
+            </div>    
+
+
+
+            <div class="vs-area">    
+
+
+                <span class="vs-text">    
+                    VS    
+                </span>    
+
+
+
+                <span class="vs-subtitle">    
+                    CRIC YUVA    
+                </span>    
+
+
+            </div>    
+
+
+
+            <div class="team-side">    
+
+
+                <div class="team-logo team-b">    
+
+                    <span>B</span>    
+
+                </div>    
+
+
+
+                <strong>    
+                    TEAM B    
+                </strong>    
+
+
+            </div>    
+
+
+        </div>    
+
+
+
+        <div class="match-info-row">    
+
+
+            <div>    
+
+                <i class="fa-regular fa-calendar"></i>    
+
+                <span>Coming Soon</span>    
+
+            </div>    
+
+
+
+            <div>    
+
+                <i class="fa-solid fa-location-dot"></i>    
+
+                <span>Ground</span>    
+
+            </div>    
+
+
+        </div>    
+
+
+
+        <button class="match-details-btn"    
+                type="button">    
+
+            MATCH DETAILS    
+
+            <i class="fa-solid fa-chevron-right"></i>    
+
+        </button>    
+
+
+    </div>    
+
+
+</section>    
+
+
+
+<!-- ================= QUICK ACCESS ================= -->    
+
+<section class="home-section quick-section">    
+
+
+    <div class="section-heading">    
+
+
+        <h2>    
+            QUICK ACCESS    
+        </h2>    
+
+
+
+        <button type="button"    
+                data-action="home">    
+
+            VIEW ALL    
+
+        </button>    
+
+
+    </div>    
+
+
+
+    <div class="quick-access-grid">    
+
+
+        <!-- MY TEAM -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="team">    
+
+            <i class="fa-solid fa-users"></i>    
+
+            <span>My Team</span>    
+
+        </button>    
+
+
+
+        <!-- MY MATCHES - SCREENSHOT JAISE BAT + BALL ICON -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="matches">    
+
+            <i class="fa-solid fa-baseball-bat-ball"></i>    
+
+            <span>My Matches</span>    
+
+        </button>    
+
+
+
+        <!-- TOURNAMENT -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="tournament">    
+
+            <i class="fa-solid fa-trophy"></i>    
+
+            <span>Tournament</span>    
+
+        </button>    
+
+
+
+        <!-- STATISTICS -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="statistics">    
+
+            <i class="fa-solid fa-chart-column"></i>    
+
+            <span>Statistics</span>    
+
+        </button>    
+
+
+
+        <!-- LEADERBOARD -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="leaderboard">    
+
+            <i class="fa-solid fa-medal"></i>    
+
+            <span>Leaderboard</span>    
+
+        </button>    
+
+
+
+        <!-- SUBSCRIPTION -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="subscription">    
+
+            <i class="fa-solid fa-crown"></i>    
+
+            <span>Subscription</span>    
+
+        </button>    
+
+
+
+        <!-- PAYMENT -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="payment">    
+
+            <i class="fa-solid fa-credit-card"></i>    
+
+            <span>Payment</span>    
+
+        </button>    
+
+
+
+        <!-- UPDATES -->    
+
+        <button class="quick-access-item"    
+                type="button"    
+                data-action="updates">    
+
+            <i class="fa-solid fa-bullhorn"></i>    
+
+            <span>Updates</span>    
+
+        </button>    
+
+
+    </div>    
+
+
+</section>    
+
+
+
+<!-- ================= HOME FEED ================= -->    
+
+<section class="home-section home-feed-section">    
+
+
+    <div class="section-heading no-view-all">    
+
+        <h2>    
+            HOME FEED    
+        </h2>    
+
+    </div>    
+
+
+
+    <div class="home-feed-card">    
+
+
+        <div class="feed-icon">    
+
+            <i class="fa-solid fa-bullhorn"></i>    
+
+        </div>    
+
+
+
+        <div class="feed-content">    
+
+
+            <h3>    
+                Welcome to CRIC YUVA V1.0    
+            </h3>    
+
+
+
+            <p>    
+                All your cricket activities will appear here.    
+            </p>    
+
+
+        </div>    
+
+
+    </div>    
+
+
+</section>    
+
+
+
+<div class="home-bottom-space"></div>
+
+</div>    <!-- =====================================================    
+     BOTTOM NAVIGATION    
+===================================================== -->    <nav class="cric-bottom-nav">    <!-- HOME -->    
+
+<button type="button"    
+        class="bottom-nav-item active"    
+        data-action="home">    
+
+    <i class="fa-solid fa-house"></i>    
+
+    <span>Home</span>    
+
+</button>    
+
+
+
+<!-- MATCHES - SAME BAT + BALL ICON -->    
+
+<button type="button"    
+        class="bottom-nav-item matches-nav-item"    
+        data-action="matches">    
+
+    <i class="fa-solid fa-baseball-bat-ball"></i>    
+
+    <span>Matches</span>    
+
+</button>    
+
+
+
+<!-- CENTER PLUS BUTTON -->    
+
+<button type="button"    
+        class="bottom-nav-center"    
+        id="centerActionButton"    
+        aria-label="Quick Action">    
+
+    <i class="fa-solid fa-plus"></i>    
+
+</button>    
+
+
+
+<!-- UPDATES -->    
+
+<button type="button"    
+        class="bottom-nav-item"    
+        data-action="updates">    
+
+    <i class="fa-regular fa-bell"></i>    
+
+    <span>Updates</span>    
+
+</button>
+
+      <!-- PROFILE -->
+  
+    <button type="button"
+            class="bottom-nav-item"
+            id="bottomProfileButton"
+            data-action="profile">
+
+        <i class="fa-regular fa-user"></i>
+
+        <span>Profile</span>
 
     </button>
 
-
-    <h2 id="featureHeaderTitle">
-      FEATURE
-    </h2>
-
-
-    <span></span>
-
-
-  </header>
-
-
-  <main class="feature-content">
-
-
-    <div class="feature-icon-box">
-
-      <i
-        class="fa-solid fa-trophy"
-        id="featureIcon">
-
-      </i>
-
-    </div>
-
-
-    <h1 id="featureTitle">
-      Coming Soon
-    </h1>
-
-
-    <p id="featureText">
-      This feature will be available soon in Cric Yuva.
-    </p>
-
-
-    <button
-      class="feature-home-button"
-      id="featureHomeButton"
-      type="button">
-
-      GO TO HOME
-
-    </button>
-
-
-  </main>
-
+</nav>
 
 </section>
-
-
-
-<!-- =====================================================
-     JAVASCRIPT FILE
-===================================================== -->
 
 <script src="script.js"></script>
 
-
 </body>
+
 </html>
