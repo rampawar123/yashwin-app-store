@@ -1630,7 +1630,7 @@ closeMenu();
 
 );
 
-    /* =====================================================
+/* =====================================================
 MY TEAM SCREEN
 ===================================================== */
 
@@ -1807,7 +1807,7 @@ document.querySelectorAll(
 
 });
 
-    /* =====================================================
+/* =====================================================
 MY TEAM SCREEN
 ===================================================== */
 
@@ -1979,6 +1979,25 @@ document
         );
 
     });
+
+ /* =====================================================
+BOTTOM CENTER + BUTTON
+===================================================== */
+
+document.querySelectorAll(
+    "#centerActionButton, .center-action, .bottom-center-button, .nav-center-btn, .add-button"
+).forEach(function (button) {
+
+    button.addEventListener("click", function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        openQuickModal();
+
+    });
+
+});
 
 /* =====================================================
 INITIAL LOAD
