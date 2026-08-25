@@ -1988,12 +1988,9 @@ document.querySelectorAll(
     "#centerActionButton, .center-action, .bottom-center-button, .nav-center-btn, .add-button"
 ).forEach(function (button) {
 
-    button.addEventListener("click", function (event) {
+    button.addEventListener("click", function () {
 
-        event.preventDefault();
-        event.stopPropagation();
-
-        openQuickModal();
+        alert("Bottom + button is working!");
 
     });
 
