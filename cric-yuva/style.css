@@ -2,13 +2,13 @@
     --orange: #ff5a00;
     --orange-dark: #d94300;
     --orange-light: #ff7a30;
-    --black: #070707;
-    --dark: #101010;
-    --card: #171717;
+    --black: #050505;
+    --dark: #0b0d0f;
+    --card: #14171b;
     --white: #ffffff;
     --light: #f4f4f4;
-    --gray: #777777;
-    --border: #dddddd;
+    --gray: #8a8f96;
+    --border: rgba(255,255,255,.12);
 }
 
 * {
@@ -26,6 +26,10 @@ body {
     color: #fff;
 }
 
+body {
+    overflow-x: hidden;
+}
+
 button,
 input,
 select {
@@ -34,6 +38,7 @@ select {
 
 button {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .app-screen {
@@ -117,8 +122,13 @@ button {
 }
 
 @keyframes loadingMove {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .loading-box p {
@@ -487,271 +497,330 @@ button {
     margin-top: 25px;
 }
 
-/* ================= HOME ================= */
+/* =====================================================
+   HOME – NEW FINAL DESIGN
+   ===================================================== */
 
 .home-screen {
     min-height: 100vh;
-    padding-bottom: 85px;
-    background: #f2f2f2;
-    color: #222;
+    padding-bottom: 92px;
+    color: #fff;
+    background:
+        linear-gradient(180deg, rgba(2,5,8,.78), rgba(2,5,8,.94)),
+        radial-gradient(circle at top, rgba(255,90,0,.12), transparent 35%),
+        #05080a;
 }
+
+/* ================= HEADER ================= */
 
 .home-header {
     position: sticky;
     top: 0;
     z-index: 20;
-    min-height: 68px;
-    padding: 0 15px;
+    min-height: 76px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(90deg, #e94b00, #ff710f);
+    background:
+        linear-gradient(90deg, #e84700, #ff5a00 55%, #d94300);
     color: #fff;
-    box-shadow: 0 3px 12px rgba(0,0,0,.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,.35);
 }
 
 .header-icon-btn {
     position: relative;
-    width: 45px;
-    height: 45px;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
     border: none;
     border-radius: 50%;
-    background: rgba(255,255,255,.13);
+    background: rgba(255,255,255,.12);
     color: #fff;
-    font-size: 20px;
+    font-size: 21px;
     cursor: pointer;
 }
 
 .home-brand {
+    min-width: 0;
+    flex: 1;
+    margin: 0 10px;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-align: left;
+}
+
+.home-brand .main-logo {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 4px;
 }
 
 .home-brand strong {
-    font-size: 20px;
+    display: block;
+    font-size: 23px;
+    line-height: 1;
+    letter-spacing: .5px;
 }
 
 .home-brand strong span {
-    color: #1b1b1b;
+    color: #222;
 }
 
 .home-brand small {
-    margin-top: 2px;
+    display: block;
+    margin-top: 5px;
     font-size: 7px;
     letter-spacing: .8px;
+    white-space: nowrap;
 }
 
 .notification-btn b {
     position: absolute;
-    top: 8px;
+    top: 7px;
     right: 8px;
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
+    border: 2px solid var(--orange);
     background: #fff;
 }
+
+/* ================= HOME CONTENT ================= */
 
 .home-content {
     max-width: 650px;
     margin: auto;
-    padding: 15px;
+    padding: 12px 15px 25px;
 }
 
+/* ================= COMPACT WELCOME ================= */
+
 .welcome-card {
-    min-height: 104px;
+    min-height: 96px;
+    padding: 10px 13px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px;
+    border: 1px solid rgba(255,90,0,.45);
     border-radius: 20px;
     color: #fff;
-    background: linear-gradient(135deg, #111, #282828);
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    background:
+        linear-gradient(135deg, rgba(26,29,33,.98), rgba(8,10,13,.98));
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
 }
 
 .welcome-user {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 12px;
     min-width: 0;
 }
 
-.home-profile-photo,
-.menu-profile-photo {
+.home-profile-photo {
+    width: 72px;
+    height: 72px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid var(--orange);
     border-radius: 50%;
-    background: #333;
+    background: #222;
     color: #fff;
     font-weight: 800;
     flex-shrink: 0;
 }
 
-.home-profile-photo {
-    width: 62px;
-    height: 62px;
+.home-profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .welcome-card small {
     color: var(--orange-light);
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .welcome-card h2 {
-    max-width: 210px;
-    margin: 3px 0;
+    max-width: 200px;
+    margin: 4px 0 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 18px;
+    font-size: 25px;
+    line-height: 1;
 }
 
 .welcome-card p {
-    color: #bbb;
+    color: #c0c0c0;
     font-size: 11px;
 }
 
 .welcome-arrow {
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
     flex-shrink: 0;
-    border: 1px solid #555;
+    border: 1px solid rgba(255,90,0,.7);
     border-radius: 50%;
     background: transparent;
     color: var(--orange);
+    font-size: 20px;
     cursor: pointer;
 }
 
+/* ================= SECTION ================= */
+
 .section-block {
-    margin-top: 23px;
+    margin-top: 20px;
 }
 
 .section-title {
-    margin-bottom: 11px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .section-title h3 {
-    font-size: 15px;
+    color: #f1f1f1;
+    font-size: 18px;
+    letter-spacing: .3px;
 }
 
 .see-all-button {
     border: none;
     background: transparent;
-    color: var(--orange-dark);
-    font-size: 11px;
-    font-weight: 800;
+    color: var(--orange-light);
+    font-size: 12px;
+    font-weight: 900;
     cursor: pointer;
 }
 
+/* ================= LIVE MATCH – BIG BOX ================= */
+
 .live-card {
     overflow: hidden;
-    border-radius: 18px;
-    background: #111;
+    border: 1px solid rgba(255,90,0,.5);
+    border-radius: 22px;
+    background: #07090c;
     color: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
 }
 
 .live-top {
-    padding: 12px 14px;
+    padding: 13px 15px;
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
+    font-size: 12px;
+    background: rgba(0,0,0,.2);
 }
 
 .live-badge {
-    color: var(--orange-light);
-    font-weight: 800;
+    color: #fff;
+    font-weight: 900;
 }
 
 .live-badge i {
-    font-size: 8px;
+    color: #ff3d25;
+    font-size: 9px;
 }
 
 .viewer-text {
-    color: #bbb;
+    color: #c7c7c7;
 }
 
 .live-placeholder {
-    height: 140px;
+    height: 285px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 14px;
     background:
-        radial-gradient(circle, rgba(255,90,0,.25), transparent 45%),
-        linear-gradient(135deg, #252525, #050505);
+        linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.45)),
+        radial-gradient(circle at center, rgba(255,90,0,.25), transparent 28%),
+        linear-gradient(135deg, #111923, #06090d);
 }
 
 .live-placeholder i {
-    width: 55px;
-    height: 55px;
+    width: 96px;
+    height: 96px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 3px solid rgba(255,255,255,.28);
     border-radius: 50%;
-    background: var(--orange);
+    background: linear-gradient(135deg, #ff7a00, #ff3d00);
+    color: #fff;
+    font-size: 34px;
+    box-shadow: 0 0 25px rgba(255,90,0,.4);
 }
 
 .live-placeholder span {
-    font-size: 12px;
-    font-weight: 800;
+    font-size: 18px;
+    font-weight: 900;
 }
 
 .watch-live-button,
 .match-details-button {
     width: 100%;
-    min-height: 46px;
+    min-height: 64px;
     border: none;
-    background: var(--orange);
+    background: linear-gradient(90deg, #ff4b00, #ff6a00);
     color: #fff;
-    font-weight: 800;
+    font-size: 20px;
+    font-weight: 900;
     cursor: pointer;
 }
 
+/* ================= UPCOMING MATCH ================= */
+
 .next-match-card {
     overflow: hidden;
-    border-radius: 18px;
+    border: 1px solid rgba(255,90,0,.55);
+    border-radius: 22px;
     background: #fff;
-    box-shadow: 0 5px 18px rgba(0,0,0,.08);
+    color: #222;
+    box-shadow: 0 8px 22px rgba(0,0,0,.25);
 }
 
 .match-status {
-    padding: 10px;
+    padding: 14px 10px;
     text-align: center;
-    background: #222;
+    background: linear-gradient(90deg, #151515, #242424);
     color: var(--orange-light);
-    font-size: 11px;
-    font-weight: 800;
+    font-size: 13px;
+    font-weight: 900;
 }
 
 .teams-row {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding: 18px 12px;
+    padding: 22px 12px;
 }
 
 .team-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
-    width: 100px;
+    gap: 8px;
+    width: 110px;
     text-align: center;
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .team-logo {
-    width: 52px;
-    height: 52px;
+    width: 76px;
+    height: 76px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -759,36 +828,45 @@ button {
     border-radius: 50%;
     color: var(--orange-dark);
     font-weight: 900;
+    font-size: 17px;
 }
 
 .vs-box {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 7px;
     text-align: center;
 }
 
 .vs-box b {
-    font-size: 16px;
+    font-size: 25px;
 }
 
 .vs-box small {
     color: var(--orange-dark);
-    font-size: 8px;
+    font-size: 9px;
+    font-weight: 800;
 }
 
 .match-info {
-    padding: 12px;
+    padding: 14px 8px;
     display: flex;
     justify-content: space-around;
-    border-top: 1px solid #eee;
-    color: #777;
-    font-size: 10px;
+    border-top: 1px solid #e8e8e8;
+    color: #666;
+    font-size: 11px;
 }
 
 .match-info i {
     color: var(--orange);
 }
+
+.match-details-button {
+    min-height: 58px;
+    font-size: 18px;
+}
+
+/* ================= QUICK ACCESS ================= */
 
 .quick-grid {
     display: grid;
@@ -797,61 +875,68 @@ button {
 }
 
 .quick-card {
-    min-height: 92px;
+    min-height: 118px;
     padding: 10px 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    border: 1px solid #e5e5e5;
-    border-radius: 15px;
-    background: #fff;
-    color: #333;
+    gap: 10px;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 20px;
+    background:
+        linear-gradient(145deg, #ffffff, #e9e9e9);
+    color: #30343a;
     cursor: pointer;
+    box-shadow: 0 5px 14px rgba(0,0,0,.15);
 }
 
 .quick-card i {
     color: var(--orange);
-    font-size: 22px;
+    font-size: 27px;
 }
 
 .quick-card span {
     text-align: center;
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
 }
 
+/* ================= HOME FEED ================= */
+
 .feed-card {
-    padding: 15px;
+    padding: 17px;
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
-    border-radius: 15px;
-    background: #fff;
-    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px;
+    background: linear-gradient(145deg, #fff, #e9e9e9);
+    color: #30343a;
+    box-shadow: 0 6px 18px rgba(0,0,0,.2);
 }
 
 .feed-icon {
-    width: 44px;
-    height: 44px;
+    width: 58px;
+    height: 58px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 16px;
     background: #fff0e8;
     color: var(--orange);
+    font-size: 22px;
 }
 
 .feed-card strong {
-    font-size: 13px;
+    font-size: 16px;
 }
 
 .feed-card p {
-    margin-top: 4px;
+    margin-top: 5px;
     color: #777;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 /* ================= BOTTOM NAV ================= */
@@ -863,17 +948,18 @@ button {
     bottom: 0;
     z-index: 50;
     max-width: 650px;
-    height: 72px;
+    height: 78px;
     margin: auto;
     display: grid;
     grid-template-columns: 1fr 1fr 1.15fr 1fr 1fr;
     align-items: center;
-    border-top: 1px solid #e5e5e5;
-    background: #fff;
+    border-top: 1px solid rgba(255,255,255,.1);
+    background: linear-gradient(90deg, #e84700, #ff5a00, #d94300);
+    box-shadow: 0 -5px 20px rgba(0,0,0,.3);
 }
 
 .bottom-nav-btn {
-    height: 65px;
+    height: 72px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -881,31 +967,37 @@ button {
     gap: 5px;
     border: none;
     background: transparent;
-    color: #777;
+    color: rgba(255,255,255,.82);
     font-size: 10px;
     cursor: pointer;
 }
 
 .bottom-nav-btn i {
-    font-size: 18px;
+    font-size: 21px;
+}
+
+.bottom-nav-btn span {
+    font-weight: 700;
 }
 
 .active-nav {
-    color: var(--orange);
+    color: #fff;
 }
 
 .center-nav-btn {
-    width: 55px;
-    height: 55px;
+    width: 64px;
+    height: 64px;
     justify-self: center;
-    margin-top: -28px;
-    border: 5px solid #f2f2f2;
+    margin-top: -35px;
+    border: 5px solid #fff;
     border-radius: 50%;
-    background: var(--orange);
+    background: linear-gradient(135deg, #ff6b00, #ff3d00);
     color: #fff;
-    font-size: 22px;
+    font-size: 25px;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(255,90,0,.35);
+    box-shadow:
+        0 0 0 7px rgba(255,90,0,.18),
+        0 7px 18px rgba(0,0,0,.35);
 }
 
 /* ================= SIDE MENU ================= */
@@ -915,7 +1007,7 @@ button {
     inset: 0;
     z-index: 99;
     display: none;
-    background: rgba(0,0,0,.55);
+    background: rgba(0,0,0,.65);
 }
 
 .menu-overlay.open {
@@ -943,7 +1035,9 @@ button {
 .side-menu-top {
     padding: 20px 18px;
     color: #fff;
-    background: linear-gradient(135deg, #111, #2b2b2b);
+    background:
+        radial-gradient(circle at right top, rgba(255,90,0,.2), transparent 40%),
+        linear-gradient(135deg, #0b0d0f, #252525);
 }
 
 .close-menu-button {
@@ -964,8 +1058,23 @@ button {
 }
 
 .menu-profile-photo {
-    width: 58px;
-    height: 58px;
+    width: 62px;
+    height: 62px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--orange);
+    border-radius: 50%;
+    background: #333;
+    color: #fff;
+    font-weight: 800;
+}
+
+.menu-profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .menu-user strong,
@@ -980,7 +1089,7 @@ button {
 }
 
 .menu-scroll {
-    height: calc(100vh - 135px);
+    height: calc(100vh - 145px);
     overflow-y: auto;
     padding: 15px 0 30px;
 }
@@ -995,7 +1104,7 @@ button {
 
 .menu-item {
     width: 100%;
-    min-height: 48px;
+    min-height: 52px;
     padding: 0 20px;
     display: flex;
     align-items: center;
@@ -1014,7 +1123,7 @@ button {
 }
 
 .menu-item span {
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .logout-menu-item {
@@ -1162,6 +1271,15 @@ button {
     font-size: 10px;
 }
 
+/* ================= LOGO ================= */
+
+.main-logo {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (min-width: 700px) {
@@ -1183,548 +1301,110 @@ button {
     }
 }
 
-@media (max-width: 390px) {
-    .quick-grid {
-        gap: 7px;
-    }
-
-    .quick-card {
-        min-height: 84px;
-    }
-
-    .quick-card i {
-        font-size: 19px;
-    }
-
-    .quick-card span {
-        font-size: 9px;
-    }
-
-    .profile-row span {
-        width: 92px;
-        font-size: 12px;
-    }
-}
-
-.main-logo {
-    width: 46px;
-    height: 46px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-/* =========================================================
-   CRIC YUVA - NEW HOME BODY DESIGN
-   Existing buttons / JavaScript remain unchanged
-========================================================= */
-
-/* ================= HOME BACKGROUND ================= */
-
-.home-screen {
-    background:
-        linear-gradient(rgba(4, 8, 6, .84), rgba(4, 8, 6, .94)),
-        radial-gradient(circle at 50% 0%, rgba(255, 90, 0, .14), transparent 35%),
-        #08100b;
-    color: #fff;
-}
-
-/* ================= HEADER ================= */
-
-.home-header {
-    min-height: 82px;
-    padding: 0 18px;
-    justify-content: flex-start;
-    gap: 12px;
-    background:
-        linear-gradient(90deg, rgba(255, 86, 0, .96), rgba(255, 116, 25, .90)),
-        #ff5a00;
-    box-shadow: 0 4px 18px rgba(0,0,0,.28);
-}
-
-.header-icon-btn {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.08);
-    font-size: 25px;
-}
-
-.main-logo {
-    width: 58px;
-    height: 58px;
-    margin-left: 4px;
-    object-fit: contain;
-}
-
-.home-brand {
-    flex: 1;
-    align-items: flex-start;
-    min-width: 0;
-}
-
-.home-brand strong {
-    font-size: 25px;
-    letter-spacing: .4px;
-    color: #fff;
-}
-
-.home-brand strong span {
-    color: #171717;
-}
-
-.home-brand small {
-    margin-top: 4px;
-    color: rgba(255,255,255,.88);
-    font-size: 8px;
-    letter-spacing: 1px;
-    white-space: nowrap;
-}
-
-.notification-btn {
-    margin-left: auto;
-}
-
-.notification-btn b {
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(255,90,0,.7);
-}
-
-/* ================= MAIN CONTENT ================= */
-
-.home-content {
-    max-width: 650px;
-    padding: 18px 15px 105px;
-}
-
-/* ================= WELCOME PROFILE ================= */
-
-.welcome-card {
-    min-height: 138px;
-    padding: 17px;
-    border: 1px solid rgba(255,90,0,.55);
-    border-radius: 27px;
-    background:
-        linear-gradient(90deg, rgba(8,8,8,.94), rgba(28,28,28,.88)),
-        #111;
-    box-shadow:
-        0 10px 25px rgba(0,0,0,.30),
-        inset 0 0 30px rgba(255,90,0,.04);
-}
-
-.home-profile-photo {
-    width: 88px;
-    height: 88px;
-    border: 3px solid #ff5a00;
-    box-shadow: 0 0 0 5px rgba(255,90,0,.08);
-}
-
-.welcome-user {
-    gap: 17px;
-}
-
-.welcome-card small {
-    color: #ff8b4d;
-    font-size: 12px;
-    letter-spacing: .5px;
-}
-
-.welcome-card h2 {
-    max-width: 200px;
-    margin: 5px 0;
-    font-size: 28px;
-    color: #fff;
-}
-
-.welcome-card p {
-    color: #c5c5c5;
-    font-size: 13px;
-    letter-spacing: 1px;
-}
-
-.welcome-arrow {
-    width: 68px;
-    height: 68px;
-    border: 1.5px solid #ff5a00;
-    background: rgba(255,255,255,.02);
-    color: #ff5a00;
-    font-size: 31px;
-}
-
-/* ================= SECTION TITLES ================= */
-
-.section-block {
-    margin-top: 29px;
-}
-
-.section-title {
-    margin-bottom: 14px;
-}
-
-.section-title h3 {
-    color: #f5f5f5;
-    font-size: 20px;
-    letter-spacing: .3px;
-}
-
-.see-all-button {
-    color: #ff7a30;
-    font-size: 14px;
-    letter-spacing: .5px;
-}
-
-/* ================= LIVE CRICKET ================= */
-
-.live-card {
-    border: 1px solid rgba(255,90,0,.65);
-    border-radius: 25px;
-    background: #080808;
-    box-shadow: 0 10px 25px rgba(0,0,0,.32);
-}
-
-.live-top {
-    padding: 18px 20px;
-}
-
-.live-badge {
-    color: #ff6b20;
-    font-size: 15px;
-    letter-spacing: .5px;
-}
-
-.live-badge i {
-    color: #ff3131;
-    font-size: 11px;
-}
-
-.viewer-text {
-    color: #d5d5d5;
-    font-size: 13px;
-}
-
-.live-placeholder {
-    height: 235px;
-    gap: 18px;
-    background:
-        linear-gradient(rgba(0,0,0,.42), rgba(0,0,0,.35)),
-        radial-gradient(circle at center, rgba(255,90,0,.32), transparent 28%),
-        linear-gradient(180deg, #121212, #08130b 65%, #151515);
-    position: relative;
-}
-
-.live-placeholder::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: .45;
-    background:
-        radial-gradient(ellipse at 15% 18%, rgba(255,255,255,.25), transparent 12%),
-        radial-gradient(ellipse at 85% 18%, rgba(255,255,255,.25), transparent 12%);
-}
-
-.live-placeholder i,
-.live-placeholder span {
-    position: relative;
-    z-index: 1;
-}
-
-.live-placeholder i {
-    width: 94px;
-    height: 94px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ff7a00, #ff3800);
-    font-size: 37px;
-    box-shadow: 0 0 35px rgba(255,90,0,.45);
-}
-
-.live-placeholder span {
-    font-size: 19px;
-    letter-spacing: .5px;
-}
-
-.watch-live-button {
-    min-height: 70px;
-    background: linear-gradient(90deg, #ff4300, #ff6500);
-    font-size: 23px;
-    letter-spacing: .5px;
-}
-
-/* ================= UPCOMING MATCH ================= */
-
-.next-match-card {
-    border-radius: 25px;
-    background: #f8f8f8;
-    box-shadow: 0 10px 28px rgba(0,0,0,.30);
-    overflow: hidden;
-}
-
-.match-status {
-    padding: 17px;
-    background: #252525;
-    color: #ff8b4d;
-    font-size: 15px;
-    letter-spacing: .4px;
-}
-
-.teams-row {
-    padding: 27px 15px;
-}
-
-.team-box {
-    width: 115px;
-    gap: 10px;
-    font-size: 14px;
-    color: #333;
-}
-
-.team-logo {
-    width: 88px;
-    height: 88px;
-    border: 3px solid #ff5a00;
-    color: #d94a00;
-    font-size: 22px;
-    background: #fff;
-}
-
-.vs-box {
-    gap: 8px;
-}
-
-.vs-box b {
-    color: #333;
-    font-size: 28px;
-}
-
-.vs-box small {
-    color: #b34a14;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.match-info {
-    min-height: 58px;
-    padding: 15px;
-    border-top: 1px solid #ddd;
-    color: #666;
-    font-size: 13px;
-    background: #f5f5f5;
-}
-
-.match-info i {
-    color: #ff5a00;
-}
-
-.match-details-button {
-    min-height: 65px;
-    background: linear-gradient(90deg, #ff4300, #ff6900);
-    font-size: 20px;
-    letter-spacing: .5px;
-}
-
-/* ================= QUICK ACCESS ================= */
-
-.quick-grid {
-    gap: 13px;
-}
-
-.quick-card {
-    min-height: 125px;
-    padding: 12px 6px;
-    border: 1px solid rgba(255,255,255,.16);
-    border-radius: 22px;
-    background:
-        linear-gradient(145deg, #ffffff, #e9e9e9);
-    color: #292929;
-    box-shadow: 0 5px 14px rgba(0,0,0,.18);
-}
-
-.quick-card i {
-    color: #ff5a00;
-    font-size: 31px;
-}
-
-.quick-card span {
-    color: #343434;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-/* ================= HOME FEED ================= */
-
-.feed-card {
-    padding: 20px;
-    border-radius: 22px;
-    background: linear-gradient(145deg, #fff, #eeeeee);
-    box-shadow: 0 8px 20px rgba(0,0,0,.20);
-}
-
-.feed-icon {
-    width: 62px;
-    height: 62px;
-    border-radius: 18px;
-    background: #fff0e7;
-    color: #ff5a00;
-    font-size: 25px;
-}
-
-.feed-card strong {
-    color: #292929;
-    font-size: 17px;
-}
-
-.feed-card p {
-    color: #777;
-    font-size: 13px;
-}
-
-/* ================= BOTTOM NAVIGATION ================= */
-
-.bottom-nav {
-    height: 86px;
-    border-top: 1px solid rgba(255,90,0,.35);
-    background:
-        linear-gradient(180deg, #ff4a00, #ff6200);
-    color: #fff;
-    box-shadow: 0 -5px 20px rgba(0,0,0,.25);
-}
-
-.bottom-nav-btn {
-    height: 78px;
-    color: rgba(255,255,255,.88);
-    font-size: 11px;
-}
-
-.bottom-nav-btn i {
-    font-size: 24px;
-}
-
-.bottom-nav-btn span {
-    font-weight: 700;
-}
-
-.active-nav {
-    color: #fff;
-}
-
-.center-nav-btn {
-    width: 78px;
-    height: 78px;
-    margin-top: -48px;
-    border: 4px solid #fff;
-    background: linear-gradient(135deg, #ff7a00, #ff3d00);
-    color: #fff;
-    font-size: 34px;
-    box-shadow:
-        0 0 0 7px rgba(255,255,255,.16),
-        0 8px 25px rgba(0,0,0,.30);
-}
-
-/* ================= SIDE MENU PROFILE ================= */
-
-.side-menu-top {
-    min-height: 190px;
-    padding: 20px 20px;
-    background:
-        radial-gradient(circle at 80% 20%, rgba(255,90,0,.22), transparent 30%),
-        linear-gradient(135deg, #111, #222);
-}
-
-.menu-user {
-    padding-top: 30px;
-    gap: 16px;
-}
-
-.menu-profile-photo {
-    width: 82px;
-    height: 82px;
-    border: 3px solid #ff5a00;
-}
-
-.menu-user strong {
-    color: #fff;
-    font-size: 25px;
-}
-
-.menu-user small {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 7px 12px;
-    border-radius: 20px;
-    background: #9e3e09;
-    color: #fff;
-    font-size: 12px;
-    letter-spacing: .5px;
-}
-
-.menu-scroll {
-    height: calc(100vh - 190px);
-}
-
-.menu-heading {
-    color: #9f4a20;
-    font-size: 12px;
-}
-
-.menu-item {
-    min-height: 58px;
-}
-
-.menu-item i {
-    color: #f05a00;
-    font-size: 20px;
-}
-
-.menu-item span {
-    color: #404040;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-/* ================= MOBILE SMALL SCREEN ================= */
-
 @media (max-width: 430px) {
-
     .home-header {
-        padding: 0 13px;
-        gap: 8px;
+        min-height: 72px;
+        padding: 7px 12px;
     }
 
     .header-icon-btn {
-        width: 54px;
-        height: 54px;
+        width: 45px;
+        height: 45px;
     }
 
-    .main-logo {
-        width: 52px;
-        height: 52px;
+    .home-brand {
+        gap: 7px;
+        margin: 0 6px;
+    }
+
+    .home-brand .main-logo {
+        width: 48px;
+        height: 48px;
     }
 
     .home-brand strong {
-        font-size: 22px;
+        font-size: 21px;
     }
 
-    .home-brand small {
-        font-size: 7px;
+    .home-content {
+        padding: 10px 12px 20px;
+    }
+
+    .welcome-card {
+        min-height: 88px;
+        border-radius: 18px;
+    }
+
+    .home-profile-photo {
+        width: 66px;
+        height: 66px;
     }
 
     .welcome-card h2 {
-        font-size: 24px;
+        font-size: 22px;
     }
 
-    .quick-grid {
-        gap: 9px;
+    .welcome-arrow {
+        width: 44px;
+        height: 44px;
+    }
+
+    .live-placeholder {
+        height: 245px;
+    }
+
+    .live-placeholder i {
+        width: 82px;
+        height: 82px;
+        font-size: 30px;
     }
 
     .quick-card {
-        min-height: 112px;
-        border-radius: 19px;
+        min-height: 105px;
+        border-radius: 17px;
     }
 
     .quick-card i {
-        font-size: 27px;
+        font-size: 24px;
     }
 
     .quick-card span {
         font-size: 10px;
     }
 }
+
+@media (max-width: 390px) {
+    .home-brand strong {
+        font-size: 19px;
+    }
+
+    .home-brand small {
+        font-size: 6px;
+        letter-spacing: .5px;
+    }
+
+    .quick-grid {
+        gap: 7px;
+    }
+
+    .quick-card {
+        min-height: 94px;
+    }
+
+    .quick-card i {
+        font-size: 21px;
+    }
+
+    .quick-card span {
+        font-size: 9px;
+    }
+
+    .live-placeholder {
+        height: 225px;
+    }
+
+    .profile-row span {
+        width: 92px;
+        font-size: 12px;
+    }
+    }
