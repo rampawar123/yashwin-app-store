@@ -1670,31 +1670,21 @@ button {
 
 .menu-user strong {
     display: block;
-
-    margin-top: 4px;
-
+    margin-top: 0;
     color: #fff;
-
     font-size: 26px;
     font-weight: 900;
-
     letter-spacing: .5px;
 }
 
 .menu-user small {
     display: block;
-
-    padding: 5px 9px;
-
-    border-radius: 7px;
-
-    background: rgba(255, 90, 0, .16);
-
+    margin-top: 2px;
+    padding: 0 0;
+    background: transparent;
     color: #ffb07c;
-
-    font-size: 12px;
+    font-size: 17px;
     font-weight: 800;
-
     letter-spacing: .8px;
 }
 
