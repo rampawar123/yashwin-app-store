@@ -2470,3 +2470,106 @@ button {
         padding-right: 18px !important;
     }
 }
+
+/* =========================================
+   HOME PAGE - COMPACT SINGLE SCREEN MOBILE
+   ========================================= */
+
+@media (max-width: 480px) {
+
+  .app-screen.active {
+    padding-bottom: 74px;
+  }
+
+  .home-section,
+  .section-block,
+  .cric-section {
+    margin-bottom: 10px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Section headings */
+  .section-heading {
+    margin: 8px 0 !important;
+  }
+
+  .section-heading h2,
+  .section-heading h3 {
+    font-size: 17px !important;
+  }
+
+  /* Welcome/Profile card */
+  .welcome-card,
+  .profile-card {
+    min-height: 90px !important;
+    padding: 12px !important;
+    margin: 8px 0 !important;
+  }
+
+  /* Live cricket card */
+  .live-card,
+  .live-stream-card,
+  .stadium-visual,
+  .live-placeholder {
+    min-height: 190px !important;
+    height: 190px !important;
+  }
+
+  .live-play-button {
+    width: 64px !important;
+    height: 64px !important;
+  }
+
+  /* Upcoming match */
+  .upcoming-match-card,
+  .next-match-card {
+    margin: 5px 0 !important;
+  }
+
+  .match-team-area {
+    padding: 12px 8px !important;
+    min-height: 120px !important;
+  }
+
+  .team-logo,
+  .team-logo-circle {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  /* Quick Access */
+  .quick-access-grid {
+    gap: 8px !important;
+  }
+
+  .quick-access-item,
+  .quick-access-card {
+    min-height: 92px !important;
+    height: 92px !important;
+    padding: 8px !important;
+  }
+
+  .quick-access-item i,
+  .quick-access-card i {
+    font-size: 27px !important;
+  }
+
+  .quick-access-item span,
+  .quick-access-card span {
+    font-size: 12px !important;
+  }
+
+  /* Home feed */
+  .home-feed,
+  .feed-card {
+    margin-top: 8px !important;
+    padding: 12px !important;
+    min-height: 80px !important;
+  }
+
+  /* Bottom navigation */
+  .bottom-nav {
+    height: 72px !important;
+  }
+}
