@@ -78,7 +78,6 @@ window.scrollTo({
 });    
 
 closeMenu();    
-closeQuickModal();
 
 }
 
