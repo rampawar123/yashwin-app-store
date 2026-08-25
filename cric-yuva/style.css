@@ -1932,3 +1932,177 @@ HOME MAIN PAGE
     font-size: 10px !important;
   }
 }
+
+/* =========================================
+   CRIC YUVA - COMPACT FULL SCREEN MOBILE
+   ========================================= */
+
+.cric-home-page{
+    transform: scale(.82);
+    transform-origin: top center;
+    width: 121.95%;
+    margin-left: -10.98%;
+    min-height: 121.95vh;
+    padding-bottom: 120px;
+}
+
+/* HEADER COMPACT */
+.cric-home-header{
+    min-height: 72px !important;
+    padding: 8px 14px !important;
+}
+
+.home-logo-box{
+    width: 48px !important;
+    height: 48px !important;
+}
+
+.home-brand-name{
+    font-size: 23px !important;
+}
+
+.home-brand-tagline{
+    font-size: 8px !important;
+}
+
+/* WELCOME PROFILE */
+.welcome-card,
+.home-welcome-card{
+    padding: 10px 14px !important;
+    min-height: 78px !important;
+    margin: 8px 10px !important;
+}
+
+.welcome-avatar,
+.profile-avatar{
+    width: 58px !important;
+    height: 58px !important;
+}
+
+.welcome-name{
+    font-size: 22px !important;
+}
+
+/* ALL SECTIONS */
+.home-section,
+.cric-section{
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+.section-title,
+.home-section-title{
+    font-size: 18px !important;
+    margin-bottom: 7px !important;
+}
+
+/* LIVE CRICKET */
+.live-card,
+.live-stream-card{
+    min-height: 210px !important;
+}
+
+.live-play-button{
+    width: 78px !important;
+    height: 78px !important;
+}
+
+.live-title{
+    font-size: 19px !important;
+}
+
+.watch-live-btn{
+    min-height: 42px !important;
+    font-size: 17px !important;
+}
+
+/* UPCOMING MATCH */
+.upcoming-match-card,
+.next-match-card{
+    min-height: 210px !important;
+}
+
+.team-logo,
+.team-badge{
+    width: 60px !important;
+    height: 60px !important;
+}
+
+.team-name{
+    font-size: 15px !important;
+}
+
+.vs-text{
+    font-size: 28px !important;
+}
+
+.match-details-btn{
+    min-height: 42px !important;
+    font-size: 17px !important;
+}
+
+/* QUICK ACCESS - MORE COMPACT */
+.quick-access-grid{
+    gap: 7px !important;
+}
+
+.quick-access-card{
+    min-height: 82px !important;
+    padding: 7px 4px !important;
+    border-radius: 15px !important;
+}
+
+.quick-access-card i{
+    font-size: 25px !important;
+    margin-bottom: 5px !important;
+}
+
+.quick-access-card span{
+    font-size: 12px !important;
+}
+
+/* HOME FEED */
+.home-feed-card{
+    min-height: 78px !important;
+    padding: 10px !important;
+}
+
+.feed-icon{
+    width: 50px !important;
+    height: 50px !important;
+}
+
+.feed-title{
+    font-size: 16px !important;
+}
+
+.feed-text{
+    font-size: 12px !important;
+}
+
+/* BOTTOM NAVIGATION */
+.bottom-nav{
+    height: 64px !important;
+    padding-bottom: 5px !important;
+}
+
+.bottom-nav-item{
+    font-size: 11px !important;
+}
+
+.bottom-nav-item i{
+    font-size: 21px !important;
+}
+
+/* CENTER + BUTTON */
+.bottom-add-btn,
+.add-main-btn{
+    width: 62px !important;
+    height: 62px !important;
+    margin-top: -28px !important;
+}
+
+.bottom-add-btn i,
+.add-main-btn i{
+    font-size: 29px !important;
+}
