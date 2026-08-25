@@ -43,6 +43,14 @@ button {
   touch-action: manipulation;
 }
 
+button:active {
+  transform: scale(.98);
+}
+
+img {
+  max-width: 100%;
+}
+
 .app-screen {
   display: none;
   width: 100%;
@@ -307,7 +315,7 @@ button {
   cursor: pointer;
 }
 
-/* ================= CREATE ================= */
+/* ================= CREATE / PROFILE ================= */
 
 .create-screen,
 .profile-screen {
@@ -499,9 +507,7 @@ button {
   margin-top: 25px;
 }
 
-/* =====================================================
-HOME MAIN PAGE
-===================================================== */
+/* ================= HOME ================= */
 
 .home-screen,
 #screen5 {
@@ -571,7 +577,6 @@ HOME MAIN PAGE
   z-index: 2;
   flex: 1;
   min-width: 0;
-  margin: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -582,33 +587,20 @@ HOME MAIN PAGE
   height: 68px;
   flex-shrink: 0;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 6px;
   background: #080b0f;
   border: 1px solid rgba(255,255,255,.25);
 }
 
-.home-logo-box img {
+.home-logo-box img,
+.cric-yuva-main-logo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-
-.home-brand .main-logo {
-  width: 68px;
-  height: 68px;
-  flex-shrink: 0;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.logo-fallback {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  font-size: 27px;
-  color: #ff5a0a;
+  object-fit: contain;
+  display: block;
 }
 
 .home-brand-text {
@@ -623,36 +615,11 @@ HOME MAIN PAGE
   letter-spacing: 1px;
 }
 
-.home-brand-name span {
-  color: #fff;
-}
-
 .home-brand-name strong {
   color: #ffb34a;
 }
 
 .home-brand-tagline {
-  margin-top: 8px;
-  white-space: nowrap;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .8px;
-  color: rgba(255,255,255,.88);
-}
-
-.home-brand strong {
-  display: block;
-  font-size: 29px;
-  line-height: 1;
-  letter-spacing: 1px;
-}
-
-.home-brand strong span {
-  color: #ffb34a;
-}
-
-.home-brand small {
-  display: block;
   margin-top: 8px;
   white-space: nowrap;
   font-size: 10px;
@@ -671,7 +638,6 @@ HOME MAIN PAGE
 
 .header-icon-btn {
   position: relative;
-  z-index: 2;
   width: 44px;
   height: 54px;
   flex-shrink: 0;
@@ -706,7 +672,7 @@ HOME MAIN PAGE
   padding: 0 14px 25px;
 }
 
-/* ================= WELCOME PROFILE ================= */
+/* ================= WELCOME ================= */
 
 .welcome-profile-card,
 .welcome-card {
@@ -792,11 +758,6 @@ HOME MAIN PAGE
   font-weight: 800;
 }
 
-.welcome-card p {
-  color: #c0c0c0;
-  font-size: 11px;
-}
-
 .welcome-arrow {
   width: 48px;
   height: 48px;
@@ -821,9 +782,7 @@ HOME MAIN PAGE
 
 .section-heading,
 .section-title {
-  position: relative;
   min-height: 46px;
-  margin-bottom: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -832,7 +791,6 @@ HOME MAIN PAGE
 
 .section-heading h2,
 .section-title h3 {
-  margin: 0;
   color: #f1f1f1;
   font-size: 19px;
   font-weight: 900;
@@ -861,7 +819,6 @@ HOME MAIN PAGE
   border: 1px solid rgba(255,94,25,.75);
   border-radius: 30px;
   color: #fff;
-  box-shadow: 0 10px 25px rgba(0,0,0,.35);
 }
 
 .live-card-top,
@@ -895,7 +852,6 @@ HOME MAIN PAGE
 
 .watching-count,
 .viewer-text {
-  color: #fff;
   font-size: 15px;
   font-weight: 800;
 }
@@ -914,37 +870,6 @@ HOME MAIN PAGE
     linear-gradient(to bottom, rgba(5,18,31,.92), rgba(4,10,15,.96));
 }
 
-.stadium-visual::before {
-  content: "";
-  position: absolute;
-  width: 900px;
-  height: 480px;
-  bottom: -330px;
-  border-radius: 50%;
-  border: 4px solid rgba(137,159,169,.28);
-  box-shadow:
-    0 -25px 0 -18px rgba(137,159,169,.24),
-    0 -55px 0 -40px rgba(137,159,169,.20),
-    0 -90px 0 -64px rgba(137,159,169,.18),
-    0 -130px 0 -93px rgba(137,159,169,.16);
-}
-
-.stadium-visual::after {
-  content: "";
-  position: absolute;
-  width: 250px;
-  height: 140px;
-  bottom: -45px;
-  border-radius: 50% 50% 0 0;
-  background:
-    radial-gradient(
-      ellipse,
-      rgba(78,153,33,.65),
-      rgba(12,60,21,.45) 50%,
-      transparent 72%
-    );
-}
-
 .stadium-light {
   position: absolute;
   width: 110px;
@@ -952,12 +877,7 @@ HOME MAIN PAGE
   top: 55px;
   border-radius: 50%;
   background:
-    radial-gradient(
-      circle,
-      rgba(255,255,255,.95) 0,
-      rgba(230,237,240,.38) 20%,
-      transparent 68%
-    );
+    radial-gradient(circle, rgba(255,255,255,.95) 0, rgba(230,237,240,.38) 20%, transparent 68%);
   filter: blur(3px);
 }
 
@@ -981,9 +901,7 @@ HOME MAIN PAGE
   border-radius: 50%;
   background: linear-gradient(135deg, #ff7618, #ff3600);
   border: 5px solid rgba(255,255,255,.82);
-  box-shadow:
-    0 0 0 8px rgba(255,100,25,.22),
-    0 10px 35px rgba(0,0,0,.45);
+  box-shadow: 0 0 0 8px rgba(255,100,25,.22);
   color: #fff;
   font-size: 55px;
 }
@@ -998,10 +916,8 @@ HOME MAIN PAGE
   z-index: 3;
   margin: 36px 0 0;
   text-align: center;
-  color: #fff;
   font-size: 25px;
   font-weight: 900;
-  letter-spacing: .6px;
 }
 
 .watch-live-btn,
@@ -1013,12 +929,7 @@ HOME MAIN PAGE
   color: #fff;
   font-size: 22px;
   font-weight: 900;
-  letter-spacing: .5px;
   cursor: pointer;
-}
-
-.watch-live-btn i {
-  margin-right: 9px;
 }
 
 /* ================= UPCOMING MATCH ================= */
@@ -1049,7 +960,6 @@ HOME MAIN PAGE
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #272b30;
 }
 
 .team-side,
@@ -1058,7 +968,6 @@ HOME MAIN PAGE
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
   text-align: center;
 }
 
@@ -1068,11 +977,17 @@ HOME MAIN PAGE
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border-radius: 50%;
-  background:
-    radial-gradient(circle, #fff 0, #f1f1f1 55%, #e5e5e5 100%);
+  background: #fff;
   font-size: 31px;
   font-weight: 900;
+}
+
+.team-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .team-a {
@@ -1098,7 +1013,6 @@ HOME MAIN PAGE
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
   text-align: center;
 }
 
@@ -1121,8 +1035,7 @@ HOME MAIN PAGE
   min-height: 72px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 0;
-  border-top: 1px solid #dddddf;
+  border-top: 1px solid #ddd;
   color: #4b4e52;
 }
 
@@ -1139,13 +1052,12 @@ HOME MAIN PAGE
 
 .match-info-row > div:first-child,
 .match-info > div:first-child {
-  border-right: 1px solid #dddddf;
+  border-right: 1px solid #ddd;
 }
 
 .match-info-row i,
 .match-info i {
   color: #e34d08;
-  font-size: 18px;
 }
 
 .match-details-btn,
@@ -1160,10 +1072,6 @@ HOME MAIN PAGE
   cursor: pointer;
 }
 
-.match-details-btn i {
-  margin-left: 8px;
-}
-
 /* ================= QUICK ACCESS ================= */
 
 .quick-access-grid,
@@ -1175,8 +1083,8 @@ HOME MAIN PAGE
 }
 
 .quick-access-item,
-.quick-card {
-  aspect-ratio: .86;
+.quick-card,
+.quick-access-card {
   min-height: 105px;
   padding: 10px 4px;
   display: flex;
@@ -1193,46 +1101,24 @@ HOME MAIN PAGE
 }
 
 .quick-access-item i,
-.quick-card i {
+.quick-card i,
+.quick-access-card i {
   display: block !important;
-  visibility: visible !important;
   color: #f04b00 !important;
   font-size: 31px !important;
 }
 
 .quick-access-item span,
-.quick-card span {
-  display: block !important;
-  visibility: visible !important;
+.quick-card span,
+.quick-access-card span {
+  display: block;
   color: #33373c !important;
   font-size: 13px;
   font-weight: 800;
   text-align: center;
-  line-height: 1.2;
-}
-
-/* MY MATCHES SPECIAL FIX */
-
-.my-matches-card,
-.quick-access-item.matches-card,
-.quick-card.matches-card {
-  position: relative;
-}
-
-.my-matches-card i,
-.quick-access-item.matches-card i,
-.quick-card.matches-card i {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: #f04b00 !important;
 }
 
 /* ================= HOME FEED ================= */
-
-.no-view-all {
-  justify-content: flex-start;
-}
 
 .home-feed-card,
 .feed-card {
@@ -1262,14 +1148,12 @@ HOME MAIN PAGE
 
 .feed-content h3,
 .feed-card strong {
-  margin: 0 0 8px;
+  margin-bottom: 8px;
   font-size: 19px;
-  line-height: 1.2;
 }
 
 .feed-content p,
 .feed-card p {
-  margin: 0;
   color: #6b7075;
   font-size: 15px;
   line-height: 1.45;
@@ -1279,7 +1163,7 @@ HOME MAIN PAGE
   height: 25px;
 }
 
-/* ================= BOTTOM NAVIGATION ================= */
+/* ================= BOTTOM NAV ================= */
 
 .cric-bottom-nav,
 .bottom-nav {
@@ -1295,9 +1179,7 @@ HOME MAIN PAGE
   display: grid;
   grid-template-columns: 1fr 1fr 86px 1fr 1fr;
   align-items: center;
-  background:
-    linear-gradient(100deg, #8e2600, #bd3300 45%, #e04700);
-  border-top: none;
+  background: linear-gradient(100deg, #8e2600, #bd3300 45%, #e04700);
   border-radius: 32px 32px 0 0;
   box-shadow: 0 -10px 30px rgba(0,0,0,.35);
 }
@@ -1315,65 +1197,32 @@ HOME MAIN PAGE
   align-items: center;
   justify-content: center;
   gap: 7px;
-  font-size: 10px;
   cursor: pointer;
 }
 
 .bottom-nav-item i,
 .bottom-nav-btn i {
   display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
   font-size: 27px !important;
 }
 
 .bottom-nav-item span,
 .bottom-nav-btn span {
   display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
   font-size: 12px;
   font-weight: 800;
 }
 
 .bottom-nav-item.active,
-.bottom-nav-btn.active-nav {
-  color: #fff;
-}
-
-.bottom-nav-item.active i {
-  filter: drop-shadow(0 0 8px rgba(255,255,255,.55));
-}
-
-/* MATCHES BOTTOM ICON FIX */
-
-.matches-nav-item,
-.bottom-nav-btn.matches-nav-item {
+.bottom-nav-btn.active-nav,
+.matches-nav-item {
   color: #fff !important;
 }
-
-.matches-nav-item i,
-.bottom-nav-btn.matches-nav-item i {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: #fff !important;
-  font-size: 28px !important;
-}
-
-.matches-nav-item span,
-.bottom-nav-btn.matches-nav-item span {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: #fff !important;
-  font-size: 12px !important;
-}
-
-/* CENTER PLUS */
 
 .bottom-nav-center,
-.center-nav-btn {
+.center-nav-btn,
+.bottom-add-btn,
+.add-main-btn {
   position: relative;
   width: 94px;
   height: 94px;
@@ -1381,22 +1230,13 @@ HOME MAIN PAGE
   display: flex;
   align-items: center;
   justify-content: center;
-  justify-self: center;
   border: 7px solid #f1f1f1;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff7518, #ff3d00);
   color: #fff;
   font-size: 42px;
   cursor: pointer;
-  box-shadow:
-    0 0 0 7px rgba(255,255,255,.15),
-    0 10px 28px rgba(0,0,0,.40);
-}
-
-.bottom-nav-center i,
-.center-nav-btn i {
-  font-size: 42px;
-  font-weight: 300;
+  box-shadow: 0 10px 28px rgba(0,0,0,.40);
 }
 
 /* ================= SIDE MENU ================= */
@@ -1404,7 +1244,7 @@ HOME MAIN PAGE
 .menu-overlay {
   position: fixed;
   inset: 0;
-  z-index: 99;
+  z-index: 1099;
   display: none;
   background: rgba(0,0,0,.65);
 }
@@ -1418,7 +1258,7 @@ HOME MAIN PAGE
   top: 0;
   left: -330px;
   bottom: 0;
-  z-index: 100;
+  z-index: 1100;
   width: 310px;
   max-width: 86vw;
   overflow: hidden;
@@ -1434,9 +1274,7 @@ HOME MAIN PAGE
 .side-menu-top {
   padding: 20px 18px;
   color: #fff;
-  background:
-    radial-gradient(circle at right top, rgba(255,90,0,.2), transparent 40%),
-    linear-gradient(135deg, #0b0d0f, #252525);
+  background: linear-gradient(135deg, #0b0d0f, #252525);
 }
 
 .close-menu-button {
@@ -1468,12 +1306,6 @@ HOME MAIN PAGE
   background: #333;
   color: #fff;
   font-weight: 800;
-}
-
-.menu-profile-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .menu-user strong,
@@ -1528,10 +1360,6 @@ HOME MAIN PAGE
 .logout-menu-item {
   margin-top: 15px;
   border-top: 1px solid #eee;
-  color: #d40000;
-}
-
-.logout-menu-item i {
   color: #d40000;
 }
 
@@ -1607,7 +1435,7 @@ HOME MAIN PAGE
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 2000;
   display: none;
   align-items: flex-end;
   background: rgba(0,0,0,.55);
@@ -1670,27 +1498,7 @@ HOME MAIN PAGE
   font-size: 10px;
 }
 
-/* ================= RESPONSIVE ================= */
-
-@media (min-width: 700px) {
-  body {
-    background: #111;
-  }
-
-  .app-screen {
-    max-width: 650px;
-    margin: auto;
-  }
-
-  .cric-bottom-nav,
-  .bottom-nav {
-    left: 50%;
-    right: auto;
-    width: 650px;
-    max-width: 100%;
-    transform: translateX(-50%);
-  }
-}
+/* ================= MOBILE ================= */
 
 @media (max-width: 430px) {
   .home-header,
@@ -1701,13 +1509,12 @@ HOME MAIN PAGE
   }
 
   .home-header-menu {
-    width: 52px;
+    width: 48px;
     height: 52px;
-    font-size: 32px;
+    font-size: 30px;
   }
 
-  .home-logo-box,
-  .home-brand .main-logo {
+  .home-logo-box {
     width: 58px;
     height: 58px;
   }
@@ -1716,13 +1523,11 @@ HOME MAIN PAGE
     gap: 8px;
   }
 
-  .home-brand-name,
-  .home-brand strong {
+  .home-brand-name {
     font-size: 24px;
   }
 
-  .home-brand-tagline,
-  .home-brand small {
+  .home-brand-tagline {
     font-size: 8px;
     letter-spacing: .5px;
   }
@@ -1737,27 +1542,6 @@ HOME MAIN PAGE
     gap: 0;
   }
 
-  .home-content {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  .welcome-profile-card,
-  .welcome-card {
-    min-height: 96px;
-  }
-
-  .home-profile-avatar,
-  .home-profile-photo {
-    width: 70px;
-    height: 70px;
-  }
-
-  .welcome-profile-info h2,
-  .welcome-card h2 {
-    font-size: 23px;
-  }
-
   .stadium-visual,
   .live-placeholder {
     min-height: 400px;
@@ -1770,35 +1554,33 @@ HOME MAIN PAGE
     font-size: 48px;
   }
 
+  .team-logo {
+    width: 85px;
+    height: 85px;
+  }
+
   .quick-access-grid,
   .quick-grid {
     gap: 9px;
   }
 
   .quick-access-item,
-  .quick-card {
+  .quick-card,
+  .quick-access-card {
+    min-height: 96px;
     border-radius: 19px;
   }
 
   .quick-access-item i,
-  .quick-card i {
+  .quick-card i,
+  .quick-access-card i {
     font-size: 27px !important;
   }
 
   .quick-access-item span,
-  .quick-card span {
+  .quick-card span,
+  .quick-access-card span {
     font-size: 11px;
-  }
-
-  .team-logo {
-    width: 85px;
-    height: 85px;
-  }
-
-  .cric-bottom-nav,
-  .bottom-nav {
-    padding-left: 10px;
-    padding-right: 10px;
   }
 }
 
@@ -1811,38 +1593,27 @@ HOME MAIN PAGE
   }
 
   .home-header-menu {
-    width: 48px;
-    font-size: 29px;
+    width: 42px;
+    font-size: 28px;
   }
 
-  .home-logo-box,
-  .home-brand .main-logo {
+  .home-logo-box {
     width: 52px;
     height: 52px;
   }
 
-  .home-brand {
-    gap: 6px;
-  }
-
-  .home-brand-name,
-  .home-brand strong {
+  .home-brand-name {
     font-size: 21px;
   }
 
-  .home-brand-tagline,
-  .home-brand small {
+  .home-brand-tagline {
     font-size: 7px;
     letter-spacing: .2px;
   }
 
   .header-icon-btn {
-    width: 33px;
+    width: 31px;
     font-size: 21px;
-  }
-
-  .home-header-actions {
-    gap: 0;
   }
 
   .welcome-profile-card,
@@ -1859,27 +1630,6 @@ HOME MAIN PAGE
   .welcome-profile-info h2,
   .welcome-card h2 {
     font-size: 21px;
-  }
-
-  .quick-access-grid,
-  .quick-grid {
-    gap: 7px;
-  }
-
-  .quick-access-item,
-  .quick-card {
-    min-height: 94px;
-    border-radius: 17px;
-  }
-
-  .quick-access-item i,
-  .quick-card i {
-    font-size: 24px !important;
-  }
-
-  .quick-access-item span,
-  .quick-card span {
-    font-size: 10px;
   }
 
   .stadium-visual,
@@ -1921,215 +1671,34 @@ HOME MAIN PAGE
   }
 
   .bottom-nav-item i,
-  .bottom-nav-btn i,
-  .matches-nav-item i {
+  .bottom-nav-btn i {
     font-size: 24px !important;
   }
 
   .bottom-nav-item span,
-  .bottom-nav-btn span,
-  .matches-nav-item span {
+  .bottom-nav-btn span {
     font-size: 10px !important;
   }
 }
 
-/* =========================================
-   CRIC YUVA - COMPACT FULL SCREEN MOBILE
-   ========================================= */
+/* ================= DESKTOP ================= */
 
-.cric-home-page{
-    transform: scale(.82);
-    transform-origin: top center;
-    width: 121.95%;
-    margin-left: -10.98%;
-    min-height: 121.95vh;
-    padding-bottom: 120px;
+@media (min-width: 700px) {
+  body {
+    background: #111;
+  }
+
+  .app-screen {
+    max-width: 650px;
+    margin: auto;
+  }
+
+  .cric-bottom-nav,
+  .bottom-nav {
+    left: 50%;
+    right: auto;
+    width: 650px;
+    max-width: 100%;
+    transform: translateX(-50%);
+  }
 }
-
-/* HEADER COMPACT */
-.cric-home-header{
-    min-height: 72px !important;
-    padding: 8px 14px !important;
-}
-
-.home-logo-box{
-    width: 48px !important;
-    height: 48px !important;
-}
-
-.home-brand-name{
-    font-size: 23px !important;
-}
-
-.home-brand-tagline{
-    font-size: 8px !important;
-}
-
-/* WELCOME PROFILE */
-.welcome-card,
-.home-welcome-card{
-    padding: 10px 14px !important;
-    min-height: 78px !important;
-    margin: 8px 10px !important;
-}
-
-.welcome-avatar,
-.profile-avatar{
-    width: 58px !important;
-    height: 58px !important;
-}
-
-.welcome-name{
-    font-size: 22px !important;
-}
-
-/* ALL SECTIONS */
-.home-section,
-.cric-section{
-    margin-top: 10px !important;
-    margin-bottom: 10px !important;
-}
-
-.section-title,
-.home-section-title{
-    font-size: 18px !important;
-    margin-bottom: 7px !important;
-}
-
-/* LIVE CRICKET */
-.live-card,
-.live-stream-card{
-    min-height: 210px !important;
-}
-
-.live-play-button{
-    width: 78px !important;
-    height: 78px !important;
-}
-
-.live-title{
-    font-size: 19px !important;
-}
-
-.watch-live-btn{
-    min-height: 42px !important;
-    font-size: 17px !important;
-}
-
-/* UPCOMING MATCH */
-.upcoming-match-card,
-.next-match-card{
-    min-height: 210px !important;
-}
-
-.team-logo,
-.team-badge{
-    width: 60px !important;
-    height: 60px !important;
-}
-
-.team-name{
-    font-size: 15px !important;
-}
-
-.vs-text{
-    font-size: 28px !important;
-}
-
-.match-details-btn{
-    min-height: 42px !important;
-    font-size: 17px !important;
-}
-
-/* QUICK ACCESS - MORE COMPACT */
-.quick-access-grid{
-    gap: 7px !important;
-}
-
-.quick-access-card{
-    min-height: 82px !important;
-    padding: 7px 4px !important;
-    border-radius: 15px !important;
-}
-
-.quick-access-card i{
-    font-size: 25px !important;
-    margin-bottom: 5px !important;
-}
-
-.quick-access-card span{
-    font-size: 12px !important;
-}
-
-/* HOME FEED */
-.home-feed-card{
-    min-height: 78px !important;
-    padding: 10px !important;
-}
-
-.feed-icon{
-    width: 50px !important;
-    height: 50px !important;
-}
-
-.feed-title{
-    font-size: 16px !important;
-}
-
-.feed-text{
-    font-size: 12px !important;
-}
-
-/* BOTTOM NAVIGATION */
-.bottom-nav{
-    height: 64px !important;
-    padding-bottom: 5px !important;
-}
-
-.bottom-nav-item{
-    font-size: 11px !important;
-}
-
-.bottom-nav-item i{
-    font-size: 21px !important;
-}
-
-/* CENTER + BUTTON */
-.bottom-add-btn,
-.add-main-btn{
-    width: 62px !important;
-    height: 62px !important;
-    margin-top: -28px !important;
-}
-
-.bottom-add-btn i,
-.add-main-btn i{
-    font-size: 29px !important;
-}
-
-/* ===== CRIC YUVA LOGO FIX ===== */
-
-.cric-yuva-main-logo{
-    width: 68px !important;
-    height: 68px !important;
-    min-width: 68px !important;
-    object-fit: contain !important;
-    display: block !important;
-}
-
-.home-logo-box{
-    width: 76px !important;
-    height: 76px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-}
-
-.home-brand-name{
-    font-size: 34px !important;
-    line-height: 0.9 !important;
-    font-weight: 900 !important;
-}
-
-
