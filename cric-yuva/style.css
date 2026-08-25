@@ -2442,3 +2442,59 @@ font-weight: 900 !important;
         min-height: 92px !important;
     }
 }
+
+/* =========================================
+   HOME SCREEN HEIGHT COMPACT
+   SIRF UNCHAI KAM KI GAYI HAI
+========================================= */
+
+/* WELCOME BACK KI UNCHAI KAM */
+.welcome-profile-card{
+    min-height: 82px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+
+/* LIVE CRICKET CARD KI UNCHAI KAM */
+.live-match-card{
+    min-height: 330px !important;
+}
+
+.stadium-visual{
+    min-height: 255px !important;
+    height: 255px !important;
+}
+
+
+/* UPCOMING MATCH KI UNCHAI KAM */
+.upcoming-match-card{
+    min-height: 330px !important;
+}
+
+.teams-row{
+    min-height: 175px !important;
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+}
+
+
+/* QUICK ACCESS KE BOX KI UNCHAI KAM */
+.quick-access-item{
+    height: 120px !important;
+    min-height: 120px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+
+/* QUICK ACCESS SECTION KA EXTRA GAP KAM */
+.quick-access-grid{
+    row-gap: 10px !important;
+}
+
+
+/* SECTION KE UPAR NICHE KA GAP KAM */
+.home-section{
+    margin-bottom: 20px !important;
+}
