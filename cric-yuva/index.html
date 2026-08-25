@@ -1075,66 +1075,321 @@
 </section>
 
 
-
 <!-- =====================================================
-     FEATURE SCREEN
+     MY TEAM SCREEN
 ===================================================== -->
 
 <section
-    class="app-screen feature-screen"
-    id="featureScreen"
+    class="app-screen my-team-screen"
+    id="myTeamScreen"
 >
 
-    <div class="feature-page-header">
+    <div class="my-team-header">
 
         <button
             class="back-button"
-            id="featureBackButton"
+            id="myTeamBackButton"
             type="button"
         >
             <i class="fa-solid fa-arrow-left"></i>
         </button>
 
-
-        <h2 id="featureTitle">
-            FEATURE
-        </h2>
-
+        <div class="my-team-header-title">
+            <span>CRIC YUVA</span>
+            <h2>MY TEAM</h2>
+        </div>
 
         <button
-            class="feature-home-btn"
-            id="featureHomeButton"
+            class="team-notification-btn"
+            id="teamNotificationButton"
             type="button"
         >
-            <i class="fa-solid fa-house"></i>
+            <i class="fa-regular fa-bell"></i>
         </button>
 
     </div>
 
 
-    <div class="feature-page-content">
+    <div class="my-team-content">
 
-        <div
-            class="feature-big-icon"
-            id="featureIcon"
-        >
-            <i class="fa-solid fa-trophy"></i>
+        <!-- TEAM HERO -->
+
+        <div class="team-hero-card">
+
+            <div class="team-hero-top">
+
+                <div class="team-logo-large">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+
+
+                <div class="team-main-info">
+
+                    <span class="team-small-title">
+                        MY CRICKET TEAM
+                    </span>
+
+                    <h1 id="teamNameDisplay">
+                        CRIC YUVA WARRIORS
+                    </h1>
+
+                    <div class="team-id-row">
+                        TEAM ID:
+                        <b id="teamIdDisplay">
+                            CYW-001
+                        </b>
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="team-edit-button"
+                    id="editTeamButton"
+                    type="button"
+                >
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+
+            </div>
+
+
+            <div class="team-stats-row">
+
+                <div class="team-stat">
+                    <strong id="totalPlayersCount">0</strong>
+                    <span>PLAYERS</span>
+                </div>
+
+                <div class="team-stat">
+                    <strong id="playingElevenCount">0</strong>
+                    <span>PLAYING 11</span>
+                </div>
+
+                <div class="team-stat">
+                    <strong id="substituteCount">0</strong>
+                    <span>SUBSTITUTES</span>
+                </div>
+
+            </div>
+
         </div>
 
 
-        <h1 id="featureMainTitle">
-            FEATURE
-        </h1>
+        <!-- MAIN ACTIONS -->
+
+        <div class="team-actions-list">
+
+            <button
+                class="team-action-card"
+                id="addPlayerButton"
+                type="button"
+            >
+                <div class="team-action-icon">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+
+                <div class="team-action-text">
+                    <strong>ADD PLAYER</strong>
+                    <span>Add new player to your team</span>
+                </div>
+
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
 
 
-        <p id="featureText">
-            This page is ready for the next development step.
-        </p>
+            <button
+                class="team-action-card"
+                id="playerRequestsButton"
+                type="button"
+            >
+                <div class="team-action-icon">
+                    <i class="fa-solid fa-user-clock"></i>
+                </div>
+
+                <div class="team-action-text">
+                    <strong>PLAYER REQUESTS</strong>
+                    <span>0 pending requests</span>
+                </div>
+
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+
+            <button
+                class="team-action-card"
+                id="teamChatButton"
+                type="button"
+            >
+                <div class="team-action-icon">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+
+                <div class="team-action-text">
+                    <strong>TEAM CHAT</strong>
+                    <span>Talk with your team</span>
+                </div>
+
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+
+            <button
+                class="team-action-card"
+                id="manageRolesButton"
+                type="button"
+            >
+                <div class="team-action-icon">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+
+                <div class="team-action-text">
+                    <strong>MANAGE ROLES</strong>
+                    <span>Captain and team roles</span>
+                </div>
+
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+        </div>
+
+
+        <!-- TEAM LEADERS -->
+
+        <div class="team-section-heading">
+
+            <h3>TEAM LEADERS</h3>
+
+            <button
+                id="manageLeadersButton"
+                type="button"
+            >
+                MANAGE
+            </button>
+
+        </div>
+
+
+        <div class="team-leaders-list">
+
+            <div class="team-leader-card">
+
+                <div class="leader-badge captain-badge">
+                    C
+                </div>
+
+                <div class="leader-photo">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="leader-info">
+                    <span>CAPTAIN</span>
+                    <strong id="captainName">
+                        Not Selected
+                    </strong>
+                    <small>Select team captain</small>
+                </div>
+
+            </div>
+
+
+            <div class="team-leader-card">
+
+                <div class="leader-badge vc-badge">
+                    VC
+                </div>
+
+                <div class="leader-photo">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="leader-info">
+                    <span>VICE CAPTAIN</span>
+                    <strong id="viceCaptainName">
+                        Not Selected
+                    </strong>
+                    <small>Select vice captain</small>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TEAM PLAYERS -->
+
+        <div class="team-section-heading">
+
+            <h3>TEAM PLAYERS</h3>
+
+            <button
+                id="addPlayerTopButton"
+                type="button"
+            >
+                <i class="fa-solid fa-plus"></i>
+                ADD
+            </button>
+
+        </div>
+
+
+        <div class="team-player-tabs">
+
+            <button
+                class="team-tab active"
+                type="button"
+            >
+                PLAYING 11
+                <b>0</b>
+            </button>
+
+            <button
+                class="team-tab"
+                type="button"
+            >
+                SUBSTITUTES
+                <b>0</b>
+            </button>
+
+            <button
+                class="team-tab"
+                type="button"
+            >
+                ALL PLAYERS
+                <b>0</b>
+            </button>
+
+        </div>
+
+
+        <!-- EMPTY PLAYERS -->
+
+        <div class="no-team-players">
+
+            <div class="no-team-player-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+
+            <h3>No Players Added Yet</h3>
+
+            <p>
+                Add players to your team and create
+                your Playing 11.
+            </p>
+
+            <button
+                id="addFirstPlayerButton"
+                type="button"
+            >
+                <i class="fa-solid fa-user-plus"></i>
+                ADD FIRST PLAYER
+            </button>
+
+        </div>
 
     </div>
 
 </section>
-
 
 
 <!-- =====================================================
