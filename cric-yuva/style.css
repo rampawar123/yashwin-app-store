@@ -2084,3 +2084,147 @@ button {
         transform: translateX(-50%);
     }
   }
+
+/* =====================================================
+   SIDE MENU BUTTON FINAL FIX
+===================================================== */
+
+.side-menu .menu-scroll {
+    width: 100%;
+    height: calc(100vh - 145px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px 0 100px !important;
+    background: #fff !important;
+}
+
+.side-menu .menu-item,
+.side-menu .menu-scroll button {
+    width: 100% !important;
+    min-width: 100% !important;
+    min-height: 52px !important;
+    height: 52px !important;
+
+    margin: 0 !important;
+    padding: 0 20px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
+
+    background: transparent !important;
+    color: #333 !important;
+
+    box-shadow: none !important;
+
+    text-align: left !important;
+    text-decoration: none !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 15px !important;
+
+    cursor: pointer !important;
+}
+
+.side-menu .menu-item i,
+.side-menu .menu-scroll button i {
+    width: 24px !important;
+    min-width: 24px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    color: #ff5a00 !important;
+    font-size: 20px !important;
+
+    pointer-events: none !important;
+}
+
+.side-menu .menu-item span,
+.side-menu .menu-scroll button span {
+    display: block !important;
+    flex: 1 !important;
+
+    color: #333 !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+
+    pointer-events: none !important;
+}
+
+.side-menu .menu-item:hover,
+.side-menu .menu-scroll button:hover,
+.side-menu .menu-item:active,
+.side-menu .menu-scroll button:active {
+    background: #fff3ec !important;
+}
+
+/* Menu heading */
+.side-menu .menu-heading {
+    width: 100% !important;
+    min-height: auto !important;
+
+    margin: 0 !important;
+    padding: 16px 20px 8px !important;
+
+    display: block !important;
+
+    background: #fff !important;
+    color: #d94300 !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 1px !important;
+}
+
+/* Logout */
+.side-menu .logout-menu-item,
+.side-menu .menu-scroll button.logout-menu-item {
+    margin-top: 12px !important;
+    border-top: 1px solid #eeeeee !important;
+
+    color: #d40000 !important;
+}
+
+.side-menu .logout-menu-item i,
+.side-menu .logout-menu-item span {
+    color: #d40000 !important;
+}
+
+/* Button ke default border/focus ko hatao */
+.side-menu button:focus,
+.side-menu button:focus-visible {
+    outline: none !important;
+}
+
+/* Mobile me menu full proper rahe */
+@media (max-width: 430px) {
+    .side-menu {
+        width: 310px !important;
+        max-width: 86vw !important;
+    }
+
+    .side-menu .menu-item,
+    .side-menu .menu-scroll button {
+        min-height: 54px !important;
+        height: 54px !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+    }
+}
