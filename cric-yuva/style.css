@@ -2106,3 +2106,30 @@ HOME MAIN PAGE
 .add-main-btn i{
     font-size: 29px !important;
 }
+
+/* ===== CRIC YUVA LOGO FIX ===== */
+
+.cric-yuva-main-logo{
+    width: 68px !important;
+    height: 68px !important;
+    min-width: 68px !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+
+.home-logo-box{
+    width: 76px !important;
+    height: 76px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+}
+
+.home-brand-name{
+    font-size: 34px !important;
+    line-height: 0.9 !important;
+    font-weight: 900 !important;
+}
+
+
