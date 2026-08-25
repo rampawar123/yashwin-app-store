@@ -1212,3 +1212,519 @@ button {
     object-fit: contain;
     flex-shrink: 0;
 }
+
+/* =========================================================
+   CRIC YUVA - NEW HOME BODY DESIGN
+   Existing buttons / JavaScript remain unchanged
+========================================================= */
+
+/* ================= HOME BACKGROUND ================= */
+
+.home-screen {
+    background:
+        linear-gradient(rgba(4, 8, 6, .84), rgba(4, 8, 6, .94)),
+        radial-gradient(circle at 50% 0%, rgba(255, 90, 0, .14), transparent 35%),
+        #08100b;
+    color: #fff;
+}
+
+/* ================= HEADER ================= */
+
+.home-header {
+    min-height: 82px;
+    padding: 0 18px;
+    justify-content: flex-start;
+    gap: 12px;
+    background:
+        linear-gradient(90deg, rgba(255, 86, 0, .96), rgba(255, 116, 25, .90)),
+        #ff5a00;
+    box-shadow: 0 4px 18px rgba(0,0,0,.28);
+}
+
+.header-icon-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.08);
+    font-size: 25px;
+}
+
+.main-logo {
+    width: 58px;
+    height: 58px;
+    margin-left: 4px;
+    object-fit: contain;
+}
+
+.home-brand {
+    flex: 1;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.home-brand strong {
+    font-size: 25px;
+    letter-spacing: .4px;
+    color: #fff;
+}
+
+.home-brand strong span {
+    color: #171717;
+}
+
+.home-brand small {
+    margin-top: 4px;
+    color: rgba(255,255,255,.88);
+    font-size: 8px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.notification-btn {
+    margin-left: auto;
+}
+
+.notification-btn b {
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(255,90,0,.7);
+}
+
+/* ================= MAIN CONTENT ================= */
+
+.home-content {
+    max-width: 650px;
+    padding: 18px 15px 105px;
+}
+
+/* ================= WELCOME PROFILE ================= */
+
+.welcome-card {
+    min-height: 138px;
+    padding: 17px;
+    border: 1px solid rgba(255,90,0,.55);
+    border-radius: 27px;
+    background:
+        linear-gradient(90deg, rgba(8,8,8,.94), rgba(28,28,28,.88)),
+        #111;
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.30),
+        inset 0 0 30px rgba(255,90,0,.04);
+}
+
+.home-profile-photo {
+    width: 88px;
+    height: 88px;
+    border: 3px solid #ff5a00;
+    box-shadow: 0 0 0 5px rgba(255,90,0,.08);
+}
+
+.welcome-user {
+    gap: 17px;
+}
+
+.welcome-card small {
+    color: #ff8b4d;
+    font-size: 12px;
+    letter-spacing: .5px;
+}
+
+.welcome-card h2 {
+    max-width: 200px;
+    margin: 5px 0;
+    font-size: 28px;
+    color: #fff;
+}
+
+.welcome-card p {
+    color: #c5c5c5;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.welcome-arrow {
+    width: 68px;
+    height: 68px;
+    border: 1.5px solid #ff5a00;
+    background: rgba(255,255,255,.02);
+    color: #ff5a00;
+    font-size: 31px;
+}
+
+/* ================= SECTION TITLES ================= */
+
+.section-block {
+    margin-top: 29px;
+}
+
+.section-title {
+    margin-bottom: 14px;
+}
+
+.section-title h3 {
+    color: #f5f5f5;
+    font-size: 20px;
+    letter-spacing: .3px;
+}
+
+.see-all-button {
+    color: #ff7a30;
+    font-size: 14px;
+    letter-spacing: .5px;
+}
+
+/* ================= LIVE CRICKET ================= */
+
+.live-card {
+    border: 1px solid rgba(255,90,0,.65);
+    border-radius: 25px;
+    background: #080808;
+    box-shadow: 0 10px 25px rgba(0,0,0,.32);
+}
+
+.live-top {
+    padding: 18px 20px;
+}
+
+.live-badge {
+    color: #ff6b20;
+    font-size: 15px;
+    letter-spacing: .5px;
+}
+
+.live-badge i {
+    color: #ff3131;
+    font-size: 11px;
+}
+
+.viewer-text {
+    color: #d5d5d5;
+    font-size: 13px;
+}
+
+.live-placeholder {
+    height: 235px;
+    gap: 18px;
+    background:
+        linear-gradient(rgba(0,0,0,.42), rgba(0,0,0,.35)),
+        radial-gradient(circle at center, rgba(255,90,0,.32), transparent 28%),
+        linear-gradient(180deg, #121212, #08130b 65%, #151515);
+    position: relative;
+}
+
+.live-placeholder::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .45;
+    background:
+        radial-gradient(ellipse at 15% 18%, rgba(255,255,255,.25), transparent 12%),
+        radial-gradient(ellipse at 85% 18%, rgba(255,255,255,.25), transparent 12%);
+}
+
+.live-placeholder i,
+.live-placeholder span {
+    position: relative;
+    z-index: 1;
+}
+
+.live-placeholder i {
+    width: 94px;
+    height: 94px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff7a00, #ff3800);
+    font-size: 37px;
+    box-shadow: 0 0 35px rgba(255,90,0,.45);
+}
+
+.live-placeholder span {
+    font-size: 19px;
+    letter-spacing: .5px;
+}
+
+.watch-live-button {
+    min-height: 70px;
+    background: linear-gradient(90deg, #ff4300, #ff6500);
+    font-size: 23px;
+    letter-spacing: .5px;
+}
+
+/* ================= UPCOMING MATCH ================= */
+
+.next-match-card {
+    border-radius: 25px;
+    background: #f8f8f8;
+    box-shadow: 0 10px 28px rgba(0,0,0,.30);
+    overflow: hidden;
+}
+
+.match-status {
+    padding: 17px;
+    background: #252525;
+    color: #ff8b4d;
+    font-size: 15px;
+    letter-spacing: .4px;
+}
+
+.teams-row {
+    padding: 27px 15px;
+}
+
+.team-box {
+    width: 115px;
+    gap: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.team-logo {
+    width: 88px;
+    height: 88px;
+    border: 3px solid #ff5a00;
+    color: #d94a00;
+    font-size: 22px;
+    background: #fff;
+}
+
+.vs-box {
+    gap: 8px;
+}
+
+.vs-box b {
+    color: #333;
+    font-size: 28px;
+}
+
+.vs-box small {
+    color: #b34a14;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.match-info {
+    min-height: 58px;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    color: #666;
+    font-size: 13px;
+    background: #f5f5f5;
+}
+
+.match-info i {
+    color: #ff5a00;
+}
+
+.match-details-button {
+    min-height: 65px;
+    background: linear-gradient(90deg, #ff4300, #ff6900);
+    font-size: 20px;
+    letter-spacing: .5px;
+}
+
+/* ================= QUICK ACCESS ================= */
+
+.quick-grid {
+    gap: 13px;
+}
+
+.quick-card {
+    min-height: 125px;
+    padding: 12px 6px;
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 22px;
+    background:
+        linear-gradient(145deg, #ffffff, #e9e9e9);
+    color: #292929;
+    box-shadow: 0 5px 14px rgba(0,0,0,.18);
+}
+
+.quick-card i {
+    color: #ff5a00;
+    font-size: 31px;
+}
+
+.quick-card span {
+    color: #343434;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* ================= HOME FEED ================= */
+
+.feed-card {
+    padding: 20px;
+    border-radius: 22px;
+    background: linear-gradient(145deg, #fff, #eeeeee);
+    box-shadow: 0 8px 20px rgba(0,0,0,.20);
+}
+
+.feed-icon {
+    width: 62px;
+    height: 62px;
+    border-radius: 18px;
+    background: #fff0e7;
+    color: #ff5a00;
+    font-size: 25px;
+}
+
+.feed-card strong {
+    color: #292929;
+    font-size: 17px;
+}
+
+.feed-card p {
+    color: #777;
+    font-size: 13px;
+}
+
+/* ================= BOTTOM NAVIGATION ================= */
+
+.bottom-nav {
+    height: 86px;
+    border-top: 1px solid rgba(255,90,0,.35);
+    background:
+        linear-gradient(180deg, #ff4a00, #ff6200);
+    color: #fff;
+    box-shadow: 0 -5px 20px rgba(0,0,0,.25);
+}
+
+.bottom-nav-btn {
+    height: 78px;
+    color: rgba(255,255,255,.88);
+    font-size: 11px;
+}
+
+.bottom-nav-btn i {
+    font-size: 24px;
+}
+
+.bottom-nav-btn span {
+    font-weight: 700;
+}
+
+.active-nav {
+    color: #fff;
+}
+
+.center-nav-btn {
+    width: 78px;
+    height: 78px;
+    margin-top: -48px;
+    border: 4px solid #fff;
+    background: linear-gradient(135deg, #ff7a00, #ff3d00);
+    color: #fff;
+    font-size: 34px;
+    box-shadow:
+        0 0 0 7px rgba(255,255,255,.16),
+        0 8px 25px rgba(0,0,0,.30);
+}
+
+/* ================= SIDE MENU PROFILE ================= */
+
+.side-menu-top {
+    min-height: 190px;
+    padding: 20px 20px;
+    background:
+        radial-gradient(circle at 80% 20%, rgba(255,90,0,.22), transparent 30%),
+        linear-gradient(135deg, #111, #222);
+}
+
+.menu-user {
+    padding-top: 30px;
+    gap: 16px;
+}
+
+.menu-profile-photo {
+    width: 82px;
+    height: 82px;
+    border: 3px solid #ff5a00;
+}
+
+.menu-user strong {
+    color: #fff;
+    font-size: 25px;
+}
+
+.menu-user small {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    background: #9e3e09;
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: .5px;
+}
+
+.menu-scroll {
+    height: calc(100vh - 190px);
+}
+
+.menu-heading {
+    color: #9f4a20;
+    font-size: 12px;
+}
+
+.menu-item {
+    min-height: 58px;
+}
+
+.menu-item i {
+    color: #f05a00;
+    font-size: 20px;
+}
+
+.menu-item span {
+    color: #404040;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* ================= MOBILE SMALL SCREEN ================= */
+
+@media (max-width: 430px) {
+
+    .home-header {
+        padding: 0 13px;
+        gap: 8px;
+    }
+
+    .header-icon-btn {
+        width: 54px;
+        height: 54px;
+    }
+
+    .main-logo {
+        width: 52px;
+        height: 52px;
+    }
+
+    .home-brand strong {
+        font-size: 22px;
+    }
+
+    .home-brand small {
+        font-size: 7px;
+    }
+
+    .welcome-card h2 {
+        font-size: 24px;
+    }
+
+    .quick-grid {
+        gap: 9px;
+    }
+
+    .quick-card {
+        min-height: 112px;
+        border-radius: 19px;
+    }
+
+    .quick-card i {
+        font-size: 27px;
+    }
+
+    .quick-card span {
+        font-size: 10px;
+    }
+}
