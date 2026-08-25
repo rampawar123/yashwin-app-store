@@ -1345,6 +1345,21 @@ localStorage.setItem(
 
 );
 
+    const featureNames = {
+    live: ["Live Match", "fa-broadcast-tower"],
+    matches: ["Matches", "fa-calendar-alt"],
+    tournaments: ["Tournaments", "fa-trophy"],
+    teams: ["Teams", "fa-users"],
+    players: ["Players", "fa-user"],
+    stats: ["Statistics", "fa-chart-bar"],
+    updates: ["Updates", "fa-bell"],
+    settings: ["Settings", "fa-cog"],
+    notifications: ["Notifications", "fa-bell"],
+    friends: ["Friends", "fa-user-friends"],
+    chat: ["Chat", "fa-comments"],
+    groups: ["Groups", "fa-users"]
+};
+
 /* =====================================================
 FEATURE PAGES
 ===================================================== */
