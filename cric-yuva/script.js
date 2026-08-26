@@ -1797,17 +1797,6 @@ button.addEventListener(
 
 });
 
-/* =====================================================
-BOTTOM CENTER + BUTTON
-===================================================== */
-
-addClick(
-    "centerActionButton",
-    function () {
-        openQuickModal();
-    }
-);
-
 document.querySelectorAll(
     ".bottom-center-button, .nav-center-btn, .add-button"
 ).forEach(function (button) {
