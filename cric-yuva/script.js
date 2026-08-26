@@ -1,1939 +1,2654 @@
-function initCricYuvaApp() {
+document.addEventListener("DOMContentLoaded", function () {
 
-let navigationHistory = [];
-let currentScreen = "screen1";
+    /* =====================================================
+       CRIC YUVA - COMPLETE JAVASCRIPT
+       SCREEN 1 TO SCREEN 28
+    ===================================================== */
 
-const featureNames = {
-team: ["MY TEAM", "fa-users"],
-matches: ["MY MATCHES", "fa-cricket-bat-ball"],
-live: ["LIVE CRICKET", "fa-video"],
-tournament: ["TOURNAMENT & SERIES", "fa-trophy"],
-statistics: ["STATISTICS", "fa-chart-column"],
-leaderboard: ["LEADERBOARD", "fa-ranking-star"],
-subscription: ["SUBSCRIPTION", "fa-crown"],
-payment: ["PAYMENT SETTINGS", "fa-credit-card"],
-updates: ["UPDATES", "fa-bullhorn"],
-contact: ["CONTACT", "fa-comment-dots"],
-language: ["CHANGE LANGUAGE", "fa-language"],
-youtube: ["YOUTUBE", "fa-youtube"],
-instagram: ["INSTAGRAM", "fa-instagram"],
-whatsapp: ["WHATSAPP", "fa-whatsapp"],
-facebook: ["FACEBOOK", "fa-facebook"],
-x: ["X", "fa-x-twitter"],
-about: ["ABOUT CRIC YUVA", "fa-circle-info"],
-blogs: ["BLOGS", "fa-newspaper"],
-privacy: ["PRIVACY POLICY", "fa-shield-halved"],
-terms: ["PAID SERVICE TERMS", "fa-file-contract"]
-};
 
-/* =====================================================
-HELPER
-===================================================== */
+    /* =====================================================
+       STORAGE
+    ===================================================== */
 
-function getElement(id) {
-return document.getElementById(id);
-}
+    const STORAGE_KEYS = {
+        account: "cricYuvaAccount",
+        profile: "cricYuvaProfile",
+        team: "cricYuvaTeam",
+        players: "cricYuvaPlayers",
+        matches: "cricYuvaMatches",
+        tournament: "cricYuvaTournament",
+        chat: "cricYuvaTeamChat"
+    };
 
-function addClick(id, callback) {
-const element = getElement(id);
 
-if (element) {
-element.addEventListener("click", callback);
-}
+    /* =====================================================
+       HELPERS
+    ===================================================== */
 
-}
+    function getElement(id) {
+        return document.getElementById(id);
+    }
 
-/* =====================================================
-SCREEN SYSTEM
-===================================================== */
 
-function showScreen(screenId, addHistory = true) {
+    function getJSON(key, defaultValue) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : defaultValue;
+        } catch (error) {
+            return defaultValue;
+        }
+    }
 
-const target = getElement(screenId);
 
-if (!target) {
-console.error("Screen not found:", screenId);
-return;
-}
+    function setJSON(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
 
-if (
-addHistory &&
-currentScreen !== screenId &&
-currentScreen !== "screen1"
-) {
-navigationHistory.push(currentScreen);
-}
 
-document.querySelectorAll(".app-screen").forEach(function (screen) {
-screen.classList.remove("active");
-});
+    function showMessage(message) {
+        alert(message);
+    }
 
-target.classList.add("active");
 
-currentScreen = screenId;
+    /* =====================================================
+       SCREEN SYSTEM
+    ===================================================== */
 
-window.scrollTo({
-top: 0,
-behavior: "auto"
-});
+    const allScreens = document.querySelectorAll(".app-screen");
 
-closeMenu();
 
-}
+    const screenMap = {
+        home: "screen5",
+        profile: "screen4",
 
-function goBack() {
+        team: "myTeamScreen",
+        "add-player": "addPlayerScreen",
+        "player-requests": "playerRequestsScreen",
+        "team-chat": "teamChatScreen",
+        "manage-roles": "manageRolesScreen",
 
-if (navigationHistory.length > 0) {
+        matches: "matchesScreen",
+        "create-match": "createMatchScreen",
+        "single-match": "singleMatchScreen",
+        "live-score": "liveScoreScreen",
+        scorecard: "scorecardScreen",
+        playing11: "playing11Screen",
 
-const previousScreen = navigationHistory.pop();      
+        tournament: "tournamentScreen",
+        "create-tournament": "createTournamentScreen",
+        auction: "auctionScreen",
+        fixtures: "fixturesScreen",
+        "points-table": "pointsTableScreen",
+
+        statistics: "statisticsScreen",
+        leaderboard: "leaderboardScreen",
+        live: "liveScreen",
+        updates: "updatesScreen",
+        subscription: "subscriptionScreen",
+        payment: "paymentScreen",
+        contact: "contactScreen"
+    };
+
+
+    let currentScreenId = "screen1";
+    let previousScreenId = "screen1";
+
+
+    function showScreen(screenId) {
+
+        const targetScreen = getElement(screenId);
+
+        if (!targetScreen) {
+            console.log("Screen not found:", screenId);
+            return;
+        }
+
+        if (currentScreenId !== screenId) {
+            previousScreenId = currentScreenId;
+            currentScreenId = screenId;
+        }
+
+        allScreens.forEach(function (screen) {
+            screen.classList.remove("active");
+        });
+
+        targetScreen.classList.add("active");
+
+        closeMenu();
+        closeQuickModal();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+        updateHomeProfile();
+        renderTeamPlayers();
+        renderMatches();
+        renderTournamentData();
+        updateStatistics();
+    }
+
+
+    function goAction(action) {
+
+        if (!action) {
+            return;
+        }
+
+        if (action === "share") {
+            shareApp();
+            return;
+        }
+
+        if (action === "ground") {
+            openGround();
+            return;
+        }
+
+        if (action === "youtube") {
+            showMessage("YouTube link will be added soon.");
+            return;
+        }
+
+        if (action === "instagram") {
+            showMessage("Instagram link will be added soon.");
+            return;
+        }
+
+        if (action === "whatsapp") {
+            showMessage("WhatsApp support link will be added soon.");
+            return;
+        }
+
+        if (action === "facebook") {
+            showMessage("Facebook link will be added soon.");
+            return;
+        }
+
+        if (action === "language") {
+            showMessage("Language selection will be added soon.");
+            return;
+        }
 
-showScreen(previousScreen, false);
+        if (action === "about") {
+            showMessage(
+                "CRIC YUVA V1.0\n\n" +
+                "Play Together, Win Together.\n\n" +
+                "Your complete cricket platform."
+            );
+            return;
+        }
 
-} else {
+        if (action === "privacy") {
+            showMessage("Privacy Policy page will be added soon.");
+            return;
+        }
 
-navigationHistory = [];      
-showScreen("screen5", false);
+        if (action === "terms") {
+            showMessage("Paid Service Terms will be added soon.");
+            return;
+        }
 
-}
+        if (action === "auction-players") {
+            showMessage("Auction Players management will be added in the next update.");
+            return;
+        }
 
-}
+        if (action === "auction-teams") {
+            showMessage("Auction Teams management will be added in the next update.");
+            return;
+        }
 
-function goHome() {
+        if (action === "auction-token") {
+            showMessage("Auction Token system will be added in the next update.");
+            return;
+        }
 
-navigationHistory = [];
+        if (action === "auction-live") {
+            showMessage("Live Auction system will be added in the next update.");
+            return;
+        }
 
-showScreen("screen5", false);
+        if (action === "tournament-list") {
+            renderTournamentData();
+            showScreen("tournamentScreen");
+            return;
+        }
 
-}
+        if (screenMap[action]) {
+            showScreen(screenMap[action]);
+        }
+    }
 
-/* =====================================================
-PASSWORD EYE
-===================================================== */
 
-function setupPasswordEye(buttonId, inputId) {
+    /* =====================================================
+       SPLASH SCREEN - SCREEN 1
+    ===================================================== */
 
-const button = getElement(buttonId);
-const input = getElement(inputId);
+    setTimeout(function () {
 
-if (!button || !input) return;
+        const account = getJSON(STORAGE_KEYS.account, null);
+        const profile = getJSON(STORAGE_KEYS.profile, null);
 
-button.addEventListener("click", function () {
+        if (account && profile && profile.name) {
+            showScreen("screen5");
+        } else if (account) {
+            showScreen("screen4");
+        } else {
+            showScreen("screen2");
+        }
 
-const icon = button.querySelector("i");      
+    }, 2500);
 
-if (input.type === "password") {      
 
-    input.type = "text";      
+    /* =====================================================
+       PASSWORD SHOW / HIDE
+    ===================================================== */
 
-    if (icon) {      
-        icon.classList.remove("fa-eye");      
-        icon.classList.add("fa-eye-slash");      
-    }      
+    function setupPasswordToggle(buttonId, inputId) {
 
-} else {      
+        const button = getElement(buttonId);
+        const input = getElement(inputId);
 
-    input.type = "password";      
+        if (!button || !input) {
+            return;
+        }
 
-    if (icon) {      
-        icon.classList.remove("fa-eye-slash");      
-        icon.classList.add("fa-eye");      
-    }      
-}
+        button.addEventListener("click", function () {
 
-});
+            const icon = button.querySelector("i");
 
-}
+            if (input.type === "password") {
 
-setupPasswordEye("loginEyeButton", "loginPassword");
-setupPasswordEye("newPasswordEye", "newPassword");
-setupPasswordEye("verifyPasswordEye", "verifyPassword");
+                input.type = "text";
 
-/* =====================================================
-PLAYER ID
-===================================================== */
+                if (icon) {
+                    icon.className = "fa-regular fa-eye-slash";
+                }
 
-function getPlayerId() {
+            } else {
 
-let id = localStorage.getItem("cricYuvaPlayerId");
+                input.type = "password";
 
-if (!id) {
+                if (icon) {
+                    icon.className = "fa-regular fa-eye";
+                }
 
-const mobile =      
-    localStorage.getItem("cricYuvaMobile") || "0000000000";      
+            }
 
-const lastFour = mobile.slice(-4);      
-
-id = "CY" + lastFour + "001";      
-
-localStorage.setItem(      
-    "cricYuvaPlayerId",      
-    id      
-);
-
-}
-
-return id;
-
-}
-
-/* =====================================================
-SPLASH
-===================================================== */
-
-setTimeout(function () {
-
-const savedMobile =
-localStorage.getItem("cricYuvaMobile");
-
-const savedPassword =
-localStorage.getItem("cricYuvaPassword");
-
-const profileComplete =
-localStorage.getItem("cricYuvaProfileComplete");
-
-if (
-savedMobile &&
-savedPassword &&
-profileComplete === "true"
-) {
-
-loadProfileToScreen4();      
-loadHomeProfile();      
-
-navigationHistory = [];      
-
-showScreen("screen5", false);
-
-} else {
-
-showScreen("screen2", false);
-
-}
-
-}, 2500);
-
-/* =====================================================
-CREATE ACCOUNT
-===================================================== */
-
-addClick(
-"createAccountButton",
-function () {
-
-showScreen("screen3");
-}
-
-);
-
-addClick(
-"createBackButton",
-function () {
-
-navigationHistory = [];
-
-showScreen("screen2", false);
-
-}
-
-);
-
-addClick(
-"saveAccountButton",
-function () {
-
-const mobileInput = getElement("newMobile");
-const passwordInput = getElement("newPassword");
-const verifyPasswordInput =
-getElement("verifyPassword");
-
-if (      
-    !mobileInput ||      
-    !passwordInput ||      
-    !verifyPasswordInput      
-) {      
-    return;      
-}      
-
-const mobile =      
-    mobileInput.value.trim();      
-
-const password =      
-    passwordInput.value;      
-
-const verifyPassword =      
-    verifyPasswordInput.value;      
-
-
-if (!/^[0-9]{10}$/.test(mobile)) {      
-
-    alert(      
-        "Please enter a valid 10 digit mobile number."      
-    );      
-
-    return;      
-}      
-
-
-if (password.length < 4) {      
-
-    alert(      
-        "Password must be at least 4 characters."      
-    );      
-
-    return;      
-}      
-
-
-if (password !== verifyPassword) {      
-
-    alert("Password does not match!");      
-
-    return;      
-}      
-
-
-const oldMobile =      
-    localStorage.getItem("cricYuvaMobile");      
-
-
-/*      
- * New mobile number means new account.      
- * Old player's profile data is cleared.      
- */      
-
-if (      
-    oldMobile &&      
-    oldMobile !== mobile      
-) {      
-
-    localStorage.removeItem(      
-        "cricYuvaProfile"      
-    );      
-
-    localStorage.removeItem(      
-        "cricYuvaProfilePhoto"      
-    );      
-
-    localStorage.removeItem(      
-        "cricYuvaPlayerId"      
-    );      
-
-    localStorage.removeItem(      
-        "cricYuvaPlayerName"      
-    );      
-}      
-
-
-localStorage.setItem(      
-    "cricYuvaMobile",      
-    mobile      
-);      
-
-localStorage.setItem(      
-    "cricYuvaPassword",      
-    password      
-);      
-
-localStorage.setItem(      
-    "cricYuvaProfileComplete",      
-    "false"      
-);      
-
-
-const profileMobile =      
-    getElement("profileMobile");      
-
-if (profileMobile) {      
-    profileMobile.value = mobile;      
-}      
-
-
-clearProfileForm();      
-
-const playerId =      
-    getElement("playerId");      
-
-if (playerId) {      
-    playerId.textContent =      
-        getPlayerId();      
-}      
-
-
-alert(      
-    "Account created successfully!"      
-);      
-
-
-navigationHistory = [];      
-
-showScreen("screen4", false);
-
-}
-
-);
-
-/* =====================================================
-LOGIN
-===================================================== */
-
-addClick(
-"loginButton",
-function () {
-
-const loginMobile =
-getElement("loginMobile");
-
-const loginPassword =      
-    getElement("loginPassword");      
-
-if (      
-    !loginMobile ||      
-    !loginPassword      
-) {      
-    return;      
-}      
-
-
-const mobile =      
-    loginMobile.value.trim();      
-
-const password =      
-    loginPassword.value;      
-
-
-const savedMobile =      
-    localStorage.getItem(      
-        "cricYuvaMobile"      
-    );      
-
-const savedPassword =      
-    localStorage.getItem(      
-        "cricYuvaPassword"      
-    );      
-
-
-if (      
-    !savedMobile ||      
-    !savedPassword      
-) {      
-
-    alert(      
-        "Please create a new account first."      
-    );      
-
-    return;      
-}      
-
-
-if (      
-    mobile === savedMobile &&      
-    password === savedPassword      
-) {      
-
-    loadProfileToScreen4();      
-    loadHomeProfile();      
-
-    const profileComplete =      
-        localStorage.getItem(      
-            "cricYuvaProfileComplete"      
-        );      
-
-
-    navigationHistory = [];      
-
-
-    if (      
-        profileComplete === "true"      
-    ) {      
-
-        showScreen(      
-            "screen5",      
-            false      
-        );      
-
-    } else {      
-
-        showScreen(      
-            "screen4",      
-            false      
-        );      
-    }      
-
-} else {      
-
-    alert(      
-        "Invalid mobile number or password!"      
-    );      
-}
-
-}
-
-);
-
-/* =====================================================
-FORGOT PASSWORD
-===================================================== */
-
-addClick(
-"forgotPasswordButton",
-function () {
-
-const mobile =
-localStorage.getItem(
-"cricYuvaMobile"
-);
-
-if (!mobile) {      
-
-    alert(      
-        "No account found. Please create a new account."      
-    );      
-
-    return;      
-}      
-
-
-alert(      
-    "Password reset system will be added in the next version."      
-);
-
-}
-
-);
-
-/* =====================================================
-PROFILE PHOTO
-===================================================== */
-
-const replacePhotoBtn =
-getElement("replacePhotoBtn");
-
-const profilePhotoInput =
-getElement("profilePhotoInput");
-
-if (
-replacePhotoBtn &&
-profilePhotoInput
-) {
-
-replacePhotoBtn.addEventListener(
-"click",
-function () {
-
-profilePhotoInput.click();      
-}
-
-);
-
-profilePhotoInput.addEventListener(
-"change",
-function () {
-
-const file =      
-        this.files[0];      
-
-    if (!file) return;      
-
-
-    if (      
-        !file.type.startsWith(      
-            "image/"      
-        )      
-    ) {      
-
-        alert(      
-            "Please select an image file."      
-        );      
-
-        return;      
-    }      
-
-
-    const reader =      
-        new FileReader();      
-
-
-    reader.onload =      
-        function (event) {      
-
-            const imageData =      
-                event.target.result;      
-
-
-            localStorage.setItem(      
-                "cricYuvaProfilePhoto",      
-                imageData      
-            );      
-
-
-            setProfileImage(      
-                imageData      
-            );      
-
-
-            updateAllProfilePhotos(      
-                imageData      
-            );      
-        };      
-
-
-    reader.readAsDataURL(      
-        file      
-    );      
-}
-
-);
-
-}
-
-function setProfileImage(imageData) {
-
-const profilePhoto =
-getElement("profilePhoto");
-
-if (!profilePhoto) return;
-
-if (imageData) {
-
-profilePhoto.innerHTML =      
-    '<img src="' +      
-    imageData +      
-    '" alt="Profile Photo">';
-
-} else {
-
-const savedName =      
-    localStorage.getItem(      
-        "cricYuvaPlayerName"      
-    ) || "PLAYER";      
-
-const initial =      
-    savedName.charAt(0)      
-        .toUpperCase();      
-
-
-profilePhoto.innerHTML =      
-    '<span id="profileInitial">' +      
-    initial +      
-    '</span>';
-
-}
-
-}
-
-function updateAllProfilePhotos(
-imageData
-) {
-
-const photoContainers = [
-getElement("homeProfilePhoto"),
-getElement("menuProfilePhoto")
-];
-
-photoContainers.forEach(
-function (container) {
-
-if (      
-        container &&      
-        imageData      
-    ) {      
-
-        container.innerHTML =      
-            '<img src="' +      
-            imageData +      
-            '" alt="Profile Photo">';      
-    }      
-}
-
-);
-
-}
-
-/* =====================================================
-CLEAR PROFILE FORM
-===================================================== */
-
-function clearProfileForm() {
-
-const fields = [
-"profileName",
-"profileEmail",
-"jerseyName",
-"jerseyNumber",
-"pantSize",
-"dateOfBirth"
-];
-
-fields.forEach(
-function (id) {
-
-const field =      
-        getElement(id);      
-
-    if (field) {      
-        field.value = "";      
-    }      
-}
-
-);
-
-const jerseySize =
-getElement("jerseySize");
-
-if (jerseySize) {
-jerseySize.value = "";
-}
-
-const profilePhoto =
-getElement("profilePhoto");
-
-if (profilePhoto) {
-
-profilePhoto.innerHTML =      
-    '<span id="profileInitial">P</span>';
-
-}
-
-}
-
-/* =====================================================
-PROFILE SAVE
-===================================================== */
-
-addClick(
-"saveProfileButton",
-function () {
-
-const name =
-getElement("profileName")
-.value.trim();
-
-const mobile =      
-    getElement("profileMobile")      
-    .value.trim();      
-
-const email =      
-    getElement("profileEmail")      
-    .value.trim();      
-
-const jerseyName =      
-    getElement("jerseyName")      
-    .value.trim();      
-
-const jerseyNumber =      
-    getElement("jerseyNumber")      
-    .value.trim();      
-
-const jerseySize =      
-    getElement("jerseySize")      
-    .value;      
-
-const pantSize =      
-    getElement("pantSize")      
-    .value.trim();      
-
-const dateOfBirth =      
-    getElement("dateOfBirth")      
-    .value;      
-
-
-if (!name) {      
-
-    alert(      
-        "Please enter your name."      
-    );      
-
-    return;      
-}      
-
-
-if (      
-    !/^[0-9]{10}$/.test(      
-        mobile      
-    )      
-) {      
-
-    alert(      
-        "Please enter a valid mobile number."      
-    );      
-
-    return;      
-}      
-
-
-const profileData = {      
-
-    name: name,      
-    mobile: mobile,      
-    email: email,      
-    jerseyName: jerseyName,      
-    jerseyNumber: jerseyNumber,      
-    jerseySize: jerseySize,      
-    pantSize: pantSize,      
-    dateOfBirth: dateOfBirth,      
-    playerId: getPlayerId()      
-};      
-
-
-localStorage.setItem(      
-    "cricYuvaProfile",      
-    JSON.stringify(      
-        profileData      
-    )      
-);      
-
-
-localStorage.setItem(      
-    "cricYuvaProfileComplete",      
-    "true"      
-);      
-
-
-localStorage.setItem(      
-    "cricYuvaPlayerName",      
-    name      
-);      
-
-
-loadHomeProfile();      
-
-setProfileImage(      
-    localStorage.getItem(      
-        "cricYuvaProfilePhoto"      
-    )      
-);      
-
-
-alert(      
-    "Profile saved successfully!"      
-);      
-
-
-goHome();
-
-}
-
-);
-
-/* =====================================================
-LOAD PROFILE
-===================================================== */
-
-function loadProfileToScreen4() {
-
-const savedMobile =
-localStorage.getItem(
-"cricYuvaMobile"
-);
-
-const profileMobile =
-getElement("profileMobile");
-
-if (
-savedMobile &&
-profileMobile
-) {
-
-profileMobile.value =      
-    savedMobile;
-
-}
-
-const playerId =
-getElement("playerId");
-
-if (playerId) {
-
-playerId.textContent =      
-    getPlayerId();
-
-}
-
-const savedProfile =
-localStorage.getItem(
-"cricYuvaProfile"
-);
-
-if (!savedProfile) {
-
-loadSavedPhoto();      
-
-updateProfileInitial();      
-
-return;
-
-}
-
-try {
-
-const profile =      
-    JSON.parse(      
-        savedProfile      
-    );      
-
-
-if (getElement("profileName")) {      
-    getElement("profileName").value =      
-        profile.name || "";      
-}      
-
-
-if (getElement("profileMobile")) {      
-    getElement("profileMobile").value =      
-        profile.mobile ||      
-        savedMobile ||      
-        "";      
-}      
-
-
-if (getElement("profileEmail")) {      
-    getElement("profileEmail").value =      
-        profile.email || "";      
-}      
-
-
-if (getElement("jerseyName")) {      
-    getElement("jerseyName").value =      
-        profile.jerseyName || "";      
-}      
-
-
-if (getElement("jerseyNumber")) {      
-    getElement("jerseyNumber").value =      
-        profile.jerseyNumber || "";      
-}      
-
-
-if (getElement("jerseySize")) {      
-    getElement("jerseySize").value =      
-        profile.jerseySize || "";      
-}      
-
-
-if (getElement("pantSize")) {      
-    getElement("pantSize").value =      
-        profile.pantSize || "";      
-}      
-
-
-if (getElement("dateOfBirth")) {      
-    getElement("dateOfBirth").value =      
-        profile.dateOfBirth || "";      
-}
-
-} catch (error) {
-
-console.error(      
-    "Profile load error:",      
-    error      
-);
-
-}
-
-loadSavedPhoto();
-
-updateProfileInitial();
-
-}
-
-function loadSavedPhoto() {
-
-const photo =
-localStorage.getItem(
-"cricYuvaProfilePhoto"
-);
-
-if (photo) {
-
-setProfileImage(      
-    photo      
-);
-
-}
-
-}
-
-function updateProfileInitial() {
-
-const profilePhoto =
-getElement("profilePhoto");
-
-if (!profilePhoto) return;
-
-const photo =
-localStorage.getItem(
-"cricYuvaProfilePhoto"
-);
-
-if (photo) return;
-
-const name =
-getElement("profileName")
-.value.trim() ||
-localStorage.getItem(
-"cricYuvaPlayerName"
-) ||
-"PLAYER";
-
-const initial =
-name.charAt(0)
-.toUpperCase() || "P";
-
-profilePhoto.innerHTML =
-'<span id="profileInitial">' +
-initial +
-'</span>';
-
-}
-
-/* =====================================================
-LOAD HOME PROFILE
-===================================================== */
-
-function loadHomeProfile() {
-
-const savedProfile =
-localStorage.getItem(
-"cricYuvaProfile"
-);
-
-const savedName =
-localStorage.getItem(
-"cricYuvaPlayerName"
-);
-
-const playerId =
-getPlayerId();
-
-let name =
-savedName ||
-"CRIC YUVA PLAYER";
-
-if (savedProfile) {
-
-try {      
-
-    const profile =      
-        JSON.parse(      
-            savedProfile      
-        );      
-
-
-    if (profile.name) {      
-        name =      
-            profile.name;      
-    }      
-
-} catch (error) {      
-
-    console.error(      
-        error      
-    );      
-}
-
-}
-
-const initial =
-name.charAt(0)
-.toUpperCase() || "P";
-
-const homePlayerName =
-getElement("homePlayerName");
-
-const menuPlayerName =
-getElement("menuPlayerName");
-
-const homePlayerId =
-getElement("homePlayerId");
-
-const menuPlayerId =
-getElement("menuPlayerId");
-
-const homeInitial =
-getElement("homeInitial");
-
-const menuInitial =
-getElement("menuInitial");
-
-if (homePlayerName) {
-homePlayerName.textContent =
-name;
-}
-
-if (menuPlayerName) {
-menuPlayerName.textContent =
-name;
-}
-
-if (homePlayerId) {
-homePlayerId.textContent =
-"ID: " +
-playerId;
-}
-
-if (menuPlayerId) {
-menuPlayerId.textContent =
-playerId;
-}
-
-if (homeInitial) {
-homeInitial.textContent =
-initial;
-}
-
-if (menuInitial) {
-menuInitial.textContent =
-initial;
-}
-
-const photo =
-localStorage.getItem(
-"cricYuvaProfilePhoto"
-);
-
-if (photo) {
-
-updateAllProfilePhotos(      
-    photo      
-);
-
-} else {
-
-const homePhoto =      
-    getElement(      
-        "homeProfilePhoto"      
-    );      
-
-const menuPhoto =      
-    getElement(      
-        "menuProfilePhoto"      
-    );      
-
-
-if (homePhoto) {      
-
-    homePhoto.innerHTML =      
-        '<span id="homeInitial">' +      
-        initial +      
-        '</span>';      
-}      
-
-
-if (menuPhoto) {      
-
-    menuPhoto.innerHTML =      
-        '<span id="menuInitial">' +      
-        initial +      
-        '</span>';      
-}
-
-}
-
-}
-
-/* =====================================================
-PROFILE BACK
-===================================================== */
-
-addClick(
-"profileBackButton",
-function () {
-
-const profileComplete =
-localStorage.getItem(
-"cricYuvaProfileComplete"
-);
-
-if (      
-    profileComplete === "true"      
-) {      
-
-    if (      
-        navigationHistory.length > 0      
-    ) {      
-
-        goBack();      
-
-    } else {      
-
-        goHome();      
-    }      
-
-} else {      
-
-    navigationHistory = [];      
-
-    showScreen(      
-        "screen2",      
-        false      
-    );      
-}
-
-}
-
-);
-
-/* =====================================================
-SIDE MENU
-===================================================== */
-
-const sideMenu =
-getElement("sideMenu");
-
-const menuOverlay =
-getElement("menuOverlay");
-
-function openMenu() {
-
-if (sideMenu) {
-sideMenu.classList.add(
-"open"
-);
-}
-
-if (menuOverlay) {
-menuOverlay.classList.add(
-"open"
-);
-}
-
-}
-
-function closeMenu() {
-
-if (sideMenu) {
-sideMenu.classList.remove(
-"open"
-);
-}
-
-if (menuOverlay) {
-menuOverlay.classList.remove(
-"open"
-);
-}
-
-}
-
-addClick(
-"menuButton",
-openMenu
-);
-
-addClick(
-"closeMenuButton",
-closeMenu
-);
-
-if (menuOverlay) {
-
-menuOverlay.addEventListener(
-"click",
-closeMenu
-);
-
-}
-
-/* =====================================================
-QUICK MODAL
-===================================================== */
-
-const quickModalOverlay =
-getElement(
-"quickModalOverlay"
-);
-
-function openQuickModal() {
-
-if (quickModalOverlay) {
-
-quickModalOverlay.classList.add(      
-    "open"      
-);
-
-}
-
-}
-
-function closeQuickModal() {
-
-if (quickModalOverlay) {
-
-quickModalOverlay.classList.remove(      
-    "open"      
-);
-
-}
-
-}
-
- /* QUICK ACTION BUTTONS */
-
-document.querySelectorAll(
-"[data-quick-action]"
-).forEach(function (button) {
-
-button.addEventListener(
-"click",
-function () {
-
-const action =
-button.dataset.quickAction;
-
-closeQuickModal();
-
-
-if (action === "team") {
-
-openMyTeam();
-return;
-
-}
-
-
-if (action === "add-player") {
-
-openMyTeam();
-
-setTimeout(function () {
-
-const addPlayerButton =
-getElement("addPlayerButton");
-
-if (addPlayerButton) {
-addPlayerButton.click();
-}
-
-}, 300);
-
-return;
-
-}
-
-
-if (action === "matches") {
-
-openFeature("matches");
-return;
-
-}
-
-
-if (action === "tournament") {
-
-openFeature("tournament");
-return;
-
-}
-
-    if (action === "live") {
-
-    openFeature("live");
-
-    return;
+        });
 
     }
 
-}
 
-);
+    setupPasswordToggle("loginEyeButton", "loginPassword");
+    setupPasswordToggle("newPasswordEye", "newPassword");
+    setupPasswordToggle("verifyPasswordEye", "verifyPassword");
 
-}
-);
 
-addClick(
-"centerActionButton",
-openQuickModal
-);
+    /* =====================================================
+       LOGIN - SCREEN 2
+    ===================================================== */
 
-addClick(
-"quickModalClose",
-closeQuickModal
-);
+    const loginButton = getElement("loginButton");
 
-if (quickModalOverlay) {
 
-quickModalOverlay.addEventListener(
-"click",
-function (event) {
+    if (loginButton) {
 
-if (      
-        event.target ===      
-        quickModalOverlay      
-    ) {      
+        loginButton.addEventListener("click", function () {
 
-        closeQuickModal();      
-    }      
-}
+            const mobileInput = getElement("loginMobile");
+            const passwordInput = getElement("loginPassword");
 
-);
+            const mobile = mobileInput.value.trim();
+            const password = passwordInput.value.trim();
 
-}
+            if (mobile.length !== 10) {
+                showMessage("Please enter a valid 10 digit mobile number.");
+                return;
+            }
 
-/* =====================================================
-NOTIFICATIONS
-===================================================== */
+            if (!password) {
+                showMessage("Please enter your password.");
+                return;
+            }
 
-function updateNotificationDot() {
+            const account = getJSON(STORAGE_KEYS.account, null);
 
-const dot =
-getElement(
-"notificationDot"
-);
+            if (!account) {
+                showMessage("Account not found. Please create a new account.");
+                showScreen("screen3");
+                return;
+            }
 
-if (!dot) return;
+            if (
+                account.mobile !== mobile ||
+                account.password !== password
+            ) {
+                showMessage("Invalid mobile number or password.");
+                return;
+            }
 
-const hasUnread =
-localStorage.getItem(
-"cricYuvaHasUnreadNotifications"
-) === "true";
+            const profile = getJSON(STORAGE_KEYS.profile, null);
 
-dot.style.display =
-hasUnread ?
-"block" :
-"none";
+            if (profile && profile.name) {
+                showMessage("Login Successful!");
+                showScreen("screen5");
+            } else {
+                showMessage("Login Successful! Please complete your profile.");
+                showScreen("screen4");
+            }
 
-}
+        });
 
-addClick(
-"notificationButton",
-function () {
-
-localStorage.setItem(
-"cricYuvaHasUnreadNotifications",
-"false"
-);
-
-updateNotificationDot();      
-
-openFeature(      
-    "updates"      
-);
-
-}
-
-);
-
-/* =====================================================
-FEATURE PAGES
-===================================================== */
-
-function openFeature(action) {
-
-closeMenu();
-closeQuickModal();
-
-if (action === "team") {
-openMyTeam();
-return;
-}
-
-if (action === "home") {
-
-goHome();      
-
-return;
-
-}
-
-if (action === "profile") {
-
-loadProfileToScreen4();      
-
-showScreen(      
-    "screen4"      
-);      
-
-return;
-
-}
-
-if (action === "share") {
-
-shareApp();      
-
-return;
-
-}
-
-if (action === "live") {
-    openLiveCricket();
-    return;
-}    
-
-const feature =
-featureNames[action];
-
-if (!feature) return;
-
-const title =
-feature[0];
-
-const iconClass =
-feature[1];
-
-const featureTitle =
-getElement(
-"featureTitle"
-);
-
-const featureMainTitle =
-getElement(
-"featureMainTitle"
-);
-
-const featureText =
-getElement(
-"featureText"
-);
-
-const featureIcon =
-getElement(
-"featureIcon"
-);
-
-if (featureTitle) {
-
-featureTitle.textContent =      
-    title;
-
-}
-
-if (featureMainTitle) {
-
-featureMainTitle.textContent =      
-    title;
-
-}
-
-if (featureText) {
-
-featureText.textContent =      
-    title +      
-    " page is ready for the next development step.";
-
-}
-
-if (featureIcon) {
-
-featureIcon.innerHTML =      
-    '<i class="fa-solid ' +      
-    iconClass +      
-    '"></i>';
-
-}
-
-showScreen(
-"featureScreen"
-);
-
-}
-
-    function openLiveCricket() {
-    showScreen("featureScreen");
-
-    const featureTitle = getElement("featureTitle");
-    const featureMainTitle = getElement("featureMainTitle");
-    const featureText = getElement("featureText");
-    const featureIcon = getElement("featureIcon");
-
-    if (featureTitle) {
-        featureTitle.textContent = "LIVE CRICKET";
     }
 
-    if (featureMainTitle) {
-        featureMainTitle.textContent = "LIVE CRICKET";
+
+    /* =====================================================
+       CREATE ACCOUNT - SCREEN 3
+    ===================================================== */
+
+    const createAccountButton = getElement("createAccountButton");
+    const createBackButton = getElement("createBackButton");
+    const saveAccountButton = getElement("saveAccountButton");
+
+
+    if (createAccountButton) {
+        createAccountButton.addEventListener("click", function () {
+            showScreen("screen3");
+        });
     }
 
-    if (featureText) {
-        featureText.textContent =
-            "Live cricket matches, scores and match updates will appear here.";
+
+    if (createBackButton) {
+        createBackButton.addEventListener("click", function () {
+            showScreen("screen2");
+        });
     }
 
-    if (featureIcon) {
-        featureIcon.innerHTML =
-            '<i class="fa-solid fa-video"></i>';
+
+    if (saveAccountButton) {
+
+        saveAccountButton.addEventListener("click", function () {
+
+            const mobile = getElement("newMobile").value.trim();
+            const password = getElement("newPassword").value.trim();
+            const verifyPassword = getElement("verifyPassword").value.trim();
+
+            if (mobile.length !== 10) {
+                showMessage("Please enter a valid 10 digit mobile number.");
+                return;
+            }
+
+            if (password.length < 4) {
+                showMessage("Password must be at least 4 characters.");
+                return;
+            }
+
+            if (password !== verifyPassword) {
+                showMessage("Passwords do not match.");
+                return;
+            }
+
+            const account = {
+                mobile: mobile,
+                password: password
+            };
+
+            setJSON(STORAGE_KEYS.account, account);
+
+            const existingProfile = getJSON(
+                STORAGE_KEYS.profile,
+                {}
+            );
+
+            existingProfile.mobile = mobile;
+
+            if (!existingProfile.playerId) {
+                existingProfile.playerId =
+                    "CY" +
+                    Date.now()
+                    .toString()
+                    .slice(-8);
+            }
+
+            setJSON(
+                STORAGE_KEYS.profile,
+                existingProfile
+            );
+
+            showMessage(
+                "Account created successfully!"
+            );
+
+            loadProfileData();
+            showScreen("screen4");
+
+        });
+
     }
+
+
+    /* =====================================================
+       FORGOT PASSWORD
+    ===================================================== */
+
+    const forgotPasswordButton = getElement(
+        "forgotPasswordButton"
+    );
+
+
+    if (forgotPasswordButton) {
+
+        forgotPasswordButton.addEventListener(
+            "click",
+            function () {
+
+                const account = getJSON(
+                    STORAGE_KEYS.account,
+                    null
+                );
+
+                if (!account) {
+                    showMessage(
+                        "No account found. Please create a new account."
+                    );
+                    return;
+                }
+
+                const newPassword = prompt(
+                    "Enter your new password:"
+                );
+
+                if (
+                    newPassword &&
+                    newPassword.trim().length >= 4
+                ) {
+
+                    account.password =
+                        newPassword.trim();
+
+                    setJSON(
+                        STORAGE_KEYS.account,
+                        account
+                    );
+
+                    showMessage(
+                        "Password changed successfully!"
+                    );
+
+                } else if (newPassword !== null) {
+
+                    showMessage(
+                        "Password must be at least 4 characters."
+                    );
+
+                }
+
+            }
+        );
+
     }
 
-document
-.querySelectorAll(
-"[data-action]"
-)
-.forEach(
-function (button) {
 
-button.addEventListener(
-"click",
-function () {
+    /* =====================================================
+       PROFILE - SCREEN 4
+    ===================================================== */
 
-const action =      
-                button.dataset.action;      
+    function loadProfileData() {
 
-            openFeature(      
-                action      
-            );      
-        }      
-    );      
-}
+        const profile = getJSON(
+            STORAGE_KEYS.profile,
+            {}
+        );
 
-);
-
-/* =====================================================
-HOME SPECIAL BUTTONS
-===================================================== */
-
-addClick(
-"openProfileFromHome",
-function () {
-
-loadProfileToScreen4();
-
-showScreen(      
-    "screen4"      
-);
-
-}
-
-);
-
-addClick(
-"watchLiveButton",
-function () {
-
-openFeature(
-"live"
-);
-}
-
-);
-
-addClick(
-"matchDetailsButton",
-function () {
-
-openFeature(
-"matches"
-);
-}
-
-);
-
-/* =====================================================
-FEATURE BACK BUTTON
-===================================================== */
-
-addClick(
-"featureBackButton",
-goBack
-);
-
-addClick(
-"featureHomeButton",
-goHome
-);
-
-/* =====================================================
-SHARE APP
-===================================================== */
-
-function shareApp() {
-
-const appUrl =
-window.location.href;
-
-const shareText =
-"Join me on CRIC YUVA - Play Together, Win Together!\n\n" +
-appUrl;
-
-if (navigator.share) {
-
-navigator.share({      
-    title: "CRIC YUVA",      
-    text: shareText,      
-    url: appUrl      
-})      
-.catch(function () {});
-
-} else if (
-navigator.clipboard
-) {
-
-navigator.clipboard      
-    .writeText(      
-        shareText      
-    )      
-    .then(function () {      
-
-        alert(      
-            "CRIC YUVA share link copied!"      
-        );      
-    })      
-    .catch(function () {      
-
-        alert(      
-            shareText      
-        );      
-    });
-
-} else {
-
-alert(      
-    shareText      
-);
-
-}
-
-}
-
-/* =====================================================
-LOGOUT
-===================================================== */
-
-addClick(
-"logoutButton",
-function () {
-
-closeMenu();
-
-const loginMobile =      
-    getElement(      
-        "loginMobile"      
-    );      
-
-const loginPassword =      
-    getElement(      
-        "loginPassword"      
-    );      
+        const account = getJSON(
+            STORAGE_KEYS.account,
+            null
+        );
 
 
-if (loginMobile) {      
-    loginMobile.value = "";      
-}      
+        if (account && getElement("profileMobile")) {
+            getElement("profileMobile").value =
+                profile.mobile || account.mobile || "";
+        }
 
 
-if (loginPassword) {      
-    loginPassword.value = "";      
-}      
+        if (getElement("profileName")) {
+            getElement("profileName").value =
+                profile.name || "";
+        }
+
+        if (getElement("profileEmail")) {
+            getElement("profileEmail").value =
+                profile.email || "";
+        }
+
+        if (getElement("jerseyName")) {
+            getElement("jerseyName").value =
+                profile.jerseyName || "";
+        }
+
+        if (getElement("jerseyNumber")) {
+            getElement("jerseyNumber").value =
+                profile.jerseyNumber || "";
+        }
+
+        if (getElement("jerseySize")) {
+            getElement("jerseySize").value =
+                profile.jerseySize || "";
+        }
+
+        if (getElement("pantSize")) {
+            getElement("pantSize").value =
+                profile.pantSize || "";
+        }
+
+        if (getElement("dateOfBirth")) {
+            getElement("dateOfBirth").value =
+                profile.dateOfBirth || "";
+        }
+
+        if (getElement("playerId")) {
+
+            getElement("playerId").textContent =
+                profile.playerId ||
+                "CY00000001";
+
+        }
 
 
-navigationHistory = [];      
+        if (profile.photo) {
+
+            setPhotoToElement(
+                getElement("profilePhoto"),
+                profile.photo
+            );
+
+        } else {
+
+            const initial =
+                profile.name ?
+                profile.name.charAt(0).toUpperCase() :
+                "P";
+
+            const profileInitial =
+                getElement("profileInitial");
+
+            if (profileInitial) {
+                profileInitial.textContent = initial;
+            }
+
+        }
+
+    }
 
 
-showScreen(      
-    "screen2",      
-    false      
-);
+    function setPhotoToElement(element, photo) {
 
-}
+        if (!element) {
+            return;
+        }
 
-);
+        element.innerHTML = "";
 
-/* =====================================================
-MY TEAM SCREEN
-===================================================== */
+        const image = document.createElement("img");
 
-function openMyTeam() {
+        image.src = photo;
+        image.alt = "Profile Photo";
 
-closeMenu();  
-closeQuickModal();  
+        image.style.width = "100%";
+        image.style.height = "100%";
+        image.style.objectFit = "cover";
+        image.style.borderRadius = "50%";
 
-const myTeamScreen = getElement("myTeamScreen");  
+        element.appendChild(image);
 
-if (!myTeamScreen) {  
-    alert("My Team screen not found.");  
-    return;  
-}  
+    }
 
-showScreen("myTeamScreen");
 
-}
+    const profileBackButton =
+        getElement("profileBackButton");
 
-/* OPEN MY TEAM FROM ANY BUTTON */
 
-document.querySelectorAll(
-'[data-action="team"]'
-).forEach(function (button) {
+    if (profileBackButton) {
 
-button.addEventListener(  
-    "click",  
-    function (event) {  
+        profileBackButton.addEventListener(
+            "click",
+            function () {
 
-        event.preventDefault();  
-        event.stopPropagation();  
+                const account = getJSON(
+                    STORAGE_KEYS.account,
+                    null
+                );
 
-        openMyTeam();  
-    }  
-);
+                if (account) {
+                    showScreen("screen5");
+                } else {
+                    showScreen("screen2");
+                }
+
+            }
+        );
+
+    }
+
+
+    const replacePhotoBtn =
+        getElement("replacePhotoBtn");
+
+    const profilePhotoInput =
+        getElement("profilePhotoInput");
+
+
+    if (replacePhotoBtn && profilePhotoInput) {
+
+        replacePhotoBtn.addEventListener(
+            "click",
+            function () {
+                profilePhotoInput.click();
+            }
+        );
+
+
+        profilePhotoInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    profilePhotoInput.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+
+                    const profile = getJSON(
+                        STORAGE_KEYS.profile,
+                        {}
+                    );
+
+                    profile.photo =
+                        event.target.result;
+
+                    setJSON(
+                        STORAGE_KEYS.profile,
+                        profile
+                    );
+
+                    setPhotoToElement(
+                        getElement("profilePhoto"),
+                        profile.photo
+                    );
+
+                    updateHomeProfile();
+
+                };
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+    }
+
+
+    const saveProfileButton =
+        getElement("saveProfileButton");
+
+
+    if (saveProfileButton) {
+
+        saveProfileButton.addEventListener(
+            "click",
+            function () {
+
+                const name =
+                    getElement("profileName").value.trim();
+
+                if (!name) {
+                    showMessage(
+                        "Please enter your name."
+                    );
+                    return;
+                }
+
+
+                const oldProfile = getJSON(
+                    STORAGE_KEYS.profile,
+                    {}
+                );
+
+
+                const profile = {
+
+                    name: name,
+
+                    mobile:
+                        getElement("profileMobile")
+                        .value
+                        .trim(),
+
+                    email:
+                        getElement("profileEmail")
+                        .value
+                        .trim(),
+
+                    jerseyName:
+                        getElement("jerseyName")
+                        .value
+                        .trim(),
+
+                    jerseyNumber:
+                        getElement("jerseyNumber")
+                        .value
+                        .trim(),
+
+                    jerseySize:
+                        getElement("jerseySize")
+                        .value,
+
+                    pantSize:
+                        getElement("pantSize")
+                        .value
+                        .trim(),
+
+                    dateOfBirth:
+                        getElement("dateOfBirth")
+                        .value,
+
+                    playerId:
+                        oldProfile.playerId ||
+                        (
+                            "CY" +
+                            Date.now()
+                            .toString()
+                            .slice(-8)
+                        ),
+
+                    photo:
+                        oldProfile.photo || ""
+
+                };
+
+
+                setJSON(
+                    STORAGE_KEYS.profile,
+                    profile
+                );
+
+
+                showMessage(
+                    "Profile saved successfully!"
+                );
+
+
+                updateHomeProfile();
+                showScreen("screen5");
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       HOME PROFILE UPDATE - SCREEN 5
+    ===================================================== */
+
+    function updateHomeProfile() {
+
+        const profile = getJSON(
+            STORAGE_KEYS.profile,
+            {}
+        );
+
+
+        const playerName =
+            profile.name || "CRIC YUVA PLAYER";
+
+        const playerId =
+            profile.playerId || "CY00000001";
+
+        const initial =
+            playerName.charAt(0).toUpperCase();
+
+
+        const nameIds = [
+            "homePlayerName",
+            "menuPlayerName"
+        ];
+
+
+        nameIds.forEach(function (id) {
+
+            const element = getElement(id);
+
+            if (element) {
+                element.textContent = playerName;
+            }
+
+        });
+
+
+        const idIds = [
+            "homePlayerId",
+            "menuPlayerId"
+        ];
+
+
+        idIds.forEach(function (id) {
+
+            const element = getElement(id);
+
+            if (element) {
+
+                if (id === "homePlayerId") {
+                    element.textContent =
+                        "ID: " + playerId;
+                } else {
+                    element.textContent =
+                        playerId;
+                }
+
+            }
+
+        });
+
+
+        const initialIds = [
+            "homeInitial",
+            "menuInitial",
+            "profileInitial"
+        ];
+
+
+        initialIds.forEach(function (id) {
+
+            const element = getElement(id);
+
+            if (element && !profile.photo) {
+                element.textContent = initial;
+            }
+
+        });
+
+
+        if (profile.photo) {
+
+            setPhotoToElement(
+                getElement("homeProfilePhoto"),
+                profile.photo
+            );
+
+            setPhotoToElement(
+                getElement("menuProfilePhoto"),
+                profile.photo
+            );
+
+        }
+
+    }
+
+
+    const openProfileFromHome =
+        getElement("openProfileFromHome");
+
+
+    if (openProfileFromHome) {
+
+        openProfileFromHome.addEventListener(
+            "click",
+            function () {
+                loadProfileData();
+                showScreen("screen4");
+            }
+        );
+
+    }
+
+
+    const bottomProfileButton =
+        getElement("bottomProfileButton");
+
+
+    if (bottomProfileButton) {
+
+        bottomProfileButton.addEventListener(
+            "click",
+            function () {
+                loadProfileData();
+                showScreen("screen4");
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       DATA ACTION BUTTONS
+    ===================================================== */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest("[data-action]");
+
+            if (!button) {
+                return;
+            }
+
+            const action =
+                button.getAttribute("data-action");
+
+            if (action === "profile") {
+                loadProfileData();
+            }
+
+            goAction(action);
+
+        }
+    );
+
+
+    /* =====================================================
+       SIDE MENU
+    ===================================================== */
+
+    const menuButton =
+        getElement("menuButton");
+
+    const sideMenu =
+        getElement("sideMenu");
+
+    const menuOverlay =
+        getElement("menuOverlay");
+
+    const closeMenuButton =
+        getElement("closeMenuButton");
+
+
+    function openMenu() {
+
+        if (sideMenu) {
+            sideMenu.classList.add("active");
+        }
+
+        if (menuOverlay) {
+            menuOverlay.classList.add("active");
+        }
+
+    }
+
+
+    function closeMenu() {
+
+        if (sideMenu) {
+            sideMenu.classList.remove("active");
+        }
+
+        if (menuOverlay) {
+            menuOverlay.classList.remove("active");
+        }
+
+    }
+
+
+    if (menuButton) {
+        menuButton.addEventListener(
+            "click",
+            openMenu
+        );
+    }
+
+
+    if (closeMenuButton) {
+        closeMenuButton.addEventListener(
+            "click",
+            closeMenu
+        );
+    }
+
+
+    if (menuOverlay) {
+        menuOverlay.addEventListener(
+            "click",
+            closeMenu
+        );
+    }
+
+
+    /* =====================================================
+       QUICK ACTION MODAL
+    ===================================================== */
+
+    const centerActionButton =
+        getElement("centerActionButton");
+
+    const quickModalOverlay =
+        getElement("quickModalOverlay");
+
+    const quickModalClose =
+        getElement("quickModalClose");
+
+
+    function openQuickModal() {
+
+        if (quickModalOverlay) {
+            quickModalOverlay.classList.add("active");
+        }
+
+    }
+
+
+    function closeQuickModal() {
+
+        if (quickModalOverlay) {
+            quickModalOverlay.classList.remove("active");
+        }
+
+    }
+
+
+    if (centerActionButton) {
+
+        centerActionButton.addEventListener(
+            "click",
+            openQuickModal
+        );
+
+    }
+
+
+    if (quickModalClose) {
+
+        quickModalClose.addEventListener(
+            "click",
+            closeQuickModal
+        );
+
+    }
+
+
+    if (quickModalOverlay) {
+
+        quickModalOverlay.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === quickModalOverlay
+                ) {
+                    closeQuickModal();
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       MY TEAM - SCREEN 6
+    ===================================================== */
+
+    function getPlayers() {
+        return getJSON(
+            STORAGE_KEYS.players,
+            []
+        );
+    }
+
+
+    function renderTeamPlayers() {
+
+        const players = getPlayers();
+
+        const totalPlayersCount =
+            getElement("totalPlayersCount");
+
+        const playingElevenCount =
+            getElement("playingElevenCount");
+
+        const substituteCount =
+            getElement("substituteCount");
+
+
+        if (totalPlayersCount) {
+            totalPlayersCount.textContent =
+                players.length;
+        }
+
+
+        if (playingElevenCount) {
+            playingElevenCount.textContent =
+                Math.min(players.length, 11);
+        }
+
+
+        if (substituteCount) {
+
+            substituteCount.textContent =
+                Math.max(
+                    players.length - 11,
+                    0
+                );
+
+        }
+
+
+        const emptyCard =
+            document.querySelector(
+                "#myTeamScreen .empty-feature-card"
+            );
+
+
+        if (emptyCard) {
+
+            if (players.length === 0) {
+
+                emptyCard.style.display = "";
+
+            } else {
+
+                let playerList =
+                    getElement("teamPlayersList");
+
+                if (!playerList) {
+
+                    playerList =
+                        document.createElement("div");
+
+                    playerList.id =
+                        "teamPlayersList";
+
+                    playerList.className =
+                        "team-players-list";
+
+                    emptyCard.parentNode.insertBefore(
+                        playerList,
+                        emptyCard
+                    );
+
+                }
+
+
+                playerList.innerHTML = "";
+
+
+                players.forEach(
+                    function (player, index) {
+
+                        const item =
+                            document.createElement("div");
+
+                        item.className =
+                            "team-player-item";
+
+                        item.innerHTML =
+                            "<div class='team-player-number'>" +
+                            (index + 1) +
+                            "</div>" +
+
+                            "<div class='team-player-info'>" +
+
+                            "<strong>" +
+                            escapeHTML(player.name) +
+                            "</strong>" +
+
+                            "<span>" +
+                            escapeHTML(player.role) +
+                            " • #" +
+                            escapeHTML(player.jersey) +
+                            "</span>" +
+
+                            "</div>" +
+
+                            "<button type='button' class='remove-player-button' data-player-index='" +
+                            index +
+                            "'>" +
+
+                            "<i class='fa-solid fa-trash'></i>" +
+
+                            "</button>";
+
+                        playerList.appendChild(item);
+
+                    }
+                );
+
+
+                emptyCard.style.display = "none";
+
+            }
+
+        }
+
+    }
+
+
+    function escapeHTML(value) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = value || "";
+
+        return div.innerHTML;
+
+    }
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const removeButton =
+                event.target.closest(
+                    ".remove-player-button"
+                );
+
+            if (!removeButton) {
+                return;
+            }
+
+            const index =
+                Number(
+                    removeButton.dataset.playerIndex
+                );
+
+            const players = getPlayers();
+
+            players.splice(index, 1);
+
+            setJSON(
+                STORAGE_KEYS.players,
+                players
+            );
+
+            renderTeamPlayers();
+            updateStatistics();
+
+        }
+    );
+
+
+    /* =====================================================
+       ADD PLAYER - SCREEN 7
+    ===================================================== */
+
+    const saveNewPlayerButton =
+        getElement("saveNewPlayerButton");
+
+
+    if (saveNewPlayerButton) {
+
+        saveNewPlayerButton.addEventListener(
+            "click",
+            function () {
+
+                const name =
+                    getElement("newPlayerName")
+                    .value
+                    .trim();
+
+                const mobile =
+                    getElement("newPlayerMobile")
+                    .value
+                    .trim();
+
+                const role =
+                    getElement("newPlayerRole")
+                    .value;
+
+                const jersey =
+                    getElement("newPlayerJersey")
+                    .value
+                    .trim();
+
+
+                if (!name) {
+                    showMessage(
+                        "Please enter player name."
+                    );
+                    return;
+                }
+
+
+                if (
+                    mobile &&
+                    mobile.length !== 10
+                ) {
+                    showMessage(
+                        "Please enter a valid mobile number."
+                    );
+                    return;
+                }
+
+
+                if (!role) {
+                    showMessage(
+                        "Please select player role."
+                    );
+                    return;
+                }
+
+
+                const players = getPlayers();
+
+
+                players.push({
+                    name: name,
+                    mobile: mobile,
+                    role: role,
+                    jersey: jersey
+                });
+
+
+                setJSON(
+                    STORAGE_KEYS.players,
+                    players
+                );
+
+
+                getElement("newPlayerName").value = "";
+                getElement("newPlayerMobile").value = "";
+                getElement("newPlayerRole").value = "";
+                getElement("newPlayerJersey").value = "";
+
+
+                showMessage(
+                    "Player added successfully!"
+                );
+
+
+                renderTeamPlayers();
+                showScreen("myTeamScreen");
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       MANAGE ROLES - SCREEN 10
+    ===================================================== */
+
+    function selectTeamRole(
+        roleType
+    ) {
+
+        const players = getPlayers();
+
+        if (players.length === 0) {
+
+            showMessage(
+                "Please add players first."
+            );
+
+            return;
+        }
+
+
+        const playerNames =
+            players.map(
+                function (player, index) {
+                    return (
+                        (index + 1) +
+                        ". " +
+                        player.name
+                    );
+                }
+            )
+            .join("\n");
+
+
+        const selected =
+            prompt(
+                "Enter player number:\n\n" +
+                playerNames
+            );
+
+
+        const playerIndex =
+            Number(selected) - 1;
+
+
+        if (
+            isNaN(playerIndex) ||
+            !players[playerIndex]
+        ) {
+
+            return;
+
+        }
+
+
+        const team = getJSON(
+            STORAGE_KEYS.team,
+            {}
+        );
+
+
+        if (roleType === "captain") {
+
+            team.captain =
+                players[playerIndex].name;
+
+        } else {
+
+            team.viceCaptain =
+                players[playerIndex].name;
+
+        }
+
+
+        setJSON(
+            STORAGE_KEYS.team,
+            team
+        );
+
+
+        updateTeamRoles();
+
+    }
+
+
+    function updateTeamRoles() {
+
+        const team = getJSON(
+            STORAGE_KEYS.team,
+            {}
+        );
+
+
+        const captainName =
+            getElement("captainName");
+
+        const viceCaptainName =
+            getElement("viceCaptainName");
+
+
+        if (captainName) {
+
+            captainName.textContent =
+                team.captain ||
+                "Not Selected";
+
+        }
+
+
+        if (viceCaptainName) {
+
+            viceCaptainName.textContent =
+                team.viceCaptain ||
+                "Not Selected";
+
+        }
+
+    }
+
+
+    const selectCaptainButton =
+        getElement("selectCaptainButton");
+
+    const selectViceCaptainButton =
+        getElement(
+            "selectViceCaptainButton"
+        );
+
+
+    if (selectCaptainButton) {
+
+        selectCaptainButton.addEventListener(
+            "click",
+            function () {
+                selectTeamRole("captain");
+            }
+        );
+
+    }
+
+
+    if (selectViceCaptainButton) {
+
+        selectViceCaptainButton.addEventListener(
+            "click",
+            function () {
+                selectTeamRole("viceCaptain");
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       TEAM CHAT - SCREEN 9
+    ===================================================== */
+
+    function renderChatMessages() {
+
+        const chatBox =
+            getElement("teamChatMessages");
+
+        if (!chatBox) {
+            return;
+        }
+
+
+        const messages = getJSON(
+            STORAGE_KEYS.chat,
+            []
+        );
+
+
+        chatBox.innerHTML =
+            "<div class='chat-system-message'>" +
+            "Welcome to your Team Chat" +
+            "</div>";
+
+
+        messages.forEach(
+            function (message) {
+
+                const messageDiv =
+                    document.createElement("div");
+
+                messageDiv.className =
+                    "chat-own-message";
+
+                messageDiv.textContent =
+                    message;
+
+                chatBox.appendChild(
+                    messageDiv
+                );
+
+            }
+        );
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+    }
+
+
+    function sendTeamMessage() {
+
+        const input =
+            getElement("teamChatInput");
+
+        if (!input) {
+            return;
+        }
+
+
+        const message =
+            input.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+
+        const messages = getJSON(
+            STORAGE_KEYS.chat,
+            []
+        );
+
+
+        messages.push(message);
+
+
+        setJSON(
+            STORAGE_KEYS.chat,
+            messages
+        );
+
+
+        input.value = "";
+
+
+        renderChatMessages();
+
+    }
+
+
+    const sendTeamChatButton =
+        getElement("sendTeamChatButton");
+
+
+    if (sendTeamChatButton) {
+
+        sendTeamChatButton.addEventListener(
+            "click",
+            sendTeamMessage
+        );
+
+    }
+
+
+    const teamChatInput =
+        getElement("teamChatInput");
+
+
+    if (teamChatInput) {
+
+        teamChatInput.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Enter") {
+                    sendTeamMessage();
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       CREATE MATCH - SCREEN 12
+    ===================================================== */
+
+    function getMatches() {
+
+        return getJSON(
+            STORAGE_KEYS.matches,
+            []
+        );
+
+    }
+
+
+    const createNewMatchButton =
+        getElement("createNewMatchButton");
+
+
+    if (createNewMatchButton) {
+
+        createNewMatchButton.addEventListener(
+            "click",
+            function () {
+
+                const teamA =
+                    getElement("matchTeamA")
+                    .value
+                    .trim();
+
+                const teamB =
+                    getElement("matchTeamB")
+                    .value
+                    .trim();
+
+                const overs =
+                    getElement("matchOvers")
+                    .value;
+
+                const date =
+                    getElement("matchDate")
+                    .value;
+
+                const ground =
+                    getElement("matchGround")
+                    .value
+                    .trim();
+
+
+                if (!teamA || !teamB) {
+
+                    showMessage(
+                        "Please enter both team names."
+                    );
+
+                    return;
+
+                }
+
+
+                const matches =
+                    getMatches();
+
+
+                matches.push({
+
+                    id: Date.now(),
+
+                    teamA: teamA,
+
+                    teamB: teamB,
+
+                    overs: overs,
+
+                    date: date,
+
+                    ground: ground,
+
+                    status: "UPCOMING"
+
+                });
+
+
+                setJSON(
+                    STORAGE_KEYS.matches,
+                    matches
+                );
+
+
+                getElement("matchTeamA").value = "";
+                getElement("matchTeamB").value = "";
+                getElement("matchGround").value = "";
+                getElement("matchDate").value = "";
+
+
+                showMessage(
+                    "Match created successfully!"
+                );
+
+
+                renderMatches();
+                showScreen("matchesScreen");
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       RENDER MATCHES
+    ===================================================== */
+
+    function renderMatches() {
+
+        const container =
+            getElement("matchListContainer");
+
+        if (!container) {
+            return;
+        }
+
+
+        const matches =
+            getMatches();
+
+
+        if (matches.length === 0) {
+
+            container.innerHTML =
+                "<div class='empty-feature-card'>" +
+
+                "<div class='empty-feature-icon'>" +
+                "<i class='fa-solid fa-baseball-bat-ball'></i>" +
+                "</div>" +
+
+                "<h3>No Matches Yet</h3>" +
+
+                "<p>Create a match or join a tournament match.</p>" +
+
+                "</div>";
+
+            return;
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        matches
+        .slice()
+        .reverse()
+        .forEach(
+            function (match) {
+
+                const card =
+                    document.createElement("button");
+
+                card.type = "button";
+
+                card.className =
+                    "created-match-card";
+
+                card.innerHTML =
+
+                    "<span class='match-status-badge'>" +
+                    escapeHTML(
+                        match.status || "UPCOMING"
+                    ) +
+                    "</span>" +
+
+                    "<h3>" +
+                    escapeHTML(match.teamA) +
+                    " <span>VS</span> " +
+                    escapeHTML(match.teamB) +
+                    "</h3>" +
+
+                    "<p>" +
+                    (match.date || "Date not selected") +
+                    " • " +
+                    (match.ground || "Ground not selected") +
+                    "</p>" +
+
+                    "<small>" +
+                    match.overs +
+                    " Overs</small>";
+
+
+                card.addEventListener(
+                    "click",
+                    function () {
+
+                        localStorage.setItem(
+                            "cricYuvaSelectedMatch",
+                            JSON.stringify(match)
+                        );
+
+                        updateSingleMatchData();
+
+                        showScreen(
+                            "singleMatchScreen"
+                        );
+
+                    }
+                );
+
+
+                container.appendChild(card);
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SINGLE MATCH DATA
+    ===================================================== */
+
+    function updateSingleMatchData() {
+
+        const match = getJSON(
+            "cricYuvaSelectedMatch",
+            null
+        );
+
+
+        if (!match) {
+            return;
+        }
+
+
+        const teamNames =
+            document.querySelectorAll(
+                "#singleMatchScreen .single-match-teams strong"
+            );
+
+
+        if (teamNames[0]) {
+            teamNames[0].textContent =
+                match.teamA;
+        }
+
+
+        if (teamNames[1]) {
+            teamNames[1].textContent =
+                match.teamB;
+        }
+
+
+        const matchText =
+            document.querySelector(
+                "#singleMatchScreen .single-match-score-card p"
+            );
+
+
+        if (matchText) {
+
+            matchText.textContent =
+                (
+                    match.date ||
+                    "Coming Soon"
+                ) +
+                " • " +
+                (
+                    match.ground ||
+                    "Ground"
+                );
+
+        }
+
+
+        const liveTeamName =
+            document.querySelector(
+                "#liveScoreScreen .live-score-big-card > span"
+            );
+
+
+        if (liveTeamName) {
+
+            liveTeamName.textContent =
+                match.teamA;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       LIVE SCORE - SCREEN 14
+    ===================================================== */
+
+    let scoreData = {
+
+        runs: 0,
+        wickets: 0,
+        legalBalls: 0,
+        extras: 0
+
+    };
+
+
+    function updateLiveScore() {
+
+        const liveRuns =
+            getElement("liveRuns");
+
+        const liveWickets =
+            getElement("liveWickets");
+
+        const liveOvers =
+            getElement("liveOvers");
+
+
+        if (liveRuns) {
+            liveRuns.textContent =
+                scoreData.runs;
+        }
+
+
+        if (liveWickets) {
+            liveWickets.textContent =
+                scoreData.wickets;
+        }
+
+
+        if (liveOvers) {
+
+            const overs =
+                Math.floor(
+                    scoreData.legalBalls / 6
+                );
+
+            const balls =
+                scoreData.legalBalls % 6;
+
+            liveOvers.textContent =
+                overs + "." + balls;
+
+        }
+
+    }
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const scoreButton =
+                event.target.closest(
+                    "[data-score]"
+                );
+
+            if (!scoreButton) {
+                return;
+            }
+
+
+            const score =
+                scoreButton.dataset.score;
+
+
+            if (
+                ["0", "1", "2", "3", "4", "6"]
+                .includes(score)
+            ) {
+
+                scoreData.runs +=
+                    Number(score);
+
+                scoreData.legalBalls += 1;
+
+            }
+
+
+            if (score === "wide") {
+
+                scoreData.runs += 1;
+                scoreData.extras += 1;
+
+            }
+
+
+            if (score === "noball") {
+
+                scoreData.runs += 1;
+                scoreData.extras += 1;
+
+            }
+
+
+            if (score === "wicket") {
+
+                scoreData.wickets += 1;
+                scoreData.legalBalls += 1;
+
+            }
+
+
+            updateLiveScore();
+
+        }
+    );
+
+
+    /* =====================================================
+       CREATE TOURNAMENT - SCREEN 18
+    ===================================================== */
+
+    const saveTournamentButton =
+        getElement("saveTournamentButton");
+
+
+    if (saveTournamentButton) {
+
+        saveTournamentButton.addEventListener(
+            "click",
+            function () {
+
+                const name =
+                    getElement("tournamentName")
+                    .value
+                    .trim();
+
+                const teams =
+                    getElement("tournamentTeams")
+                    .value;
+
+                const format =
+                    getElement("tournamentFormat")
+                    .value;
+
+                const overs =
+                    getElement("tournamentOvers")
+                    .value;
+
+
+                if (!name) {
+
+                    showMessage(
+                        "Please enter tournament name."
+                    );
+
+                    return;
+
+                }
+
+
+                const tournament = {
+
+                    name: name,
+
+                    teams: teams,
+
+                    format: format,
+
+                    overs: overs
+
+                };
+
+
+                setJSON(
+                    STORAGE_KEYS.tournament,
+                    tournament
+                );
+
+
+                getElement("tournamentName").value = "";
+
+
+                showMessage(
+                    "Tournament created successfully!"
+                );
+
+
+                renderTournamentData();
+
+                showScreen(
+                    "tournamentScreen"
+                );
+
+            }
+        );
+
+    }
+
+
+    function renderTournamentData() {
+
+        const tournament = getJSON(
+            STORAGE_KEYS.tournament,
+            null
+        );
+
+
+        if (!tournament) {
+            return;
+        }
+
+
+        const emptyCard =
+            document.querySelector(
+                "#tournamentScreen .empty-feature-card"
+            );
+
+
+        if (!emptyCard) {
+            return;
+        }
+
+
+        emptyCard.innerHTML =
+
+            "<div class='empty-feature-icon'>" +
+            "<i class='fa-solid fa-trophy'></i>" +
+            "</div>" +
+
+            "<h3>" +
+            escapeHTML(tournament.name) +
+            "</h3>" +
+
+            "<p>" +
+
+            tournament.teams +
+            " Teams • " +
+
+            escapeHTML(
+                tournament.format
+            ) +
+
+            " • " +
+
+            tournament.overs +
+            " Overs" +
+
+            "</p>";
+
+    }
+
+
+    /* =====================================================
+       STATISTICS - SCREEN 22
+    ===================================================== */
+
+    function updateStatistics() {
+
+        const matches =
+            getMatches();
+
+        const statCards =
+            document.querySelectorAll(
+                "#statisticsScreen .stat-card strong"
+            );
+
+
+        if (statCards[0]) {
+            statCards[0].textContent =
+                matches.length;
+        }
+
+
+        if (statCards[1]) {
+            statCards[1].textContent =
+                scoreData.runs;
+        }
+
+
+        if (statCards[2]) {
+            statCards[2].textContent =
+                scoreData.wickets;
+        }
+
+
+        if (statCards[3]) {
+            statCards[3].textContent = "0";
+        }
+
+    }
+
+
+    /* =====================================================
+       HOME UPCOMING MATCH
+    ===================================================== */
+
+    function updateHomeUpcomingMatch() {
+
+        const matches =
+            getMatches();
+
+        if (matches.length === 0) {
+            return;
+        }
+
+
+        const match =
+            matches[matches.length - 1];
+
+
+        const teamNames =
+            document.querySelectorAll(
+                "#screen5 .upcoming-match-card .team-side strong"
+            );
+
+
+        if (teamNames[0]) {
+            teamNames[0].textContent =
+                match.teamA;
+        }
+
+
+        if (teamNames[1]) {
+            teamNames[1].textContent =
+                match.teamB;
+        }
+
+
+        const infoItems =
+            document.querySelectorAll(
+                "#screen5 .match-info-row span"
+            );
+
+
+        if (infoItems[0]) {
+
+            infoItems[0].textContent =
+                match.date ||
+                "Coming Soon";
+
+        }
+
+
+        if (infoItems[1]) {
+
+            infoItems[1].textContent =
+                match.ground ||
+                "Ground";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       NOTIFICATION
+    ===================================================== */
+
+    const notificationButton =
+        getElement("notificationButton");
+
+
+    if (notificationButton) {
+
+        notificationButton.addEventListener(
+            "click",
+            function () {
+
+                showMessage(
+                    "No new notifications."
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       CONTACT FORM - SCREEN 28
+    ===================================================== */
+
+    const sendContactButton =
+        getElement("sendContactButton");
+
+
+    if (sendContactButton) {
+
+        sendContactButton.addEventListener(
+            "click",
+            function () {
+
+                const subject =
+                    getElement("contactSubject")
+                    .value
+                    .trim();
+
+                const message =
+                    getElement("contactMessage")
+                    .value
+                    .trim();
+
+
+                if (!subject || !message) {
+
+                    showMessage(
+                        "Please enter subject and message."
+                    );
+
+                    return;
+
+                }
+
+
+                showMessage(
+                    "Your message has been prepared successfully!"
+                );
+
+
+                getElement(
+                    "contactSubject"
+                ).value = "";
+
+                getElement(
+                    "contactMessage"
+                ).value = "";
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SHARE APP
+    ===================================================== */
+
+    function shareApp() {
+
+        const shareData = {
+
+            title:
+                "CRIC YUVA V1.0",
+
+            text:
+                "Play Together, Win Together! Join CRIC YUVA.",
+
+            url:
+                window.location.href
+
+        };
+
+
+        if (
+            navigator.share
+        ) {
+
+            navigator
+            .share(shareData)
+            .catch(function () {});
+
+        } else {
+
+            navigator.clipboard
+            .writeText(
+                window.location.href
+            )
+            .then(function () {
+
+                showMessage(
+                    "App link copied successfully!"
+                );
+
+            })
+            .catch(function () {
+
+                showMessage(
+                    "Share this link: " +
+                    window.location.href
+                );
+
+            });
+
+        }
+
+    }
+
+
+    /* =====================================================
+       OPEN GROUND
+    ===================================================== */
+
+    function openGround() {
+
+        const match = getJSON(
+            "cricYuvaSelectedMatch",
+            null
+        );
+
+
+        if (
+            match &&
+            match.ground
+        ) {
+
+            const query =
+                encodeURIComponent(
+                    match.ground
+                );
+
+
+            window.open(
+                "https://www.google.com/maps/search/?api=1&query=" +
+                query,
+                "_blank"
+            );
+
+        } else {
+
+            showMessage(
+                "Ground location not available."
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
+
+    const logoutButton =
+        getElement("logoutButton");
+
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            function () {
+
+                const confirmLogout =
+                    confirm(
+                        "Are you sure you want to logout?"
+                    );
+
+
+                if (!confirmLogout) {
+                    return;
+                }
+
+
+                closeMenu();
+
+
+                getElement(
+                    "loginPassword"
+                ).value = "";
+
+
+                showScreen("screen2");
+
+
+                showMessage(
+                    "Logged out successfully."
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       BOTTOM NAV ACTIVE
+    ===================================================== */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const navButton =
+                event.target.closest(
+                    ".bottom-nav-item"
+                );
+
+            if (!navButton) {
+                return;
+            }
+
+
+            document
+            .querySelectorAll(
+                ".bottom-nav-item"
+            )
+            .forEach(
+                function (item) {
+                    item.classList.remove(
+                        "active"
+                    );
+                }
+            );
+
+
+            navButton.classList.add(
+                "active"
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       HOME LIVE BUTTON
+    ===================================================== */
+
+    const watchLiveButton =
+        getElement("watchLiveButton");
+
+
+    if (watchLiveButton) {
+
+        watchLiveButton.addEventListener(
+            "click",
+            function () {
+                showScreen("liveScreen");
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       HOME MATCH BUTTON
+    ===================================================== */
+
+    const matchDetailsButton =
+        getElement("matchDetailsButton");
+
+
+    if (matchDetailsButton) {
+
+        matchDetailsButton.addEventListener(
+            "click",
+            function () {
+
+                const matches =
+                    getMatches();
+
+                if (
+                    matches.length > 0
+                ) {
+
+                    const match =
+                        matches[
+                            matches.length - 1
+                        ];
+
+                    localStorage.setItem(
+                        "cricYuvaSelectedMatch",
+                        JSON.stringify(match)
+                    );
+
+                    updateSingleMatchData();
+
+                }
+
+                showScreen(
+                    "singleMatchScreen"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       INITIAL LOAD
+    ===================================================== */
+
+    loadProfileData();
+
+    updateHomeProfile();
+
+    renderTeamPlayers();
+
+    renderMatches();
+
+    renderTournamentData();
+
+    updateTeamRoles();
+
+    renderChatMessages();
+
+    updateLiveScore();
+
+    updateStatistics();
+
+    updateHomeUpcomingMatch();
+
+
+    console.log(
+        "CRIC YUVA V1.0 - Complete Script Loaded"
+    );
 
 });
-
-/* MY TEAM BACK */
-
-addClick(
-"myTeamBackButton",
-function () {
-goBack();
-}
-);
-
-/* MY TEAM NOTIFICATION */
-
-addClick(
-"teamNotificationButton",
-function () {
-openFeature("updates");
-}
-);
-
-/* CREATE TEAM */
-
-addClick(
-"createTeamButton",
-function () {
-
-alert(  
-        "Create Team screen will open next."  
-    );  
-
-}
-
-);
-
-/* ADD PLAYER */
-
-addClick(
-"addPlayerButton",
-function () {
-
-alert(  
-        "Add Player screen will open next."  
-    );  
-
-}
-
-);
-
-/* EDIT TEAM */
-
-addClick(
-"editTeamButton",
-function () {
-
-alert(  
-        "Edit Team option will open next."  
-    );  
-
-}
-
-);
-
-/* TEAM MATCHES */
-
-addClick(
-"teamMatchesButton",
-function () {
-
-openFeature("matches");  
-
-}
-
-);
-
-/* TEAM TOURNAMENT */
-
-addClick(
-"teamTournamentButton",
-function () {
-
-openFeature("tournament");  
-
-}
-
-);
-
-/* TEAM STATISTICS */
-
-addClick(
-"teamStatisticsButton",
-function () {
-
-openFeature("statistics");  
-
-}
-
-);
-
-/* TEAM VIEW ALL PLAYERS */
-
-addClick(
-"viewAllTeamPlayersButton",
-function () {
-
-alert(  
-        "Team players list will open next."  
-    );  
-
-}
-
-);
-
-/* TEAM TAB BUTTONS */
-
-document.querySelectorAll(
-".team-tab"
-).forEach(function (button) {
-
-button.addEventListener(  
-    "click",  
-    function () {  
-
-        document  
-            .querySelectorAll(".team-tab")  
-            .forEach(function (tab) {  
-
-                tab.classList.remove("active");  
-
-            });  
-
-        button.classList.add("active");  
-
-    }  
-);
-
-});
-
-document.querySelectorAll(
-    ".bottom-center-button, .nav-center-btn, .add-button"
-).forEach(function (button) {
-
-    button.addEventListener("click", function (event) {
-        event.preventDefault();
-        openQuickModal();
-    });
-
-});
-
-/* =====================================================
-INITIAL LOAD
-===================================================== */
-
-loadProfileToScreen4();
-loadHomeProfile();
-updateNotificationDot();
-
-}
-
-if (
-document.readyState === "loading"
-) {
-
-document.addEventListener(
-"DOMContentLoaded",
-initCricYuvaApp
-);
-
-} else {
-
-initCricYuvaApp();
-}
