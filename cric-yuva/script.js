@@ -1801,14 +1801,20 @@ button.addEventListener(
 BOTTOM CENTER + BUTTON
 ===================================================== */
 
+addClick(
+    "centerActionButton",
+    function () {
+        openQuickModal();
+    }
+);
+
 document.querySelectorAll(
-    ".centerActionButton, .bottom-center-button, .nav-center-btn, .add-button"
+    ".bottom-center-button, .nav-center-btn, .add-button"
 ).forEach(function (button) {
 
-    button.addEventListener("click", function () {
-
+    button.addEventListener("click", function (event) {
+        event.preventDefault();
         openQuickModal();
-
     });
 
 });
