@@ -1267,6 +1267,89 @@ quickModalOverlay.classList.remove(
 
 }
 
+ /* QUICK ACTION BUTTONS */
+
+document.querySelectorAll(
+"[data-quick-action]"
+).forEach(function (button) {
+
+button.addEventListener(
+"click",
+function () {
+
+const action =
+button.dataset.quickAction;
+
+closeQuickModal();
+
+
+if (action === "team") {
+
+openMyTeam();
+return;
+
+}
+
+
+if (action === "add-player") {
+
+openMyTeam();
+
+setTimeout(function () {
+
+const addPlayerButton =
+getElement("addPlayerButton");
+
+if (addPlayerButton) {
+addPlayerButton.click();
+}
+
+}, 300);
+
+return;
+
+}
+
+
+if (action === "matches") {
+
+openFeature("matches");
+return;
+
+}
+
+
+if (action === "tournament") {
+
+openFeature("tournament");
+return;
+
+}
+
+    if (action === "practice") {
+
+    openFeature("practice");
+
+    return;
+
+}
+
+
+if (action === "score") {
+
+    openFeature("score");
+
+    return;
+
+}
+
+}
+
+);
+
+}
+);
+
 addClick(
 "centerActionButton",
 openQuickModal
