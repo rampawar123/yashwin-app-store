@@ -1851,3 +1851,37 @@ if (plusButton) {
         openQuickModal();
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const plusButton = document.getElementById("centerActionButton");
+
+    if (plusButton) {
+
+        plusButton.addEventListener("click", function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Sabhi screens hide karo
+            document.querySelectorAll(".app-screen").forEach(function (screen) {
+                screen.classList.remove("active");
+            });
+
+            // MY TEAM screen kholo
+            const myTeamScreen = document.getElementById("myTeamScreen");
+
+            if (myTeamScreen) {
+                myTeamScreen.classList.add("active");
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            }
+
+        });
+
+    }
+
+});
