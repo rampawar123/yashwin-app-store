@@ -1108,133 +1108,133 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderTeamPlayers() {
 
-        const players = getPlayers();
+    const players = getPlayers();
 
-        const totalPlayersCount =
-            getElement("totalPlayersCount");
+    const totalPlayersCount =
+        getElement("totalPlayersCount");
 
-        const playingElevenCount =
-            getElement("playingElevenCount");
+    const playingElevenCount =
+        getElement("playingElevenCount");
 
-        const substituteCount =
-            getElement("substituteCount");
-
-
-        if (totalPlayersCount) {
-            totalPlayersCount.textContent =
-                players.length;
-        }
+    const substituteCount =
+        getElement("substituteCount");
 
 
-        if (playingElevenCount) {
-            playingElevenCount.textContent =
-                Math.min(players.length, 11);
-        }
-
-
-        if (substituteCount) {
-
-            substituteCount.textContent =
-                Math.max(
-                    players.length - 11,
-                    0
-                );
-
-        }
-
-
-        const emptyCard =
-            document.querySelector(
-                "#myTeamScreen .empty-feature-card"
-            );
-
-
-        if (emptyCard) {
-
-            if (players.length === 0) {
-    const oldPlayerList = getElement("teamPlayerList");
-
-    if (oldPlayerList) {
-        oldPlayerList.remove();
+    if (totalPlayersCount) {
+        totalPlayersCount.textContent =
+            players.length;
     }
 
-    emptyCard.style.display = "";
-            }
 
-            } else {
-
-                let playerList =
-                    getElement("teamPlayersList");
-
-                if (!playerList) {
-
-                    playerList =
-                        document.createElement("div");
-
-                    playerList.id =
-                        "teamPlayersList";
-
-                    playerList.className =
-                        "team-players-list";
-
-                    emptyCard.parentNode.insertBefore(
-                        playerList,
-                        emptyCard
-                    );
-
-                }
+    if (playingElevenCount) {
+        playingElevenCount.textContent =
+            Math.min(players.length, 11);
+    }
 
 
-                playerList.innerHTML = "";
+    if (substituteCount) {
+        substituteCount.textContent =
+            Math.max(players.length - 11, 0);
+    }
 
 
-                players.forEach(
-                    function (player, index) {
-
-                        const item =
-                            document.createElement("div");
-
-                        item.className =
-                            "team-player-item";
-
-                        item.innerHTML =
-                            "<div class='team-player-number'>" +
-                            (index + 1) +
-                            "</div>" +
-
-                            "<div class='team-player-info'>" +
-
-                            "<strong>" +
-                            escapeHTML(player.name) +
-                            "</strong>" +
-
-                            "<span>" +
-                            escapeHTML(player.role) +
-                            " • #" +
-                            escapeHTML(player.jersey) +
-                            "</span>" +
-
-                            "</div>" +
-
-                            "<button type='button' class='remove-player-button' data-player-index='" +
-                            index +
-                            "'>" +
-
-                            "<i class='fa-solid fa-trash'></i>" +
-
-                            "</button>";
-
-                        playerList.appendChild(item);
-
-                    }
-                );
+    const emptyCard =
+        document.querySelector(
+            "#myTeamScreen .empty-feature-card"
+        );
 
 
-                emptyCard.style.display = "none";
+    if (!emptyCard) {
+        return;
+    }
 
-            }
+
+    if (players.length === 0) {
+
+        const oldPlayerList =
+            getElement("teamPlayersList");
+
+        if (oldPlayerList) {
+            oldPlayerList.remove();
+        }
+
+        emptyCard.style.display = "";
+
+        return;
+    }
+
+
+    let playerList =
+        getElement("teamPlayersList");
+
+
+    if (!playerList) {
+
+        playerList =
+            document.createElement("div");
+
+        playerList.id =
+            "teamPlayersList";
+
+        playerList.className =
+            "team-players-list";
+
+        emptyCard.parentNode.insertBefore(
+            playerList,
+            emptyCard
+        );
+
+    }
+
+
+    playerList.innerHTML = "";
+
+
+    players.forEach(
+        function (player, index) {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "team-player-item";
+
+            item.innerHTML =
+
+                "<div class='team-player-number'>" +
+                (index + 1) +
+                "</div>" +
+
+                "<div class='team-player-info'>" +
+
+                "<strong>" +
+                escapeHTML(player.name) +
+                "</strong>" +
+
+                "<span>" +
+                escapeHTML(player.role) +
+                " • #" +
+                escapeHTML(player.jersey) +
+                "</span>" +
+
+                "</div>" +
+
+                "<button type='button' class='remove-player-button' data-player-index='" +
+                index +
+                "'>" +
+
+                "<i class='fa-solid fa-trash'></i>" +
+
+                "</button>";
+
+
+            playerList.appendChild(item);
 
         }
+    );
+
+
+    emptyCard.style.display = "none";
 
     }
 
