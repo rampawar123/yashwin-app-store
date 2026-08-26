@@ -1326,22 +1326,13 @@ return;
 
 }
 
-    if (action === "practice") {
+    if (action === "live") {
 
-    openFeature("practice");
-
-    return;
-
-}
-
-
-if (action === "score") {
-
-    openFeature("score");
+    openFeature("live");
 
     return;
 
-}
+    }
 
 }
 
@@ -1465,6 +1456,11 @@ return;
 
 }
 
+if (action === "live") {
+    openLiveCricket();
+    return;
+}    
+
 const feature =
 featureNames[action];
 
@@ -1532,6 +1528,33 @@ showScreen(
 );
 
 }
+
+    function openLiveCricket() {
+    showScreen("featureScreen");
+
+    const featureTitle = getElement("featureTitle");
+    const featureMainTitle = getElement("featureMainTitle");
+    const featureText = getElement("featureText");
+    const featureIcon = getElement("featureIcon");
+
+    if (featureTitle) {
+        featureTitle.textContent = "LIVE CRICKET";
+    }
+
+    if (featureMainTitle) {
+        featureMainTitle.textContent = "LIVE CRICKET";
+    }
+
+    if (featureText) {
+        featureText.textContent =
+            "Live cricket matches, scores and match updates will appear here.";
+    }
+
+    if (featureIcon) {
+        featureIcon.innerHTML =
+            '<i class="fa-solid fa-video"></i>';
+    }
+    }
 
 document
 .querySelectorAll(
