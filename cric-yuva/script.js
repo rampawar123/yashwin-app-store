@@ -1842,13 +1842,3 @@ initCricYuvaApp
 
 initCricYuvaApp();
 }
-
-const plusButton = document.getElementById("centerActionButton");
-
-if (plusButton) {
-    plusButton.addEventListener("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        openQuickModal();
-    });
-}
