@@ -1152,8 +1152,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (emptyCard) {
 
             if (players.length === 0) {
+    const oldPlayerList = getElement("teamPlayerList");
 
-                emptyCard.style.display = "";
+    if (oldPlayerList) {
+        oldPlayerList.remove();
+    }
+
+    emptyCard.style.display = "";
+            }
 
             } else {
 
