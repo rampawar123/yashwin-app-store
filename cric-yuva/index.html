@@ -867,113 +867,29 @@
             </div>
 
         </section>
+        
+/* =========================================
+   BOTTOM CENTER + BUTTON
+========================================= */
 
+addClick(
+    "centerActionButton",
+    function () {
 
+        const quickAccess =
+            document.querySelector(".quick-section");
 
-        <!-- QUICK ACCESS -->
+        if (quickAccess) {
 
-        <section class="home-section quick-section">
+            quickAccess.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
 
-            <div class="section-heading">
+        }
 
-                <h2>QUICK ACCESS</h2>
-
-                <button
-                    type="button"
-                    data-action="home"
-                >
-                    VIEW ALL
-                </button>
-
-            </div>
-
-
-            <div class="quick-access-grid">
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="team"
-                >
-                    <i class="fa-solid fa-users"></i>
-                    <span>My Team</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="matches"
-                >
-                    <i class="fa-solid fa-baseball-bat-ball"></i>
-                    <span>My Matches</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="tournament"
-                >
-                    <i class="fa-solid fa-trophy"></i>
-                    <span>Tournament</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="statistics"
-                >
-                    <i class="fa-solid fa-chart-column"></i>
-                    <span>Statistics</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="leaderboard"
-                >
-                    <i class="fa-solid fa-medal"></i>
-                    <span>Leaderboard</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="subscription"
-                >
-                    <i class="fa-solid fa-crown"></i>
-                    <span>Subscription</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="payment"
-                >
-                    <i class="fa-solid fa-credit-card"></i>
-                    <span>Payment</span>
-                </button>
-
-
-                <button
-                    class="quick-access-item"
-                    type="button"
-                    data-action="updates"
-                >
-                    <i class="fa-solid fa-bullhorn"></i>
-                    <span>Updates</span>
-                </button>
-
-            </div>
-
-        </section>
-
+    }
+);
 
 
         <!-- HOME FEED -->
