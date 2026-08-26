@@ -1975,14 +1975,14 @@ BOTTOM CENTER + BUTTON
 ===================================================== */
 
 document.querySelectorAll(
-"#centerActionButton, .center-action, .bottom-center-button, .nav-center-btn, .add-button"
+    ".centerActionButton, .bottom-center-button, .nav-center-btn, .add-button"
 ).forEach(function (button) {
 
-button.addEventListener("click", function () {  
+    button.addEventListener("click", function () {
 
-    alert("Bottom + button is working!");  
+        openQuickModal();
 
-});
+    });
 
 });
 
