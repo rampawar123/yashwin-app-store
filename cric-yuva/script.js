@@ -1843,19 +1843,11 @@ initCricYuvaApp
 initCricYuvaApp();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const plusButton = document.getElementById("centerActionButton");
+const plusButton = document.getElementById("centerActionButton");
 
-    if (plusButton) {
-        plusButton.addEventListener("click", function () {
-            const quickAccess = document.querySelector(".quick-section");
-
-            if (quickAccess) {
-                quickAccess.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            }
-        });
-    }
-});
+if (plusButton) {
+    plusButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        openQuickModal();
+    });
+}
