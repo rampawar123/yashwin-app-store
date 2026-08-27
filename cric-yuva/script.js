@@ -1677,26 +1677,45 @@ function setupSplash() {
         $("splashScreen") ||
         $("screen1");
 
-    if (!splash) {
-        openFirstAvailable();
-        return;
-    }
-
     setTimeout(function () {
+
+        console.log("OPENING SCREEN 5");
 
         const target =
             document.getElementById("screen5");
 
         if (!target) {
-            openFirstAvailable();
+            console.error("SCREEN5 NOT FOUND");
             return;
         }
 
+        /* HIDE ALL SCREENS */
         document
             .querySelectorAll(".app-screen")
             .forEach(function (screen) {
+
                 screen.classList.remove("active");
+
+                if (screen.id !== "screen5") {
+                    screen.style.display = "none";
+                }
+
             });
+
+        /* FORCE HIDE SPLASH */
+        if (splash) {
+            splash.classList.remove("active");
+            splash.style.display = "none";
+            splash.style.visibility = "hidden";
+            splash.style.opacity = "0";
+            splash.style.pointerEvents = "none";
+        }
+
+        /* FORCE SHOW HOME PAGE */
+        target.style.display = "block";
+        target.style.visibility = "visible";
+        target.style.opacity = "1";
+        target.style.pointerEvents = "auto";
 
         target.classList.add("active");
 
@@ -1705,6 +1724,8 @@ function setupSplash() {
         }
 
         window.scrollTo(0, 0);
+
+        console.log("SCREEN 5 OPENED SUCCESSFULLY");
 
     }, 2500);
 
