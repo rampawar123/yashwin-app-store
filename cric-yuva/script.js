@@ -1,749 +1,270 @@
-"use strict";
-
 document.addEventListener("DOMContentLoaded", function () {
 
-    /* =========================================
-       SCREEN FUNCTION
-    ========================================== */
+ // ==========================================
+ // SPLASH SCREEN AUTO NEXT
+ // ==========================================
 
-    function showScreen(screenId) {
+ setTimeout(function () {
+ document.getElementById("screen1").classList.remove("active");
+ document.getElementById("screen2").classList.add("active");
+ }, 2500);
 
-        document.querySelectorAll(".app-screen").forEach(function (screen) {
-            screen.classList.remove("active");
-        });
 
-        const targetScreen = document.getElementById(screenId);
+ // ==========================================
+ // SCREEN FUNCTION
+ // ==========================================
 
-        if (targetScreen) {
-            targetScreen.classList.add("active");
-            window.scrollTo(0, 0);
-        }
-    }
+ function showScreen(screenId) {
 
+ document.querySelectorAll(".app-screen").forEach(function (screen) {
+ screen.classList.remove("active");
+ });
 
-    /* =========================================
-       SPLASH SCREEN AUTO NEXT
-    ========================================== */
+ const targetScreen = document.getElementById(screenId);
 
-    setTimeout(function () {
+ if (targetScreen) {
+ targetScreen.classList.add("active");
+ window.scrollTo(0, 0);
+ }
 
-        const screen1 = document.getElementById("screen1");
-        const screen2 = document.getElementById("screen2");
+ }
 
-        if (screen1 && screen2) {
-            screen1.classList.remove("active");
-            screen2.classList.add("active");
-        }
 
-    }, 2500);
+ // ==========================================
+ // PASSWORD SHOW / HIDE
+ // ==========================================
 
+ function setupPasswordEye(button, inputId) {
 
-    /* =========================================
-       PASSWORD SHOW / HIDE
-       Works with current HTML eye buttons
-    ========================================== */
+ if (!button) return;
 
-    function setupPasswordEye(inputId) {
+ button.addEventListener("click", function () {
 
-        const passwordInput = document.getElementById(inputId);
+ const passwordInput = document.getElementById(inputId);
 
-        if (!passwordInput) {
-            return;
-        }
+ if (!passwordInput) return;
 
-        const inputBox = passwordInput.closest(".input-box, .form-input");
+ if (passwordInput.type === "password") {
 
-        if (!inputBox) {
-            return;
-        }
+ passwordInput.type = "text";
 
-        const button = inputBox.querySelector(".eye-button");
+ const icon = button.querySelector("i");
 
-        if (!button) {
-            return;
-        }
+ if (icon) {
+ icon.classList.remove("fa-eye");
+ icon.classList.add("fa-eye-slash");
+ }
 
-        button.addEventListener("click", function () {
+ } else {
 
-            if (passwordInput.type === "password") {
+ passwordInput.type = "password";
 
-                passwordInput.type = "text";
+ const icon = button.querySelector("i");
 
-                const icon = button.querySelector("i");
+ if (icon) {
+ icon.classList.remove("fa-eye-slash");
+ icon.classList.add("fa-eye");
+ }
 
-                if (icon) {
-                    icon.classList.remove("fa-eye");
-                    icon.classList.add("fa-eye-slash");
-                }
+ }
 
-            } else {
+ });
 
-                passwordInput.type = "password";
+ }
 
-                const icon = button.querySelector("i");
 
-                if (icon) {
-                    icon.classList.remove("fa-eye-slash");
-                    icon.classList.add("fa-eye");
-                }
-            }
+ // LOGIN PASSWORD EYE
 
-        });
-    }
+ setupPasswordEye(
+ document.getElementById("loginEyeButton"),
+ "loginPassword"
+ );
 
 
-    setupPasswordEye("loginPassword");
-    setupPasswordEye("newPassword");
-    setupPasswordEye("verifyPassword");
+ // NEW PASSWORD EYE
 
+ setupPasswordEye(
+ document.getElementById("newPasswordEye"),
+ "newPassword"
+ );
 
-    /* =========================================
-       CREATE ACCOUNT BUTTON
-       SCREEN 2 -> SCREEN 3
-    ========================================== */
 
-    const createAccountButton =
-        document.getElementById("createAccountButton");
+ // VERIFY PASSWORD EYE
 
-    if (createAccountButton) {
+ setupPasswordEye(
+ document.getElementById("verifyPasswordEye"),
+ "verifyPassword"
+ );
 
-        createAccountButton.addEventListener("click", function (event) {
 
-            event.preventDefault();
+ // ==========================================
+ // CREATE ACCOUNT BUTTON
+ // ==========================================
 
-            showScreen("screen3");
+ const createAccountButton =
+ document.getElementById("createAccountButton");
 
-        });
-    }
+ if (createAccountButton) {
 
+ createAccountButton.addEventListener("click", function () {
+ showScreen("screen3");
+ });
 
-    /* =========================================
-       BACK BUTTON
-       SCREEN 3 -> SCREEN 2
-    ========================================== */
+ }
 
-    document.querySelectorAll(".back-button").forEach(function (button) {
 
-        button.addEventListener("click", function (event) {
+ // ==========================================
+ // BACK BUTTON
+ // ==========================================
 
-            event.preventDefault();
+ document.querySelectorAll(".back-button").forEach(function (button) {
 
-            showScreen("screen2");
+ button.addEventListener("click", function () {
+ showScreen("screen2");
+ });
 
-        });
+ });
 
-    });
 
+ // ==========================================
+ // CREATE NEW ACCOUNT - SAVE
+ // ==========================================
 
-    /* =========================================
-       CREATE NEW ACCOUNT - SAVE
-       SCREEN 3 -> SCREEN 4
-    ========================================== */
+ const saveAccountButton =
+ document.getElementById("saveAccountButton");
 
-    const saveAccountButton =
-        document.getElementById("saveAccountButton");
+ if (saveAccountButton) {
 
-    if (saveAccountButton) {
+ saveAccountButton.addEventListener("click", function () {
 
-        saveAccountButton.addEventListener("click", function (event) {
+ const mobile = document.getElementById("newMobile");
+ const password = document.getElementById("newPassword");
+ const verifyPassword = document.getElementById("verifyPassword");
 
-            event.preventDefault();
+ if (!mobile || !password || !verifyPassword) {
+ alert("Input fields not found. Please check index.html IDs.");
+ return;
+ }
 
-            const mobile =
-                document.getElementById("newMobile");
+ const mobileValue = mobile.value.trim();
+ const passwordValue = password.value.trim();
+ const verifyPasswordValue = verifyPassword.value.trim();
 
-            const password =
-                document.getElementById("newPassword");
+ if (mobileValue.length !== 10) {
+ alert("Please enter a valid 10 digit mobile number.");
+ return;
+ }
 
-            const verifyPassword =
-                document.getElementById("verifyPassword");
+ if (passwordValue.length < 4) {
+ alert("Password must be at least 4 characters.");
+ return;
+ }
 
+ if (passwordValue !== verifyPasswordValue) {
+ alert("Password does not match!");
+ return;
+ }
 
-            if (!mobile || !password || !verifyPassword) {
+ localStorage.setItem("cricYuvaMobile", mobileValue);
+ localStorage.setItem("cricYuvaPassword", passwordValue);
 
-                alert(
-                    "Input fields not found. Please check index.html IDs."
-                );
+ const profileMobile =
+ document.getElementById("profileMobile");
 
-                return;
-            }
+ if (profileMobile) {
+ profileMobile.value = mobileValue;
+ }
 
+ alert("Account created successfully!");
 
-            const mobileValue =
-                mobile.value.trim();
+ showScreen("screen4");
 
-            const passwordValue =
-                password.value.trim();
+ });
 
-            const verifyPasswordValue =
-                verifyPassword.value.trim();
+ }
 
 
-            if (!/^\d{10}$/.test(mobileValue)) {
+ // ==========================================
+ // LOGIN BUTTON
+ // ==========================================
 
-                alert(
-                    "Please enter a valid 10 digit mobile number."
-                );
+ const loginButton =
+ document.getElementById("loginButton");
 
-                return;
-            }
+ if (loginButton) {
 
+ loginButton.addEventListener("click", function () {
 
-            if (passwordValue.length < 4) {
+ const loginMobile =
+ document.getElementById("loginMobile");
 
-                alert(
-                    "Password must be at least 4 characters."
-                );
+ const loginPassword =
+ document.getElementById("loginPassword");
 
-                return;
-            }
+ if (!loginMobile || !loginPassword) return;
 
+ const savedMobile =
+ localStorage.getItem("cricYuvaMobile");
 
-            if (
-                passwordValue !== verifyPasswordValue
-            ) {
+ const savedPassword =
+ localStorage.getItem("cricYuvaPassword");
 
-                alert(
-                    "Password does not match!"
-                );
+ if (!savedMobile || !savedPassword) {
+ alert("Please create a new account first.");
+ return;
+ }
 
-                return;
-            }
+ if (
+ loginMobile.value.trim() === savedMobile &&
+ loginPassword.value === savedPassword
+ ) {
 
+ showScreen("screen4");
 
-            /* SAVE ACCOUNT */
+ } else {
 
-            localStorage.setItem(
-                "cricYuvaMobile",
-                mobileValue
-            );
+ alert("Invalid mobile number or password!");
 
-            localStorage.setItem(
-                "cricYuvaPassword",
-                passwordValue
-            );
+ }
 
+ });
 
-            /* PROFILE MOBILE AUTO FILL */
+ }
 
-            const profileMobile =
-                document.getElementById("profileMobile");
 
-            if (profileMobile) {
-                profileMobile.value = mobileValue;
-            }
+ // ==========================================
+ // PROFILE SAVE CHANGES
+ // ==========================================
 
+ const saveProfileButton =
+ document.getElementById("saveProfileButton");
 
-            alert(
-                "Account created successfully!"
-            );
+ if (saveProfileButton) {
 
+ saveProfileButton.addEventListener("click", function () {
+ alert("Profile changes saved successfully!");
+ });
 
-            showScreen("screen4");
+ }
 
-        });
-    }
 
+ // ==========================================
+ // FORGOT PASSWORD
+ // ==========================================
 
-    /* =========================================
-       LOGIN BUTTON
-       SCREEN 2 -> SCREEN 4
-    ========================================== */
+ const forgotPasswordButton =
+ document.getElementById("forgotPasswordButton");
 
-    const loginButton =
-        document.getElementById("loginButton");
+ if (forgotPasswordButton) {
 
-    if (loginButton) {
+ forgotPasswordButton.addEventListener("click", function () {
 
-        loginButton.addEventListener("click", function (event) {
+ alert(
+ "Please create a new account or use your registered mobile number."
+ );
 
-            event.preventDefault();
+ });
 
-            const loginMobile =
-                document.getElementById("loginMobile");
-
-            const loginPassword =
-                document.getElementById("loginPassword");
-
-
-            if (!loginMobile || !loginPassword) {
-                return;
-            }
-
-
-            const savedMobile =
-                localStorage.getItem("cricYuvaMobile");
-
-            const savedPassword =
-                localStorage.getItem("cricYuvaPassword");
-
-
-            if (!savedMobile || !savedPassword) {
-
-                alert(
-                    "Please create a new account first."
-                );
-
-                return;
-            }
-
-
-            if (
-                loginMobile.value.trim() === savedMobile &&
-                loginPassword.value === savedPassword
-            ) {
-
-                /* AUTO FILL PROFILE MOBILE */
-
-                const profileMobile =
-                    document.getElementById("profileMobile");
-
-                if (profileMobile) {
-                    profileMobile.value = savedMobile;
-                }
-
-
-                showScreen("screen4");
-
-            } else {
-
-                alert(
-                    "Invalid mobile number or password!"
-                );
-            }
-
-        });
-    }
-
-
-    /* =========================================
-       ENTER KEY LOGIN
-    ========================================== */
-
-    const loginPasswordInput =
-        document.getElementById("loginPassword");
-
-    if (loginPasswordInput) {
-
-        loginPasswordInput.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (event.key === "Enter") {
-
-                    event.preventDefault();
-
-                    if (loginButton) {
-                        loginButton.click();
-                    }
-                }
-
-            }
-        );
-    }
-
-
-    /* =========================================
-       PROFILE PHOTO
-    ========================================== */
-
-    const replacePhotoBtn =
-        document.getElementById("replacePhotoBtn");
-
-    const profilePhotoInput =
-        document.getElementById("profilePhotoInput");
-
-    const profilePhoto =
-        document.getElementById("profilePhoto");
-
-    const profileInitial =
-        document.getElementById("profileInitial");
-
-
-    if (replacePhotoBtn && profilePhotoInput) {
-
-        replacePhotoBtn.addEventListener("click", function () {
-
-            profilePhotoInput.click();
-
-        });
-    }
-
-
-    if (profilePhotoInput && profilePhoto) {
-
-        profilePhotoInput.addEventListener(
-            "change",
-            function () {
-
-                const file =
-                    profilePhotoInput.files[0];
-
-                if (!file) {
-                    return;
-                }
-
-
-                if (
-                    !file.type ||
-                    !file.type.startsWith("image/")
-                ) {
-
-                    alert(
-                        "Please select an image file."
-                    );
-
-                    return;
-                }
-
-
-                const reader =
-                    new FileReader();
-
-
-                reader.onload =
-                    function (event) {
-
-                        profilePhoto.style.backgroundImage =
-                            'url("' +
-                            event.target.result +
-                            '")';
-
-                        profilePhoto.style.backgroundSize =
-                            "cover";
-
-                        profilePhoto.style.backgroundPosition =
-                            "center";
-
-
-                        if (profileInitial) {
-                            profileInitial.style.display =
-                                "none";
-                        }
-
-
-                        localStorage.setItem(
-                            "cricYuvaProfilePhoto",
-                            event.target.result
-                        );
-                    };
-
-
-                reader.readAsDataURL(file);
-
-            }
-        );
-    }
-
-
-    /* =========================================
-       LOAD SAVED PROFILE DATA
-    ========================================== */
-
-    function loadSavedProfile() {
-
-        const savedPhoto =
-            localStorage.getItem(
-                "cricYuvaProfilePhoto"
-            );
-
-        if (savedPhoto && profilePhoto) {
-
-            profilePhoto.style.backgroundImage =
-                'url("' + savedPhoto + '")';
-
-            profilePhoto.style.backgroundSize =
-                "cover";
-
-            profilePhoto.style.backgroundPosition =
-                "center";
-
-            if (profileInitial) {
-                profileInitial.style.display = "none";
-            }
-        }
-
-
-        const profileDataText =
-            localStorage.getItem(
-                "cricYuvaProfileData"
-            );
-
-        if (!profileDataText) {
-            return;
-        }
-
-
-        try {
-
-            const data =
-                JSON.parse(profileDataText);
-
-
-            const fields = [
-                "profileName",
-                "profileMobile",
-                "profileEmail",
-                "jerseyName",
-                "jerseyNumber",
-                "jerseySize",
-                "pantSize",
-                "dateOfBirth"
-            ];
-
-
-            fields.forEach(function (id) {
-
-                const field =
-                    document.getElementById(id);
-
-                if (
-                    field &&
-                    data[id] !== undefined
-                ) {
-
-                    field.value = data[id];
-
-                }
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Profile data load error:",
-                error
-            );
-
-        }
-    }
-
-
-    loadSavedProfile();
-
-
-    /* =========================================
-       AUTO FILL MOBILE IF ACCOUNT EXISTS
-    ========================================== */
-
-    const savedAccountMobile =
-        localStorage.getItem(
-            "cricYuvaMobile"
-        );
-
-    const profileMobileField =
-        document.getElementById(
-            "profileMobile"
-        );
-
-    if (
-        savedAccountMobile &&
-        profileMobileField &&
-        !profileMobileField.value
-    ) {
-
-        profileMobileField.value =
-            savedAccountMobile;
-    }
-
-
-    /* =========================================
-       PROFILE SAVE CHANGES
-    ========================================== */
-
-    const saveProfileButton =
-        document.getElementById(
-            "saveProfileButton"
-        );
-
-    if (saveProfileButton) {
-
-        saveProfileButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-
-                const profileData = {
-
-                    profileName:
-                        (
-                            document.getElementById(
-                                "profileName"
-                            ) || {}
-                        ).value || "",
-
-                    profileMobile:
-                        (
-                            document.getElementById(
-                                "profileMobile"
-                            ) || {}
-                        ).value || "",
-
-                    profileEmail:
-                        (
-                            document.getElementById(
-                                "profileEmail"
-                            ) || {}
-                        ).value || "",
-
-                    jerseyName:
-                        (
-                            document.getElementById(
-                                "jerseyName"
-                            ) || {}
-                        ).value || "",
-
-                    jerseyNumber:
-                        (
-                            document.getElementById(
-                                "jerseyNumber"
-                            ) || {}
-                        ).value || "",
-
-                    jerseySize:
-                        (
-                            document.getElementById(
-                                "jerseySize"
-                            ) || {}
-                        ).value || "",
-
-                    pantSize:
-                        (
-                            document.getElementById(
-                                "pantSize"
-                            ) || {}
-                        ).value || "",
-
-                    dateOfBirth:
-                        (
-                            document.getElementById(
-                                "dateOfBirth"
-                            ) || {}
-                        ).value || ""
-
-                };
-
-
-                localStorage.setItem(
-                    "cricYuvaProfileData",
-                    JSON.stringify(profileData)
-                );
-
-
-                if (
-                    profileData.profileMobile &&
-                    /^\d{10}$/.test(
-                        profileData.profileMobile
-                    )
-                ) {
-
-                    localStorage.setItem(
-                        "cricYuvaMobile",
-                        profileData.profileMobile
-                    );
-                }
-
-
-                if (
-                    profileData.profileName &&
-                    profileInitial
-                ) {
-
-                    profileInitial.textContent =
-                        profileData.profileName
-                            .trim()
-                            .charAt(0)
-                            .toUpperCase();
-                }
-
-
-                alert(
-                    "Profile changes saved successfully!"
-                );
-
-            }
-        );
-    }
-
-
-    /* =========================================
-       FORGOT PASSWORD
-    ========================================== */
-
-    const forgotPasswordButton =
-        document.getElementById(
-            "forgotPasswordButton"
-        );
-
-    if (forgotPasswordButton) {
-
-        forgotPasswordButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                const savedMobile =
-                    localStorage.getItem(
-                        "cricYuvaMobile"
-                    );
-
-
-                if (savedMobile) {
-
-                    alert(
-                        "Password reset system will be added next."
-                    );
-
-                } else {
-
-                    alert(
-                        "Please create a new account first."
-                    );
-                }
-
-            }
-        );
-    }
-
-
-    /* =========================================
-       MOBILE NUMBER ONLY
-    ========================================== */
-
-    [
-        "loginMobile",
-        "newMobile",
-        "profileMobile"
-    ].forEach(function (id) {
-
-        const input =
-            document.getElementById(id);
-
-        if (!input) {
-            return;
-        }
-
-
-        input.addEventListener(
-            "input",
-            function () {
-
-                input.value =
-                    input.value
-                        .replace(/\D/g, "")
-                        .slice(0, 10);
-
-            }
-        );
-
-    });
-
-
-    console.log(
-        "CRIC YUVA SCREEN 1-4 JS READY"
-    );
+ }
 
 });
