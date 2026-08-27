@@ -1690,11 +1690,11 @@ function setupSplash() {
         function () {
 
             if (
-                screenExists("screen2")
+                screenExists("screen5")
             ) {
 
                 openScreen(
-                    "screen2",
+                    "screen5",
                     false
                 );
 
