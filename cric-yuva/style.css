@@ -49536,3 +49536,21 @@ hr {
     border-color: rgba(255, 140, 0, 0.45);
 }
 
+
+/* FINAL SPLASH LOADING TEXT FIX */
+.loading-text {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.65);
+}
+
+.loading-line::before {
+    background: linear-gradient(
+        90deg,
+        #ff5a00,
+        #ff9d00,
+        #ffffff,
+        #ff9d00
+    ) !important;
+}
+
