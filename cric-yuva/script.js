@@ -9637,3 +9637,71 @@ document.addEventListener("click", function (event) {
 
 });
 
+
+/* =========================================================
+   FINAL SPLASH FORCE FIX
+========================================================= */
+
+window.addEventListener("DOMContentLoaded", function () {
+
+    console.log("FINAL SPLASH FIX READY");
+
+    setTimeout(function () {
+
+        const screens =
+            document.querySelectorAll(".app-screen");
+
+        screens.forEach(function (screen) {
+
+            screen.classList.remove("active");
+
+            screen.style.display = "";
+
+        });
+
+
+        const home =
+            document.getElementById("screen5");
+
+        if (!home) {
+
+            console.error(
+                "FINAL FIX: screen5 NOT FOUND"
+            );
+
+            return;
+
+        }
+
+
+        home.classList.add("active");
+
+        home.style.display = "block";
+
+        home.style.visibility = "visible";
+
+        home.style.opacity = "1";
+
+
+        if (
+            typeof CRIC_YUVA !== "undefined"
+        ) {
+
+            CRIC_YUVA.currentScreen =
+                "screen5";
+
+        }
+
+
+        document.body.scrollTop = 0;
+
+        document.documentElement.scrollTop = 0;
+
+
+        console.log(
+            "FINAL FIX: HOME FORCED OPEN"
+        );
+
+    }, 3000);
+
+});
