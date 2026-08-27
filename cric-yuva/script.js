@@ -1679,53 +1679,39 @@ function setupSplash() {
 
     setTimeout(function () {
 
-        console.log("OPENING SCREEN 5");
-
         const target =
             document.getElementById("screen5");
 
         if (!target) {
-            console.error("SCREEN5 NOT FOUND");
+            openFirstAvailable();
             return;
         }
 
-        /* HIDE ALL SCREENS */
+        /* REMOVE ACTIVE FROM ALL SCREENS */
         document
             .querySelectorAll(".app-screen")
             .forEach(function (screen) {
-
                 screen.classList.remove("active");
-
-                if (screen.id !== "screen5") {
-                    screen.style.display = "none";
-                }
-
+                screen.removeAttribute("style");
             });
 
-        /* FORCE HIDE SPLASH */
-        if (splash) {
-            splash.classList.remove("active");
-            splash.style.display = "none";
-            splash.style.visibility = "hidden";
-            splash.style.opacity = "0";
-            splash.style.pointerEvents = "none";
+        /* HIDE SPLASH THROUGH NORMAL SCREEN SYSTEM */
+        if (typeof openScreen === "function") {
+            openScreen("screen5", false);
+        } else {
+            target.classList.add("active");
         }
-
-        /* FORCE SHOW HOME PAGE */
-        target.style.display = "block";
-        target.style.visibility = "visible";
-        target.style.opacity = "1";
-        target.style.pointerEvents = "auto";
-
-        target.classList.add("active");
 
         if (typeof CRIC_YUVA !== "undefined") {
             CRIC_YUVA.currentScreen = "screen5";
         }
 
-        window.scrollTo(0, 0);
+        window.scrollTo({
+            top: 0,
+            behavior: "auto"
+        });
 
-        console.log("SCREEN 5 OPENED SUCCESSFULLY");
+        console.log("CRIC YUVA HOME OPENED");
 
     }, 2500);
 
