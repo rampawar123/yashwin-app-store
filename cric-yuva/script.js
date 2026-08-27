@@ -1677,39 +1677,38 @@ function setupSplash() {
         $("splashScreen") ||
         $("screen1");
 
-
     if (!splash) {
-
         openFirstAvailable();
-
         return;
     }
 
+    setTimeout(function () {
 
-    setTimeout(
-        function () {
+        const target =
+            document.getElementById("screen5");
 
-            if (
-                screenExists("screen5")
-            ) {
+        if (!target) {
+            openFirstAvailable();
+            return;
+        }
 
-                openScreen(
-                    "screen5",
-                    false
-                );
+        document
+            .querySelectorAll(".app-screen")
+            .forEach(function (screen) {
+                screen.classList.remove("active");
+            });
 
-            } else {
+        target.classList.add("active");
 
-                openFirstAvailable();
+        if (typeof CRIC_YUVA !== "undefined") {
+            CRIC_YUVA.currentScreen = "screen5";
+        }
 
-            }
+        window.scrollTo(0, 0);
 
-        },
-        2500
-    );
+    }, 2500);
 
 }
-
 
 /* =========================================================
    INITIALIZE PART 1
