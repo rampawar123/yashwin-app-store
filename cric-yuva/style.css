@@ -49437,3 +49437,102 @@ hr {
     letter-spacing: 1px;
 }
 
+
+/* =========================================================
+   FINAL ORANGE SPLASH OVERRIDE
+========================================================= */
+
+.splash-screen {
+    background:
+        radial-gradient(circle at 50% 15%, rgba(255, 145, 0, 0.28), transparent 32%),
+        radial-gradient(circle at 15% 85%, rgba(255, 75, 0, 0.22), transparent 35%),
+        linear-gradient(145deg, #170800 0%, #4a1800 48%, #120600 100%);
+}
+
+.splash-bg::before {
+    background: rgba(255, 119, 0, 0.24);
+}
+
+.splash-bg::after {
+    background: rgba(255, 69, 0, 0.22);
+}
+
+.logo-box {
+    width: 145px;
+    height: 145px;
+    padding: 8px;
+    border: 2px solid rgba(255, 153, 0, 0.75);
+    border-radius: 38px;
+    background: linear-gradient(
+        145deg,
+        rgba(255, 153, 0, 0.20),
+        rgba(40, 10, 0, 0.70)
+    );
+    box-shadow:
+        0 0 0 7px rgba(255, 119, 0, 0.08),
+        0 18px 45px rgba(0, 0, 0, 0.50),
+        0 0 35px rgba(255, 102, 0, 0.30);
+}
+
+.logo-box img,
+.cric-yuva-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 28px;
+}
+
+.app-name {
+    color: #ffffff;
+    letter-spacing: 3px;
+    text-shadow:
+        0 3px 0 #8f2800,
+        0 8px 25px rgba(255, 102, 0, 0.38);
+}
+
+.orange-text {
+    color: #ff8c00 !important;
+}
+
+.app-tagline,
+.splash-subtitle {
+    color: rgba(255, 226, 190, 0.85);
+}
+
+.loading-area {
+    width: min(300px, 82vw);
+    margin-top: 38px;
+}
+
+.loading-line {
+    height: 8px;
+    background: rgba(255, 153, 0, 0.20);
+    border: 1px solid rgba(255, 153, 0, 0.18);
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.25);
+}
+
+.loading-line::before {
+    width: 48%;
+    background:
+        linear-gradient(
+            90deg,
+            #ff5a00,
+            #ff9d00,
+            #ffd166,
+            #ff5a00
+        );
+    box-shadow: 0 0 18px rgba(255, 119, 0, 0.75);
+}
+
+.loading-text {
+    color: #ffb45c;
+}
+
+.splash-version {
+    color: rgba(255, 200, 140, 0.70);
+}
+
+.splash-screen .cricket-ball {
+    border-color: rgba(255, 140, 0, 0.45);
+}
+
