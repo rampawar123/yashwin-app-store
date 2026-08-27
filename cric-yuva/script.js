@@ -20,6 +20,9 @@ const CRIC_YUVA = {
         "groups": "groupsScreen",
         "help-support": "helpSupportScreen",
         "innings-complete": "inningsCompleteScreen",
+
+    "contact":
+        "helpSupportScreen",
         "leaderboard": "tournamentLeaderboardScreen",
         "live": "liveScoreScreen",
         "live-match-center": "liveMatchCenterScreen",
@@ -54,6 +57,7 @@ const CRIC_YUVA = {
         "statistics": "playerStatisticsScreen",
         "subscription": "subscriptionScreen",
         "team": "myTeamScreen",
+        "payment": "subscriptionScreen",
         "team-chat": "teamChatScreen",
         "terms": "termsConditionsScreen",
         "tournament": "tournamentsScreen",
@@ -864,33 +868,33 @@ function loadProfileData() {
     }
 
 
-    if ($("profileJerseyName")) {
+    if ($("jerseyName")) {
 
-        $("profileJerseyName").value =
+        $("jerseyName").value =
             account.jerseyName || "";
 
     }
 
 
-    if ($("profileJerseyNumber")) {
+    if ($("jerseyNumber")) {
 
-        $("profileJerseyNumber").value =
+        $("jerseyNumber").value =
             account.jerseyNumber || "";
 
     }
 
 
-    if ($("profileJerseySize")) {
+    if ($("jerseySize")) {
 
-        $("profileJerseySize").value =
+        $("jerseySize").value =
             account.jerseySize || "";
 
     }
 
 
-    if ($("profileBirthDate")) {
+    if ($("dateOfBirth")) {
 
-        $("profileBirthDate").value =
+        $("dateOfBirth").value =
             account.birthDate || "";
 
     }
@@ -986,16 +990,16 @@ function updateHomeProfile(account) {
     }
 
 
-    if ($("homeProfileInitial")) {
+    if ($("homeInitial")) {
 
-        $("homeProfileInitial").textContent =
+        $("homeInitial").textContent =
             name.charAt(0).toUpperCase();
 
     }
 
 
     const homeAvatar =
-        $("homeProfileAvatar");
+        $("homeProfilePhoto");
 
 
     if (
@@ -1055,34 +1059,34 @@ function saveProfile() {
     }
 
 
-    if ($("profileJerseyName")) {
+    if ($("jerseyName")) {
 
         account.jerseyName =
-            $("profileJerseyName").value.trim();
+            $("jerseyName").value.trim();
 
     }
 
 
-    if ($("profileJerseyNumber")) {
+    if ($("jerseyNumber")) {
 
         account.jerseyNumber =
-            $("profileJerseyNumber").value.trim();
+            $("jerseyNumber").value.trim();
 
     }
 
 
-    if ($("profileJerseySize")) {
+    if ($("jerseySize")) {
 
         account.jerseySize =
-            $("profileJerseySize").value;
+            $("jerseySize").value;
 
     }
 
 
-    if ($("profileBirthDate")) {
+    if ($("dateOfBirth")) {
 
         account.birthDate =
-            $("profileBirthDate").value;
+            $("dateOfBirth").value;
 
     }
 
@@ -2083,84 +2087,69 @@ function setupMenuSystem() {
     const menuButton =
         document.getElementById("menuButton") ||
         document.getElementById("menuBtn") ||
-        document.querySelector(
-            "[data-menu-button]"
-        );
+        document.querySelector("[data-menu-button]");
 
-
-    const menu =
+    const sideMenu =
         document.getElementById("sideMenu") ||
-        document.getElementById("menuOverlay") ||
-        document.getElementById("mainMenu") ||
-        document.querySelector(
-            ".side-menu"
-        );
+        document.querySelector(".side-menu");
 
+    const menuOverlay =
+        document.getElementById("menuOverlay");
 
-    if (
-        menuButton &&
-        menu
-    ) {
+    function openMenu() {
+        if (sideMenu) {
+            sideMenu.classList.add("active", "open");
+        }
 
-        menuButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                menu.classList.toggle(
-                    "active"
-                );
-
-                menu.classList.toggle(
-                    "open"
-                );
-
-            }
-        );
-
+        if (menuOverlay) {
+            menuOverlay.classList.add("active", "open");
+        }
     }
 
+    function closeMenu() {
+        if (sideMenu) {
+            sideMenu.classList.remove("active", "open");
+        }
+
+        if (menuOverlay) {
+            menuOverlay.classList.remove("active", "open");
+        }
+    }
+
+    if (menuButton) {
+        menuButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (sideMenu && (sideMenu.classList.contains("active") || sideMenu.classList.contains("open"))) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        });
+    }
 
     const closeButtons =
         document.querySelectorAll(
-            ".menu-close, " +
-            ".close-menu, " +
-            "[data-close-menu]"
+            ".menu-close, .close-menu, #closeMenuButton, .close-menu-button, [data-close-menu]"
         );
 
+    closeButtons.forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            closeMenu();
+        });
+    });
 
-    closeButtons.forEach(
-        function (button) {
-
-            button.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    if (menu) {
-
-                        menu.classList.remove(
-                            "active"
-                        );
-
-                        menu.classList.remove(
-                            "open"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-    );
+    if (menuOverlay) {
+        menuOverlay.addEventListener("click", function (event) {
+            if (event.target === menuOverlay) {
+                closeMenu();
+            }
+        });
+    }
 
 }
-
 
 /* =========================================================
    BOTTOM NAVIGATION
@@ -2410,11 +2399,15 @@ const PART2_BUTTON_SCREEN_MAP = {
 
     "subscription":
         "subscriptionScreen",
+        "payment": "subscriptionScreen",
 
     "updates":
         "updatesScreen",
 
     "help-support":
+        "helpSupportScreen",
+
+    "contact":
         "helpSupportScreen",
 
     "about":
@@ -5505,6 +5498,7 @@ const part5ScreenMap = {
 
     "subscription":
         "subscriptionScreen",
+        "payment": "subscriptionScreen",
 
     "settings":
         "settingsScreen",
@@ -5522,6 +5516,9 @@ const part5ScreenMap = {
         "helpSupportScreen",
 
     "help-support":
+        "helpSupportScreen",
+
+    "contact":
         "helpSupportScreen",
 
     "updates":
@@ -6761,7 +6758,7 @@ function part6GoBack() {
 
     const homeOptions = [
 
-        "screen4",
+        "screen5",
         "homeScreen",
         "home"
 
@@ -6803,7 +6800,7 @@ function part6GoBack() {
 const part6ScreenMap = {
 
     "home":
-        "screen4",
+        "screen5",
 
     "profile":
         "playerProfileScreen",
@@ -6852,6 +6849,7 @@ const part6ScreenMap = {
 
     "subscription":
         "subscriptionScreen",
+        "payment": "subscriptionScreen",
 
     "settings":
         "settingsScreen",
@@ -6872,6 +6870,9 @@ const part6ScreenMap = {
         "helpSupportScreen",
 
     "help-support":
+        "helpSupportScreen",
+
+    "contact":
         "helpSupportScreen",
 
     "updates":
@@ -8467,13 +8468,13 @@ const part8ScreenMap = {
     "upcoming-match": "upcomingMatchesScreen",
 
     "tournament-announcement":
-        "tournamentAnnouncementScreen",
+        "tournamentAnnouncementsScreen",
 
     "create-announcement":
-        "tournamentAnnouncementScreen",
+        "tournamentAnnouncementsScreen",
 
     "tournament-venue":
-        "tournamentVenueScreen",
+        "tournamentVenuesScreen",
 
     "backup-data":
         "backupDataScreen",
@@ -8548,13 +8549,13 @@ function setupPart8CreateNavigation() {
                     "createMatchScreen",
 
                 createTournamentAnnouncementButton:
-                    "tournamentAnnouncementScreen",
+                    "tournamentAnnouncementsScreen",
 
                 createFirstTournamentAnnouncementButton:
-                    "tournamentAnnouncementScreen",
+                    "tournamentAnnouncementsScreen",
 
                 createFirstTournamentVenueButton:
-                    "tournamentVenueScreen",
+                    "tournamentVenuesScreen",
 
                 backupDataCreateButton:
                     "backupDataScreen"
@@ -8914,7 +8915,7 @@ function setupPart8AddPlayer() {
             const button =
                 event.target.closest(
                     "[data-action='save-player'], " +
-                    "#savePlayerButton"
+                    "#saveNewPlayerButton"
                 );
 
             if (!button) {
@@ -9543,3 +9544,90 @@ if (
 
     initializeCricYuvaPart9();
                         }
+
+/* =========================================================
+   SOCIAL MEDIA BUTTONS
+========================================================= */
+
+document.addEventListener("click", function (event) {
+
+    const button =
+        event.target.closest("[data-action]");
+
+    if (!button) return;
+
+    const action =
+        button.dataset.action;
+
+    const socialLinks = {
+
+        youtube:
+            "https://www.youtube.com/",
+
+        instagram:
+            "https://www.instagram.com/",
+
+        whatsapp:
+            "https://wa.me/",
+
+        facebook:
+            "https://www.facebook.com/"
+
+    };
+
+    if (socialLinks[action]) {
+
+        event.preventDefault();
+
+        window.open(
+            socialLinks[action],
+            "_blank",
+            "noopener,noreferrer"
+        );
+
+    }
+
+});
+
+
+/* =========================================================
+   CHANGE LANGUAGE BUTTON
+========================================================= */
+
+document.addEventListener("click", function (event) {
+
+    const button =
+        event.target.closest(
+            '[data-action="language"]'
+        );
+
+    if (!button) return;
+
+    event.preventDefault();
+
+    const language =
+        prompt(
+            "Select Language:\n\n1 = English\n2 = हिंदी\n3 = मराठी",
+            localStorage.getItem("cricYuvaLanguage") || "1"
+        );
+
+    const languages = {
+        "1": "English",
+        "2": "हिंदी",
+        "3": "मराठी"
+    };
+
+    if (!languages[language]) return;
+
+    localStorage.setItem(
+        "cricYuvaLanguage",
+        language
+    );
+
+    alert(
+        "Language selected: " +
+        languages[language]
+    );
+
+});
+
