@@ -49405,3 +49405,35 @@ hr {
         0 !important;
 
 }
+
+/* FINAL SPLASH HTML-CSS CONNECTION FIX */
+
+.splash-screen .tagline,
+.splash-screen .splash-subtitle,
+.splash-screen .app-tagline {
+    margin-top: 9px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.splash-screen .loading-box,
+.splash-screen .loading-area {
+    width: min(260px, 78vw);
+    margin-top: 42px;
+}
+
+.splash-screen .version-text,
+.splash-screen .splash-version {
+    position: absolute;
+    bottom: max(22px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
