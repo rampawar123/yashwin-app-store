@@ -76,6 +76,7 @@ jobs:
             "name": "YASHWIN APP STORE",
             "launcherName": "YASHWIN APP STORE",
             "display": "standalone",
+            "orientation": "portrait",
             "themeColor": "#000000",
             "navigationColor": "#000000",
             "navigationColorDark": "#000000",
