@@ -11833,8 +11833,8 @@ body {
 }
 
 /* =========================================================
-   CRIC YUVA - MOBILE SCREEN
-   COMPACT VIEW + VERTICAL SCROLL
+   CRIC YUVA - MOBILE WIDTH + VERTICAL SCROLL ONLY
+   Keep original component sizes
    ========================================================= */
 
 html,
@@ -11854,12 +11854,13 @@ body {
   overflow-y: auto;
 }
 
-/* HOME SCREEN */
+/* HOME: original sizes stay unchanged */
 #screen5.home-screen {
   width: 100% !important;
+  max-width: 100% !important;
   min-width: 0 !important;
-  min-height: 100vh !important;
   height: auto !important;
+  min-height: 100vh !important;
   max-height: none !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
@@ -11869,66 +11870,25 @@ body {
 #screen5 .home-scroll-content {
   width: 100% !important;
   max-width: none !important;
-  margin: 0 !important;
-  padding: 10px 10px 90px !important;
   box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
-/* LIVE CARD */
-#screen5 .hero-live-section {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 0 12px !important;
-  padding: 9px !important;
-  box-sizing: border-box !important;
+/* Keep all original home component dimensions */
+#screen5 .hero-live-section,
+#screen5 .live-video-card,
+#screen5 .video-mockup-wrapper,
+#screen5 .main-options-grid,
+#screen5 .option-card {
+  box-sizing: border-box;
 }
 
-#screen5 .live-video-card {
-  width: 100% !important;
-  max-width: none !important;
-  box-sizing: border-box !important;
-}
-
-/* CAMERA / LIVE VIDEO - WIDE COMPACT SCREEN */
-#screen5 .video-mockup-wrapper {
-  width: 100% !important;
-  height: auto !important;
-  min-height: 0 !important;
-  aspect-ratio: 16 / 9 !important;
-  padding: 7px !important;
-  box-sizing: border-box !important;
-}
-
-#screen5 .video-mockup-wrapper video,
-#screen5 .video-mockup-wrapper iframe,
-#screen5 .video-mockup-wrapper canvas,
-#screen5 .video-mockup-wrapper img {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 100% !important;
-  object-fit: cover !important;
-}
-
-/* CONTENT CONTINUES BELOW - NORMAL VERTICAL SCROLL */
-#screen5 .home-scroll-content,
 #screen5 .home-section,
 #screen5 .main-options-section {
   overflow-x: hidden !important;
 }
 
-/* TWO COLUMN BUTTONS */
-#screen5 .main-options-grid {
-  width: 100% !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-}
-
-#screen5 .option-card {
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
-/* BOTTOM BUTTON BAR */
+/* Fixed bottom navigation */
 #screen5 .home-bottom-nav {
   position: fixed !important;
   left: 0 !important;
@@ -11937,7 +11897,7 @@ body {
   z-index: 9999 !important;
 }
 
-/* LOGIN / CREATE / PROFILE */
+/* Other screens scroll vertically */
 .login-screen,
 .create-screen,
 .profile-screen {
@@ -11957,37 +11917,9 @@ body {
   box-sizing: border-box;
 }
 
-/* MEDIA */
 img,
 video,
 canvas,
 iframe {
   max-width: 100%;
-}
-
-@media (max-width: 600px) {
-
-  #screen5 .home-top-bar {
-    height: 58px;
-    padding: 0 10px;
-  }
-
-  #screen5 .home-brand-title {
-    font-size: 18px;
-  }
-
-  #screen5 .home-scroll-content {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
-
-  #screen5 .hero-live-section {
-    border-radius: 12px !important;
-    padding: 7px !important;
-  }
-
-  #screen5 .video-mockup-wrapper {
-    aspect-ratio: 16 / 9 !important;
-    padding: 5px !important;
-  }
 }
