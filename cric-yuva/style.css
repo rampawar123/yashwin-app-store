@@ -11924,3 +11924,119 @@ iframe {
     padding-right: 4px;
   }
 }
+
+/* =========================================================
+   CRIC YUVA - FINAL MOBILE HOME / CAMERA VIDEO SIZE
+   PHOTO 2 STYLE
+   ========================================================= */
+
+#screen5.home-screen,
+#screen5.home-main-screen,
+#screen5 {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Full available home width */
+#screen5 .home-scroll-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Live section full width */
+#screen5 .hero-live-section {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* =========================================================
+   CAMERA / LIVE VIDEO
+   16:9 = photo 2 jaisa wide + proper height
+   ========================================================= */
+
+#screen5 .live-video-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#screen5 .video-mockup-wrapper {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 16 / 9 !important;
+  box-sizing: border-box !important;
+}
+
+/* Real camera/video bhi full available area le */
+#screen5 .video-mockup-wrapper video,
+#screen5 .video-mockup-wrapper iframe,
+#screen5 .video-mockup-wrapper canvas,
+#screen5 .video-mockup-wrapper .pub-video-player {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Live video overlays ko video ke andar rakho */
+#screen5 .video-overlay-header,
+#screen5 .video-overlay-footer {
+  position: absolute !important;
+  left: 10px !important;
+  right: 10px !important;
+}
+
+#screen5 .video-overlay-header {
+  top: 10px !important;
+}
+
+#screen5 .video-overlay-footer {
+  bottom: 10px !important;
+}
+
+/* Video ke baad content normally niche aaye */
+#screen5 .streaming-platforms-bar {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Mobile par horizontal overflow bilkul nahi */
+@media (max-width: 1200px) {
+
+  #screen5,
+  #screen5.home-screen,
+  #screen5.home-main-screen,
+  #screen5 .home-scroll-content,
+  #screen5 .hero-live-section,
+  #screen5 .live-video-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen5 .video-mockup-wrapper {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+  }
+
+  #screen5 .home-scroll-content {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-bottom: 100px !important;
+  }
+}
+
