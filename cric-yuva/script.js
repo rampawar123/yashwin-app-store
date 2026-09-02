@@ -3283,7 +3283,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let pendingBoundary = null; // Stores { runs: 4 or 6, direction: "Cover" }
 
-  // Central match-lock guard: once a result is decided, NO new delivery may be recorded.\n  function isMatchClosed(match) {\n    return !match || ["COMPLETED", "TIED", "ABANDONED"].includes(match.status);\n  }\n\n  function handleRunDelivery(runsScored, direction = "") {
+  // Central match-lock guard: once a result is decided, NO new delivery may be recorded.
+  function isMatchClosed(match) {
+    return !match || ["COMPLETED", "TIED", "ABANDONED"].includes(match.status);
+  }
+
+  function handleRunDelivery(runsScored, direction = "") {
     const match = getActiveMatch();
     if (!match) return;
 
