@@ -11833,7 +11833,8 @@ body {
 }
 
 /* =========================================================
-   CRIC YUVA - FULL WIDTH MOBILE + VERTICAL SCROLL
+   CRIC YUVA - MOBILE SCREEN
+   COMPACT VIEW + VERTICAL SCROLL
    ========================================================= */
 
 html,
@@ -11846,21 +11847,107 @@ body {
 .app-screen {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   min-height: 100vh;
+  box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-/* Main mobile content */
+/* HOME SCREEN */
+#screen5.home-screen {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 100vh !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+#screen5 .home-scroll-content {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 10px 10px 90px !important;
+  box-sizing: border-box !important;
+}
+
+/* LIVE CARD */
+#screen5 .hero-live-section {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 0 12px !important;
+  padding: 9px !important;
+  box-sizing: border-box !important;
+}
+
+#screen5 .live-video-card {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+/* CAMERA / LIVE VIDEO - WIDE COMPACT SCREEN */
+#screen5 .video-mockup-wrapper {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 16 / 9 !important;
+  padding: 7px !important;
+  box-sizing: border-box !important;
+}
+
+#screen5 .video-mockup-wrapper video,
+#screen5 .video-mockup-wrapper iframe,
+#screen5 .video-mockup-wrapper canvas,
+#screen5 .video-mockup-wrapper img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+}
+
+/* CONTENT CONTINUES BELOW - NORMAL VERTICAL SCROLL */
+#screen5 .home-scroll-content,
+#screen5 .home-section,
+#screen5 .main-options-section {
+  overflow-x: hidden !important;
+}
+
+/* TWO COLUMN BUTTONS */
+#screen5 .main-options-grid {
+  width: 100% !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+#screen5 .option-card {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* BOTTOM BUTTON BAR */
+#screen5 .home-bottom-nav {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+}
+
+/* LOGIN / CREATE / PROFILE */
 .login-screen,
 .create-screen,
 .profile-screen {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* Full available mobile width */
 .login-card,
 .create-content,
 .profile-content,
@@ -11870,21 +11957,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Keep inner content inside phone */
-.login-screen,
-.create-screen {
-  overflow-x: hidden;
-}
-
-/* Mobile screens should scroll vertically */
-.profile-screen,
-.login-screen,
-.create-screen {
-  min-height: 100vh;
-  overflow-y: auto;
-}
-
-/* Prevent accidental horizontal overflow */
+/* MEDIA */
 img,
 video,
 canvas,
@@ -11892,237 +11965,29 @@ iframe {
   max-width: 100%;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 600px) {
 
-  .app-screen {
-    width: 100%;
-    min-width: 0;
+  #screen5 .home-top-bar {
+    height: 58px;
+    padding: 0 10px;
   }
 
-  .login-card,
-  .create-content,
-  .profile-content,
-  .profile-container {
-    width: 100%;
-    max-width: none;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .login-screen,
-  .create-screen,
-  .profile-screen {
-    width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
-    box-sizing: border-box;
-  }
-
-  .profile-content,
-  .profile-container {
-    padding-left: 4px;
-    padding-right: 4px;
-  }
-}
-
-/* =========================================================
-   CRIC YUVA - FINAL MOBILE HOME / CAMERA VIDEO SIZE
-   PHOTO 2 STYLE
-   ========================================================= */
-
-#screen5.home-screen,
-#screen5.home-main-screen,
-#screen5 {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  height: auto !important;
-  min-height: 100vh !important;
-  max-height: none !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  box-sizing: border-box !important;
-}
-
-/* Full available home width */
-#screen5 .home-scroll-content {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  overflow-x: hidden !important;
-}
-
-/* Live section full width */
-#screen5 .hero-live-section {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* =========================================================
-   CAMERA / LIVE VIDEO
-   16:9 = photo 2 jaisa wide + proper height
-   ========================================================= */
-
-#screen5 .live-video-card {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-#screen5 .video-mockup-wrapper {
-  width: 100% !important;
-  height: auto !important;
-  min-height: 0 !important;
-  aspect-ratio: 16 / 9 !important;
-  box-sizing: border-box !important;
-}
-
-/* Real camera/video bhi full available area le */
-#screen5 .video-mockup-wrapper video,
-#screen5 .video-mockup-wrapper iframe,
-#screen5 .video-mockup-wrapper canvas,
-#screen5 .video-mockup-wrapper .pub-video-player {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 100% !important;
-  object-fit: cover !important;
-}
-
-/* Live video overlays ko video ke andar rakho */
-#screen5 .video-overlay-header,
-#screen5 .video-overlay-footer {
-  position: absolute !important;
-  left: 10px !important;
-  right: 10px !important;
-}
-
-#screen5 .video-overlay-header {
-  top: 10px !important;
-}
-
-#screen5 .video-overlay-footer {
-  bottom: 10px !important;
-}
-
-/* Video ke baad content normally niche aaye */
-#screen5 .streaming-platforms-bar {
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* Mobile par horizontal overflow bilkul nahi */
-@media (max-width: 1200px) {
-
-  #screen5,
-  #screen5.home-screen,
-  #screen5.home-main-screen,
-  #screen5 .home-scroll-content,
-  #screen5 .hero-live-section,
-  #screen5 .live-video-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-  }
-
-  #screen5 .video-mockup-wrapper {
-    width: 100% !important;
-    aspect-ratio: 16 / 9 !important;
-    height: auto !important;
+  #screen5 .home-brand-title {
+    font-size: 18px;
   }
 
   #screen5 .home-scroll-content {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    padding-bottom: 100px !important;
-  }
-}
-
-
-/* ===== FINAL PHOTO-REFERENCE MOBILE HOME ===== */
-
-@media (max-width: 1200px) {
-
-  #screen5.home-screen {
-    width: 100% !important;
-    min-height: 100vh !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    padding-bottom: 90px !important;
-  }
-
-  #screen5 .home-scroll-content {
-    width: 100% !important;
-    padding: 12px !important;
-    box-sizing: border-box !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 
   #screen5 .hero-live-section {
-    width: 100% !important;
-    margin: 0 0 16px 0 !important;
-    padding: 12px !important;
-    box-sizing: border-box !important;
-  }
-
-  /* PHOTO JAISE BADA LIVE CAMERA */
-  #screen5 .live-video-card {
-    width: 100% !important;
-    box-sizing: border-box !important;
+    border-radius: 12px !important;
+    padding: 7px !important;
   }
 
   #screen5 .video-mockup-wrapper {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
     aspect-ratio: 16 / 9 !important;
-    padding: 10px !important;
-    box-sizing: border-box !important;
-  }
-
-  #screen5 .video-mockup-wrapper video,
-  #screen5 .video-mockup-wrapper iframe,
-  #screen5 .video-mockup-wrapper canvas,
-  #screen5 .video-mockup-wrapper img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-  }
-
-  /* SCORE + STREAM CARD FULL WIDTH */
-  #screen5 .live-ticker-patti,
-  #screen5 .streaming-platforms-bar {
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  /* CRICKET HUB PHOTO JAISE 2 COLUMN */
-  #screen5 .main-options-grid {
-    width: 100% !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-  }
-
-  #screen5 .option-card {
-    min-width: 0 !important;
-  }
-
-  /* BAaki poora page niche scroll hoga */
-  #screen5 .home-scroll-content,
-  #screen5 .home-section,
-  #screen5 .main-options-section {
-    overflow-x: hidden !important;
-  }
-
-  /* BOTTOM NAV CONTENT KO SQUEEZE NAHI KAREGI */
-  #screen5 .home-bottom-nav {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 9999 !important;
+    padding: 5px !important;
   }
 }
