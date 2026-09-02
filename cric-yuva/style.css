@@ -12040,3 +12040,89 @@ iframe {
   }
 }
 
+
+/* ===== FINAL PHOTO-REFERENCE MOBILE HOME ===== */
+
+@media (max-width: 1200px) {
+
+  #screen5.home-screen {
+    width: 100% !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding-bottom: 90px !important;
+  }
+
+  #screen5 .home-scroll-content {
+    width: 100% !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen5 .hero-live-section {
+    width: 100% !important;
+    margin: 0 0 16px 0 !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* PHOTO JAISE BADA LIVE CAMERA */
+  #screen5 .live-video-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen5 .video-mockup-wrapper {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 9 !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen5 .video-mockup-wrapper video,
+  #screen5 .video-mockup-wrapper iframe,
+  #screen5 .video-mockup-wrapper canvas,
+  #screen5 .video-mockup-wrapper img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* SCORE + STREAM CARD FULL WIDTH */
+  #screen5 .live-ticker-patti,
+  #screen5 .streaming-platforms-bar {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* CRICKET HUB PHOTO JAISE 2 COLUMN */
+  #screen5 .main-options-grid {
+    width: 100% !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  #screen5 .option-card {
+    min-width: 0 !important;
+  }
+
+  /* BAaki poora page niche scroll hoga */
+  #screen5 .home-scroll-content,
+  #screen5 .home-section,
+  #screen5 .main-options-section {
+    overflow-x: hidden !important;
+  }
+
+  /* BOTTOM NAV CONTENT KO SQUEEZE NAHI KAREGI */
+  #screen5 .home-bottom-nav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+  }
+}
