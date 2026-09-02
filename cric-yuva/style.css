@@ -11831,3 +11831,96 @@ body {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* =========================================================
+   CRIC YUVA - FULL WIDTH MOBILE + VERTICAL SCROLL
+   ========================================================= */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-screen {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Main mobile content */
+.login-screen,
+.create-screen,
+.profile-screen {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Full available mobile width */
+.login-card,
+.create-content,
+.profile-content,
+.profile-container {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Keep inner content inside phone */
+.login-screen,
+.create-screen {
+  overflow-x: hidden;
+}
+
+/* Mobile screens should scroll vertically */
+.profile-screen,
+.login-screen,
+.create-screen {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Prevent accidental horizontal overflow */
+img,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+@media (max-width: 1200px) {
+
+  .app-screen {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .login-card,
+  .create-content,
+  .profile-content,
+  .profile-container {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .login-screen,
+  .create-screen,
+  .profile-screen {
+    width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+    box-sizing: border-box;
+  }
+
+  .profile-content,
+  .profile-container {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
