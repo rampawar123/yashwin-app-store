@@ -10407,12 +10407,57 @@ body {
    UNIFIED LIVE BROADCAST CENTER STYLES
    ========================================= */
 .broadcast-modal-sheet {
+    width: 100%;
     max-width: 680px;
     max-height: 94vh;
     padding: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+}
+
+@media (max-width: 699px) {
+    #broadcastCenterModal {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    #broadcastCenterModal .broadcast-modal-sheet {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        height: 94dvh !important;
+        max-height: 94dvh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        border-radius: 24px 24px 0 0 !important;
+    }
+
+    #broadcastCenterModal .broadcast-sheet-body {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #broadcastCenterModal .b-social-buttons-grid {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    #broadcastCenterModal .btn-social-app-launch {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
 }
 
 .broadcast-sheet-header {
