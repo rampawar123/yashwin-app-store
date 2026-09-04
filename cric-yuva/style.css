@@ -12301,7 +12301,10 @@ body {
 
   /* Home: the page itself is the single scroll area. */
   #screen5.home-screen {
-    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
   #screen5 .home-scroll-content {
     height: auto !important;
