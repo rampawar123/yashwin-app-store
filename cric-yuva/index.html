@@ -308,7 +308,7 @@
  <div class="top-bar-actions">
  <button type="button" class="top-action-btn" id="notifButton" title="Notifications">
  <i class="fa-regular fa-bell"></i>
- <span class="notif-badge"></span>
+ <span class="notif-badge" id="homeNotifBadge"></span>
  </button>
  <button type="button" class="top-action-btn menu-hamburger-btn" id="homeMenuBtn" title="Menu">
  <i class="fa-solid fa-bars"></i>
@@ -438,47 +438,55 @@
  <div class="main-options-grid">
  
  <div class="option-card" id="optMyTeam">
+ <div class="option-card-top-row">
  <div class="option-icon-box">
  <i class="fa-solid fa-users-viewfinder"></i>
  </div>
+ <i class="fa-solid fa-chevron-right option-arrow"></i>
+ </div>
  <div class="option-info">
  <h4>My Team</h4>
- <p>Squad, playing 11 & stats</p>
+ <p>Squad, XI & stats</p>
  </div>
- <i class="fa-solid fa-chevron-right option-arrow"></i>
  </div>
 
  <div class="option-card" id="optMatches">
+ <div class="option-card-top-row">
  <div class="option-icon-box">
  <i class="fa-solid fa-baseball-bat-ball"></i>
  </div>
+ <i class="fa-solid fa-chevron-right option-arrow"></i>
+ </div>
  <div class="option-info">
  <h4>Matches</h4>
- <p>Live, upcoming & results</p>
+ <p>Live, fixtures & results</p>
  </div>
- <i class="fa-solid fa-chevron-right option-arrow"></i>
  </div>
 
  <div class="option-card" id="optTournament">
+ <div class="option-card-top-row">
  <div class="option-icon-box">
  <i class="fa-solid fa-trophy"></i>
  </div>
+ <i class="fa-solid fa-chevron-right option-arrow"></i>
+ </div>
  <div class="option-info">
  <h4>Tournament</h4>
- <p>Leagues, points table & fixtures</p>
+ <p>Leagues & tables</p>
  </div>
- <i class="fa-solid fa-chevron-right option-arrow"></i>
  </div>
 
  <div class="option-card" id="optStatistics">
+ <div class="option-card-top-row">
  <div class="option-icon-box">
  <i class="fa-solid fa-chart-column"></i>
  </div>
+ <i class="fa-solid fa-chevron-right option-arrow"></i>
+ </div>
  <div class="option-info">
  <h4>Statistics</h4>
- <p>Top runs, wickets & leaderboards</p>
+ <p>Ranks & leaderboard</p>
  </div>
- <i class="fa-solid fa-chevron-right option-arrow"></i>
  </div>
 
  </div>
@@ -875,9 +883,14 @@
  <div class="squad-filter-section">
  <div class="squad-section-heading">
  <h4>SQUAD PLAYERS (<span id="squadListCount">11</span>)</h4>
+ <div style="display:flex; align-items:center; gap:8px;">
+ <button type="button" class="btn-search-player-cta" id="btnSearchAddPlayerOpen" style="background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#60a5fa; padding:6px 12px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;">
+ <i class="fa-solid fa-magnifying-glass"></i> Search Player
+ </button>
  <button type="button" class="btn-add-player-cta" id="btnAddPlayerOpen">
  <i class="fa-solid fa-user-plus"></i> Add Player
  </button>
+ </div>
  </div>
 
  <div class="roles-pills-scroll">
@@ -1797,6 +1810,32 @@
           <select id="statsSortSelect" class="stats-sort-dropdown">
             <!-- Populated per active category -->
           </select>
+        </div>
+      </div>
+
+      <!-- DYNAMIC USER RANK CARD (MY RANK) -->
+      <div class="my-rank-card" id="myRankCard">
+        <div class="my-rank-left">
+          <div class="my-rank-avatar-wrap">
+            <div class="my-rank-avatar" id="myRankAvatar">
+              <span id="myRankAvatarInitial">P</span>
+            </div>
+            <div class="my-rank-crown-badge" id="myRankCrownBadge" style="display:none;">
+              <i class="fa-solid fa-crown"></i>
+            </div>
+          </div>
+          <div class="my-rank-info">
+            <div class="my-rank-sublabel"><i class="fa-solid fa-user-astronaut text-orange"></i> Your Standing</div>
+            <div class="my-rank-name" id="myRankUserName">Player Name</div>
+            <div class="my-rank-team" id="myRankTeamName">Mumbai Yuva XI</div>
+          </div>
+        </div>
+        <div class="my-rank-right">
+          <div class="my-rank-num-box">
+            <span class="my-rank-category-label" id="myRankCategoryLabel">RANKINGS</span>
+            <span class="my-rank-number" id="myRankNumber">#1</span>
+          </div>
+          <div class="my-rank-val-badge" id="myRankStatValue">0 Runs</div>
         </div>
       </div>
 
@@ -3532,6 +3571,139 @@
  <!-- =========================================
  ADD / EDIT PLAYER MODAL
  ========================================== -->
+
+ <!-- =========================================
+ SEARCH & ADD PLAYER TO SQUAD MODAL
+ ========================================== -->
+ <div class="modal-backdrop" id="teamPlayerSearchModal" style="display:none; z-index:99999;">
+ <div class="team-modal-sheet" style="max-width:540px; max-height:88vh; display:flex; flex-direction:column; background:#12151d; border:1px solid #28334a;">
+ <div class="sheet-header" style="border-bottom:1px solid #232c42; padding-bottom:12px;">
+ <div class="tourney-modal-title-wrap">
+ <span class="create-badge" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4);">SQUAD BUILDER</span>
+ <h3 style="color:#ffffff; font-size:16px; margin:0;"><i class="fa-solid fa-magnifying-glass text-orange"></i> Search & Add Players</h3>
+ </div>
+ <button type="button" class="sheet-close-btn" id="btnCloseTeamPlayerSearch"><i class="fa-solid fa-xmark"></i></button>
+ </div>
+
+ <div style="padding:12px 14px 8px 14px;">
+ <div class="team-search-box" style="width:100%; margin-bottom:10px;">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <input type="text" id="inputSearchTeamPlayer" placeholder="Search by player name, style, or role..." style="width:100%;">
+ <button type="button" id="btnSearchClearQuery" style="background:none; border:none; color:#8c93a4; cursor:pointer; display:none;"><i class="fa-solid fa-circle-xmark"></i></button>
+ </div>
+
+ <div class="roles-pills-scroll" style="margin-bottom:4px;">
+ <button type="button" class="role-filter-chip active" data-search-filter="all">All</button>
+ <button type="button" class="role-filter-chip" data-search-filter="Batsman">Batsmen</button>
+ <button type="button" class="role-filter-chip" data-search-filter="Bowler">Bowlers</button>
+ <button type="button" class="role-filter-chip" data-search-filter="All-Rounder">All-Rounders</button>
+ <button type="button" class="role-filter-chip" data-search-filter="Wicket Keeper">Keepers</button>
+ </div>
+ </div>
+
+ <div id="teamPlayerSearchResultsList" style="flex:1; overflow-y:auto; padding:0 14px 14px 14px; display:flex; flex-direction:column; gap:8px; min-height:220px; max-height:420px;">
+ <!-- Populated dynamically via JS -->
+ </div>
+ </div>
+ </div>
+
+ <!-- =========================================
+ PLAYER DETAILED PROFILE MODAL
+ ========================================== -->
+ <div class="modal-backdrop" id="playerProfileDetailModal" style="display:none; z-index:99999;">
+ <div class="team-modal-sheet" style="max-width:520px; max-height:90vh; overflow-y:auto; background:#12151d; border:1px solid #28334a;">
+ <div class="sheet-header" style="border-bottom:1px solid #232c42; padding-bottom:12px;">
+ <div class="tourney-modal-title-wrap">
+ <span class="create-badge" id="playerDetailRoleBadge">BATSMAN</span>
+ <h3 id="playerDetailHeaderName" style="color:#ffffff; font-size:16px; margin:0;"><i class="fa-regular fa-user text-orange"></i> Player Profile</h3>
+ </div>
+ <button type="button" class="sheet-close-btn" id="btnClosePlayerProfileDetail"><i class="fa-solid fa-xmark"></i></button>
+ </div>
+
+ <div style="padding:16px 4px 6px 4px; display:flex; flex-direction:column; gap:14px;">
+ <div style="display:flex; align-items:center; gap:14px; background:#181d2a; border:1px solid #263147; border-radius:14px; padding:14px;">
+ <div id="playerDetailAvatar" style="width:62px; height:62px; border-radius:14px; background:linear-gradient(135deg, #ff5a00, #e84d00); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; color:#fff; flex-shrink:0; overflow:hidden; border:2px solid rgba(255,90,0,0.4);">
+ RS
+ </div>
+ <div style="flex:1; min-width:0;">
+ <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+ <h3 id="playerDetailFullName" style="font-size:17px; font-weight:800; color:#fff; margin:0;">Rohit Sharma</h3>
+ <span id="playerDetailJerseyBadge" style="background:#ff5a00; color:#000; font-size:10.5px; font-weight:900; padding:2px 6px; border-radius:4px;">#45</span>
+ <span id="playerDetailXIStatusBadge" style="background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">PLAYING XI</span>
+ </div>
+ <div id="playerDetailStylesText" style="font-size:11.5px; color:#94a3b8; margin-top:3px;">Right Hand Bat • Right-arm Offbreak</div>
+ <div id="playerDetailIdText" style="font-size:10.5px; color:#64748b; margin-top:2px;">Player ID: CY2026-4501</div>
+ </div>
+ </div>
+
+ <div>
+ <div style="font-size:11px; font-weight:800; color:#ff5a00; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+ <i class="fa-solid fa-chart-simple"></i> Career Statistics
+ </div>
+ <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Matches</div>
+ <div id="statDetailMatches" style="font-size:15px; font-weight:800; color:#fff; margin-top:2px;">24</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Runs</div>
+ <div id="statDetailRuns" style="font-size:15px; font-weight:800; color:#4ade80; margin-top:2px;">842</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Highest</div>
+ <div id="statDetailHighest" style="font-size:15px; font-weight:800; color:#fff; margin-top:2px;">89*</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Strike Rate</div>
+ <div id="statDetailStrikeRate" style="font-size:15px; font-weight:800; color:#38bdf8; margin-top:2px;">148.2</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Average</div>
+ <div id="statDetailAvg" style="font-size:15px; font-weight:800; color:#fff; margin-top:2px;">42.1</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">50s / 100s</div>
+ <div id="statDetailMilestones" style="font-size:15px; font-weight:800; color:#fbbf24; margin-top:2px;">6 / 1</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Wickets</div>
+ <div id="statDetailWickets" style="font-size:15px; font-weight:800; color:#f87171; margin-top:2px;">8</div>
+ </div>
+ <div style="background:#151824; border:1px solid #232a3d; border-radius:10px; padding:8px; text-align:center;">
+ <div style="font-size:9.5px; color:#8c93a4; text-transform:uppercase;">Economy</div>
+ <div id="statDetailEcon" style="font-size:15px; font-weight:800; color:#fff; margin-top:2px;">7.8</div>
+ </div>
+ </div>
+ </div>
+
+ <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+ <div style="font-size:11px; font-weight:800; color:#ff5a00; text-transform:uppercase; letter-spacing:0.5px;">
+ <i class="fa-solid fa-sliders"></i> Squad Position & Roles
+ </div>
+
+ <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+ <button type="button" id="btnDetailTogglePlayingXI" style="background:#1e293b; border:1px solid #334155; color:#fff; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+ <i class="fa-solid fa-users"></i> <span id="labelToggleXI">Toggle Playing XI</span>
+ </button>
+ <button type="button" id="btnDetailSetCaptain" style="background:#1e293b; border:1px solid #334155; color:#fbbf24; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+ <i class="fa-solid fa-crown"></i> <span id="labelSetCaptain">Make Captain (C)</span>
+ </button>
+ <button type="button" id="btnDetailSetViceCaptain" style="background:#1e293b; border:1px solid #334155; color:#38bdf8; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+ <i class="fa-solid fa-shield"></i> <span id="labelSetVC">Make Vice-Captain</span>
+ </button>
+ <button type="button" id="btnDetailEditPlayer" style="background:#1e293b; border:1px solid #334155; color:#ff5a00; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+ <i class="fa-solid fa-pen-to-square"></i> Edit Details
+ </button>
+ </div>
+
+ <button type="button" id="btnDetailRemoveSquad" style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#ef4444; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; margin-top:4px;">
+ <i class="fa-solid fa-trash-can"></i> Remove Player from Squad
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+
  <div class="modal-backdrop" id="playerModal" style="display:none;">
  <div class="team-modal-sheet">
  <div class="sheet-header">
@@ -3678,6 +3850,10 @@
 
  <div class="drawer-divider"></div>
 
+ <div style="padding:10px 14px; margin:8px 0; background:rgba(255,90,0,0.08); border-radius:8px; border:1px solid rgba(255,90,0,0.2);">
+ <div style="font-size:10px; color:#8c93a4; text-transform:uppercase; letter-spacing:0.5px;">App Developer</div>
+ <div style="font-size:12.5px; font-weight:800; color:#ffffff; margin-top:2px;"><i class="fa-solid fa-code text-orange"></i> Sitaram Pawar</div>
+ </div>
  <button type="button" class="drawer-menu-item logout-item" id="drawerLogoutBtn">
  <i class="fa-solid fa-right-from-bracket"></i>
  <span>Log Out</span>
@@ -3829,6 +4005,10 @@
            <i class="fa-solid fa-circle-info text-orange"></i> App Information
          </div>
          <div class="app-info-grid">
+          <div class="app-info-item">
+            <span>App Developer</span>
+            <strong style="color:var(--orange);">Sitaram Pawar</strong>
+          </div>
            <div class="app-info-item">
              <span>App Version</span>
              <strong>v2.4.0 (Build 2026.8)</strong>
@@ -3872,6 +4052,20 @@
      </div>
 
      <div class="modal-form help-modal-body">
+ <!-- DEVELOPER INFORMATION -->
+ <div class="help-section-block">
+ <div class="help-section-title">
+ <i class="fa-solid fa-code text-orange"></i> App Developer & Engineering
+ </div>
+ <div style="background:#141824; border:1px solid #232a3d; border-radius:12px; padding:12px; display:flex; align-items:center; justify-content:space-between;">
+ <div>
+ <div style="font-size:11px; color:#8c93a4; text-transform:uppercase; letter-spacing:0.5px;">Lead App Developer</div>
+ <div style="font-size:15px; font-weight:800; color:#ffffff; margin-top:2px;"><i class="fa-solid fa-user-gear text-orange"></i> Sitaram Pawar</div>
+ <div style="font-size:11px; color:#64748b; margin-top:2px;">Cric Yuva & Yashwin Ecosystem Architecture</div>
+ </div>
+ <span style="background:rgba(255,90,0,0.15); border:1px solid rgba(255,90,0,0.35); color:var(--orange); font-size:10.5px; font-weight:800; padding:4px 8px; border-radius:6px;">DEVELOPER</span>
+ </div>
+ </div>
        <!-- CONTACT CHANNELS -->
        <div class="help-section-block">
          <div class="help-section-title">
@@ -4013,30 +4207,72 @@
  NOTIFICATIONS MODAL
  ========================================== -->
  <div class="modal-backdrop" id="notifModal" style="display:none;">
- <div class="notif-popup">
- <div class="popup-header">
- <h3>Notifications</h3>
- <button type="button" class="sheet-close-btn" id="notifCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+   <div class="notif-popup">
+     <div class="popup-header">
+       <div class="notif-header-title-wrap" style="display:flex;align-items:center;gap:8px;">
+         <h3><i class="fa-solid fa-bell text-orange"></i> Notifications</h3>
+         <span class="notif-count-pill" id="notifModalCountPill" style="background:#252e42;color:#ff9800;font-size:10px;font-weight:bold;padding:2px 8px;border-radius:12px;">0 New</span>
+       </div>
+       <div class="notif-header-actions" style="display:flex;align-items:center;gap:6px;">
+         <button type="button" class="btn-clear-notifs" id="btnClearAllNotifs" title="Clear All Notifications" style="background:none;border:none;color:#94a3b8;font-size:11px;cursor:pointer;padding:4px 6px;">
+           <i class="fa-solid fa-trash-can"></i> Clear All
+         </button>
+         <button type="button" class="sheet-close-btn" id="notifCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+       </div>
+     </div>
+     <div class="notif-list" id="notifListContainer">
+       <!-- Dynamically rendered -->
+     </div>
+     <div class="notif-empty-state" id="notifEmptyState" style="display:none;text-align:center;padding:32px 16px;color:#64748b;">
+       <i class="fa-regular fa-bell-slash" style="font-size:32px;margin-bottom:10px;color:#475569;display:block;"></i>
+       <p style="font-size:13px;font-weight:600;margin-bottom:4px;color:#cbd5e1;">No notifications yet</p>
+       <small style="font-size:11px;">Match updates and tournament alerts will appear here</small>
+     </div>
+   </div>
  </div>
- <div class="notif-list">
- <div class="notif-item unread">
- <div class="notif-icon"><i class="fa-solid fa-baseball-bat-ball"></i></div>
- <div class="notif-text">
- <b>Live Match Started!</b>
- <p>Mumbai Yuva vs Delhi Strikers semi-final is now live.</p>
- <small>10 mins ago</small>
- </div>
- </div>
- <div class="notif-item">
- <div class="notif-icon"><i class="fa-solid fa-trophy"></i></div>
- <div class="notif-text">
- <b>Tournament Registered</b>
- <p>Your team is registered for Yuva Cup 2026.</p>
- <small>2 hours ago</small>
- </div>
- </div>
- </div>
- </div>
+
+ <!-- =========================================
+ FORGOT PASSWORD MODAL
+ ========================================== -->
+ <div class="modal-backdrop" id="forgotPasswordModal" style="display:none;">
+   <div class="team-modal-sheet forgot-password-sheet">
+     <div class="sheet-header">
+       <div class="tourney-modal-title-wrap">
+         <span class="create-badge">SECURITY</span>
+         <h3><i class="fa-solid fa-key text-orange"></i> Reset Password</h3>
+       </div>
+       <button type="button" class="sheet-close-btn" id="forgotPasswordCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+     </div>
+     <div class="modal-form" style="padding:16px;">
+       <p style="color:#94a3b8;font-size:12px;margin-bottom:14px;line-height:1.5;">
+         Enter your registered 10-digit mobile number and create a new password to recover your account.
+       </p>
+       <div class="input-box" style="margin-bottom:12px;">
+         <i class="fa-solid fa-mobile-screen-button"></i>
+         <div class="input-content">
+           <label>Registered Mobile</label>
+           <input type="tel" id="forgotMobileInput" placeholder="Enter registered 10-digit mobile" maxlength="10">
+         </div>
+       </div>
+       <div class="input-box" style="margin-bottom:12px;">
+         <i class="fa-solid fa-lock"></i>
+         <div class="input-content">
+           <label>New Password</label>
+           <input type="password" id="forgotNewPasswordInput" placeholder="Enter new password (min 4 chars)">
+         </div>
+       </div>
+       <div class="input-box" style="margin-bottom:16px;">
+         <i class="fa-solid fa-lock"></i>
+         <div class="input-content">
+           <label>Confirm New Password</label>
+           <input type="password" id="forgotVerifyPasswordInput" placeholder="Re-enter new password">
+         </div>
+       </div>
+       <button type="button" class="main-button" id="btnResetPasswordSubmit" style="margin-top:4px;">
+         <i class="fa-solid fa-check"></i> UPDATE PASSWORD
+       </button>
+     </div>
+   </div>
  </div>
 
  <!-- =========================================
@@ -5103,40 +5339,7 @@
            <button type="button" class="camera-opt-btn active" id="btnCamBack"><i class="fa-solid fa-video"></i> Back</button>
            <button type="button" class="camera-opt-btn" id="btnCamFront"><i class="fa-solid fa-user"></i> Front</button>
            <button type="button" class="camera-opt-btn" id="btnCamMute"><i class="fa-solid fa-microphone"></i> Mic</button>
-           <button type="button" class="camera-opt-btn" id="btnCamRtmp"><i class="fa-solid fa-tower-broadcast"></i> RTMP / IP</button>
          </div>
-       </div>
-
-       <!-- 5B. PROFESSIONAL CAMERA & RTMP INGESTION PANEL -->
-       <div id="proCameraIngestPanel" class="rtmp-config-box" style="display:none;">
-         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #283145; padding-bottom:6px;">
-           <span style="font-size:11.5px; font-weight:800; color:#ff7a00;"><i class="fa-solid fa-satellite-dish"></i> Professional Camera / IP Ingestion Endpoint</span>
-           <span style="font-size:9.5px; background:#38bdf822; color:#38bdf8; padding:2px 6px; border-radius:4px; font-weight:700;">HDMI / SDI / OBS / vMix</span>
-         </div>
-         <div class="rtmp-config-row">
-           <label>RTMP Server URL</label>
-           <div class="rtmp-config-input-group">
-             <input type="text" readonly value="rtmp://live.cricyuva.com/live" class="rtmp-config-input" id="rtmpServerUrlInput">
-             <button type="button" class="rtmp-copy-btn" id="btnCopyRtmpUrl">Copy</button>
-           </div>
-         </div>
-         <div class="rtmp-config-row">
-           <label>Stream Key (Match-Secured)</label>
-           <div class="rtmp-config-input-group">
-             <input type="text" readonly value="live_yuva_MATCH-001_sec8291" class="rtmp-config-input" id="rtmpStreamKeyInput">
-             <button type="button" class="rtmp-copy-btn" id="btnCopyStreamKey">Copy</button>
-           </div>
-         </div>
-         <div class="rtmp-config-row">
-           <label>WHIP / WebRTC Ingest</label>
-           <div class="rtmp-config-input-group">
-             <input type="text" readonly value="https://live.cricyuva.com/whip/ingest" class="rtmp-config-input" id="whipUrlInput">
-             <button type="button" class="rtmp-copy-btn" id="btnCopyWhipUrl">Copy</button>
-           </div>
-         </div>
-         <small style="font-size:10px; color:#8c93a4; line-height:1.4;">
-           <i class="fa-solid fa-circle-info text-orange"></i> Connect your camera via HDMI/SDI Capture Card into OBS / vMix or send an RTMP feed directly with this stream key.
-         </small>
        </div>
 
        <!-- 6. BROADCAST PREVIEW VIEWPORT (VIDEO + DYNAMIC SCOREBOARD OVERLAY) -->
@@ -5191,38 +5394,86 @@
          </div>
        </div>
 
-       <!-- 7. SOCIAL MEDIA DESTINATIONS -->
-       <div class="broadcast-destinations-wrap">
-         <div style="display:flex; justify-content:space-between; align-items:center;">
-           <span class="broadcast-field-label" style="margin:0;">
-             <i class="fa-solid fa-share-nodes text-orange"></i> Stream To (Select Authorized Destinations)
-           </span>
-           <button type="button" id="btnManageSocialAccounts" style="background:transparent; border:none; color:var(--orange, #ff7a00); font-size:11px; font-weight:800; cursor:pointer; text-decoration:underline;">
-             Manage User Accounts
-           </button>
-         </div>
+        <!-- 7. GO LIVE ON SOCIAL MEDIA (DIRECT DEEP-LINKING & SCOREBOARD SHARE) -->
+        <div class="broadcast-social-stream-wrap">
+          <div class="b-social-stream-header">
+            <div class="b-social-stream-title">
+              <i class="fa-solid fa-tower-broadcast text-orange"></i>
+              <strong>Go Live on Social Media</strong>
+            </div>
+            <span class="b-social-stream-subtitle">Launch your live stream on mobile apps and share your live score</span>
+          </div>
 
-         <div class="destinations-grid">
-           <!-- YOUTUBE -->
-           <div class="destination-card yt" id="destCardYouTube">
-             <i class="fa-brands fa-youtube dest-icon"></i>
-             <span class="dest-name">YouTube</span>
-             <span class="dest-status disconnected" id="destStatusYouTube">Not Linked</span>
-           </div>
+          <!-- APP DEEP LINK BUTTONS -->
+          <div class="b-social-buttons-grid">
+            <button type="button" class="btn-social-app-launch yt" id="btnLaunchYouTubeLive" title="Launch YouTube Live">
+              <div class="b-social-app-icon"><i class="fa-brands fa-youtube"></i></div>
+              <div class="b-social-app-info">
+                <strong>YouTube Live</strong>
+                <small>Launch App / Studio</small>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square b-social-arrow"></i>
+            </button>
 
-           <!-- FACEBOOK -->
-           <div class="destination-card fb" id="destCardFacebook">
-             <i class="fa-brands fa-facebook dest-icon"></i>
-             <span class="dest-name">Facebook</span>
-             <span class="dest-status disconnected" id="destStatusFacebook">Not Linked</span>
-           </div>
+            <button type="button" class="btn-social-app-launch ig" id="btnLaunchInstagramLive" title="Launch Instagram Live">
+              <div class="b-social-app-icon"><i class="fa-brands fa-instagram"></i></div>
+              <div class="b-social-app-info">
+                <strong>Instagram Live</strong>
+                <small>Launch App / Camera</small>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square b-social-arrow"></i>
+            </button>
 
-           <!-- INSTAGRAM -->
-           <div class="destination-card ig" id="destCardInstagram">
-             <i class="fa-brands fa-instagram dest-icon"></i>
-             <span class="dest-name">Instagram</span>
-             <span class="dest-status disconnected" id="destStatusInstagram">Not Linked</span>
-           </div>
+            <button type="button" class="btn-social-app-launch fb" id="btnLaunchFacebookLive" title="Launch Facebook Live">
+              <div class="b-social-app-icon"><i class="fa-brands fa-facebook-f"></i></div>
+              <div class="b-social-app-info">
+                <strong>Facebook Live</strong>
+                <small>Launch Live Producer</small>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square b-social-arrow"></i>
+            </button>
+          </div>
+
+          <!-- QUICK COPY / SHARE WIDGET -->
+          <div class="b-stream-share-box">
+            <div class="b-share-instruction">
+              <i class="fa-solid fa-circle-info text-orange"></i>
+              <span>Stream from your phone & paste your <strong>Live Score Link</strong> or <strong>Match ID</strong> in your stream title or pinned comment!</span>
+            </div>
+            <div class="b-share-actions-row">
+              <button type="button" class="b-quick-copy-chip" id="btnCopyBroadcastMatchId" title="Copy Match ID">
+                <i class="fa-solid fa-hashtag text-orange"></i>
+                <span id="bCurrentMatchIdBadge">MATCH-001</span>
+                <span class="copy-tag"><i class="fa-regular fa-copy"></i> Copy ID</span>
+              </button>
+              <button type="button" class="b-quick-copy-chip" id="btnCopyBroadcastScoreLink" title="Copy Live Scoreboard Link">
+                <i class="fa-solid fa-link text-orange"></i>
+                <span>Live Score Link</span>
+                <span class="copy-tag"><i class="fa-regular fa-copy"></i> Copy Link</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. BROADCAST SESSION BAR & CONTROLLER -->
+        <div class="broadcast-session-bar">
+          <div class="b-session-info">
+            <span class="label">Camera & Scoreboard Studio</span>
+            <span class="value" id="bSessionStatusText" style="color:#94a3b8;">● IDLE (Ready to Stream)</span>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn-card-mini-action" id="btnCopyBroadcastViewerLink" style="padding:10px 12px; border-radius:10px;" title="Copy Public Viewer Link">
+              <i class="fa-solid fa-share-nodes text-orange"></i>
+            </button>
+            <button type="button" class="btn-start-broadcast" id="btnStartBroadcastSession">
+              <i class="fa-solid fa-circle-play"></i> START BROADCAST
+            </button>
+            <button type="button" class="btn-stop-broadcast" id="btnStopBroadcastSession" style="display:none;">
+              <i class="fa-solid fa-circle-stop"></i> STOP BROADCAST
+            </button>
+          </div>
+        </div>
          </div>
        </div>
 
@@ -5248,150 +5499,6 @@
      </div>
    </div>
  </div>
-
- <!-- =========================================
-      POPUP MODAL: SOCIAL ACCOUNTS CONFIGURATION
- ========================================== -->
- <div class="modal-backdrop" id="socialAccountsModal" style="display:none;">
-   <div class="team-modal-sheet" style="max-width:480px;">
-     <div class="sheet-header">
-       <div class="tourney-modal-title-wrap">
-         <span class="create-badge">USER CHANNELS</span>
-         <h3><i class="fa-solid fa-link text-orange"></i> Connected Social Accounts</h3>
-       </div>
-       <button type="button" class="sheet-close-btn" id="socialAccountsCloseBtn"><i class="fa-solid fa-xmark"></i></button>
-     </div>
-
-     <div class="modal-form" style="padding-top:14px; gap:12px;">
-       <div style="font-size:11.5px; color:#8c93a4; line-height:1.5;">
-         Broadcasts stream directly to your authenticated personal channels. Each connection is tied securely to your logged-in Cric Yuva account.
-       </div>
-
-       <!-- YOUTUBE ACCOUNT ROW -->
-       <div class="settings-row" style="background:#1a1e2b; border-radius:10px; border:1px solid #2b3348;">
-         <div class="settings-row-info">
-           <div class="settings-row-icon" style="color:#ef4444;"><i class="fa-brands fa-youtube"></i></div>
-           <div class="settings-row-text">
-             <strong>YouTube Live</strong>
-             <small id="accLabelYouTube">Not Connected</small>
-           </div>
-         </div>
-         <button type="button" class="btn-card-mini-action" id="btnConnectYouTube" style="font-size:11px; font-weight:800;">
-           Connect
-         </button>
-       </div>
-
-       <!-- FACEBOOK ACCOUNT ROW -->
-       <div class="settings-row" style="background:#1a1e2b; border-radius:10px; border:1px solid #2b3348;">
-         <div class="settings-row-info">
-           <div class="settings-row-icon" style="color:#3b82f6;"><i class="fa-brands fa-facebook"></i></div>
-           <div class="settings-row-text">
-             <strong>Facebook Live Page</strong>
-             <small id="accLabelFacebook">Not Connected</small>
-           </div>
-         </div>
-         <button type="button" class="btn-card-mini-action" id="btnConnectFacebook" style="font-size:11px; font-weight:800;">
-           Connect
-         </button>
-       </div>
-
-       <!-- INSTAGRAM ACCOUNT ROW -->
-       <div class="settings-row" style="background:#1a1e2b; border-radius:10px; border:1px solid #2b3348;">
-         <div class="settings-row-info">
-           <div class="settings-row-icon" style="color:#ec4899;"><i class="fa-brands fa-instagram"></i></div>
-           <div class="settings-row-text">
-             <strong>Instagram Live</strong>
-             <small id="accLabelInstagram">Not Connected</small>
-           </div>
-         </div>
-         <button type="button" class="btn-card-mini-action" id="btnConnectInstagram" style="font-size:11px; font-weight:800;">
-           Connect
-         </button>
-       </div>
-
-       <button type="button" class="btn-modal-submit" id="btnSaveSocialAccounts" style="margin-top:8px;">
-         <i class="fa-solid fa-check"></i> Done & Return to Studio
-       </button>
-     </div>
-   </div>
- </div>
-
- <!-- =========================================
-     POPUP MODAL: PLATFORM AUTHORIZATION (OAUTH & STREAM KEY)
-========================================== -->
-<div class="modal-backdrop" id="platformAuthModal" style="display:none; z-index:99999;">
-  <div class="team-modal-sheet" style="max-width:480px; max-height:90vh; overflow-y:auto;">
-    <div class="sheet-header">
-      <div class="tourney-modal-title-wrap">
-        <span class="create-badge" id="authModalBadge">REAL AUTHORIZATION</span>
-        <h3 id="authModalTitle"><i class="fa-brands fa-youtube text-orange"></i> Authorize Channel</h3>
-      </div>
-      <button type="button" class="sheet-close-btn" id="platformAuthCloseBtn"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
-    <div class="modal-form" style="padding-top:14px; gap:14px;">
-      <!-- SECURITY NOTICE -->
-      <div style="background:rgba(255, 122, 0, 0.08); border:1px solid rgba(255, 122, 0, 0.25); border-radius:10px; padding:10px 12px; font-size:11.5px; color:#cbd5e1; line-height:1.5;">
-        <i class="fa-solid fa-shield-halved text-orange"></i>
-        <strong>Secure Connection:</strong> Cric Yuva uses official provider OAuth & RTMP Ingest. No personal account passwords are ever requested or stored.
-      </div>
-
-      <!-- CURRENT STATUS CARD -->
-      <div id="authCurrentStatusCard" style="background:#1a1e2b; border:1px solid #2b3348; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-size:11px; color:#8c93a4; text-transform:uppercase; font-weight:700;">Connection Status</div>
-          <div id="authCurrentStatusText" style="font-size:13px; font-weight:800; color:#ef4444; margin-top:2px;">Not Connected</div>
-        </div>
-        <button type="button" id="btnDisconnectPlatform" style="display:none; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#ef4444; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">
-          <i class="fa-solid fa-unlink"></i> Disconnect
-        </button>
-      </div>
-
-      <!-- METHOD 1: REAL OAUTH 2.0 FLOW -->
-      <div style="background:#131622; border:1px solid #23293d; border-radius:10px; padding:14px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:#ff7a00; color:#000; font-size:10px; font-weight:900; padding:2px 6px; border-radius:4px;">METHOD 1</span>
-          <strong style="color:#fff; font-size:12.5px;">Direct Provider OAuth 2.0</strong>
-        </div>
-        <p style="font-size:11px; color:#94a3b8; margin:0 0 10px 0; line-height:1.4;" id="authOAuthDesc">
-          Authorize your YouTube Live channel directly via Google OAuth 2.0 consent popup.
-        </p>
-
-        <!-- OAUTH BUTTON -->
-        <button type="button" class="btn-modal-submit" id="btnLaunchOAuthPopup" style="background:linear-gradient(135deg, #ff7a00, #ff5500); width:100%; font-size:12px; font-weight:800;">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Authorize via Provider Popup
-        </button>
-        <div id="authOAuthNotice" style="font-size:10.5px; color:#8c93a4; margin-top:6px; text-align:center;"></div>
-      </div>
-
-      <!-- METHOD 2: RTMP STREAM KEY / API ACCESS TOKEN -->
-      <div style="background:#131622; border:1px solid #23293d; border-radius:10px; padding:14px;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="background:#3b82f6; color:#fff; font-size:10px; font-weight:900; padding:2px 6px; border-radius:4px;">METHOD 2</span>
-          <strong style="color:#fff; font-size:12.5px;">Creator Stream Key / Ingest Token</strong>
-        </div>
-        <p style="font-size:11px; color:#94a3b8; margin:0 0 10px 0; line-height:1.4;">
-          Paste your Live Stream Key from YouTube Studio, Facebook Live Producer, or Instagram Ingest:
-        </p>
-
-        <input type="text" id="inputAuthStreamKey" class="broadcast-text-input" placeholder="Enter Stream Ingest Key (e.g. xxxx-xxxx-xxxx-xxxx-xxxx)" style="margin-bottom:10px;">
-        
-        <button type="button" class="btn-modal-submit" id="btnVerifyStreamKey" style="background:#1e293b; border:1px solid #3b82f6; color:#38bdf8; width:100%; font-size:12px; font-weight:800;">
-          <i class="fa-solid fa-key"></i> Verify & Link Stream Ingest
-        </button>
-      </div>
-
-      <!-- REQUIREMENTS & GUIDE ACCORDION -->
-      <div style="font-size:11px; color:#64748b; background:#0c0e15; padding:10px 12px; border-radius:8px; border:1px solid #1e2230;">
-        <div style="font-weight:700; color:#94a3b8; margin-bottom:4px;"><i class="fa-solid fa-circle-info"></i> Setup Requirements:</div>
-        <div id="authRequirementsList" style="line-height:1.6;">
-          • Verified Creator Account with Live Streaming permission enabled.<br>
-          • OAuth App Credentials or Stream Ingest Key from provider console.
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- =========================================
       POPUP MODAL: PUBLIC LIVE SCORE VIEW (READ-ONLY)
@@ -5642,6 +5749,7 @@
     </div>
   </div>
 
+  <script src="storage.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

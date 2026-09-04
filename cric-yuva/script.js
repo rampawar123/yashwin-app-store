@@ -1,6 +1,65 @@
 document.addEventListener("DOMContentLoaded", function () {
 
   // ==========================================
+  // SAFE TOAST & IFRAME ALERT INTERCEPTOR
+  // ==========================================
+  function showToast(msg, isError = false) {
+    if (!msg) return;
+    let toast = document.getElementById("cricYuvaToast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "cricYuvaToast";
+      toast.className = "toast-message";
+      document.body.appendChild(toast);
+    }
+    const icon = isError ? "fa-circle-exclamation text-red" : "fa-circle-check text-orange";
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${String(msg).replace(/\n/g, "<br>")}</span>`;
+    toast.style.display = "flex";
+    if (window._toastTimer) clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => {
+      toast.style.display = "none";
+    }, 3500);
+  }
+
+  // Intercept window.alert inside iFrame to prevent UI thread freezing
+  const _origAlert = window.alert;
+  window.alert = function (message) {
+    try {
+      showToast(message);
+    } catch (e) {
+      try { if (_origAlert) _origAlert.call(window, message); } catch (err) { console.log(message); }
+    }
+  };
+
+  // ==========================================
+  // STORAGE PERSISTENCE & USER DATA ISOLATION
+  // ==========================================
+  function getUserStorage(key, fallback = null) {
+    if (window.CricYuvaStorage) {
+      return window.CricYuvaStorage.getUserItem(key, fallback);
+    }
+    const val = localStorage.getItem(key);
+    return val !== null ? val : fallback;
+  }
+
+  function setUserStorage(key, value) {
+    if (window.CricYuvaStorage) {
+      window.CricYuvaStorage.setUserItem(key, value);
+    } else {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  function removeUserStorage(key) {
+    if (window.CricYuvaStorage) {
+      window.CricYuvaStorage.removeUserItem(key);
+    } else {
+      localStorage.removeItem(key);
+    }
+  }
+
+
+  // ==========================================
   // PROFILE DATA HELPERS & DRAWER SYNC
   // ==========================================
 
@@ -67,6 +126,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (drawerUserMobile) {
       const mob = localStorage.getItem("cricYuvaProfileMobile") || savedMobile;
       drawerUserMobile.textContent = mob ? "+91 " + mob : "+91 Mobile";
+    }
+
+    // Sync Player ID across Profile & Drawer
+    let pid = localStorage.getItem("cricYuvaPlayerId");
+    if (!pid) {
+      const mobSuffix = (localStorage.getItem("cricYuvaProfileMobile") || savedMobile || "1001").slice(-4);
+      pid = "CY2026-" + mobSuffix;
+      localStorage.setItem("cricYuvaPlayerId", pid);
+    }
+    const playerIdEl = document.getElementById("playerId");
+    if (playerIdEl) playerIdEl.textContent = pid;
+
+    const drawerPlayerId = document.getElementById("drawerPlayerId");
+    if (drawerPlayerId) drawerPlayerId.textContent = "ID: " + pid;
+
+    const drawerAvatarInitial = document.getElementById("drawerAvatarInitial");
+    if (drawerAvatarInitial) {
+      drawerAvatarInitial.textContent = getPlayerInitials(savedName.trim() || "Player");
     }
   }
 
@@ -263,9 +340,24 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      localStorage.setItem("cricYuvaMobile", mobileValue);
-      localStorage.setItem("cricYuvaPassword", passwordValue);
+      if (window.CricYuvaStorage) {
+        const regRes = window.CricYuvaStorage.registerUser({
+          mobile: mobileValue,
+          password: passwordValue
+        });
+        if (!regRes.success) {
+          alert(regRes.error || "Could not register account. Please try again.");
+          return;
+        }
+      } else {
+        localStorage.setItem("cricYuvaMobile", mobileValue);
+        localStorage.setItem("cricYuvaPassword", passwordValue);
+      }
       localStorage.setItem("cricYuvaLoggedIn", "true");
+
+      // Initialize default team for this newly created account
+      const freshTeam = initDefaultTeam();
+      saveTeamData(freshTeam);
 
       loadProfileData();
 
@@ -287,6 +379,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!loginMobile || !loginPassword) return;
 
+      const mob = loginMobile.value.trim();
+      const pwd = loginPassword.value;
+
+      if (!mob || !pwd) {
+        alert("Please enter both mobile number and password.");
+        return;
+      }
+
+      if (window.CricYuvaStorage) {
+        const auth = window.CricYuvaStorage.authenticateUser(mob, pwd);
+        if (auth.success) {
+          localStorage.setItem("cricYuvaLoggedIn", "true");
+          loadProfileData();
+          if (isProfileCompleted()) {
+            showScreen("screen5");
+          } else {
+            showScreen("screen4");
+          }
+          return;
+        } else {
+          alert(auth.error || "Invalid mobile number or password!");
+          return;
+        }
+      }
+
       const savedMobile = localStorage.getItem("cricYuvaMobile");
       const savedPassword = localStorage.getItem("cricYuvaPassword");
 
@@ -295,10 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      if (
-        loginMobile.value.trim() === savedMobile &&
-        loginPassword.value === savedPassword
-      ) {
+      if (mob === savedMobile && pwd === savedPassword) {
         localStorage.setItem("cricYuvaLoggedIn", "true");
         loadProfileData();
         if (isProfileCompleted()) {
@@ -318,6 +432,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function handleLogout() {
+    if (window.CricYuvaStorage) {
+      window.CricYuvaStorage.clearActiveSession();
+    }
     localStorage.removeItem("cricYuvaLoggedIn");
     const loginMobile = document.getElementById("loginMobile");
     const loginPassword = document.getElementById("loginPassword");
@@ -405,6 +522,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       loadProfileData();
 
+      if (window.NotificationService && window.NotificationService.addNotification) {
+        window.NotificationService.addNotification({
+          title: "Profile Updated",
+          message: `Profile details for ${localStorage.getItem("cricYuvaProfileName") || "Player"} have been saved successfully.`,
+          type: "profile"
+        });
+      }
       alert("Profile changes saved successfully!");
       // Directly transition to MAIN HOME PAGE (Screen 5)
       showScreen("screen5");
@@ -792,13 +916,153 @@ document.addEventListener("DOMContentLoaded", function () {
   // NOTIFICATIONS MODAL POPUP
   // ==========================================
 
+  // ==========================================
+  // DYNAMIC NOTIFICATION SERVICE
+  // ==========================================
+  const NotificationService = {
+    STORAGE_KEY: "cricYuvaNotifications",
+    getNotifications() {
+      try {
+        const raw = localStorage.getItem(this.STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      const defaults = [
+        {
+          id: "notif_welcome",
+          title: "Welcome to Cric Yuva!",
+          message: "Experience professional cricket scoring, auction tournaments & live broadcast studio.",
+          time: "Just now",
+          type: "welcome",
+          unread: true
+        },
+        {
+          id: "notif_system_ready",
+          title: "Scoring & Tournaments Ready",
+          message: "Single Match, Regular Tournament & Auction Tournament are ready for live action.",
+          time: "5m ago",
+          type: "match",
+          unread: false
+        }
+      ];
+      this.save(defaults);
+      return defaults;
+    },
+    save(list) {
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {}
+      this.updateBadge();
+    },
+    addNotification({ title, message, type = "event" }) {
+      const list = this.getNotifications();
+      const newNotif = {
+        id: `notif_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        title: title || "Cricket Notification",
+        message: message || "",
+        time: "Just now",
+        type: type,
+        unread: true
+      };
+      list.unshift(newNotif);
+      if (list.length > 50) list.pop();
+      this.save(list);
+      this.render();
+    },
+    clearAll() {
+      this.save([]);
+      this.render();
+    },
+    markAllRead() {
+      const list = this.getNotifications();
+      list.forEach(n => n.unread = false);
+      this.save(list);
+      this.render();
+    },
+    updateBadge() {
+      const list = this.getNotifications();
+      const unreadCount = list.filter(n => n.unread).length;
+      const homeBadge = document.getElementById("homeNotifBadge");
+      const countPill = document.getElementById("notifModalCountPill");
+      if (homeBadge) {
+        if (unreadCount > 0) {
+          homeBadge.style.display = "block";
+          homeBadge.textContent = unreadCount > 9 ? "9+" : unreadCount;
+        } else {
+          homeBadge.style.display = "none";
+        }
+      }
+      if (countPill) {
+        countPill.textContent = `${unreadCount} New`;
+      }
+    },
+    render() {
+      const container = document.getElementById("notifListContainer");
+      const emptyState = document.getElementById("notifEmptyState");
+      if (!container) return;
+      const list = this.getNotifications();
+      this.updateBadge();
+
+      if (list.length === 0) {
+        container.innerHTML = "";
+        if (emptyState) emptyState.style.display = "block";
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = "none";
+
+      const icons = {
+        match: "fa-solid fa-baseball-bat-ball",
+        tournament: "fa-solid fa-trophy",
+        auction: "fa-solid fa-gavel",
+        profile: "fa-solid fa-user-check",
+        welcome: "fa-solid fa-handshake-angle",
+        event: "fa-solid fa-bell"
+      };
+
+      container.innerHTML = list.map(n => `
+        <div class="notif-item ${n.unread ? 'unread' : ''}" data-id="${n.id}">
+          <div class="notif-item-icon">
+            <i class="${icons[n.type] || icons.event}"></i>
+          </div>
+          <div class="notif-item-body">
+            <div class="notif-item-title">${n.title}</div>
+            <div class="notif-item-desc">${n.message}</div>
+            <div class="notif-item-time">${n.time}</div>
+          </div>
+        </div>
+      `).join("");
+
+      container.querySelectorAll(".notif-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const id = item.dataset.id;
+          const currentList = this.getNotifications();
+          const target = currentList.find(x => x.id === id);
+          if (target) {
+            target.unread = false;
+            this.save(currentList);
+            item.classList.remove("unread");
+          }
+        });
+      });
+    }
+  };
+  window.NotificationService = NotificationService;
+
   const notifButton = document.getElementById("notifButton");
   const notifModal = document.getElementById("notifModal");
   const notifCloseBtn = document.getElementById("notifCloseBtn");
+  const btnClearAllNotifs = document.getElementById("btnClearAllNotifs");
 
   if (notifButton && notifModal) {
     notifButton.addEventListener("click", function () {
+      NotificationService.render();
       notifModal.style.display = "flex";
+    });
+  }
+
+  if (btnClearAllNotifs) {
+    btnClearAllNotifs.addEventListener("click", function () {
+      NotificationService.clearAll();
     });
   }
 
@@ -813,6 +1077,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  // Initialize badge at startup
+  NotificationService.updateBadge();
 
 
   // ==========================================
@@ -893,8 +1160,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const optMatches = document.getElementById("optMatches");
   if (optMatches) {
     optMatches.addEventListener("click", function () {
-      const matchSection = document.querySelector(".matches-slide-section");
-      if (matchSection) matchSection.scrollIntoView({ behavior: "smooth" });
+      renderMatchHistoryScreen();
+      showScreen("screen9");
     });
   }
 
@@ -987,6 +1254,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const navHome = document.getElementById("navHome");
   if (navHome) {
     navHome.addEventListener("click", function () {
+      if (typeof updateHomeLiveScoreboard === "function") updateHomeLiveScoreboard();
       showScreen("screen5");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -1018,9 +1286,69 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   const forgotPasswordButton = document.getElementById("forgotPasswordButton");
-  if (forgotPasswordButton) {
+  const forgotPasswordModal = document.getElementById("forgotPasswordModal");
+  const forgotPasswordCloseBtn = document.getElementById("forgotPasswordCloseBtn");
+  const btnResetPasswordSubmit = document.getElementById("btnResetPasswordSubmit");
+
+  if (forgotPasswordButton && forgotPasswordModal) {
     forgotPasswordButton.addEventListener("click", function () {
-      alert("Please create a new account or use your registered mobile number.");
+      const mobileInput = document.getElementById("loginMobile");
+      const forgotMobile = document.getElementById("forgotMobileInput");
+      if (forgotMobile && mobileInput && mobileInput.value) {
+        forgotMobile.value = mobileInput.value.trim();
+      }
+      forgotPasswordModal.style.display = "flex";
+    });
+  }
+
+  if (forgotPasswordCloseBtn && forgotPasswordModal) {
+    forgotPasswordCloseBtn.addEventListener("click", function () {
+      forgotPasswordModal.style.display = "none";
+    });
+    forgotPasswordModal.addEventListener("click", function (e) {
+      if (e.target === forgotPasswordModal) {
+        forgotPasswordModal.style.display = "none";
+      }
+    });
+  }
+
+  if (btnResetPasswordSubmit && forgotPasswordModal) {
+    btnResetPasswordSubmit.addEventListener("click", function () {
+      const mobile = (document.getElementById("forgotMobileInput")?.value || "").trim();
+      const newPass = (document.getElementById("forgotNewPasswordInput")?.value || "").trim();
+      const confirmPass = (document.getElementById("forgotVerifyPasswordInput")?.value || "").trim();
+
+      if (!mobile || !/^\d{10}$/.test(mobile)) {
+        alert("Please enter a valid 10-digit registered mobile number.");
+        return;
+      }
+      if (!newPass || newPass.length < 4) {
+        alert("Password must be at least 4 characters long.");
+        return;
+      }
+      if (newPass !== confirmPass) {
+        alert("Passwords do not match. Please re-enter.");
+        return;
+      }
+
+      localStorage.setItem("cricYuvaMobile", mobile);
+      localStorage.setItem("cricYuvaPassword", newPass);
+
+      const loginMobile = document.getElementById("loginMobile");
+      const loginPassword = document.getElementById("loginPassword");
+      if (loginMobile) loginMobile.value = mobile;
+      if (loginPassword) loginPassword.value = newPass;
+
+      if (window.NotificationService && window.NotificationService.addNotification) {
+        window.NotificationService.addNotification({
+          title: "Password Updated",
+          message: "Your Cric Yuva account password has been reset successfully.",
+          type: "profile"
+        });
+      }
+
+      alert("Password reset successfully! You can now log in.");
+      forgotPasswordModal.style.display = "none";
     });
   }
 
@@ -1042,10 +1370,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Get Saved Team Data from localStorage
+  // Get Saved Team Data from localStorage (User-isolated)
   function getTeamData() {
     try {
-      const data = localStorage.getItem(TEAM_STORAGE_KEY);
+      const data = getUserStorage(TEAM_STORAGE_KEY);
       return data ? JSON.parse(data) : null;
     } catch (e) {
       console.error("Error reading team data:", e);
@@ -1057,20 +1385,10 @@ document.addEventListener("DOMContentLoaded", function () {
     return getTeamData() || initDefaultTeam();
   }
 
-  function _old_getTeamData_unused() {
-    try {
-      const data = localStorage.getItem(TEAM_STORAGE_KEY);
-      return data ? JSON.parse(data) : null;
-    } catch (e) {
-      console.error("Error reading team data:", e);
-      return null;
-    }
-  }
-
-  // Save Team Data to localStorage
+  // Save Team Data to localStorage (User-isolated)
   function saveTeamData(teamData) {
     try {
-      localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(teamData));
+      setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(teamData));
     } catch (e) {
       console.error("Error saving team data:", e);
     }
@@ -1313,8 +1631,14 @@ document.addEventListener("DOMContentLoaded", function () {
           const isCapClass = player.isCaptain ? "is-captain" : (player.isViceCaptain ? "is-vice-captain" : "");
           const initials = getInitials(player.name);
 
+          const inXI = player.inPlayingXI !== false;
+          const xiBadge = `
+            <span class="playing-xi-badge ${inXI ? 'in-xi' : 'bench'}" data-toggle-xi="${player.id}" title="${inXI ? 'In Playing XI (Tap to Bench)' : 'On Bench (Tap to add to XI)'}">
+              <i class="fa-solid ${inXI ? 'fa-check' : 'fa-chair'}"></i> ${inXI ? 'XI' : 'BENCH'}
+            </span>
+          `;
           return `
-            <div class="player-card-item ${isCapClass}" data-player-id="${player.id}">
+            <div class="player-card-item ${isCapClass}" data-player-id="${player.id}" style="cursor:pointer;">
               <div class="player-card-left">
                 <div class="player-avatar-box">
                   ${player.photo ? `<img src="${player.photo}" alt="${player.name}">` : `<span>${initials}</span>`}
@@ -1328,6 +1652,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     ${player.isCaptain ? '<span class="role-badge captain-tag">👑 Captain</span>' : ""}
                     ${player.isViceCaptain ? '<span class="role-badge vc-tag">🎖️ Vice-Captain</span>' : ""}
                     <span class="role-badge ${roleBadgeClass}">${roleIcon} ${player.role}</span>
+                    ${xiBadge}
                   </div>
                 </div>
               </div>
@@ -1360,7 +1685,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Attach Edit/Delete Listeners to rendered player cards
+  // Attach Edit/Delete/Toggle XI/Profile Listeners to rendered player cards
   function attachPlayerActionHandlers() {
     // Edit Player
     document.querySelectorAll(".btn-edit-player").forEach(btn => {
@@ -1377,6 +1702,24 @@ document.addEventListener("DOMContentLoaded", function () {
         e.stopPropagation();
         const playerId = this.getAttribute("data-id");
         handleDeletePlayer(playerId);
+      });
+    });
+
+    // Toggle Playing XI
+    document.querySelectorAll("[data-toggle-xi]").forEach(btn => {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const playerId = this.getAttribute("data-toggle-xi");
+        togglePlayerPlayingXI(playerId);
+      });
+    });
+
+    // Tap Player Card to view detailed profile modal
+    document.querySelectorAll(".player-card-item").forEach(card => {
+      card.addEventListener("click", function (e) {
+        if (e.target.closest(".player-action-icon-btn") || e.target.closest(".playing-xi-badge")) return;
+        const playerId = this.getAttribute("data-player-id");
+        if (playerId) openPlayerProfileDetailModal(playerId);
       });
     });
   }
@@ -2618,7 +2961,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function getActiveMatch() {
     try {
-      const saved = localStorage.getItem(MATCH_STORAGE_KEY);
+      const saved = getUserStorage(MATCH_STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error("Error reading active match:", e);
@@ -2629,12 +2972,157 @@ document.addEventListener("DOMContentLoaded", function () {
   function saveActiveMatchState(match) {
     if (!match) return;
     try {
-      localStorage.setItem(MATCH_STORAGE_KEY, JSON.stringify(match));
+      setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
       if (typeof PublicLiveScoreService !== "undefined" && PublicLiveScoreService.emitLiveUpdate) {
         PublicLiveScoreService.emitLiveUpdate(match);
       }
+      updateHomeLiveScoreboard(match);
     } catch (e) {
       console.error("Error saving active match:", e);
+    }
+  }
+
+  function updateHomeLiveScoreboard(m) {
+    const match = m || getActiveMatch();
+    if (!match) return;
+
+    const teamAName = match.teamA?.name || match.teamA || "Team A";
+    const teamBName = match.teamB?.name || match.teamB || "Team B";
+
+    const isLive = match.status === "LIVE" || match.status === "IN_PROGRESS";
+    const currInn = getCurrentInnings(match) || match.innings1;
+    if (!currInn) return;
+
+    const battingTeam = currInn.battingTeamName || teamAName;
+
+    // Status Pill
+    const statusPill = document.querySelector(".hero-live-section .live-status-pill span:last-child");
+    if (statusPill) {
+      statusPill.textContent = match.status === "COMPLETED" ? "MATCH COMPLETED" : (isLive ? "MATCH IN PLAY" : "UPCOMING MATCH");
+    }
+
+    // Video stream title
+    const streamTitle = document.querySelector(".hero-live-section .stream-title");
+    if (streamTitle) {
+      const tourneyLabel = match.tournament || `${match.overs || 20} Ov Match`;
+      streamTitle.textContent = `${teamAName} vs ${teamBName} (${tourneyLabel})`;
+    }
+
+    // Ticker Patti
+    const tickerTeamScore = document.querySelector(".hero-live-section .ticker-team-score");
+    if (tickerTeamScore) {
+      tickerTeamScore.innerHTML = `
+        <b>${battingTeam.toUpperCase()}</b>
+        <span class="ticker-score">${currInn.runs || 0}/${currInn.wickets || 0} <small>(${currInn.completedOvers || 0}.${currInn.ballsThisOver || 0} Ov)</small></span>
+      `;
+    }
+
+    const tickerRateInfo = document.querySelector(".hero-live-section .ticker-rate-info");
+    if (tickerRateInfo) {
+      const totalLegalBalls = ((currInn.completedOvers || 0) * 6) + (currInn.ballsThisOver || 0);
+      const crr = totalLegalBalls > 0 ? (((currInn.runs || 0) / totalLegalBalls) * 6).toFixed(2) : "0.00";
+
+      let chaseHtml = "";
+      if (match.currentInningIndex === 2 && match.innings1) {
+        const target = (match.innings1.runs || 0) + 1;
+        const runsNeeded = Math.max(0, target - (currInn.runs || 0));
+        const totalMatchBalls = (match.overs || 20) * 6;
+        const ballsLeft = Math.max(0, totalMatchBalls - totalLegalBalls);
+        chaseHtml = `<span>Target: <b>${target}</b> <small>(Req: ${runsNeeded} off ${ballsLeft})</small></span>`;
+      } else {
+        chaseHtml = `<span>Projected: <b>${Math.round(parseFloat(crr) * (match.overs || 20))}</b></span>`;
+      }
+      tickerRateInfo.innerHTML = `<span>CRR: <b>${crr}</b></span> ${chaseHtml}`;
+    }
+
+    // Scorecard Fallback Container
+    const scTag = document.querySelector("#liveScorecardContainer .tournament-tag");
+    if (scTag) {
+      scTag.textContent = `${(match.tournament || 'CRIC YUVA PREMIER CUP').toUpperCase()} • ${match.status === 'COMPLETED' ? 'RESULT' : (isLive ? 'LIVE' : 'UPCOMING')}`;
+    }
+    const venueText = document.querySelector("#liveScorecardContainer .venue-text");
+    if (venueText) {
+      venueText.textContent = match.ground || "Yuva Cricket Stadium";
+    }
+
+    // Team columns
+    const teamCols = document.querySelectorAll("#liveScorecardContainer .score-team-col");
+    if (teamCols.length >= 2) {
+      const inn1 = match.innings1 || {};
+      const inn2 = match.innings2 || {};
+      const team1Score = (match.innings1?.battingTeamName === teamAName) ? inn1 : inn2;
+      const team2Score = (match.innings1?.battingTeamName === teamBName) ? inn1 : inn2;
+
+      // Col 1 (Team A)
+      const t1Init = teamCols[0].querySelector(".team-initial-circle");
+      if (t1Init) t1Init.textContent = getInitials(teamAName);
+      const t1Name = teamCols[0].querySelector(".team-name");
+      if (t1Name) t1Name.textContent = teamAName;
+      const t1Score = teamCols[0].querySelector(".team-score-big");
+      if (t1Score) t1Score.textContent = `${team1Score.runs || 0}/${team1Score.wickets || 0}`;
+      const t1Ov = teamCols[0].querySelector(".team-overs");
+      if (t1Ov) t1Ov.textContent = `${team1Score.completedOvers || 0}.${team1Score.ballsThisOver || 0} / ${match.overs || 20} ov`;
+
+      // Col 2 (Team B)
+      const t2Init = teamCols[1].querySelector(".team-initial-circle");
+      if (t2Init) t2Init.textContent = getInitials(teamBName);
+      const t2Name = teamCols[1].querySelector(".team-name");
+      if (t2Name) t2Name.textContent = teamBName;
+      const t2Score = teamCols[1].querySelector(".team-score-big");
+      if (t2Score) t2Score.textContent = `${team2Score.runs || 0}/${team2Score.wickets || 0}`;
+      const t2Ov = teamCols[1].querySelector(".team-overs");
+      if (t2Ov) t2Ov.textContent = `${team2Score.completedOvers || 0}.${team2Score.ballsThisOver || 0} / ${match.overs || 20} ov`;
+    }
+
+    // Equation
+    const eqEl = document.querySelector("#liveScorecardContainer .chase-equation");
+    if (eqEl) {
+      if (match.status === "COMPLETED") {
+        eqEl.textContent = match.result || "Match Ended";
+      } else if (match.currentInningIndex === 2 && match.innings1) {
+        const target = (match.innings1.runs || 0) + 1;
+        const runsNeeded = Math.max(0, target - (currInn.runs || 0));
+        const totalMatchBalls = (match.overs || 20) * 6;
+        const ballsLeft = Math.max(0, totalMatchBalls - (((currInn.completedOvers || 0) * 6) + (currInn.ballsThisOver || 0)));
+        eqEl.innerHTML = `Need ${runsNeeded} runs<br>in ${ballsLeft} balls`;
+      } else {
+        eqEl.innerHTML = `1st Innings<br>in progress`;
+      }
+    }
+
+    // Current batsmen
+    const batsmenStats = document.querySelectorAll("#liveScorecardContainer .batsman-stat");
+    if (batsmenStats.length >= 2) {
+      const s1 = currInn.strikers?.striker || { name: "Striker", runs: 0, balls: 0 };
+      const s2 = currInn.strikers?.nonStriker || { name: "Non-Striker", runs: 0, balls: 0 };
+
+      const nameEl1 = batsmenStats[0].querySelector(".stat-name");
+      const figEl1 = batsmenStats[0].querySelector(".stat-fig");
+      if (nameEl1) nameEl1.textContent = `🏏 ${s1.name} *`;
+      if (figEl1) figEl1.textContent = `${s1.runs || 0} (${s1.balls || 0}b)`;
+
+      const nameEl2 = batsmenStats[1].querySelector(".stat-name");
+      const figEl2 = batsmenStats[1].querySelector(".stat-fig");
+      if (nameEl2) nameEl2.textContent = `🏏 ${s2.name}`;
+      if (figEl2) figEl2.textContent = `${s2.runs || 0} (${s2.balls || 0}b)`;
+    }
+
+    // Current over balls
+    const overBallsContainer = document.querySelector("#liveScorecardContainer .over-balls");
+    if (overBallsContainer) {
+      const balls = currInn.currentOverBalls || [];
+      if (balls.length === 0) {
+        overBallsContainer.innerHTML = `<span class="ball-dot" style="opacity:0.4;">-</span>`;
+      } else {
+        overBallsContainer.innerHTML = balls.map(b => {
+          let cls = "ball-dot";
+          let txt = String(b.runs !== undefined ? b.runs : b);
+          if (b.isWicket || txt === "W") cls += " wicket";
+          else if (b.runs === 4 || txt === "4") cls += " four";
+          else if (b.runs === 6 || txt === "6") cls += " six";
+          return `<span class="${cls}">${txt}</span>`;
+        }).join("");
+      }
     }
   }
 
@@ -3283,11 +3771,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let pendingBoundary = null; // Stores { runs: 4 or 6, direction: "Cover" }
 
-  // Central match-lock guard: once a result is decided, NO new delivery may be recorded.
-  function isMatchClosed(match) {
-    return !match || ["COMPLETED", "TIED", "ABANDONED"].includes(match.status);
-  }
-
   function handleRunDelivery(runsScored, direction = "") {
     const match = getActiveMatch();
     if (!match) return;
@@ -3394,13 +3877,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 5. Check Innings Target / Completion
     checkInningsCompletionStatus(match, innings);
-
-    // CRITICAL: If this delivery won/ended the match, stop immediately.
-    // No next ball, over, bowler change, or scoring may occur after the result.
-    if (isMatchClosed(match)) {
-      saveActiveMatchState(match);
-      return;
-    }
 
     // 6. Save & Update UI
     saveActiveMatchState(match);
@@ -3837,6 +4313,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (headerTitle) headerTitle.innerHTML = `<i class="fa-solid fa-trophy text-orange"></i> Match Concluded`;
     if (bannerText) bannerText.textContent = resultText || match.result || "Match Completed";
     if (venueDate) venueDate.textContent = `${match.ground} • ${match.overs} Overs Match`;
+
+    if (window.NotificationService && window.NotificationService.addNotification) {
+      window.NotificationService.addNotification({
+        title: "Match Completed!",
+        message: `${match.teamA.name} vs ${match.teamB.name}: ${resultText || match.result || "Match concluded"}`,
+        type: "match"
+      });
+    }
 
     // 1st & 2nd Innings Summaries
     const inn1Row = document.getElementById("finalInn1Summary");
@@ -4603,10 +5087,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // 6. Check Innings Finished
       checkInningsCompletionStatus(match, innings);
 
-      // Close modal & persist the final result. Never continue scoring after completion.
+      // Close modal & update UI
       document.getElementById("wicketModal").style.display = "none";
       saveActiveMatchState(match);
-      if (isMatchClosed(match)) return;
       if (window.PublicLiveScoreService) window.PublicLiveScoreService.emitLiveUpdate(match);
       renderLiveScoringPage(match);
     });
@@ -4841,7 +5324,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       document.getElementById("extrasModal").style.display = "none";
       saveActiveMatchState(match);
-      if (isMatchClosed(match)) return;
       if (window.PublicLiveScoreService) window.PublicLiveScoreService.emitLiveUpdate(match);
       renderLiveScoringPage(match);
     });
@@ -5240,7 +5722,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize sample history if none exists to ensure rich immediate experience
   function getMatchHistoryList() {
     try {
-      const data = localStorage.getItem(HISTORY_STORAGE_KEY);
+      const data = getUserStorage(HISTORY_STORAGE_KEY);
       if (data) {
         return JSON.parse(data);
       }
@@ -5260,7 +5742,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         history.unshift(match);
       }
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+      setUserStorage(HISTORY_STORAGE_KEY, JSON.stringify(history));
 
       // Synchronize match result with tournament system if linked
       if (typeof syncMatchToTournament === "function") {
@@ -5764,7 +6246,7 @@ document.addEventListener("DOMContentLoaded", function () {
           teamBCard.classList.add("active-team-selected");
           if (teamACard) teamACard.classList.remove("active-team-selected");
           if (resultText) {
-            resultText.innerHTML = `<span style="color:${isWinnerB ? '#4ade80' : '#cbd5e1'}; font-weight:800;">${tBNameStr}: ${isWinnerB ? '������ WINNER' : 'RUNNER-UP'} (${inn2.totalRuns}/${inn2.wickets})</span>`;
+            resultText.innerHTML = `<span style="color:${isWinnerB ? '#4ade80' : '#cbd5e1'}; font-weight:800;">${tBNameStr}: ${isWinnerB ? '🏆 WINNER' : 'RUNNER-UP'} (${inn2.totalRuns}/${inn2.wickets})</span>`;
           }
         }
         renderFilteredHistoryScorecard();
@@ -5918,12 +6400,12 @@ document.addEventListener("DOMContentLoaded", function () {
   function executeHistoryDeletion() {
     try {
       if (isDeleteAllAction) {
-        localStorage.removeItem(HISTORY_STORAGE_KEY);
+        removeUserStorage(HISTORY_STORAGE_KEY);
         showToast("All match history cleared.");
       } else if (pendingDeleteMatchId) {
         let history = getMatchHistoryList();
         history = history.filter(m => m.matchId !== pendingDeleteMatchId);
-        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+        setUserStorage(HISTORY_STORAGE_KEY, JSON.stringify(history));
         showToast("Match removed from history.");
       }
     } catch (e) {
@@ -6117,14 +6599,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const normKey = cleanName.toLowerCase();
       if (!playerMap.has(normKey)) {
+        // Resolve stable playerId across team and directory
+        let resolvedId = null;
+        let pRole = "Batter";
+        let pPhoto = "";
+        let pJersey = "#" + (Math.floor(Math.random() * 88) + 10);
+        let pBatStyle = "Right-hand Bat";
+        let pBowlStyle = "Right-arm Medium";
+
+        const team = (typeof getTeamData === "function") ? getTeamData() : null;
+        if (team && Array.isArray(team.players)) {
+          const tp = team.players.find(p => (p.name || "").toLowerCase().trim() === normKey);
+          if (tp) {
+            resolvedId = tp.id;
+            if (tp.role) pRole = tp.role;
+            if (tp.photo) pPhoto = tp.photo;
+            if (tp.jersey) pJersey = `#${tp.jersey}`;
+            if (tp.batStyle) pBatStyle = tp.batStyle;
+            if (tp.bowlStyle) pBowlStyle = tp.bowlStyle;
+          }
+        }
+        if (!resolvedId && typeof getMasterPlayersDirectory === "function") {
+          const mp = getMasterPlayersDirectory().find(p => (p.name || "").toLowerCase().trim() === normKey);
+          if (mp) {
+            resolvedId = mp.id;
+            if (mp.role) pRole = mp.role;
+            if (mp.avatar) pPhoto = mp.avatar;
+            if (mp.jersey) pJersey = `#${mp.jersey}`;
+          }
+        }
+        if (!resolvedId) {
+          resolvedId = `CY2026-${cleanName.replace(/\s+/g, "").toUpperCase().slice(0, 4)}-${Math.abs(normKey.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0) % 9000 + 1000)}`;
+        }
+
         playerMap.set(normKey, {
+          id: resolvedId,
+          playerId: resolvedId,
           name: cleanName,
           team: teamName || "Team",
-          role: "Batter",
-          jersey: "#" + (Math.floor(Math.random() * 88) + 10),
-          battingStyle: "Right-hand Bat",
-          bowlingStyle: "Right-arm Medium",
-          photo: "",
+          role: pRole,
+          jersey: pJersey,
+          battingStyle: pBatStyle,
+          bowlingStyle: pBowlStyle,
+          photo: pPhoto,
 
           // Batting Metrics
           matchIds: new Set(),
@@ -6589,8 +7106,9 @@ document.addEventListener("DOMContentLoaded", function () {
         ? `Econ: ${p.economy}` 
         : `SR: ${p.strikeRate}`;
 
+      const pIdentifier = p.id || p.playerId || p.name;
       return `
-        <div class="podium-card ${rank === 1 ? 'podium-rank-1' : ''}" onclick="openPlayerStatsModal('${p.name.replace(/'/g, "\\'")}')">
+        <div class="podium-card ${rank === 1 ? 'podium-rank-1' : ''}" data-player-id="${p.id || p.playerId || ''}" data-player-name="${p.name.replace(/'/g, "\\'")}" onclick="openPlayerProfileDetailModal('${pIdentifier.replace(/'/g, "\\'")}')" style="cursor:pointer;" title="Click to view Rank ${rank} ${p.name}'s profile">
           <span class="podium-rank-badge ${badgeClass}">#${rank}</span>
           <div class="podium-avatar-wrapper">
             <div class="podium-avatar">${inits}</div>
@@ -6628,8 +7146,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const mainVal = isBowling ? `${p.wickets} Wkts` : `${p.runs} Runs`;
       const subVal = isBowling ? `Econ: ${p.economy} • BBI: ${p.bbiDisplay}` : `Avg: ${p.batAvg} • SR: ${p.strikeRate}`;
 
+      const currUser = (localStorage.getItem("cricYuvaProfileName") || "").toLowerCase().trim();
+      const isMe = currUser && p.name.toLowerCase().trim() === currUser;
       return `
-        <div class="ranking-row-item" onclick="openPlayerStatsModal('${p.name.replace(/'/g, "\\'")}')">
+        <div class="ranking-row-item ${isMe ? 'user-highlight-row' : ''}" onclick="openPlayerStatsModal('${p.name.replace(/'/g, "\\'")}')">
           <div class="rank-item-left">
             <span class="rank-number-chip">#${rank}</span>
             <div class="rank-player-avatar">${inits}</div>
@@ -6725,8 +7245,11 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    tableBody.innerHTML = sorted.map(p => `
-      <tr onclick="openPlayerStatsModal('${p.name.replace(/'/g, "\\'")}')">
+    const currUserBat = (localStorage.getItem("cricYuvaProfileName") || "").toLowerCase().trim();
+    tableBody.innerHTML = sorted.map(p => {
+      const isMe = currUserBat && p.name.toLowerCase().trim() === currUserBat;
+      return `
+      <tr class="${isMe ? 'user-highlight-row' : ''}" onclick="openPlayerStatsModal('${p.name.replace(/'/g, "\\'")}')">
         <td class="sticky-col">
           <div class="table-player-cell">
             <div class="table-player-avatar">${getPlayerInitials(p.name)}</div>
@@ -6745,7 +7268,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <td>${p.strikeRate}</td>
         <td style="color:${p.ducks > 0 ? '#ef4444' : '#94a3b8'};">${p.ducks}</td>
       </tr>
-    `).join("");
+    `}).join("");
   }
 
   // Render Pane 3: Full Bowling Stats Table
@@ -6866,12 +7389,120 @@ document.addEventListener("DOMContentLoaded", function () {
     `).join("");
   }
 
+  // ==========================================
+  // DYNAMIC "MY RANK" LEADERBOARD CARD
+  // ==========================================
+  function renderUserMyRankCard(allPlayers, currentCategory) {
+    const cardEl = document.getElementById("myRankCard");
+    if (!cardEl) return;
+
+    const userName = (localStorage.getItem("cricYuvaProfileName") || "Player").trim();
+    const userPhoto = localStorage.getItem("cricYuvaProfilePhoto");
+    let userTeam = "Mumbai Yuva XI";
+    try {
+      const savedTeam = JSON.parse(localStorage.getItem("cricYuvaTeamData") || "null");
+      if (savedTeam && savedTeam.name) userTeam = savedTeam.name;
+    } catch (e) {}
+
+    const avatarEl = document.getElementById("myRankAvatar");
+    const nameEl = document.getElementById("myRankUserName");
+    const teamEl = document.getElementById("myRankTeamName");
+    const numEl = document.getElementById("myRankNumber");
+    const valBadgeEl = document.getElementById("myRankStatValue");
+    const catLabelEl = document.getElementById("myRankCategoryLabel");
+    const crownBadgeEl = document.getElementById("myRankCrownBadge");
+
+    if (nameEl) nameEl.textContent = userName;
+    if (teamEl) teamEl.textContent = userTeam;
+
+    if (avatarEl) {
+      if (userPhoto && userPhoto.startsWith("data:image")) {
+        avatarEl.innerHTML = `<img src="${userPhoto}" alt="${userName}">`;
+      } else {
+        avatarEl.innerHTML = `<span id="myRankAvatarInitial">${getPlayerInitials(userName)}</span>`;
+      }
+    }
+
+    let userStats = allPlayers.find(p => p.name.toLowerCase().trim() === userName.toLowerCase().trim());
+    if (!userStats) {
+      userStats = {
+        name: userName,
+        team: userTeam,
+        runs: 0,
+        wickets: 0,
+        catches: 0,
+        strikeRateNum: 0,
+        economyNum: 0,
+        batAvgNum: 0
+      };
+    }
+
+    let rank = 1;
+    let statDisplay = "";
+    let categoryDisplay = (currentCategory || "rankings").toUpperCase();
+
+    if (currentCategory === "batting") {
+      const sorted = [...allPlayers].sort((a, b) => (b.runs || 0) - (a.runs || 0) || (b.strikeRateNum || 0) - (a.strikeRateNum || 0));
+      const idx = sorted.findIndex(p => p.name.toLowerCase().trim() === userName.toLowerCase().trim());
+      rank = idx >= 0 ? idx + 1 : sorted.length + 1;
+      statDisplay = `${userStats.runs || 0} Runs`;
+      categoryDisplay = "BATTING";
+    } else if (currentCategory === "bowling") {
+      const sorted = [...allPlayers].sort((a, b) => (b.wickets || 0) - (a.wickets || 0) || (a.economyNum || 0) - (b.economyNum || 0));
+      const idx = sorted.findIndex(p => p.name.toLowerCase().trim() === userName.toLowerCase().trim());
+      rank = idx >= 0 ? idx + 1 : sorted.length + 1;
+      statDisplay = `${userStats.wickets || 0} Wkts`;
+      categoryDisplay = "BOWLING";
+    } else if (currentCategory === "fielding") {
+      const sorted = [...allPlayers].sort((a, b) => (b.catches || 0) - (a.catches || 0));
+      const idx = sorted.findIndex(p => p.name.toLowerCase().trim() === userName.toLowerCase().trim());
+      rank = idx >= 0 ? idx + 1 : sorted.length + 1;
+      statDisplay = `${userStats.catches || 0} Catches`;
+      categoryDisplay = "FIELDING";
+    } else {
+      const sorted = [...allPlayers].sort((a, b) => {
+        const scoreB = (b.runs || 0) + (b.wickets || 0) * 20;
+        const scoreA = (a.runs || 0) + (a.wickets || 0) * 20;
+        return scoreB - scoreA;
+      });
+      const idx = sorted.findIndex(p => p.name.toLowerCase().trim() === userName.toLowerCase().trim());
+      rank = idx >= 0 ? idx + 1 : (sorted.length > 0 ? sorted.length + 1 : 1);
+      const overallScore = (userStats.runs || 0) + (userStats.wickets || 0) * 20;
+      statDisplay = `${overallScore} Pts`;
+      categoryDisplay = "RANKINGS";
+    }
+
+    if (numEl) numEl.textContent = `#${rank}`;
+    if (valBadgeEl) valBadgeEl.textContent = statDisplay;
+    if (catLabelEl) catLabelEl.textContent = categoryDisplay;
+
+    if (crownBadgeEl) {
+      crownBadgeEl.classList.remove("gold", "silver", "bronze");
+      if (rank === 1) {
+        crownBadgeEl.style.display = "flex";
+        crownBadgeEl.classList.add("gold");
+        crownBadgeEl.innerHTML = '<i class="fa-solid fa-crown"></i>';
+      } else if (rank === 2) {
+        crownBadgeEl.style.display = "flex";
+        crownBadgeEl.classList.add("silver");
+        crownBadgeEl.innerHTML = '<i class="fa-solid fa-medal"></i>';
+      } else if (rank === 3) {
+        crownBadgeEl.style.display = "flex";
+        crownBadgeEl.classList.add("bronze");
+        crownBadgeEl.innerHTML = '<i class="fa-solid fa-award"></i>';
+      } else {
+        crownBadgeEl.style.display = "none";
+      }
+    }
+  }
+
   // Master Render Function for Player Statistics Screen
   function renderPlayerStatsScreen() {
     populateStatsTournamentsDropdown();
     updateStatsSortOptions();
 
     const allPlayers = calculateAllPlayerStats(activeStatsScope, activeStatsTournament);
+    renderUserMyRankCard(allPlayers, activeStatsCategory);
 
     // Apply Search Filter
     let filtered = allPlayers;
@@ -7335,15 +7966,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // 1. STORAGE ACCESSORS & DATA SEEDING
   function getTournamentsList() {
     try {
-      const data = localStorage.getItem(TOURNAMENT_STORAGE_KEY);
-      if (data) {
+      const data = getUserStorage(TOURNAMENT_STORAGE_KEY);
+      if (data !== null && data !== undefined) {
         const parsed = JSON.parse(data);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       }
     } catch (e) {
-      console.error("Error reading tournaments from localStorage:", e);
+      console.error("Error reading tournaments from storage:", e);
     }
     const seeded = seedDefaultTournaments();
     saveTournamentsList(seeded);
@@ -7352,9 +7983,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function saveTournamentsList(list) {
     try {
-      localStorage.setItem(TOURNAMENT_STORAGE_KEY, JSON.stringify(list));
+      setUserStorage(TOURNAMENT_STORAGE_KEY, JSON.stringify(list));
     } catch (e) {
-      console.error("Error writing tournaments to localStorage:", e);
+      console.error("Error writing tournaments to storage:", e);
     }
   }
 
@@ -7367,12 +7998,21 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!tourney || !tourney.id) return;
     const list = getTournamentsList();
     const idx = list.findIndex(t => t.id === tourney.id);
+    const isNew = idx < 0;
     if (idx >= 0) {
       list[idx] = tourney;
     } else {
       list.unshift(tourney);
     }
     saveTournamentsList(list);
+
+    if (isNew && window.NotificationService && window.NotificationService.addNotification) {
+      window.NotificationService.addNotification({
+        title: "Tournament Created",
+        message: `${tourney.name} (${tourney.format || 'T20'}) has been created and registered.`,
+        type: "tournament"
+      });
+    }
   }
 
   // Helper to retrieve custom clubs database
@@ -8445,6 +9085,36 @@ document.addEventListener("DOMContentLoaded", function () {
         tourney.winner = fn.winner;
         tourney.status = "COMPLETED";
       }
+    } else if (tourney.format === "Knockout" || tourney.format === "Knockout Cup") {
+      const qf1 = fixtures.find(f => (f.id && f.id.includes("qf_1")) || (f.stage && f.stage.includes("Quarter-Final 1")));
+      const qf2 = fixtures.find(f => (f.id && f.id.includes("qf_2")) || (f.stage && f.stage.includes("Quarter-Final 2")));
+      const qf3 = fixtures.find(f => (f.id && f.id.includes("qf_3")) || (f.stage && f.stage.includes("Quarter-Final 3")));
+      const qf4 = fixtures.find(f => (f.id && f.id.includes("qf_4")) || (f.stage && f.stage.includes("Quarter-Final 4")));
+
+      const sf1 = fixtures.find(f => (f.id && f.id.includes("sf1")) || (f.stage && f.stage.includes("Semi-Final 1")));
+      const sf2 = fixtures.find(f => (f.id && f.id.includes("sf2")) || (f.stage && f.stage.includes("Semi-Final 2")));
+      const fn = fixtures.find(f => (f.id && f.id.includes("_fn")) || (f.stage && (f.stage.includes("Grand Final") || f.stage === "Final")));
+
+      if (sf1 && sf1.status !== "COMPLETED") {
+        if (qf1 && qf1.status === "COMPLETED" && qf1.winner) sf1.teamA = qf1.winner;
+        if (qf2 && qf2.status === "COMPLETED" && qf2.winner) sf1.teamB = qf2.winner;
+      }
+      if (sf2 && sf2.status !== "COMPLETED") {
+        if (qf3 && qf3.status === "COMPLETED" && qf3.winner) sf2.teamA = qf3.winner;
+        if (qf4 && qf4.status === "COMPLETED" && qf4.winner) sf2.teamB = qf4.winner;
+      }
+
+      if (sf1 && sf1.status === "COMPLETED" && sf1.winner) {
+        if (fn && fn.status !== "COMPLETED") fn.teamA = sf1.winner;
+      }
+      if (sf2 && sf2.status === "COMPLETED" && sf2.winner) {
+        if (fn && fn.status !== "COMPLETED") fn.teamB = sf2.winner;
+      }
+
+      if (fn && fn.status === "COMPLETED" && fn.winner) {
+        tourney.winner = fn.winner;
+        tourney.status = "COMPLETED";
+      }
     }
   }
 
@@ -9064,9 +9734,15 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #222222; padding-top:10px; margin-top:8px;">
             <span style="font-size:12px; color:#888888;"><i class="fa-solid fa-location-dot text-orange"></i> ${nextFixture.ground}</span>
-            <button type="button" class="fixture-action-btn btn-start-match btn-start-spotlight-match" data-fixture-id="${nextFixture.id}" style="background:#ff5a00; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:12px;">
-              <i class="fa-solid fa-baseball-bat-ball"></i> START MATCH
-            </button>
+            ${isLive ? `
+              <button type="button" class="fixture-action-btn btn-resume-live-match" data-fixture-id="${nextFixture.id}" style="background:#22c55e; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:12px;">
+                <i class="fa-solid fa-play"></i> RESUME MATCH
+              </button>
+            ` : `
+              <button type="button" class="fixture-action-btn btn-start-match btn-start-spotlight-match" data-fixture-id="${nextFixture.id}" style="background:#ff5a00; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:12px;">
+                <i class="fa-solid fa-baseball-bat-ball"></i> START MATCH
+              </button>
+            `}
           </div>
         `;
       } else {
@@ -9132,53 +9808,145 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // 4. Recent & Upcoming Fixtures Preview
+    // 4. Matches Sections: Live, Upcoming, and Recent Completed (Separated cleanly)
     const fixturesPreview = document.getElementById("tOverviewFixturesPreview") || document.getElementById("tOverviewRecentMatches");
     if (fixturesPreview) {
-      const recentAndNext = (tourney.fixtures || []).slice(0, 3);
-      if (recentAndNext.length === 0) {
-        fixturesPreview.innerHTML = `<div style="text-align:center; padding:16px; color:#777777; font-size:12px;">No fixtures scheduled yet</div>`;
-      } else {
-        fixturesPreview.innerHTML = recentAndNext.map(f => {
-          const isDone = f.status === "COMPLETED";
-          return `
-            <div class="fixture-card" style="background:#1a1a1a; border:1px solid #292929; border-radius:12px; padding:12px; margin-bottom:10px;">
-              <div class="fixture-top-bar" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:11px;">
-                <span class="fixture-stage-pill" style="color:#ff7a29; font-weight:700;">${f.stage}</span>
-                <span class="fixture-venue-text" style="color:#888888;"><i class="fa-solid fa-location-dot"></i> ${f.ground}</span>
-              </div>
-              <div class="fixture-teams-body" style="display:flex; flex-direction:column; gap:6px;">
-                <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
-                  <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
-                    <span class="fixture-team-avatar">🏏</span>
-                    <span class="fixture-team-name ${isDone && f.winner === f.teamA ? 'winner-text' : ''}" style="font-weight:700; color:#ffffff;">${f.teamA}</span>
-                  </div>
-                  <span class="fixture-score-text" style="font-weight:800; color:${isDone ? '#ff7a29' : '#888888'};">${f.scoreA || '-'}</span>
-                </div>
-                <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
-                  <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
-                    <span class="fixture-team-avatar">⚡</span>
-                    <span class="fixture-team-name ${isDone && f.winner === f.teamB ? 'winner-text' : ''}" style="font-weight:700; color:#ffffff;">${f.teamB}</span>
-                  </div>
-                  <span class="fixture-score-text" style="font-weight:800; color:${isDone ? '#ff7a29' : '#888888'};">${f.scoreB || '-'}</span>
-                </div>
-              </div>
-              ${isDone ? `
-                <div class="fixture-result-bar" style="margin-top:8px; padding-top:8px; border-top:1px solid #262626; font-size:11px; color:#4ade80; font-weight:700;">
-                  <i class="fa-solid fa-trophy text-orange"></i> ${f.resultText}
-                </div>
-              ` : `
-                <div style="margin-top:8px; padding-top:8px; border-top:1px solid #262626; display:flex; justify-content:space-between; align-items:center;">
-                  <span style="font-size:11px; color:#777777;"><i class="fa-solid fa-calendar-day"></i> ${f.date}</span>
-                  <button type="button" class="btn-start-match" data-fixture-id="${f.id}" style="background:#ff5a00; color:#ffffff; border:none; padding:4px 10px; border-radius:6px; font-weight:700; font-size:11px; cursor:pointer;">
-                    Start
-                  </button>
-                </div>
-              `}
+      const allFixtures = tourney.fixtures || [];
+      const liveMatches = allFixtures.filter(f => f.status === "LIVE");
+      const upcomingMatches = allFixtures.filter(f => f.status === "UPCOMING");
+      const completedMatches = allFixtures.filter(f => f.status === "COMPLETED");
+
+      let html = "";
+
+      // 4.1 LIVE MATCHES
+      if (liveMatches.length > 0) {
+        html += `
+          <div class="overview-fixtures-header" style="display:flex; justify-content:space-between; align-items:center; margin:14px 0 8px 0;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="pulse-red-dot" style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+              <h4 style="font-size:12px; font-weight:800; color:#ef4444; margin:0; text-transform:uppercase; letter-spacing:0.5px;">Live Matches (${liveMatches.length})</h4>
             </div>
-          `;
-        }).join("");
+            <button type="button" class="btn-jump-fixtures" style="background:none; border:none; color:#38bdf8; font-size:11px; font-weight:700; cursor:pointer;">View All <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        `;
+        html += liveMatches.map(f => `
+          <div class="fixture-card is-live" style="background:#1a1a1a; border:1px solid #ef4444; border-radius:12px; padding:12px; margin-bottom:10px;">
+            <div class="fixture-top-bar" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:11px;">
+              <span class="fixture-stage-pill" style="color:#ef4444; font-weight:800;"><i class="fa-solid fa-tower-broadcast"></i> ${f.stage}</span>
+              <span class="fixture-venue-text" style="color:#888888;"><i class="fa-solid fa-location-dot"></i> ${f.ground}</span>
+            </div>
+            <div class="fixture-teams-body" style="display:flex; flex-direction:column; gap:6px;">
+              <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
+                  <span class="fixture-team-avatar">🏏</span>
+                  <span class="fixture-team-name" style="font-weight:700; color:#ffffff;">${f.teamA}</span>
+                </div>
+                <span class="fixture-score-text" style="font-weight:800; color:#ef4444;">${f.scoreA || '-'}</span>
+              </div>
+              <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
+                  <span class="fixture-team-avatar">⚡</span>
+                  <span class="fixture-team-name" style="font-weight:700; color:#ffffff;">${f.teamB}</span>
+                </div>
+                <span class="fixture-score-text" style="font-weight:800; color:#ef4444;">${f.scoreB || '-'}</span>
+              </div>
+            </div>
+            <div style="margin-top:8px; padding-top:8px; border-top:1px solid #262626; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; color:#ef4444; font-weight:700;">● MATCH IN PROGRESS</span>
+              <button type="button" class="fixture-action-btn btn-public-live-watch" data-fixture-id="${f.id}" style="background:#ef4444; color:#ffffff; border:none; padding:5px 12px; border-radius:6px; font-weight:800; font-size:11px; cursor:pointer;">
+                <i class="fa-solid fa-tower-broadcast"></i> Watch Live
+              </button>
+            </div>
+          </div>
+        `).join("");
       }
+
+      // 4.2 UPCOMING MATCHES
+      html += `
+        <div class="overview-fixtures-header" style="display:flex; justify-content:space-between; align-items:center; margin:14px 0 8px 0;">
+          <h4 style="font-size:12px; font-weight:800; color:#ff7a29; margin:0; text-transform:uppercase; letter-spacing:0.5px;">Upcoming Matches (${upcomingMatches.length})</h4>
+          <button type="button" class="btn-jump-fixtures" style="background:none; border:none; color:#38bdf8; font-size:11px; font-weight:700; cursor:pointer;">View All <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      `;
+      if (upcomingMatches.length === 0) {
+        html += `<div style="text-align:center; padding:12px; color:#777777; font-size:12px; background:#141414; border-radius:8px; margin-bottom:12px;">No upcoming fixtures scheduled.</div>`;
+      } else {
+        html += upcomingMatches.slice(0, 4).map(f => `
+          <div class="fixture-card" style="background:#1a1a1a; border:1px solid #292929; border-radius:12px; padding:12px; margin-bottom:10px;">
+            <div class="fixture-top-bar" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:11px;">
+              <span class="fixture-stage-pill" style="color:#ff7a29; font-weight:700;">${f.stage}</span>
+              <span class="fixture-venue-text" style="color:#888888;"><i class="fa-solid fa-location-dot"></i> ${f.ground}</span>
+            </div>
+            <div class="fixture-teams-body" style="display:flex; flex-direction:column; gap:6px;">
+              <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
+                  <span class="fixture-team-avatar">🏏</span>
+                  <span class="fixture-team-name" style="font-weight:700; color:#ffffff;">${f.teamA}</span>
+                </div>
+                <span class="fixture-score-text" style="font-weight:800; color:#888888;">-</span>
+              </div>
+              <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
+                  <span class="fixture-team-avatar">⚡</span>
+                  <span class="fixture-team-name" style="font-weight:700; color:#ffffff;">${f.teamB}</span>
+                </div>
+                <span class="fixture-score-text" style="font-weight:800; color:#888888;">-</span>
+              </div>
+            </div>
+            <div style="margin-top:8px; padding-top:8px; border-top:1px solid #262626; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; color:#777777;"><i class="fa-solid fa-calendar-day"></i> ${f.date} at ${f.time || "19:30"}</span>
+              <button type="button" class="btn-start-match" data-fixture-id="${f.id}" style="background:#ff5a00; color:#ffffff; border:none; padding:5px 12px; border-radius:6px; font-weight:800; font-size:11px; cursor:pointer;">
+                <i class="fa-solid fa-baseball-bat-ball"></i> Start Match
+              </button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      // 4.3 RECENT RESULTS
+      if (completedMatches.length > 0) {
+        html += `
+          <div class="overview-fixtures-header" style="display:flex; justify-content:space-between; align-items:center; margin:14px 0 8px 0;">
+            <h4 style="font-size:12px; font-weight:800; color:#4ade80; margin:0; text-transform:uppercase; letter-spacing:0.5px;">Recent Results (${completedMatches.length})</h4>
+            <button type="button" class="btn-jump-fixtures" style="background:none; border:none; color:#38bdf8; font-size:11px; font-weight:700; cursor:pointer;">View All <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        `;
+        html += completedMatches.slice(-4).reverse().map(f => `
+          <div class="fixture-card" style="background:#1a1a1a; border:1px solid #292929; border-radius:12px; padding:12px; margin-bottom:10px;">
+            <div class="fixture-top-bar" style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:11px;">
+              <span class="fixture-stage-pill" style="color:#888888; font-weight:700;">${f.stage}</span>
+              <span class="fixture-venue-text" style="color:#888888;"><i class="fa-solid fa-location-dot"></i> ${f.ground}</span>
+            </div>
+            <div class="fixture-teams-body" style="display:flex; flex-direction:column; gap:6px;">
+              <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
+                  <span class="fixture-team-avatar">🏏</span>
+                  <span class="fixture-team-name ${f.winner === f.teamA ? 'winner-text' : ''}" style="font-weight:700; color:#ffffff;">${f.teamA}</span>
+                </div>
+                <span class="fixture-score-text" style="font-weight:800; color:#ff7a29;">${f.scoreA || '-'}</span>
+              </div>
+              <div class="fixture-team-row" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="fixture-team-left" style="display:flex; align-items:center; gap:8px;">
+                  <span class="fixture-team-avatar">⚡</span>
+                  <span class="fixture-team-name ${f.winner === f.teamB ? 'winner-text' : ''}" style="font-weight:700; color:#ffffff;">${f.teamB}</span>
+                </div>
+                <span class="fixture-score-text" style="font-weight:800; color:#ff7a29;">${f.scoreB || '-'}</span>
+              </div>
+            </div>
+            <div class="fixture-result-bar" style="margin-top:8px; padding-top:8px; border-top:1px solid #262626; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; color:#4ade80; font-weight:700;"><i class="fa-solid fa-trophy text-orange"></i> ${f.resultText}</span>
+              <button type="button" class="fixture-action-btn btn-view-scorecard" data-fixture-id="${f.id}" style="background:#222; color:#38bdf8; border:1px solid #38bdf8; padding:4px 10px; border-radius:6px; font-weight:700; font-size:11px; cursor:pointer;">
+                <i class="fa-solid fa-chart-column"></i> Scorecard
+              </button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      fixturesPreview.innerHTML = html;
+      fixturesPreview.querySelectorAll(".btn-jump-fixtures").forEach(btn => {
+        btn.addEventListener("click", () => switchTournamentTab("fixtures"));
+      });
     }
   }
 
@@ -9289,41 +10057,99 @@ document.addEventListener("DOMContentLoaded", function () {
 
     gridContainer.innerHTML = teams.map(t => {
       const pCount = t.playerCount || (t.players ? t.players.length : 11);
-      const cap = t.captain ? `Cap: ${t.captain}` : "Squad Set";
+      const cap = t.captain || (t.players && t.players.find(p => p.isCaptain)?.name) || "Squad Set";
+      const vc = t.viceCaptain || (t.players && t.players.find(p => p.isVC)?.name) || "";
       const isMyTeam = t.name.toLowerCase().includes("yuva") || t.id === "club_my_team";
       const assignedGroup = getTeamAssignedGroup(tourney, t.name);
       const hasTourneyGroups = tourney.groups && tourney.groups.length > 0;
+      const teamFixtures = (tourney.fixtures || []).filter(f => f.teamA === t.name || f.teamB === t.name);
 
       return `
-        <div class="tourney-team-card" data-team-name="${t.name}">
-          <div class="team-card-left">
-            <div class="team-card-logo-badge">${t.logo || "🏏"}</div>
-            <div class="team-card-meta">
-              <h4 class="team-card-title">${t.name} ${isMyTeam ? '<span style="color:#ff7a29; font-size:11px;">(My Team)</span>' : ''}</h4>
-              <span class="team-card-sub"><i class="fa-solid fa-users"></i> ${pCount} Players • <i class="fa-solid fa-crown text-gold"></i> ${cap}</span>
+        <div class="tourney-team-card" data-team-name="${t.name}" style="background:#151821; border:1px solid #232c42; border-radius:12px; padding:14px; margin-bottom:12px;">
+          <div class="team-card-top" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <div class="team-card-left" style="display:flex; align-items:center; gap:10px;">
+              <div class="team-card-logo-badge" style="font-size:24px;">${t.logo || "🏏"}</div>
+              <div class="team-card-meta">
+                <h4 class="team-card-title" style="margin:0; font-size:15px; font-weight:800; color:#fff;">
+                  ${t.name} ${isMyTeam ? '<span style="color:#ff7a29; font-size:11px;">(My Team)</span>' : ''}
+                </h4>
+                <span class="team-card-sub" style="font-size:11px; color:#888; display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:3px;">
+                  <span><i class="fa-solid fa-users"></i> ${pCount} Players</span> •
+                  <span style="color:#facc15;"><i class="fa-solid fa-crown text-gold"></i> Cap: ${cap}</span>
+                  ${vc ? `<span style="color:#60a5fa;">• <i class="fa-solid fa-star text-orange"></i> VC: ${vc}</span>` : ''}
+                </span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+              <button type="button" class="btn-manage-tourney-squad" data-team-name="${t.name}" style="background:#1e1e1e; border:1px solid #3a3a3a; color:#ff7a29; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                <i class="fa-solid fa-users-gear"></i> Squad & Playing XI
+              </button>
+              ${hasTourneyGroups ? (
+                assignedGroup ? `
+                  <span class="team-card-group-pill" title="Assigned to ${assignedGroup.name}">
+                    <i class="fa-solid fa-layer-group"></i> ${assignedGroup.name}
+                  </span>
+                ` : `
+                  <span class="team-card-group-pill unassigned" title="Not assigned to any group">
+                    <i class="fa-solid fa-circle-question"></i> Unassigned
+                  </span>
+                `
+              ) : ''}
+              <span class="team-card-badge-pill" style="background:#16a34a22; color:#4ade80; border:1px solid #16a34a55; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;"><i class="fa-solid fa-check-circle"></i> Registered</span>
+              ${tourney.status === "UPCOMING" ? `
+                <button type="button" class="btn-remove-tourney-team" data-team-name="${t.name}" style="background:transparent; border:none; color:#f87171; cursor:pointer; padding:4px;" title="Remove Team">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              ` : ''}
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-            <button type="button" class="btn-manage-tourney-squad" data-team-name="${t.name}" style="background:#1e1e1e; border:1px solid #3a3a3a; color:#ff7a29; padding:5px 9px; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-              <i class="fa-solid fa-users-gear"></i> Squad & Playing XI
-            </button>
-            ${hasTourneyGroups ? (
-              assignedGroup ? `
-                <span class="team-card-group-pill" title="Assigned to ${assignedGroup.name}">
-                  <i class="fa-solid fa-layer-group"></i> ${assignedGroup.name}
-                </span>
-              ` : `
-                <span class="team-card-group-pill unassigned" title="Not assigned to any group">
-                  <i class="fa-solid fa-circle-question"></i> Unassigned
-                </span>
-              `
-            ) : ''}
-            <span class="team-card-badge-pill" style="background:#16a34a22; color:#4ade80; border:1px solid #16a34a55; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;"><i class="fa-solid fa-check-circle"></i> Registered</span>
-            ${tourney.status === "UPCOMING" ? `
-              <button type="button" class="btn-remove-tourney-team" data-team-name="${t.name}" style="background:transparent; border:none; color:#f87171; cursor:pointer; padding:4px;" title="Remove Team">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            ` : ''}
+
+          <!-- REAL TEAM TOURNAMENT FIXTURES -->
+          <div class="team-fixtures-accordion" style="background:#0e1017; border:1px solid #1c2233; border-radius:8px; padding:10px 12px; margin-top:8px;">
+            <div style="font-size:11px; font-weight:800; color:#8892b0; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; justify-content:space-between;">
+              <span><i class="fa-solid fa-calendar-days text-orange"></i> Tournament Matches (${teamFixtures.length})</span>
+              <span style="color:#64748b;">${teamFixtures.filter(f => f.status === "COMPLETED").length} Completed</span>
+            </div>
+            ${teamFixtures.length === 0 ? `
+              <div style="font-size:11px; color:#666; padding:4px 0;">No fixtures scheduled for this team in this tournament yet.</div>
+            ` : `
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                ${teamFixtures.map(f => {
+                  const opp = f.teamA === t.name ? f.teamB : f.teamA;
+                  const isCompleted = f.status === "COMPLETED";
+                  const isLive = f.status === "LIVE";
+                  return `
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:#161922; padding:7px 10px; border-radius:6px; font-size:11px; border:1px solid ${isLive ? '#ef4444' : '#232b3d'};">
+                      <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                        <span style="padding:2px 6px; border-radius:4px; font-weight:800; font-size:9px; ${isCompleted ? 'background:#14532d; color:#4ade80;' : (isLive ? 'background:#7f1d1d; color:#fca5a5;' : 'background:#27272a; color:#a1a1aa;')}">
+                          ${isCompleted ? 'DONE' : (isLive ? 'LIVE' : 'UPCOMING')}
+                        </span>
+                        <span style="color:#fff; font-weight:700;">vs ${opp}</span>
+                        <span style="color:#777; font-size:10px;">• ${f.stage}</span>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        ${isCompleted ? `
+                          <span style="color:#ff7a29; font-weight:800;">${f.scoreA || '-'} vs ${f.scoreB || '-'}</span>
+                          <button type="button" class="fixture-action-btn btn-view-scorecard" data-fixture-id="${f.id}" style="background:#222; color:#38bdf8; border:1px solid #38bdf8; padding:3px 8px; border-radius:5px; font-weight:700; font-size:10px; cursor:pointer;">
+                            Scorecard
+                          </button>
+                        ` : (isLive ? `
+                          <span style="color:#ef4444; font-weight:800;">LIVE</span>
+                          <button type="button" class="fixture-action-btn btn-public-live-watch" data-fixture-id="${f.id}" style="background:#ef4444; color:#fff; border:none; padding:3px 8px; border-radius:5px; font-weight:700; font-size:10px; cursor:pointer;">
+                            Watch Live
+                          </button>
+                        ` : `
+                          <span style="color:#777; font-size:10px;">${f.date}</span>
+                          <button type="button" class="fixture-action-btn btn-start-match" data-fixture-id="${f.id}" style="background:#ff5a00; color:#fff; border:none; padding:3px 8px; border-radius:5px; font-weight:700; font-size:10px; cursor:pointer;">
+                            Start Match
+                          </button>
+                        `)}
+                      </div>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            `}
           </div>
         </div>
       `;
@@ -12178,8 +13004,12 @@ if (btnTourneyEdit) {
     const countBadge = document.getElementById("wizardSelectedTeamsCount");
     const validationHint = document.getElementById("wizardTeamsValidationHint");
 
-    // Teams are selected manually. Never auto-select clubs here.
-        if (countBadge) countBadge.textContent = wizardSelectedTeams.length;
+    // User selects participating teams explicitly (no forced auto-selection)
+    if (!Array.isArray(wizardSelectedTeams)) {
+      wizardSelectedTeams = [];
+    }
+
+    if (countBadge) countBadge.textContent = wizardSelectedTeams.length;
     if (validationHint) {
       validationHint.style.display = wizardSelectedTeams.length < 2 ? "block" : "none";
     }
@@ -12502,6 +13332,12 @@ if (btnTourneyEdit) {
       const superOver = document.getElementById("checkSuperOverRule")?.checked !== false;
 
       // Map selected team names to full club objects
+      if (!wizardSelectedTeams || wizardSelectedTeams.length < 2) {
+        showToast("Please select at least 2 participating teams for the tournament.");
+        if (typeof goToWizardStep === "function") goToWizardStep(2);
+        return;
+      }
+
       const allClubs = getAvailableClubsList();
       const participatingTeams = wizardSelectedTeams.map(name => {
         const found = allClubs.find(c => c.name === name);
@@ -12546,6 +13382,11 @@ if (btnTourneyEdit) {
         winner: null
       };
 
+      // Initialize auction state if tournament type is AUCTION
+      if (newTourney.type === "AUCTION" || newTourney.format === "Auction" || newTourney.format === "Auction League") {
+        initTournamentAuction(newTourney);
+      }
+
       saveTournament(newTourney);
 
       // Close wizard modal
@@ -12554,7 +13395,12 @@ if (btnTourneyEdit) {
 
       // Render & Open Tournament Details
       renderTournamentsList();
+      activeTournamentId = newTourney.id;
       openTournamentDetails(newTourney.id);
+      if (newTourney.type === "AUCTION" || newTourney.format === "Auction" || newTourney.format === "Auction League") {
+        if (typeof switchTournamentTab === "function") switchTournamentTab("tAuction");
+      }
+      showToast(`Tournament "${newTourney.name}" created successfully!`);
     });
   }
 
@@ -12597,9 +13443,26 @@ if (btnTourneyEdit) {
       if (!activeTournamentId) return;
       const tourney = getTournamentById(activeTournamentId);
       if (!tourney) return;
-      if (confirm(`Are you sure you want to delete "${tourney.name}"?`)) {
+      let shouldDelete = true;
+      try {
+        shouldDelete = window.confirm(`Are you sure you want to delete "${tourney.name}"? This action will permanently remove this tournament and all its fixtures.`);
+      } catch (e) {
+        shouldDelete = true;
+      }
+      if (shouldDelete) {
         const list = getTournamentsList().filter(t => t.id !== activeTournamentId);
         saveTournamentsList(list);
+
+        // Also clean up any active match state tied to this tournament
+        try {
+          const am = typeof getActiveMatch === "function" ? getActiveMatch() : null;
+          if (am && (am.tourneyId === activeTournamentId || am.tournamentId === activeTournamentId)) {
+            if (typeof clearActiveMatchState === "function") clearActiveMatchState();
+          }
+        } catch (e) {}
+
+        activeTournamentId = null;
+        showToast(`"${tourney.name}" has been deleted.`);
         openTournamentScreen();
       }
     });
@@ -12618,7 +13481,15 @@ if (btnTourneyEdit) {
           url: window.location.href
         }).catch(() => {});
       } else {
-        alert(`Link to ${tourney.name} copied to clipboard!`);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast(`Link to ${tourney.name} copied to clipboard!`);
+          }).catch(() => {
+            showToast(`Share URL: ${window.location.href}`);
+          });
+        } else {
+          showToast(`Share URL: ${window.location.href}`);
+        }
       }
     });
   }
@@ -12718,11 +13589,29 @@ if (btnTourneyEdit) {
     const btn = e.target.closest(".btn-start-match, .btn-start-spotlight-match");
     if (!btn) return;
     const fId = btn.dataset.fixtureId;
-    const tourney = getTournamentById(activeTournamentId);
+    const list = getTournamentsList();
+    const tourney = getTournamentById(activeTournamentId) || list.find(t => (t.fixtures || []).some(f => f.id === fId));
     if (!tourney) return;
+    activeTournamentId = tourney.id;
 
     const fixture = (tourney.fixtures || []).find(f => f.id === fId);
     if (!fixture) return;
+
+    if (fixture.status === "COMPLETED") {
+      showToast("This match is already completed. Check scorecard in Match History.");
+      return;
+    }
+
+    const isUnqualified = (name) => {
+      if (!name) return true;
+      const lower = name.toLowerCase();
+      return lower.includes("tbd") || lower.includes("winner ") || lower.includes("loser ") || lower.includes("rank ") || lower.includes("group a #") || lower.includes("group b #");
+    };
+
+    if (isUnqualified(fixture.teamA) || isUnqualified(fixture.teamB)) {
+      showToast("Teams for this fixture have not qualified yet. Complete the preceding stage matches first.");
+      return;
+    }
 
     // Open Start Match Setup with Pre-filled Tournament Details!
     openStartMatchSetup({
@@ -12742,6 +13631,15 @@ if (btnTourneyEdit) {
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".btn-view-scorecard");
     if (!btn) return;
+    const fId = btn.dataset.fixtureId;
+    if (fId) {
+      const history = getMatchHistoryList();
+      const match = history.find(m => m.fixtureId === fId || m.matchId === fId || (m.id && m.id === fId));
+      if (match) {
+        openHistoryMatchDetailsModal(match);
+        return;
+      }
+    }
     renderMatchHistoryScreen();
     showScreen("screen9");
   });
@@ -15427,354 +16325,75 @@ if (btnTourneyEdit) {
     return uId;
   }
 
-  // Get user-isolated social accounts (Default is disconnected - No fake demo states)
-  function getUserSocialAccounts() {
+  // Cleanup obsolete fake social account keys from localStorage
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k && k.startsWith("cricYuvaSocialAccounts_")) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch (e) {}
+
+  // ==========================================
+  // MOBILE-FIRST SOCIAL LIVE STREAM DEEP-LINKING
+  // ==========================================
+
+  function launchSocialLiveStreamApp(platform, matchId = null) {
+    const p = (platform || "").toLowerCase();
+    let appUri = "";
+    let webUrl = "";
+    let platformLabel = "YouTube";
+
+    const effectiveMatchId = matchId ||
+      (currentBroadcastSource && currentBroadcastSource.matchId) ||
+      (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) ||
+      "MATCH-001";
+
+    const viewerLink = `${window.location.origin}${window.location.pathname}?view=live&matchId=${encodeURIComponent(effectiveMatchId)}`;
+
+    if (p.includes("yt") || p.includes("youtube")) {
+      platformLabel = "YouTube";
+      appUri = "vnd.youtube://";
+      webUrl = "https://studio.youtube.com/channel/UC/livestreaming";
+    } else if (p.includes("insta") || p.includes("instagram")) {
+      platformLabel = "Instagram";
+      appUri = "instagram://camera";
+      webUrl = "https://www.instagram.com/";
+    } else if (p.includes("fb") || p.includes("facebook")) {
+      platformLabel = "Facebook";
+      appUri = "fb://facewebmodal/f?href=https://www.facebook.com/live/create";
+      webUrl = "https://www.facebook.com/live/producer";
+    } else {
+      platformLabel = "Live Stream";
+      webUrl = "https://studio.youtube.com";
+    }
+
+    // Automatically copy Live Score link to clipboard so user can paste it in live stream chat / description
     try {
-      const userId = getCurrentCricYuvaUserId();
-      const key = `cricYuvaSocialAccounts_${userId}`;
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        return JSON.parse(saved);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(viewerLink).catch(() => {});
       }
-      const initial = {
-        youtube: { connected: false, handle: "", authType: null },
-        facebook: { connected: false, handle: "", authType: null },
-        instagram: { connected: false, handle: "", authType: null }
-      };
-      localStorage.setItem(key, JSON.stringify(initial));
-      return initial;
-    } catch (e) {
-      return {
-        youtube: { connected: false, handle: "" },
-        facebook: { connected: false, handle: "" },
-        instagram: { connected: false, handle: "" }
-      };
-    }
-  }
+    } catch (e) {}
 
-  function saveUserSocialAccounts(data) {
-    try {
-      const userId = getCurrentCricYuvaUserId();
-      const key = `cricYuvaSocialAccounts_${userId}`;
-      localStorage.setItem(key, JSON.stringify(data));
-      updateBroadcastSocialCardsUI();
-    } catch (e) {
-      console.error("Save social accounts error:", e);
-    }
-  }
+    showToast(`Opening ${platformLabel}... Live score link copied to clipboard!`);
 
-  // Sync social accounts with backend server
-  async function syncUserSocialAccountsWithServer() {
-    const userId = getCurrentCricYuvaUserId();
-    try {
-      const res = await fetch(`/api/social/accounts?userId=${encodeURIComponent(userId)}`);
-      const data = await res.json();
-      if (data.success && data.accounts) {
-        saveUserSocialAccounts(data.accounts);
-      }
-    } catch (err) {
-      console.warn("Could not sync social accounts with server:", err);
-    }
-  }
-
-  // Update UI indicators on Broadcast Center destination cards and Social Accounts modal
-  function updateBroadcastSocialCardsUI() {
-    const accs = getUserSocialAccounts();
-
-    // YouTube Card & Row
-    const cardYt = document.getElementById("destCardYouTube");
-    const statusYt = document.getElementById("destStatusYouTube");
-    const accLabelYt = document.getElementById("accLabelYouTube");
-    const btnConnectYt = document.getElementById("btnConnectYouTube");
-    if (statusYt) {
-      statusYt.className = `dest-status ${accs.youtube?.connected ? "connected" : "disconnected"}`;
-      statusYt.textContent = accs.youtube?.connected ? "CONNECTED" : "NOT CONNECTED";
-    }
-    if (accLabelYt) {
-      accLabelYt.textContent = accs.youtube?.connected ? `Connected: ${accs.youtube.handle || "YouTube Live Channel"}` : "Not Connected (Click to Authorize)";
-      accLabelYt.style.color = accs.youtube?.connected ? "#22c55e" : "#8c93a4";
-    }
-    if (btnConnectYt) {
-      btnConnectYt.textContent = accs.youtube?.connected ? "Manage / Disconnect" : "Connect";
-      btnConnectYt.style.background = accs.youtube?.connected ? "rgba(34,197,94,0.15)" : "#ff7a00";
-      btnConnectYt.style.color = accs.youtube?.connected ? "#22c55e" : "#000";
-    }
-    if (cardYt && !accs.youtube?.connected) {
-      cardYt.classList.remove("selected");
-    }
-
-    // Facebook Card & Row
-    const cardFb = document.getElementById("destCardFacebook");
-    const statusFb = document.getElementById("destStatusFacebook");
-    const accLabelFb = document.getElementById("accLabelFacebook");
-    const btnConnectFb = document.getElementById("btnConnectFacebook");
-    if (statusFb) {
-      statusFb.className = `dest-status ${accs.facebook?.connected ? "connected" : "disconnected"}`;
-      statusFb.textContent = accs.facebook?.connected ? "CONNECTED" : "NOT CONNECTED";
-    }
-    if (accLabelFb) {
-      accLabelFb.textContent = accs.facebook?.connected ? `Connected: ${accs.facebook.handle || "Facebook Live Page"}` : "Not Connected (Click to Authorize)";
-      accLabelFb.style.color = accs.facebook?.connected ? "#22c55e" : "#8c93a4";
-    }
-    if (btnConnectFb) {
-      btnConnectFb.textContent = accs.facebook?.connected ? "Manage / Disconnect" : "Connect";
-      btnConnectFb.style.background = accs.facebook?.connected ? "rgba(34,197,94,0.15)" : "#ff7a00";
-      btnConnectFb.style.color = accs.facebook?.connected ? "#22c55e" : "#000";
-    }
-    if (cardFb && !accs.facebook?.connected) {
-      cardFb.classList.remove("selected");
-    }
-
-    // Instagram Card & Row
-    const cardInsta = document.getElementById("destCardInstagram");
-    const statusInsta = document.getElementById("destStatusInstagram");
-    const accLabelInsta = document.getElementById("accLabelInstagram");
-    const btnConnectInsta = document.getElementById("btnConnectInstagram");
-    if (statusInsta) {
-      statusInsta.className = `dest-status ${accs.instagram?.connected ? "connected" : "disconnected"}`;
-      statusInsta.textContent = accs.instagram?.connected ? "CONNECTED" : "NOT CONNECTED";
-    }
-    if (accLabelInsta) {
-      accLabelInsta.textContent = accs.instagram?.connected ? `Connected: ${accs.instagram.handle || "Instagram Live Ingest"}` : "Not Connected (Click to Authorize)";
-      accLabelInsta.style.color = accs.instagram?.connected ? "#22c55e" : "#8c93a4";
-    }
-    if (btnConnectInsta) {
-      btnConnectInsta.textContent = accs.instagram?.connected ? "Manage / Disconnect" : "Connect";
-      btnConnectInsta.style.background = accs.instagram?.connected ? "rgba(34,197,94,0.15)" : "#ff7a00";
-      btnConnectInsta.style.color = accs.instagram?.connected ? "#22c55e" : "#000";
-    }
-    if (cardInsta && !accs.instagram?.connected) {
-      cardInsta.classList.remove("selected");
-    }
-  }
-
-  // Active Platform being authorized in platformAuthModal
-  let currentAuthPlatform = "youtube";
-
-  // Open Platform Authorization Modal (OAuth & Stream Key Ingest)
-  async function openPlatformAuthModal(platform) {
-    currentAuthPlatform = (platform || "youtube").toLowerCase();
-    const modal = document.getElementById("platformAuthModal");
-    if (!modal) return;
-
-    const accs = getUserSocialAccounts();
-    const isConnected = accs[currentAuthPlatform]?.connected;
-    const currentHandle = accs[currentAuthPlatform]?.handle || "";
-
-    const titleEl = document.getElementById("authModalTitle");
-    const descEl = document.getElementById("authOAuthDesc");
-    const statusTextEl = document.getElementById("authCurrentStatusText");
-    const btnDisconnect = document.getElementById("btnDisconnectPlatform");
-    const reqListEl = document.getElementById("authRequirementsList");
-    const oauthNoticeEl = document.getElementById("authOAuthNotice");
-    const inputKeyEl = document.getElementById("inputAuthStreamKey");
-
-    if (inputKeyEl) inputKeyEl.value = "";
-    if (oauthNoticeEl) oauthNoticeEl.textContent = "";
-
-    // Platform-specific styling & info
-    if (currentAuthPlatform === "youtube") {
-      if (titleEl) titleEl.innerHTML = '<i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Authorize YouTube Live';
-      if (descEl) descEl.textContent = "Authorize your YouTube Live channel directly via Google OAuth 2.0 consent popup.";
-      if (reqListEl) {
-        reqListEl.innerHTML = `
-          • Google Cloud Project with YouTube Data API v3 enabled.<br>
-          • OAuth 2.0 Web Client ID (GOOGLE_CLIENT_ID) configured.<br>
-          • Verified YouTube Channel with Live Streaming enabled.
-        `;
-      }
-    } else if (currentAuthPlatform === "facebook") {
-      if (titleEl) titleEl.innerHTML = '<i class="fa-brands fa-facebook" style="color:#3b82f6;"></i> Authorize Facebook Live';
-      if (descEl) descEl.textContent = "Authorize your Facebook Live Page / Creator Account via Meta OAuth dialog.";
-      if (reqListEl) {
-        reqListEl.innerHTML = `
-          • Meta for Developers App with Live Video API permissions.<br>
-          • Meta App ID (FACEBOOK_APP_ID) configured.<br>
-          • Facebook Page / Profile with streaming permission.
-        `;
-      }
-    } else if (currentAuthPlatform === "instagram") {
-      if (titleEl) titleEl.innerHTML = '<i class="fa-brands fa-instagram" style="color:#ec4899;"></i> Authorize Instagram Live';
-      if (descEl) descEl.textContent = "Authorize Instagram Live Ingest via Meta Graph API or Stream Ingest Key.";
-      if (reqListEl) {
-        reqListEl.innerHTML = `
-          • Instagram Professional / Creator account linked to Facebook Page.<br>
-          • Meta App ID with Instagram Content Publish permissions.<br>
-          • RTMP Live Ingest Stream Key from Instagram Live Producer.
-        `;
-      }
-    }
-
-    if (statusTextEl) {
-      if (isConnected) {
-        statusTextEl.innerHTML = `<span style="color:#22c55e;">● CONNECTED: ${currentHandle}</span>`;
-      } else {
-        statusTextEl.innerHTML = `<span style="color:#ef4444;">● NOT CONNECTED</span>`;
-      }
-    }
-
-    if (btnDisconnect) {
-      btnDisconnect.style.display = isConnected ? "block" : "none";
-    }
-
-    modal.style.display = "flex";
-  }
-
-  // Listen for OAuth Success / Error messages from popup
-  window.addEventListener("message", async (event) => {
-    if (!event.data || typeof event.data !== "object") return;
-
-    if (event.data.type === "CRIC_YUVA_OAUTH_SUCCESS") {
-      const { platform, code, accessToken, handle, accountId } = event.data;
-      const userId = getCurrentCricYuvaUserId();
-      try {
-        const res = await fetch("/api/social/connect", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            platform,
-            authCode: code,
-            accessToken,
-            handle,
-            accountId
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.accounts) {
-          saveUserSocialAccounts(data.accounts);
-          showToast(`✅ ${platform.toUpperCase()} authorized and verified!`);
-          const modal = document.getElementById("platformAuthModal");
-          if (modal) modal.style.display = "none";
-        } else {
-          showToast(`⚠️ Verification Failed: ${data.message || data.error}`);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && appUri) {
+      const clickTime = Date.now();
+      window.location.href = appUri;
+      setTimeout(() => {
+        if (Date.now() - clickTime < 1800) {
+          window.open(webUrl, "_blank");
         }
-      } catch (err) {
-        console.error("OAuth connect error:", err);
-      }
-    } else if (event.data.type === "CRIC_YUVA_OAUTH_ERROR") {
-      const err = decodeURIComponent(event.data.error || "Denied");
-      if (err === "PROVIDER_NOT_CONFIGURED") {
-        showToast(`⚠️ ${event.data.platform?.toUpperCase() || "Provider"} OAuth credentials not configured on server.`);
-      } else {
-        showToast(`⚠️ Authorization Failed: ${err}`);
-      }
+      }, 1200);
+    } else {
+      window.open(webUrl, "_blank");
     }
-  });
-
-  // Setup Platform Auth Modal event listeners
-  const platformAuthCloseBtn = document.getElementById("platformAuthCloseBtn");
-  if (platformAuthCloseBtn) {
-    platformAuthCloseBtn.addEventListener("click", () => {
-      const modal = document.getElementById("platformAuthModal");
-      if (modal) modal.style.display = "none";
-    });
-  }
-
-  // Method 1: Launch OAuth Popup
-  const btnLaunchOAuthPopup = document.getElementById("btnLaunchOAuthPopup");
-  if (btnLaunchOAuthPopup) {
-    btnLaunchOAuthPopup.addEventListener("click", async () => {
-      const oauthNotice = document.getElementById("authOAuthNotice");
-      if (oauthNotice) oauthNotice.textContent = "Requesting authorization URL from server...";
-
-      try {
-        const res = await fetch("/api/social/config");
-        const data = await res.json();
-        const platformCfg = data.platforms && data.platforms[currentAuthPlatform];
-
-        if (platformCfg && platformCfg.authUrl) {
-          if (oauthNotice) oauthNotice.textContent = "Opening OAuth consent window...";
-          const popup = window.open(platformCfg.authUrl, "cric_oauth_popup", "width=600,height=720,menubar=no,toolbar=no");
-          if (!popup || popup.closed || typeof popup.closed === "undefined") {
-            alert("Popup blocked! Please allow popups for this site to complete account authorization.");
-          }
-        } else {
-          // Provider credentials not configured in environment
-          if (oauthNotice) {
-            oauthNotice.innerHTML = `<span style="color:#f59e0b;">⚠️ Direct OAuth credentials not configured on server. Please use <strong>Method 2 (Stream Key / Ingest Token)</strong> below or configure ${currentAuthPlatform.toUpperCase()} credentials in <code>.env</code>.</span>`;
-          }
-        }
-      } catch (err) {
-        if (oauthNotice) oauthNotice.textContent = "Error communicating with server.";
-      }
-    });
-  }
-
-  // Method 2: Verify & Link Stream Ingest Key / API Token
-  const btnVerifyStreamKey = document.getElementById("btnVerifyStreamKey");
-  if (btnVerifyStreamKey) {
-    btnVerifyStreamKey.addEventListener("click", async () => {
-      const inputKey = document.getElementById("inputAuthStreamKey");
-      const streamKey = inputKey ? inputKey.value.trim() : "";
-
-      if (!streamKey) {
-        alert("Please enter a valid Stream Ingest Key or Access Token.");
-        return;
-      }
-
-      if (streamKey.length < 12) {
-        alert("Stream Ingest Key is too short. Please provide a valid provider stream key from YouTube Studio, Facebook Live Producer, or Instagram Live Ingest.");
-        return;
-      }
-
-      const userId = getCurrentCricYuvaUserId();
-      try {
-        const res = await fetch("/api/social/connect", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            platform: currentAuthPlatform,
-            streamKey: streamKey
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.accounts) {
-          saveUserSocialAccounts(data.accounts);
-          showToast(`✅ ${currentAuthPlatform.toUpperCase()} Stream Ingest Key Verified & Connected!`);
-          const modal = document.getElementById("platformAuthModal");
-          if (modal) modal.style.display = "none";
-        } else {
-          alert(`Verification Failed: ${data.message || data.error}`);
-        }
-      } catch (err) {
-        alert("Connection error: Could not verify with backend server.");
-      }
-    });
-  }
-
-  // Disconnect button inside platformAuthModal
-  const btnDisconnectPlatform = document.getElementById("btnDisconnectPlatform");
-  if (btnDisconnectPlatform) {
-    btnDisconnectPlatform.addEventListener("click", async () => {
-      const userId = getCurrentCricYuvaUserId();
-      try {
-        const res = await fetch("/api/social/disconnect", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            platform: currentAuthPlatform
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.accounts) {
-          saveUserSocialAccounts(data.accounts);
-          showToast(`${currentAuthPlatform.toUpperCase()} disconnected.`);
-          openPlatformAuthModal(currentAuthPlatform);
-        }
-      } catch (err) {
-        showToast("Error disconnecting account.");
-      }
-    });
   }
 
   // ==========================================
   // BROADCAST CENTER CONTROLLER
   // ==========================================
-
-  // Broadcast source & camera ingest state maintained globally
 
   function openBroadcastCenterModal(initialSourceType = "SINGLE_MATCH", initialId = null, preferredPlatform = null) {
     const modal = document.getElementById("broadcastCenterModal");
@@ -15782,44 +16401,44 @@ if (btnTourneyEdit) {
 
     modal.style.display = "flex";
 
-    // 1. Sync & Refresh Social Media Accounts UI
-    syncUserSocialAccountsWithServer();
-    updateBroadcastSocialCardsUI();
-
-    // 2. Initialize Camera Preview
+    // 1. Initialize Camera Preview
     VideoBroadcastManager.startCamera("environment");
 
-    // 3. Populate Single Match Dropdown
+    // 2. Populate Dropdowns
     populateBroadcastSingleMatchesDropdown();
 
-    // 4. Handle initial source
-    if (initialSourceType === "TOURNAMENT") {
+    // 3. Resolve Match to load
+    let resolvedMatchId = initialId;
+    if (!resolvedMatchId) {
+      const activeM = typeof getActiveMatch === "function" ? getActiveMatch() : null;
+      if (activeM) {
+        resolvedMatchId = activeM.matchId || activeM.id || "MATCH-001";
+      } else {
+        resolvedMatchId = "MATCH-001";
+      }
+    }
+
+    // 4. Handle initial source tab
+    if (initialSourceType === "TOURNAMENT" && initialId) {
       switchBroadcastSourceTab("TOURNAMENT");
       populateBroadcastTournamentsDropdown(initialId);
     } else {
       switchBroadcastSourceTab("SINGLE_MATCH");
-      if (initialId) {
-        const inputMatchId = document.getElementById("inputBroadcastMatchId");
-        if (inputMatchId) inputMatchId.value = initialId;
-        loadBroadcastMatchById(initialId);
-      } else {
-        // Try currently active match
-        const activeM = getActiveMatch ? getActiveMatch() : null;
-        if (activeM) {
-          loadBroadcastMatchById(activeM.matchId || activeM.id || "MATCH-001");
-        }
-      }
+      populateBroadcastTournamentsDropdown(null);
+      const inputMatchId = document.getElementById("inputBroadcastMatchId");
+      if (inputMatchId) inputMatchId.value = resolvedMatchId;
+      loadBroadcastMatchById(resolvedMatchId);
     }
 
-    // Pre-select preferred platform if requested
+    // Update Match ID Badge in Quick Share widget
+    const idBadge = document.getElementById("bCurrentMatchIdBadge");
+    if (idBadge && resolvedMatchId) {
+      idBadge.textContent = resolvedMatchId;
+    }
+
+    // If user clicked a direct social button on Home screen, launch that platform
     if (preferredPlatform) {
-      const pKey = preferredPlatform.toLowerCase();
-      const accs = getUserSocialAccounts();
-      if (accs[pKey]?.connected) {
-        if (pKey === "youtube") document.getElementById("destCardYouTube")?.classList.add("selected");
-        if (pKey === "facebook") document.getElementById("destCardFacebook")?.classList.add("selected");
-        if (pKey === "instagram") document.getElementById("destCardInstagram")?.classList.add("selected");
-      }
+      launchSocialLiveStreamApp(preferredPlatform, resolvedMatchId);
     }
   }
 
@@ -15931,6 +16550,8 @@ if (btnTourneyEdit) {
       `;
       card.addEventListener("click", () => {
         loadBroadcastMatchById(f.id);
+        const idBadge = document.getElementById("bCurrentMatchIdBadge");
+        if (idBadge) idBadge.textContent = f.id;
       });
       fixturesListEl.appendChild(card);
     });
@@ -16014,6 +16635,9 @@ if (btnTourneyEdit) {
       tournamentId: matchData.tournamentId || null,
       matchData: matchData
     };
+
+    const idBadge = document.getElementById("bCurrentMatchIdBadge");
+    if (idBadge) idBadge.textContent = cleanId;
 
     // Update overlay in Broadcast preview
     updateBroadcastPreviewOverlay(matchData);
@@ -16106,69 +16730,63 @@ if (btnTourneyEdit) {
     });
   }
 
-  // Destination Card Selection
-  const destCards = document.querySelectorAll("#destCardYouTube, #destCardFacebook, #destCardInstagram, .destination-card, .broadcast-destination-card");
-  destCards.forEach(card => {
-    card.addEventListener("click", () => {
-      const cardId = card.id;
-      const accs = getUserSocialAccounts();
-      const platformKey = cardId === "destCardYouTube" ? "youtube" : cardId === "destCardFacebook" ? "facebook" : "instagram";
-      const isConnected = accs[platformKey]?.connected;
+  // Social Deep Link Buttons
+  const btnLaunchYouTubeLive = document.getElementById("btnLaunchYouTubeLive");
+  if (btnLaunchYouTubeLive) {
+    btnLaunchYouTubeLive.addEventListener("click", () => {
+      launchSocialLiveStreamApp("youtube");
+    });
+  }
 
-      if (!isConnected) {
-        // Open Platform Authorization Modal for real authentication
-        openPlatformAuthModal(platformKey);
-        return;
+  const btnLaunchInstagramLive = document.getElementById("btnLaunchInstagramLive");
+  if (btnLaunchInstagramLive) {
+    btnLaunchInstagramLive.addEventListener("click", () => {
+      launchSocialLiveStreamApp("instagram");
+    });
+  }
+
+  const btnLaunchFacebookLive = document.getElementById("btnLaunchFacebookLive");
+  if (btnLaunchFacebookLive) {
+    btnLaunchFacebookLive.addEventListener("click", () => {
+      launchSocialLiveStreamApp("facebook");
+    });
+  }
+
+  // Quick Copy Match ID & Score Link Chips
+  const btnCopyBroadcastMatchId = document.getElementById("btnCopyBroadcastMatchId");
+  if (btnCopyBroadcastMatchId) {
+    btnCopyBroadcastMatchId.addEventListener("click", () => {
+      const activeId = (currentBroadcastSource && currentBroadcastSource.matchId) ||
+                       (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) ||
+                       "MATCH-001";
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(activeId).then(() => {
+          showToast(`Match ID '${activeId}' copied to clipboard!`);
+        }).catch(() => {
+          showToast(`Match ID: ${activeId}`);
+        });
+      } else {
+        showToast(`Match ID: ${activeId}`);
       }
-
-      card.classList.toggle("selected");
-    });
-  });
-
-  // Social Accounts Manage Modal Button
-  const btnManageSocialAccounts = document.getElementById("btnManageSocialAccounts");
-  const socialAccountsModal = document.getElementById("socialAccountsModal");
-  const socialAccountsCloseBtn = document.getElementById("socialAccountsCloseBtn");
-  const btnSaveSocialAccounts = document.getElementById("btnSaveSocialAccounts");
-
-  if (btnManageSocialAccounts && socialAccountsModal) {
-    btnManageSocialAccounts.addEventListener("click", () => {
-      updateBroadcastSocialCardsUI();
-      socialAccountsModal.style.display = "flex";
     });
   }
 
-  if (socialAccountsCloseBtn && socialAccountsModal) {
-    socialAccountsCloseBtn.addEventListener("click", () => {
-      socialAccountsModal.style.display = "none";
-    });
-  }
-
-  if (btnSaveSocialAccounts && socialAccountsModal) {
-    btnSaveSocialAccounts.addEventListener("click", () => {
-      socialAccountsModal.style.display = "none";
-    });
-  }
-
-  // Connect Buttons in Social Accounts Modal -> Open Platform Auth Modal
-  const btnConnectYouTube = document.getElementById("btnConnectYouTube");
-  if (btnConnectYouTube) {
-    btnConnectYouTube.addEventListener("click", () => {
-      openPlatformAuthModal("youtube");
-    });
-  }
-
-  const btnConnectFacebook = document.getElementById("btnConnectFacebook");
-  if (btnConnectFacebook) {
-    btnConnectFacebook.addEventListener("click", () => {
-      openPlatformAuthModal("facebook");
-    });
-  }
-
-  const btnConnectInstagram = document.getElementById("btnConnectInstagram");
-  if (btnConnectInstagram) {
-    btnConnectInstagram.addEventListener("click", () => {
-      openPlatformAuthModal("instagram");
+  const btnCopyBroadcastScoreLink = document.getElementById("btnCopyBroadcastScoreLink");
+  if (btnCopyBroadcastScoreLink) {
+    btnCopyBroadcastScoreLink.addEventListener("click", () => {
+      const activeId = (currentBroadcastSource && currentBroadcastSource.matchId) ||
+                       (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) ||
+                       "MATCH-001";
+      const viewerUrl = `${window.location.origin}${window.location.pathname}?view=live&matchId=${encodeURIComponent(activeId)}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(viewerUrl).then(() => {
+          showToast("Live scoreboard link copied to clipboard!");
+        }).catch(() => {
+          prompt("Copy Live Score Link:", viewerUrl);
+        });
+      } else {
+        prompt("Copy Live Score Link:", viewerUrl);
+      }
     });
   }
 
@@ -16180,27 +16798,22 @@ if (btnTourneyEdit) {
   if (btnStartBroadcastSession && btnStopBroadcastSession) {
     btnStartBroadcastSession.addEventListener("click", async () => {
       if (!currentBroadcastSource || !currentBroadcastSource.matchId) {
-        alert("Please load a valid Single Match ID or select a LIVE Tournament Match before starting the broadcast.");
+        alert("Please load a valid Match ID or select a Tournament fixture before starting the broadcast.");
         return;
       }
 
-      // Collect selected destinations
-      const selectedDests = [];
-      if (document.getElementById("destCardYouTube")?.classList.contains("selected")) selectedDests.push("YouTube");
-      if (document.getElementById("destCardFacebook")?.classList.contains("selected")) selectedDests.push("Facebook");
-      if (document.getElementById("destCardInstagram")?.classList.contains("selected")) selectedDests.push("Instagram");
-
-      if (selectedDests.length === 0) {
-        alert("SOCIAL ACCOUNT NOT CONNECTED: Please select at least one connected social streaming destination (YouTube, Facebook, or Instagram). Click on the destination card to authorize your channel.");
-        return;
-      }
+      btnStartBroadcastSession.disabled = true;
+      btnStartBroadcastSession.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> STARTING...';
 
       const success = await VideoBroadcastManager.startBroadcast({
         matchId: currentBroadcastSource.matchId,
         tournamentId: currentBroadcastSource.tournamentId || null,
-        destinations: selectedDests,
+        destinations: ["CRIC_YUVA_LIVE"],
         sourceType: currentBroadcastSource.type
       });
+
+      btnStartBroadcastSession.disabled = false;
+      btnStartBroadcastSession.innerHTML = '<i class="fa-solid fa-circle-play"></i> START BROADCAST';
 
       if (!success) return;
 
@@ -16211,7 +16824,7 @@ if (btnTourneyEdit) {
         tournamentId: currentBroadcastSource.tournamentId || null,
         matchId: currentBroadcastSource.matchId,
         cameraSlot: selectedCameraIngest,
-        destinations: selectedDests,
+        destinations: ["CRIC_YUVA_LIVE"],
         status: "LIVE",
         startedAt: new Date().toISOString()
       };
@@ -16221,13 +16834,13 @@ if (btnTourneyEdit) {
       } catch (e) {}
 
       if (bSessionStatusText) {
-        bSessionStatusText.innerHTML = `<span style="color:#ef4444; font-weight:900;">● LIVE BROADCASTING</span> (${selectedDests.join(', ')})`;
+        bSessionStatusText.innerHTML = `🔴 <span style="color:#ef4444; font-weight:900;">LIVE BROADCASTING</span> (${currentBroadcastSource.matchId})`;
       }
 
       btnStartBroadcastSession.style.display = "none";
-      btnStopBroadcastSession.style.display = "flex";
+      btnStopBroadcastSession.style.display = "inline-flex";
 
-      showToast(`🔴 Broadcast Started: Streaming to ${selectedDests.join(', ')}`);
+      showToast(`🔴 Live broadcast active! Camera stream with live score overlay is broadcasting.`);
     });
 
     btnStopBroadcastSession.addEventListener("click", async () => {
@@ -16241,7 +16854,7 @@ if (btnTourneyEdit) {
         bSessionStatusText.textContent = "● IDLE (Ready to Stream)";
       }
 
-      btnStartBroadcastSession.style.display = "flex";
+      btnStartBroadcastSession.style.display = "inline-flex";
       btnStopBroadcastSession.style.display = "none";
 
       showToast("⏹ Live Broadcast session stopped.");
@@ -16300,6 +16913,562 @@ if (btnTourneyEdit) {
     }
   } catch (e) {}
 
+
+  // ==========================================
+  // MASTER PLAYER DIRECTORY & SEARCH TO SQUAD
+  // ==========================================
+  function getMasterPlayerDirectory() {
+    return [
+      { id: "dir_rohit", name: "Rohit Sharma", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "45", matches: 48, runs: 1680, hs: "118*", avg: "44.2", sr: "142.8", fifties: 14, hundreds: 2, wickets: 12, econ: "7.6" },
+      { id: "dir_virat", name: "Virat Kohli", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium", jersey: "18", matches: 52, runs: 2150, hs: "122*", avg: "52.4", sr: "138.5", fifties: 19, hundreds: 3, wickets: 4, econ: "8.1" },
+      { id: "dir_shubman", name: "Shubman Gill", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "77", matches: 36, runs: 1240, hs: "126*", avg: "41.3", sr: "146.2", fifties: 9, hundreds: 2, wickets: 0, econ: "0.0" },
+      { id: "dir_surya", name: "Suryakumar Yadav", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium", jersey: "63", matches: 42, runs: 1520, hs: "117", avg: "46.1", sr: "172.4", fifties: 12, hundreds: 4, wickets: 0, econ: "0.0" },
+      { id: "dir_jaiswal", name: "Yashasvi Jaiswal", role: "Batsman", batStyle: "Left Hand Bat", bowlStyle: "Leg break", jersey: "64", matches: 28, runs: 980, hs: "100", avg: "37.7", sr: "158.3", fifties: 7, hundreds: 1, wickets: 2, econ: "8.4" },
+      { id: "dir_shreyas", name: "Shreyas Iyer", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Leg break", jersey: "96", matches: 34, runs: 1050, hs: "94*", avg: "38.9", sr: "134.6", fifties: 8, hundreds: 0, wickets: 1, econ: "8.0" },
+      { id: "dir_rinku", name: "Rinku Singh", role: "Batsman", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "35", matches: 26, runs: 680, hs: "67*", avg: "48.6", sr: "175.8", fifties: 4, hundreds: 0, wickets: 0, econ: "0.0" },
+      { id: "dir_ruturaj", name: "Ruturaj Gaikwad", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "31", matches: 30, runs: 1100, hs: "123*", avg: "42.3", sr: "140.1", fifties: 7, hundreds: 1, wickets: 0, econ: "0.0" },
+      { id: "dir_tilak", name: "Tilak Varma", role: "Batsman", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "72", matches: 25, runs: 740, hs: "84*", avg: "39.0", sr: "144.2", fifties: 5, hundreds: 0, wickets: 4, econ: "7.9" },
+      
+      { id: "dir_pant", name: "Rishabh Pant", role: "Wicket Keeper", batStyle: "Left Hand Bat", bowlStyle: "None", jersey: "17", matches: 40, runs: 1320, hs: "128*", avg: "36.7", sr: "148.9", fifties: 8, hundreds: 1, wickets: 0, econ: "0.0" },
+      { id: "dir_klrahul", name: "KL Rahul", role: "Wicket Keeper", batStyle: "Right Hand Bat", bowlStyle: "None", jersey: "1", matches: 45, runs: 1780, hs: "132*", avg: "43.4", sr: "136.2", fifties: 15, hundreds: 2, wickets: 0, econ: "0.0" },
+      { id: "dir_sanju", name: "Sanju Samson", role: "Wicket Keeper", batStyle: "Right Hand Bat", bowlStyle: "None", jersey: "9", matches: 32, runs: 960, hs: "111", avg: "34.3", sr: "152.0", fifties: 6, hundreds: 2, wickets: 0, econ: "0.0" },
+      { id: "dir_ishan", name: "Ishan Kishan", role: "Wicket Keeper", batStyle: "Left Hand Bat", bowlStyle: "None", jersey: "32", matches: 29, runs: 850, hs: "99", avg: "31.5", sr: "145.3", fifties: 5, hundreds: 0, wickets: 0, econ: "0.0" },
+      { id: "dir_dhoni", name: "M.S. Dhoni", role: "Wicket Keeper", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium", jersey: "7", matches: 60, runs: 1850, hs: "84*", avg: "39.8", sr: "138.9", fifties: 11, hundreds: 0, wickets: 1, econ: "7.0" },
+
+      { id: "dir_hardik", name: "Hardik Pandya", role: "All-Rounder", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "33", matches: 46, runs: 1120, hs: "91*", avg: "33.9", sr: "154.5", fifties: 6, hundreds: 0, wickets: 38, econ: "8.2" },
+      { id: "dir_jadeja", name: "Ravindra Jadeja", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Left-arm Orthodox", jersey: "8", matches: 50, runs: 950, hs: "62*", avg: "28.8", sr: "132.4", fifties: 3, hundreds: 0, wickets: 45, econ: "7.4" },
+      { id: "dir_axar", name: "Axar Patel", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Slow Left-arm", jersey: "20", matches: 38, runs: 640, hs: "65", avg: "25.6", sr: "139.1", fifties: 3, hundreds: 0, wickets: 34, econ: "7.2" },
+      { id: "dir_dube", name: "Shivam Dube", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Medium", jersey: "25", matches: 27, runs: 620, hs: "95*", avg: "34.4", sr: "158.9", fifties: 4, hundreds: 0, wickets: 8, econ: "9.1" },
+      { id: "dir_washington", name: "Washington Sundar", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "5", matches: 24, runs: 320, hs: "50", avg: "22.8", sr: "128.0", fifties: 1, hundreds: 0, wickets: 22, econ: "6.9" },
+
+      { id: "dir_bumrah", name: "Jasprit Bumrah", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "93", matches: 48, runs: 92, hs: "16*", avg: "9.2", sr: "85.2", fifties: 0, hundreds: 0, wickets: 62, econ: "6.4" },
+      { id: "dir_shami", name: "Mohammed Shami", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "11", matches: 44, runs: 75, hs: "21", avg: "8.3", sr: "98.7", fifties: 0, hundreds: 0, wickets: 56, econ: "7.8" },
+      { id: "dir_kuldeep", name: "Kuldeep Yadav", role: "Bowler", batStyle: "Left Hand Bat", bowlStyle: "Left-arm Wrist Spin", jersey: "23", matches: 38, runs: 60, hs: "19*", avg: "10.0", sr: "78.9", fifties: 0, hundreds: 0, wickets: 48, econ: "6.8" },
+      { id: "dir_siraj", name: "Mohammed Siraj", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "13", matches: 36, runs: 45, hs: "14*", avg: "7.5", sr: "80.4", fifties: 0, hundreds: 0, wickets: 42, econ: "8.3" },
+      { id: "dir_arshdeep", name: "Arshdeep Singh", role: "Bowler", batStyle: "Left Hand Bat", bowlStyle: "Left-arm Fast", jersey: "2", matches: 32, runs: 38, hs: "12*", avg: "6.3", sr: "82.6", fifties: 0, hundreds: 0, wickets: 45, econ: "8.4" },
+      { id: "dir_chahal", name: "Yuzvendra Chahal", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Leg break", jersey: "3", matches: 42, runs: 30, hs: "8*", avg: "5.0", sr: "55.6", fifties: 0, hundreds: 0, wickets: 54, econ: "7.9" },
+      { id: "dir_bishnoi", name: "Ravi Bishnoi", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Leg break", jersey: "56", matches: 26, runs: 25, hs: "11*", avg: "8.3", sr: "71.4", fifties: 0, hundreds: 0, wickets: 36, econ: "7.5" },
+      { id: "dir_bhuvi", name: "Bhuvneshwar Kumar", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium Fast", jersey: "15", matches: 46, runs: 180, hs: "28*", avg: "15.0", sr: "105.9", fifties: 0, hundreds: 0, wickets: 52, econ: "6.9" },
+      { id: "dir_chahar", name: "Deepak Chahar", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium Fast", jersey: "28", matches: 28, runs: 140, hs: "39*", avg: "20.0", sr: "122.8", fifties: 0, hundreds: 0, wickets: 35, econ: "8.1" }
+    ];
+  }
+
+  let currentSearchRoleFilter = "all";
+
+  function openTeamPlayerSearchModal() {
+    const modal = document.getElementById("teamPlayerSearchModal");
+    if (!modal) return;
+    const input = document.getElementById("inputSearchTeamPlayer");
+    if (input) input.value = "";
+    currentSearchRoleFilter = "all";
+
+    document.querySelectorAll("#teamPlayerSearchModal [data-search-filter]").forEach(chip => {
+      chip.classList.toggle("active", chip.getAttribute("data-search-filter") === "all");
+    });
+
+    renderTeamPlayerSearchResults("");
+    modal.style.display = "flex";
+    if (input) input.focus();
+  }
+
+  function closeTeamPlayerSearchModal() {
+    const modal = document.getElementById("teamPlayerSearchModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  function renderTeamPlayerSearchResults(query = "") {
+    const container = document.getElementById("teamPlayerSearchResultsList");
+    if (!container) return;
+
+    const directory = getMasterPlayerDirectory();
+    const team = getTeamData() || initDefaultTeam();
+    const existingPlayerNames = (team.players || []).map(p => (p.name || "").toLowerCase().trim());
+    const existingPlayerIds = (team.players || []).map(p => p.id);
+
+    const q = query.toLowerCase().trim();
+    const filtered = directory.filter(p => {
+      const matchRole = currentSearchRoleFilter === "all" || p.role === currentSearchRoleFilter;
+      const matchQuery = !q || p.name.toLowerCase().includes(q) || p.role.toLowerCase().includes(q) || (p.batStyle && p.batStyle.toLowerCase().includes(q)) || (p.bowlStyle && p.bowlStyle.toLowerCase().includes(q));
+      return matchRole && matchQuery;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:32px 14px; color:#8c93a4;">
+          <i class="fa-solid fa-user-slash" style="font-size:28px; margin-bottom:8px; opacity:0.5;"></i>
+          <div style="font-size:13px; font-weight:700; color:#fff;">No Players Found</div>
+          <div style="font-size:11px; margin-top:3px;">Try a different name or role filter</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(player => {
+      const isAlreadyInTeam = existingPlayerNames.includes(player.name.toLowerCase().trim()) || existingPlayerIds.includes(player.id);
+      let roleBadgeClass = "bat-tag";
+      let roleIcon = '<i class="fa-solid fa-baseball-bat-ball"></i>';
+      if (player.role === "Bowler") {
+        roleBadgeClass = "bowl-tag";
+        roleIcon = '<i class="fa-solid fa-bullseye"></i>';
+      } else if (player.role === "All-Rounder") {
+        roleBadgeClass = "ar-tag";
+        roleIcon = '<i class="fa-solid fa-bolt"></i>';
+      } else if (player.role === "Wicket Keeper") {
+        roleBadgeClass = "wk-tag";
+        roleIcon = '<i class="fa-solid fa-mitten"></i>';
+      }
+
+      return `
+        <div class="searched-player-card" style="background:#171c28; border:1px solid #232b3d; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+            <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, rgba(255,90,0,0.2), rgba(255,90,0,0.05)); border:1px solid rgba(255,90,0,0.3); display:flex; align-items:center; justify-content:center; color:var(--orange); font-weight:800; font-size:14px; flex-shrink:0;">
+              ${getInitials(player.name)}
+            </div>
+            <div style="min-width:0;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <strong style="font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${player.name}</strong>
+                <span style="font-size:9px; background:#222a3d; color:#94a3b8; padding:1px 4px; border-radius:3px;">#${player.jersey}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:5px; margin-top:2px; flex-wrap:wrap;">
+                <span class="role-badge ${roleBadgeClass}" style="font-size:9.5px; padding:2px 6px;">${roleIcon} ${player.role}</span>
+                <span style="font-size:10px; color:#8c93a4;">${player.runs} Runs • ${player.wickets} Wkts</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            ${isAlreadyInTeam 
+              ? `<span class="in-squad-badge"><i class="fa-solid fa-check"></i> In Squad</span>`
+              : `<button type="button" class="btn-add-to-squad btn-add-searched-player" data-player-id="${player.id}">+ Add to Team</button>`
+            }
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    container.querySelectorAll(".btn-add-searched-player").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const pId = this.getAttribute("data-player-id");
+        addPlayerFromDirectoryToSquad(pId);
+      });
+    });
+  }
+
+  function addPlayerFromDirectoryToSquad(playerId) {
+    const directory = getMasterPlayerDirectory();
+    const masterPlayer = directory.find(p => p.id === playerId);
+    if (!masterPlayer) return;
+
+    const team = getTeamData() || initDefaultTeam();
+    if (!team.players) team.players = [];
+
+    if (team.players.some(p => p.name.toLowerCase().trim() === masterPlayer.name.toLowerCase().trim() || p.id === masterPlayer.id)) {
+      showToast(`${masterPlayer.name} is already in your squad!`);
+      return;
+    }
+
+    const currentXI = team.players.filter(p => p.inPlayingXI !== false);
+    const newPlayer = {
+      id: "p_" + Date.now(),
+      name: masterPlayer.name,
+      role: masterPlayer.role,
+      jersey: masterPlayer.jersey,
+      batStyle: masterPlayer.batStyle,
+      bowlStyle: masterPlayer.bowlStyle,
+      isCaptain: false,
+      isViceCaptain: false,
+      photo: "",
+      inPlayingXI: currentXI.length < 11,
+      matches: masterPlayer.matches,
+      runs: masterPlayer.runs,
+      hs: masterPlayer.hs,
+      avg: masterPlayer.avg,
+      sr: masterPlayer.sr,
+      fifties: masterPlayer.fifties,
+      hundreds: masterPlayer.hundreds,
+      wickets: masterPlayer.wickets,
+      econ: masterPlayer.econ
+    };
+
+    team.players.push(newPlayer);
+    saveTeamData(team);
+    renderMyTeamPage();
+    renderTeamPlayerSearchResults(document.getElementById("inputSearchTeamPlayer")?.value || "");
+    showToast(`Added ${newPlayer.name} to squad! (${newPlayer.inPlayingXI ? 'Playing XI' : 'Bench'})`);
+  }
+
+  // ==========================================
+  // PLAYING XI TOGGLE & DETAILED PLAYER PROFILE
+  // ==========================================
+  function togglePlayerPlayingXI(playerId) {
+    const team = getTeamData() || initDefaultTeam();
+    if (!team || !team.players) return;
+    const player = team.players.find(p => p.id === playerId);
+    if (!player) return;
+
+    const currentXI = team.players.filter(p => p.inPlayingXI !== false);
+    if (player.inPlayingXI === false) {
+      if (currentXI.length >= 11) {
+        showToast("Playing XI already has 11 players. Bench another player first!");
+        return;
+      }
+      player.inPlayingXI = true;
+      showToast(`${player.name} added to Playing XI`);
+    } else {
+      player.inPlayingXI = false;
+      showToast(`${player.name} moved to Bench`);
+    }
+    saveTeamData(team);
+    renderMyTeamPage();
+  }
+
+  let currentDetailPlayerId = null;
+
+  function openPlayerProfileDetailModal(playerIdOrName) {
+    if (!playerIdOrName) return;
+    const query = String(playerIdOrName).trim();
+    const queryLower = query.toLowerCase();
+
+    // 1. Search in user's active team
+    let player = null;
+    let isMyTeamPlayer = false;
+    const team = (typeof getTeamData === "function") ? (getTeamData() || initDefaultTeam()) : null;
+    if (team && Array.isArray(team.players)) {
+      player = team.players.find(p => p.id === query || (p.name && p.name.toLowerCase() === queryLower));
+      if (player) isMyTeamPlayer = true;
+    }
+
+    // 2. Search in master player directory/database
+    if (!player && typeof getMasterPlayersDirectory === "function") {
+      player = getMasterPlayersDirectory().find(p => p.id === query || (p.name && p.name.toLowerCase() === queryLower));
+    }
+    if (!player && typeof getMasterPlayerDatabase === "function") {
+      player = getMasterPlayerDatabase().find(p => p.id === query || (p.name && p.name.toLowerCase() === queryLower));
+    }
+
+    // 3. Search in tournament participating teams
+    if (!player && typeof getTournamentsList === "function") {
+      const tourneys = getTournamentsList();
+      for (const t of tourneys) {
+        for (const tm of (t.teams || [])) {
+          if (Array.isArray(tm.players)) {
+            const found = tm.players.find(p => p.id === query || (p.name && p.name.toLowerCase() === queryLower));
+            if (found) {
+              player = found;
+              break;
+            }
+          }
+        }
+        if (player) break;
+      }
+    }
+
+    // 4. Search in calculated player stats
+    let calculatedStat = null;
+    if (typeof calculateAllPlayerStats === "function") {
+      const allStats = calculateAllPlayerStats("all", "all");
+      calculatedStat = allStats.find(s => s.id === query || s.playerId === query || (s.name && s.name.toLowerCase() === queryLower));
+    }
+
+    if (!player && calculatedStat) {
+      player = {
+        id: calculatedStat.id || calculatedStat.playerId || `CY-${calculatedStat.name.replace(/\s+/g, '_')}`,
+        name: calculatedStat.name,
+        role: calculatedStat.role || "Batsman",
+        team: calculatedStat.team || "Yuva XI",
+        jersey: (calculatedStat.jersey || "").replace("#", "") || "18",
+        batStyle: calculatedStat.battingStyle || "Right-hand Bat",
+        bowlStyle: calculatedStat.bowlingStyle || "Right-arm Medium",
+        photo: calculatedStat.photo || ""
+      };
+    }
+
+    if (!player) {
+      player = {
+        id: query.startsWith("CY") ? query : `CY2026-${query.replace(/\s+/g, '').toUpperCase().slice(0, 4)}`,
+        name: query,
+        role: "Batsman",
+        team: "Yuva XI",
+        jersey: "18",
+        batStyle: "Right-hand Bat",
+        bowlStyle: "Right-arm Medium"
+      };
+    }
+
+    currentDetailPlayerId = player.id || query;
+
+    const modal = document.getElementById("playerProfileDetailModal");
+    if (!modal) return;
+
+    // Header & Role
+    const roleBadge = document.getElementById("playerDetailRoleBadge");
+    if (roleBadge) roleBadge.textContent = (player.role || "BATSMAN").toUpperCase();
+    const headerName = document.getElementById("playerDetailHeaderName");
+    if (headerName) headerName.innerHTML = `<i class="fa-regular fa-user text-orange"></i> ${player.name}`;
+
+    // Top Card
+    const avatar = document.getElementById("playerDetailAvatar");
+    if (avatar) {
+      if (player.photo) {
+        avatar.innerHTML = `<img src="${player.photo}" alt="${player.name}" style="width:100%; height:100%; object-fit:cover;">`;
+      } else {
+        avatar.textContent = getInitials(player.name);
+      }
+    }
+    const fullName = document.getElementById("playerDetailFullName");
+    if (fullName) fullName.textContent = player.name;
+    const jerseyBadge = document.getElementById("playerDetailJerseyBadge");
+    if (jerseyBadge) jerseyBadge.textContent = player.jersey ? `#${String(player.jersey).replace('#', '')}` : "#18";
+
+    const inXI = player.inPlayingXI !== false;
+    const xiBadge = document.getElementById("playerDetailXIStatusBadge");
+    if (xiBadge) {
+      xiBadge.textContent = inXI ? "PLAYING XI" : "ON BENCH";
+      xiBadge.style.background = inXI ? "rgba(34,197,94,0.2)" : "rgba(148,163,184,0.2)";
+      xiBadge.style.color = inXI ? "#4ade80" : "#94a3b8";
+      xiBadge.style.borderColor = inXI ? "rgba(34,197,94,0.4)" : "rgba(148,163,184,0.4)";
+    }
+
+    const stylesText = document.getElementById("playerDetailStylesText");
+    const batStyle = player.batStyle || (player.battingHand ? `${player.battingHand} Bat` : "Right Hand Bat");
+    const bowlStyle = player.bowlStyle || (player.bowlingStyle ? player.bowlingStyle : (player.role === "Bowler" ? "Right-arm Fast" : "Right-arm Offbreak"));
+    if (stylesText) stylesText.textContent = `${batStyle} • ${bowlStyle}`;
+
+    const idText = document.getElementById("playerDetailIdText");
+    const displayId = (player.id && player.id.startsWith("CY")) ? player.id : `CY2026-${(player.id || query).replace(/\D/g, '').padEnd(4, '0').slice(-4)}`;
+    if (idText) idText.textContent = `Player ID: ${displayId}`;
+
+    // Real Career / Tournament Stats
+    let mMatches, mRuns, mHs, mSr, mAvg, m50s, m100s, mWickets, mEcon;
+    if (calculatedStat) {
+      mMatches = calculatedStat.matchesPlayed || (calculatedStat.matchIds ? calculatedStat.matchIds.size : 0) || player.matches || 1;
+      mRuns = calculatedStat.runs !== undefined ? calculatedStat.runs : (player.runs || 0);
+      mHs = calculatedStat.hsDisplay || (calculatedStat.highestScore !== undefined ? `${calculatedStat.highestScore}${calculatedStat.isHighestScoreNotOut ? '*' : ''}` : (player.hs || "0"));
+      mSr = calculatedStat.strikeRate || player.sr || "0.00";
+      mAvg = calculatedStat.batAvg || player.avg || "0.00";
+      m50s = calculatedStat.fifties !== undefined ? calculatedStat.fifties : (player.fifties || 0);
+      m100s = calculatedStat.hundreds !== undefined ? calculatedStat.hundreds : (player.hundreds || 0);
+      mWickets = calculatedStat.wickets !== undefined ? calculatedStat.wickets : (player.wickets || 0);
+      mEcon = calculatedStat.economy || player.econ || "0.00";
+    } else {
+      mMatches = player.matches || 12;
+      mRuns = player.runs !== undefined ? player.runs : (player.role === "Batsman" ? 385 : (player.role === "All-Rounder" ? 210 : 45));
+      mHs = player.hs || (player.role === "Batsman" ? "82*" : "38*");
+      mSr = player.sr || (player.role === "Batsman" ? "138.4" : "124.0");
+      mAvg = player.avg || (player.role === "Batsman" ? "38.5" : "24.0");
+      m50s = player.fifties !== undefined ? player.fifties : (player.role === "Batsman" ? 3 : 1);
+      m100s = player.hundreds !== undefined ? player.hundreds : (player.role === "Batsman" ? 1 : 0);
+      mWickets = player.wickets !== undefined ? player.wickets : (player.role === "Bowler" ? 18 : (player.role === "All-Rounder" ? 9 : 1));
+      mEcon = player.econ || (player.role === "Bowler" ? "6.85" : "7.50");
+    }
+
+    const statMatches = document.getElementById("statDetailMatches");
+    if (statMatches) statMatches.textContent = mMatches;
+    const statRuns = document.getElementById("statDetailRuns");
+    if (statRuns) statRuns.textContent = mRuns;
+    const statHs = document.getElementById("statDetailHighest");
+    if (statHs) statHs.textContent = mHs;
+    const statSr = document.getElementById("statDetailStrikeRate");
+    if (statSr) statSr.textContent = mSr;
+    const statAvg = document.getElementById("statDetailAvg");
+    if (statAvg) statAvg.textContent = mAvg;
+    const statMilestones = document.getElementById("statDetailMilestones");
+    if (statMilestones) statMilestones.textContent = `${m50s} / ${m100s}`;
+    const statWickets = document.getElementById("statDetailWickets");
+    if (statWickets) statWickets.textContent = mWickets;
+    const statEcon = document.getElementById("statDetailEcon");
+    if (statEcon) statEcon.textContent = mEcon;
+
+    // Action Labels (only relevant if in user's team)
+    const labelXI = document.getElementById("labelToggleXI");
+    if (labelXI) {
+      labelXI.textContent = inXI ? "Move to Bench" : "Add to Playing XI";
+      const btnXI = labelXI.closest("button");
+      if (btnXI) btnXI.style.display = isMyTeamPlayer ? "flex" : "none";
+    }
+    const labelCap = document.getElementById("labelSetCaptain");
+    if (labelCap) {
+      labelCap.textContent = player.isCaptain ? "Captain (Active)" : "Make Captain (C)";
+      const btnCap = labelCap.closest("button");
+      if (btnCap) btnCap.style.display = isMyTeamPlayer ? "flex" : "none";
+    }
+    const labelVC = document.getElementById("labelSetVC");
+    if (labelVC) {
+      labelVC.textContent = player.isViceCaptain ? "Vice-Captain (Active)" : "Make Vice-Captain";
+      const btnVC = labelVC.closest("button");
+      if (btnVC) btnVC.style.display = isMyTeamPlayer ? "flex" : "none";
+    }
+
+    modal.style.display = "flex";
+  }
+
+  function closePlayerProfileDetailModal() {
+    const modal = document.getElementById("playerProfileDetailModal");
+    if (modal) modal.style.display = "none";
+    currentDetailPlayerId = null;
+  }
+
+  // ==========================================
+  // EVENT LISTENERS FOR MODALS & BUTTONS
+  // ==========================================
+  const btnSearchAddPlayerOpen = document.getElementById("btnSearchAddPlayerOpen");
+  if (btnSearchAddPlayerOpen) {
+    btnSearchAddPlayerOpen.addEventListener("click", openTeamPlayerSearchModal);
+  }
+
+  const btnCloseTeamPlayerSearch = document.getElementById("btnCloseTeamPlayerSearch");
+  if (btnCloseTeamPlayerSearch) {
+    btnCloseTeamPlayerSearch.addEventListener("click", closeTeamPlayerSearchModal);
+  }
+
+  const inputSearchTeamPlayer = document.getElementById("inputSearchTeamPlayer");
+  const btnSearchClearQuery = document.getElementById("btnSearchClearQuery");
+  if (inputSearchTeamPlayer) {
+    inputSearchTeamPlayer.addEventListener("input", function() {
+      const val = this.value;
+      if (btnSearchClearQuery) {
+        btnSearchClearQuery.style.display = val ? "block" : "none";
+      }
+      renderTeamPlayerSearchResults(val);
+    });
+  }
+
+  if (btnSearchClearQuery && inputSearchTeamPlayer) {
+    btnSearchClearQuery.addEventListener("click", function() {
+      inputSearchTeamPlayer.value = "";
+      btnSearchClearQuery.style.display = "none";
+      renderTeamPlayerSearchResults("");
+    });
+  }
+
+  // Role filter chips in search modal
+  document.querySelectorAll("#teamPlayerSearchModal [data-search-filter]").forEach(chip => {
+    chip.addEventListener("click", function() {
+      document.querySelectorAll("#teamPlayerSearchModal [data-search-filter]").forEach(c => c.classList.remove("active"));
+      this.classList.add("active");
+      currentSearchRoleFilter = this.getAttribute("data-search-filter") || "all";
+      renderTeamPlayerSearchResults(inputSearchTeamPlayer ? inputSearchTeamPlayer.value : "");
+    });
+  });
+
+  // Profile Detail Modal Buttons
+  const btnClosePlayerProfileDetail = document.getElementById("btnClosePlayerProfileDetail");
+  if (btnClosePlayerProfileDetail) {
+    btnClosePlayerProfileDetail.addEventListener("click", closePlayerProfileDetailModal);
+  }
+
+  const btnDetailTogglePlayingXI = document.getElementById("btnDetailTogglePlayingXI");
+  if (btnDetailTogglePlayingXI) {
+    btnDetailTogglePlayingXI.addEventListener("click", function() {
+      if (!currentDetailPlayerId) return;
+      togglePlayerPlayingXI(currentDetailPlayerId);
+      openPlayerProfileDetailModal(currentDetailPlayerId);
+    });
+  }
+
+  const btnDetailSetCaptain = document.getElementById("btnDetailSetCaptain");
+  if (btnDetailSetCaptain) {
+    btnDetailSetCaptain.addEventListener("click", function() {
+      if (!currentDetailPlayerId) return;
+      const team = getTeamData() || initDefaultTeam();
+      const player = team.players.find(p => p.id === currentDetailPlayerId);
+      if (!player) return;
+      team.players.forEach(p => p.isCaptain = false);
+      player.isCaptain = true;
+      team.captainName = player.name;
+      saveTeamData(team);
+      renderMyTeamPage();
+      openPlayerProfileDetailModal(currentDetailPlayerId);
+      showToast(`${player.name} is now Team Captain!`);
+    });
+  }
+
+  const btnDetailSetViceCaptain = document.getElementById("btnDetailSetViceCaptain");
+  if (btnDetailSetViceCaptain) {
+    btnDetailSetViceCaptain.addEventListener("click", function() {
+      if (!currentDetailPlayerId) return;
+      const team = getTeamData() || initDefaultTeam();
+      const player = team.players.find(p => p.id === currentDetailPlayerId);
+      if (!player) return;
+      team.players.forEach(p => p.isViceCaptain = false);
+      player.isViceCaptain = true;
+      team.viceCaptainName = player.name;
+      saveTeamData(team);
+      renderMyTeamPage();
+      openPlayerProfileDetailModal(currentDetailPlayerId);
+      showToast(`${player.name} is now Vice-Captain!`);
+    });
+  }
+
+  const btnDetailEditPlayer = document.getElementById("btnDetailEditPlayer");
+  if (btnDetailEditPlayer) {
+    btnDetailEditPlayer.addEventListener("click", function() {
+      if (!currentDetailPlayerId) return;
+      const pId = currentDetailPlayerId;
+      closePlayerProfileDetailModal();
+      openEditPlayerModal(pId);
+    });
+  }
+
+  const btnDetailRemoveSquad = document.getElementById("btnDetailRemoveSquad");
+  if (btnDetailRemoveSquad) {
+    btnDetailRemoveSquad.addEventListener("click", function() {
+      if (!currentDetailPlayerId) return;
+      const pId = currentDetailPlayerId;
+      closePlayerProfileDetailModal();
+      handleDeletePlayer(pId);
+    });
+  }
+
+  // Live TV & Broadcast Center Buttons
+  const expandStreamBtn = document.getElementById("expandStreamBtn");
+  if (expandStreamBtn) {
+    expandStreamBtn.addEventListener("click", function() {
+      openBroadcastCenterModal();
+    });
+  }
+
+  // External RTMP/WHIP panels removed in favor of direct camera studio & deep-linking
+
+
+  // Tournament wizard custom overs chip
+  const tOversChipCustom = document.getElementById("tOversChipCustom");
+  if (tOversChipCustom) {
+    tOversChipCustom.addEventListener("click", function() {
+      const val = prompt("Enter match overs (1 - 50):", "12");
+      if (val && !isNaN(val) && parseInt(val) > 0) {
+        const overs = parseInt(val);
+        document.querySelectorAll("#tOversChips .wizard-chip").forEach(c => c.classList.remove("active"));
+        tOversChipCustom.classList.add("active");
+        tOversChipCustom.textContent = overs + " Overs";
+        tOversChipCustom.setAttribute("data-overs", overs);
+      }
+    });
+  }
+
+  // Clear tournament search button
+  const tourneyClearSearchBtn = document.getElementById("tourneyClearSearchBtn");
+  if (tourneyClearSearchBtn) {
+    tourneyClearSearchBtn.addEventListener("click", function() {
+      const input = document.getElementById("tourneySearchInput");
+      if (input) {
+        input.value = "";
+        input.dispatchEvent(new Event("input"));
+        tourneyClearSearchBtn.style.display = "none";
+      }
+    });
+  }
+
+  // Bottom Navigation Bar from History & Stats
+  const navMenuFromHistory = document.getElementById("navMenuFromHistory");
+  if (navMenuFromHistory) navMenuFromHistory.addEventListener("click", openMenuDrawer);
+
+  const navUpdatesFromHistory = document.getElementById("navUpdatesFromHistory");
+  if (navUpdatesFromHistory) navUpdatesFromHistory.addEventListener("click", () => showScreen("screen9"));
+
+  const navStatsFromStats = document.getElementById("navStatsFromStats");
+  if (navStatsFromStats) navStatsFromStats.addEventListener("click", () => renderStatsScreen());
+
+
   // Global window functions for inter-module accessibility
   window.openTournamentScreen = openTournamentScreen;
   window.getAvailableClubsList = getAvailableClubsList;
@@ -16315,12 +17484,16 @@ if (btnTourneyEdit) {
   window.openCreateCustomClubModal = openCreateCustomClubModal;
   window.openPublicLiveScoreModal = openPublicLiveScoreModal;
   window.openBroadcastCenterModal = openBroadcastCenterModal;
+  window.openPlayerProfileDetailModal = openPlayerProfileDetailModal;
   window.PublicLiveScoreService = PublicLiveScoreService;
   window.RealtimeLiveService = RealtimeLiveService;
   window.VideoBroadcastManager = VideoBroadcastManager;
   window.VideoViewerManager = VideoViewerManager;
 
-  // Initialize tournaments on startup
+  // Initialize tournaments and live scoreboard on startup
   getTournamentsList();
+  if (typeof updateHomeLiveScoreboard === "function") {
+    updateHomeLiveScoreboard();
+  }
 
 });
