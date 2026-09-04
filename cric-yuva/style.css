@@ -12425,7 +12425,44 @@ body {
   #screen11 .tourney-view-wrapper {
     height: 100% !important;
     min-height: 0 !important;
+    overflow: hidden !important;
   }
+
+  #screen11 .tourney-detail-scroll {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 14px 14px 100px 14px !important;
+    box-sizing: border-box !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+  }
+
+  #screen11 .tourney-hero-card {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen11 .tourney-tabs-nav {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen11 .tourney-tab-pane {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
   #screen11 .tourney-content-scroll {
     flex: 1 1 auto !important;
     min-height: 0 !important;
