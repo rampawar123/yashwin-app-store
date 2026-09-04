@@ -8698,7 +8698,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // 4. GENERATE FIXTURES ON TOURNAMENT CREATION
-  function generateTournamentFixtures(format, teams, grounds, overs, startDateStr) {
+  function generateTournamentFixtures(format, teams, grounds, overs, startDateStr, tournamentGroups = []) {
     const fixtures = [];
     const teamNames = teams.map(t => typeof t === "string" ? t : t.name);
     const venues = (grounds && grounds.length > 0) ? grounds : ["Yuva Cricket Ground"];
@@ -8812,110 +8812,291 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     } else if (format === "Group Stage") {
-      // Split into 2 groups
-      const mid = Math.ceil(teamNames.length / 2);
-      const grpA = teamNames.slice(0, mid);
-      const grpB = teamNames.slice(mid);
+      // Multi-group stage: use tournament groups when available.
+      // Each group plays a round-robin. Top 2 from every group qualify.
+      const configuredGroups = Array.isArray(tournamentGroups)
+        ? tournamentGroups
+        : [];
 
-      // Group A matches
-      grpA.forEach((tA, idx) => {
-        for (let j = idx + 1; j < grpA.length; j++) {
+      let groups = configuredGroups
+        .map((g, i) => ({
+          id: g.id || String.fromCharCode(65 + i),
+          name: g.name || `Group ${String.fromCharCode(65 + i)}`,
+          teams: Array.isArray(g.teams)
+            ? g.teams.map(t => typeof t === "string" ? t : (t.name || t.teamName)).filter(Boolean)
+            : []
+        }))
+        .filter(g => g.teams.length >= 2);
+
+      // Fallback for older tournaments that don't have configured groups.
+      if (!groups.length) {
+        const mid = Math.ceil(teamNames.length / 2);
+        groups = [
+          { id: "A", name: "Group A", teams: teamNames.slice(0, mid) },
+          { id: "B", name: "Group B", teams: teamNames.slice(mid) }
+        ].filter(g => g.teams.length >= 2);
+      }
+
+      groups.forEach(group => {
+        group.teams.forEach((tA, idx) => {
+          for (let j = idx + 1; j < group.teams.length; j++) {
+            fixtures.push({
+              id: `fx_gen_g${String(group.id).toLowerCase()}_${matchCounter}`,
+              stage: `${group.name} • Match ${matchCounter}`,
+              group: group.id,
+              teamA: tA,
+              teamB: group.teams[j],
+              date: formatDateStr(currDate),
+              time: matchCounter % 2 === 1 ? "19:30" : "15:30",
+              ground: venues[(matchCounter - 1) % venues.length],
+              status: "UPCOMING",
+              scoreA: "-",
+              scoreB: "-",
+              winner: null,
+              resultText: "Scheduled",
+              isPlayoff: false
+            });
+            currDate = addDays(currDate, 1);
+            matchCounter++;
+          }
+        });
+      });
+
+      // Qualification fixtures are generated dynamically after group standings.
+      // The bracket is:
+      // 2 groups: A1-B2, B1-A2
+      // 4 groups: A1-B2, B1-A2 and C1-D2, D1-C2 -> 2 SFs -> Final
+      // 3 groups: best 2 overall receive byes; remaining 4 play cross-group QFs.
+      if (groups.length === 2) {
+        currDate = addDays(currDate, 2);
+        fixtures.push({
+          id: "fx_gen_qg1",
+          stage: "Qualifier 1 (Group A #1 vs Group B #2)",
+          teamA: "Group A #1",
+          teamB: "Group B #2",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Qualifier",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+        fixtures.push({
+          id: "fx_gen_qg2",
+          stage: "Qualifier 2 (Group B #1 vs Group A #2)",
+          teamA: "Group B #1",
+          teamB: "Group A #2",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[venues.length > 1 ? 1 : 0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Qualifier",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+        fixtures.push({
+          id: "fx_gen_fn",
+          stage: "Grand Final",
+          teamA: "Winner Qualifier 1",
+          teamB: "Winner Qualifier 2",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Grand Final",
+          isPlayoff: true
+        });
+      } else if (groups.length === 4) {
+        currDate = addDays(currDate, 2);
+        const pairs = [
+          ["A", "B", 1],
+          ["C", "D", 2]
+        ];
+
+        pairs.forEach(([g1, g2, n]) => {
           fixtures.push({
-            id: `fx_gen_ga_${matchCounter}`,
-            stage: `Group A • Match ${matchCounter}`,
-            group: "A",
-            teamA: tA,
-            teamB: grpA[j],
+            id: `fx_gen_q${n}a`,
+            stage: `Qualifier ${n}A (${g1} #1 vs ${g2} #2)`,
+            teamA: `Group ${g1} #1`,
+            teamB: `Group ${g2} #2`,
             date: formatDateStr(currDate),
-            time: matchCounter % 2 === 1 ? "19:30" : "15:30",
-            ground: venues[(matchCounter - 1) % venues.length],
+            time: "19:30",
+            ground: venues[(n - 1) % venues.length],
             status: "UPCOMING",
             scoreA: "-",
             scoreB: "-",
             winner: null,
-            resultText: "Scheduled",
-            isPlayoff: false
+            resultText: "Qualifier",
+            isPlayoff: true
           });
           currDate = addDays(currDate, 1);
-          matchCounter++;
-        }
-      });
 
-      // Group B matches
-      grpB.forEach((tB, idx) => {
-        for (let j = idx + 1; j < grpB.length; j++) {
           fixtures.push({
-            id: `fx_gen_gb_${matchCounter}`,
-            stage: `Group B • Match ${matchCounter}`,
-            group: "B",
-            teamA: tB,
-            teamB: grpB[j],
+            id: `fx_gen_q${n}b`,
+            stage: `Qualifier ${n}B (${g2} #1 vs ${g1} #2)`,
+            teamA: `Group ${g2} #1`,
+            teamB: `Group ${g1} #2`,
             date: formatDateStr(currDate),
-            time: matchCounter % 2 === 1 ? "19:30" : "15:30",
-            ground: venues[(matchCounter - 1) % venues.length],
+            time: "19:30",
+            ground: venues[(n - 1) % venues.length],
             status: "UPCOMING",
             scoreA: "-",
             scoreB: "-",
             winner: null,
-            resultText: "Scheduled",
-            isPlayoff: false
+            resultText: "Qualifier",
+            isPlayoff: true
           });
           currDate = addDays(currDate, 1);
-          matchCounter++;
-        }
-      });
+        });
 
-      // Semi-Finals & Final
-      currDate = addDays(currDate, 2);
-      fixtures.push({
-        id: `fx_gen_sf1`,
-        stage: "Semi-Final 1 (Group A #1 vs Group B #2)",
-        teamA: "Group A #1",
-        teamB: "Group B #2",
-        date: formatDateStr(currDate),
-        time: "19:30",
-        ground: venues[0],
-        status: "UPCOMING",
-        scoreA: "-",
-        scoreB: "-",
-        winner: null,
-        resultText: "Semi-Final Match",
-        isPlayoff: true
-      });
+        fixtures.push({
+          id: "fx_gen_sf1",
+          stage: "Semi-Final 1",
+          teamA: "Winner Qualifier 1A",
+          teamB: "Winner Qualifier 1B",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Semi-Final",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
 
-      currDate = addDays(currDate, 1);
-      fixtures.push({
-        id: `fx_gen_sf2`,
-        stage: "Semi-Final 2 (Group B #1 vs Group A #2)",
-        teamA: "Group B #1",
-        teamB: "Group A #2",
-        date: formatDateStr(currDate),
-        time: "19:30",
-        ground: venues[venues.length > 1 ? 1 : 0],
-        status: "UPCOMING",
-        scoreA: "-",
-        scoreB: "-",
-        winner: null,
-        resultText: "Semi-Final Match",
-        isPlayoff: true
-      });
+        fixtures.push({
+          id: "fx_gen_sf2",
+          stage: "Semi-Final 2",
+          teamA: "Winner Qualifier 2A",
+          teamB: "Winner Qualifier 2B",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[venues.length > 1 ? 1 : 0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Semi-Final",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
 
-      currDate = addDays(currDate, 3);
-      fixtures.push({
-        id: `fx_gen_fn`,
-        stage: "Grand Final (Winner SF1 vs Winner SF2)",
-        teamA: "Winner SF1",
-        teamB: "Winner SF2",
-        date: formatDateStr(currDate),
-        time: "19:30",
-        ground: venues[0],
-        status: "UPCOMING",
-        scoreA: "-",
-        scoreB: "-",
-        winner: null,
-        resultText: "Championship Final",
-        isPlayoff: true
-      });
+        fixtures.push({
+          id: "fx_gen_fn",
+          stage: "Grand Final",
+          teamA: "Winner Semi-Final 1",
+          teamB: "Winner Semi-Final 2",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Grand Final",
+          isPlayoff: true
+        });
+      } else if (groups.length === 3) {
+        // 6 qualified teams: overall best 2 get direct Semi-Final byes.
+        currDate = addDays(currDate, 2);
+
+        fixtures.push({
+          id: "fx_gen_q1",
+          stage: "Qualifier 1 (Best #3 vs Best #6)",
+          teamA: "Overall Qualified #3",
+          teamB: "Overall Qualified #6",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Qualifier",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+
+        fixtures.push({
+          id: "fx_gen_q2",
+          stage: "Qualifier 2 (Best #4 vs Best #5)",
+          teamA: "Overall Qualified #4",
+          teamB: "Overall Qualified #5",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[venues.length > 1 ? 1 : 0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Qualifier",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+
+        fixtures.push({
+          id: "fx_gen_sf1",
+          stage: "Semi-Final 1",
+          teamA: "Overall Qualified #1",
+          teamB: "Winner Qualifier 2",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Semi-Final",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+
+        fixtures.push({
+          id: "fx_gen_sf2",
+          stage: "Semi-Final 2",
+          teamA: "Overall Qualified #2",
+          teamB: "Winner Qualifier 1",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[venues.length > 1 ? 1 : 0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Semi-Final",
+          isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+
+        fixtures.push({
+          id: "fx_gen_fn",
+          stage: "Grand Final",
+          teamA: "Winner Semi-Final 1",
+          teamB: "Winner Semi-Final 2",
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[0],
+          status: "UPCOMING",
+          scoreA: "-",
+          scoreB: "-",
+          winner: null,
+          resultText: "Grand Final",
+          isPlayoff: true
+        });
+      }
+
     } else if (format === "Knockout") {
       // Quarter-Finals or First Round
       for (let i = 0; i < teamNames.length; i += 2) {
@@ -9054,37 +9235,212 @@ document.addEventListener("DOMContentLoaded", function () {
         tourney.status = "COMPLETED";
       }
     } else if (tourney.format === "Group Stage") {
-      const sf1 = fixtures.find(f => f.stage && (f.stage.includes("Semi-Final 1") || (f.id && f.id.includes("_sf1"))));
-      const sf2 = fixtures.find(f => f.stage && (f.stage.includes("Semi-Final 2") || (f.id && f.id.includes("_sf2"))));
-      const fn = fixtures.find(f => f.stage && (f.stage.includes("Grand Final") || f.stage.includes("Final") || (f.id && f.id.includes("_fn"))) && !f.stage.includes("Semi"));
+      const groups = Array.isArray(tourney.groups)
+        ? tourney.groups.filter(g => Array.isArray(g.teams) && g.teams.length >= 2)
+        : [];
 
-      const mid = Math.ceil((tourney.teams || []).length / 2);
-      const grpATeams = (tourney.teams || []).slice(0, mid);
-      const grpBTeams = (tourney.teams || []).slice(mid);
-      const tblA = computePointsTable(tourney, grpATeams);
-      const tblB = computePointsTable(tourney, grpBTeams);
+      const getFixture = (id) => fixtures.find(f => f.id === id);
+      const winnerOf = (fixture) =>
+        fixture && fixture.status === "COMPLETED" ? fixture.winner : null;
 
-      if (tblA.length >= 2 && tblB.length >= 2) {
-        if (sf1 && sf1.status !== "COMPLETED") {
-          sf1.teamA = tblA[0].team;
-          sf1.teamB = tblB[1].team;
+      const qualified = [];
+
+      groups.forEach(group => {
+        const teamList = group.teams || [];
+        const groupTable = computePointsTable(tourney, teamList);
+
+        if (groupTable.length >= 2) {
+          qualified.push({
+            group,
+            top1: groupTable[0].team,
+            top2: groupTable[1].team
+          });
         }
-        if (sf2 && sf2.status !== "COMPLETED") {
-          sf2.teamA = tblB[0].team;
-          sf2.teamB = tblA[1].team;
+      });
+
+      // 2 Groups:
+      // A1 vs B2
+      // B1 vs A2
+      // Winners -> Final
+      if (qualified.length === 2) {
+        const a = qualified[0];
+        const b = qualified[1];
+
+        const q1 = getFixture("fx_gen_qg1");
+        const q2 = getFixture("fx_gen_qg2");
+        const fn = getFixture("fx_gen_fn");
+
+        if (q1 && q1.status !== "COMPLETED") {
+          q1.teamA = a.top1;
+          q1.teamB = b.top2;
+        }
+
+        if (q2 && q2.status !== "COMPLETED") {
+          q2.teamA = b.top1;
+          q2.teamB = a.top2;
+        }
+
+        if (q1 && q1.status === "COMPLETED" && q1.winner &&
+            fn && fn.status !== "COMPLETED") {
+          fn.teamA = q1.winner;
+        }
+
+        if (q2 && q2.status === "COMPLETED" && q2.winner &&
+            fn && fn.status !== "COMPLETED") {
+          fn.teamB = q2.winner;
+        }
+
+        if (fn && fn.status === "COMPLETED" && fn.winner) {
+          tourney.winner = fn.winner;
+          tourney.status = "COMPLETED";
+        }
+
+      // 3 Groups:
+      // Top 2 from each group = 6 qualified.
+      // Overall #1 and #2 get direct Semi-Final byes.
+      // Q1: #3 vs #6
+      // Q2: #4 vs #5
+      // SF1: #2 vs Q2 winner
+      // SF2: #1 vs Q1 winner
+      // Winners -> Final
+      } else if (qualified.length === 3) {
+        const allQualified = [];
+
+        qualified.forEach(q => {
+          const groupTable = computePointsTable(tourney, q.group.teams || []);
+
+          groupTable.slice(0, 2).forEach(row => {
+            allQualified.push({
+              team: row.team,
+              points: row.points || 0,
+              nrr: row.nrr || 0,
+              wins: row.wins || 0
+            });
+          });
+        });
+
+        allQualified.sort((x, y) =>
+          (y.points - x.points) ||
+          (y.nrr - x.nrr) ||
+          (y.wins - x.wins) ||
+          x.team.localeCompare(y.team)
+        );
+
+        if (allQualified.length >= 6) {
+          const q1 = getFixture("fx_gen_q1");
+          const q2 = getFixture("fx_gen_q2");
+          const sf1 = getFixture("fx_gen_sf1");
+          const sf2 = getFixture("fx_gen_sf2");
+          const fn = getFixture("fx_gen_fn");
+
+          if (q1 && q1.status !== "COMPLETED") {
+            q1.teamA = allQualified[2].team;
+            q1.teamB = allQualified[5].team;
+          }
+
+          if (q2 && q2.status !== "COMPLETED") {
+            q2.teamA = allQualified[3].team;
+            q2.teamB = allQualified[4].team;
+          }
+
+          if (q2 && q2.status === "COMPLETED" && q2.winner &&
+              sf1 && sf1.status !== "COMPLETED") {
+            sf1.teamA = allQualified[1].team;
+            sf1.teamB = q2.winner;
+          }
+
+          if (q1 && q1.status === "COMPLETED" && q1.winner &&
+              sf2 && sf2.status !== "COMPLETED") {
+            sf2.teamA = allQualified[0].team;
+            sf2.teamB = q1.winner;
+          }
+
+          if (sf1 && sf1.status === "COMPLETED" && sf1.winner &&
+              fn && fn.status !== "COMPLETED") {
+            fn.teamA = sf1.winner;
+          }
+
+          if (sf2 && sf2.status === "COMPLETED" && sf2.winner &&
+              fn && fn.status !== "COMPLETED") {
+            fn.teamB = sf2.winner;
+          }
+
+          if (fn && fn.status === "COMPLETED" && fn.winner) {
+            tourney.winner = fn.winner;
+            tourney.status = "COMPLETED";
+          }
+        }
+
+      // 4 Groups:
+      // A1-B2, B1-A2
+      // C1-D2, D1-C2
+      // 4 winners -> 2 Semi-Finals -> Final
+      } else if (qualified.length === 4) {
+        const q1a = getFixture("fx_gen_q1a");
+        const q1b = getFixture("fx_gen_q1b");
+        const q2a = getFixture("fx_gen_q2a");
+        const q2b = getFixture("fx_gen_q2b");
+        const sf1 = getFixture("fx_gen_sf1");
+        const sf2 = getFixture("fx_gen_sf2");
+        const fn = getFixture("fx_gen_fn");
+
+        const g1 = qualified[0];
+        const g2 = qualified[1];
+        const g3 = qualified[2];
+        const g4 = qualified[3];
+
+        if (q1a && q1a.status !== "COMPLETED") {
+          q1a.teamA = g1.top1;
+          q1a.teamB = g2.top2;
+        }
+
+        if (q1b && q1b.status !== "COMPLETED") {
+          q1b.teamA = g2.top1;
+          q1b.teamB = g1.top2;
+        }
+
+        if (q2a && q2a.status !== "COMPLETED") {
+          q2a.teamA = g3.top1;
+          q2a.teamB = g4.top2;
+        }
+
+        if (q2b && q2b.status !== "COMPLETED") {
+          q2b.teamA = g4.top1;
+          q2b.teamB = g3.top2;
+        }
+
+        if (q1a && q1b &&
+            q1a.status === "COMPLETED" &&
+            q1b.status === "COMPLETED" &&
+            sf1 && sf1.status !== "COMPLETED") {
+          sf1.teamA = q1a.winner;
+          sf1.teamB = q1b.winner;
+        }
+
+        if (q2a && q2b &&
+            q2a.status === "COMPLETED" &&
+            q2b.status === "COMPLETED" &&
+            sf2 && sf2.status !== "COMPLETED") {
+          sf2.teamA = q2a.winner;
+          sf2.teamB = q2b.winner;
+        }
+
+        if (sf1 && sf1.status === "COMPLETED" && sf1.winner &&
+            fn && fn.status !== "COMPLETED") {
+          fn.teamA = sf1.winner;
+        }
+
+        if (sf2 && sf2.status === "COMPLETED" && sf2.winner &&
+            fn && fn.status !== "COMPLETED") {
+          fn.teamB = sf2.winner;
+        }
+
+        if (fn && fn.status === "COMPLETED" && fn.winner) {
+          tourney.winner = fn.winner;
+          tourney.status = "COMPLETED";
         }
       }
 
-      if (sf1 && sf1.status === "COMPLETED" && sf1.winner) {
-        if (fn && fn.status !== "COMPLETED") fn.teamA = sf1.winner;
-      }
-      if (sf2 && sf2.status === "COMPLETED" && sf2.winner) {
-        if (fn && fn.status !== "COMPLETED") fn.teamB = sf2.winner;
-      }
-      if (fn && fn.status === "COMPLETED" && fn.winner) {
-        tourney.winner = fn.winner;
-        tourney.status = "COMPLETED";
-      }
     } else if (tourney.format === "Knockout" || tourney.format === "Knockout Cup") {
       const qf1 = fixtures.find(f => (f.id && f.id.includes("qf_1")) || (f.stage && f.stage.includes("Quarter-Final 1")));
       const qf2 = fixtures.find(f => (f.id && f.id.includes("qf_2")) || (f.stage && f.stage.includes("Quarter-Final 2")));
@@ -13345,7 +13701,14 @@ if (btnTourneyEdit) {
       });
 
       // Auto-generate fixtures
-      const fixtures = generateTournamentFixtures(format, participatingTeams, grounds, overs, startDate);
+      const fixtures = generateTournamentFixtures(
+      format,
+      participatingTeams,
+      grounds,
+      overs,
+      startDate,
+      tournamentGroups
+    );
 
       // Create tournament object
       const newTourney = {
@@ -13801,7 +14164,8 @@ if (btnTourneyEdit) {
           tourney.teams,
           tourney.grounds || ["Yuva Stadium, Mumbai"],
           tourney.overs || 20,
-          tourney.startDate || new Date().toISOString().split("T")[0]
+          tourney.startDate || new Date().toISOString().split("T")[0],
+          tourney.groups || []
         );
 
         saveTournament(tourney);
