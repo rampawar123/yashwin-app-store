@@ -10427,7 +10427,6 @@ body {
         max-height: none !important;
         margin: 0 !important;
         padding: 0 !important;
-        display: flex !important;
         align-items: stretch !important;
         justify-content: stretch !important;
         box-sizing: border-box !important;
