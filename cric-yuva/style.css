@@ -7646,8 +7646,11 @@ body {
 .tourney-view-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 0;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .tourney-top-bar {
@@ -7712,9 +7715,13 @@ body {
 
 .tourney-content-scroll,
 .tourney-detail-scroll {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
   padding: 14px 14px 85px 14px;
+  overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -8302,9 +8309,12 @@ body {
 }
 
 .tourney-tab-pane {
-  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   flex-direction: column;
   gap: 14px;
+  box-sizing: border-box;
 }
 
 /* OVERVIEW TAB */
@@ -12352,5 +12362,50 @@ body {
 /* Never allow accidental horizontal page scrolling */
 body {
   overflow-x: hidden !important;
+}
+
+
+
+/* =========================================================
+   CRIC YUVA — TOURNAMENT FINAL MOBILE SCROLL FIX
+   Keep screen11 full-width, use only inner tournament views
+   for vertical scrolling.
+   ========================================================= */
+
+.tournament-screen {
+  overflow: hidden !important;
+}
+
+.tournament-screen.active {
+  overflow: hidden !important;
+}
+
+.tourney-view-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+}
+
+.tourney-content-scroll,
+.tourney-detail-scroll {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tourney-tab-pane {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
