@@ -9541,102 +9541,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
     activeTournamentId = tourneyId;
 
-    if (typeof updatePlayoffBrackets === "function") {
-      updatePlayoffBrackets(tourney);
-    }
+    if (typeof updatePlayoffBrackets === "function") updatePlayoffBrackets(tourney);
+    if (typeof aggregateTournamentPlayerStats === "function") aggregateTournamentPlayerStats(tourney);
 
-    if (typeof aggregateTournamentPlayerStats === "function") {
-      aggregateTournamentPlayerStats(tourney);
-    }
-
-    // Hide tournament list completely.
     const listView = document.getElementById("tournamentsListView");
-    if (listView) {
-      listView.style.display = "none";
-      listView.classList.remove("active");
-    }
-
-    // Hide every other tournament/detail view.
-    document.querySelectorAll(".tourney-view-wrapper").forEach(view => {
-      if (view.id !== "tournamentDetailView") {
-        view.style.display = "none";
-        view.classList.remove("active");
-      }
-    });
-
-    // Show only Tournament Details.
     const detailView = document.getElementById("tournamentDetailView");
-    if (detailView) {
-      detailView.style.display = "flex";
-      detailView.classList.add("active");
-    }
-
+    if (listView) listView.style.display = "none";
+    if (detailView) detailView.style.display = "flex";
     showScreen("screen11");
 
-    // Set Header Title.
+    // Set Header Title
     const hName = document.getElementById("tDetailHeaderName");
     if (hName) hName.textContent = tourney.name;
 
-    // Render Hero Card.
+    // Render Hero Card
     const logoEl = document.getElementById("tHeroLogo");
     const nameEl = document.getElementById("tHeroName");
-    const formatEl =
-      document.getElementById("tHeroFormat") ||
-      document.getElementById("tHeroFormatPill");
-    const statusEl =
-      document.getElementById("tHeroStatus") ||
-      document.getElementById("tHeroStatusPill");
+    const formatEl = document.getElementById("tHeroFormat") || document.getElementById("tHeroFormatPill");
+    const statusEl = document.getElementById("tHeroStatus") || document.getElementById("tHeroStatusPill");
     const datesEl = document.getElementById("tHeroDates");
     const oversEl = document.getElementById("tHeroOvers");
-    const groundsEl =
-      document.getElementById("tHeroVenues") ||
-      document.getElementById("tHeroGrounds");
-    const winnerBanner =
-      document.getElementById("tHeroWinnerBanner") ||
-      document.getElementById("tWinnerBanner");
-    const winnerTeamName =
-      document.getElementById("tHeroWinnerName") ||
-      document.getElementById("tWinnerTeamName");
+    const groundsEl = document.getElementById("tHeroVenues") || document.getElementById("tHeroGrounds");
+    const winnerBanner = document.getElementById("tHeroWinnerBanner") || document.getElementById("tWinnerBanner");
+    const winnerTeamName = document.getElementById("tHeroWinnerName") || document.getElementById("tWinnerTeamName");
     const tabTeamsCount = document.getElementById("tTabTeamsCount");
 
     if (logoEl) logoEl.textContent = tourney.logo || "🏆";
     if (nameEl) nameEl.textContent = tourney.name;
     if (formatEl) formatEl.textContent = tourney.format;
-
     if (statusEl) {
       statusEl.textContent = tourney.status;
       statusEl.className = `tourney-status-pill status-${tourney.status}`;
     }
-
-    if (datesEl) {
-      datesEl.textContent =
-        `${tourney.startDate || "2026-03-01"} to ${tourney.endDate || "2026-04-01"}`;
-    }
-
-    if (oversEl) {
-      oversEl.textContent = `${tourney.overs || 20} Overs Match`;
-    }
-
+    if (datesEl) datesEl.textContent = `${tourney.startDate || "2026-03-01"} to ${tourney.endDate || "2026-04-01"}`;
+    if (oversEl) oversEl.textContent = `${tourney.overs || 20} Overs Match`;
     if (groundsEl) {
       const gCount = (tourney.grounds || []).length;
-      groundsEl.textContent =
-        gCount > 1
-          ? `${tourney.grounds[0]} (+${gCount - 1} more)`
-          : (tourney.grounds[0] || "Yuva Stadium");
+      groundsEl.textContent = gCount > 1 ? `${tourney.grounds[0]} (+${gCount - 1} more)` : (tourney.grounds[0] || "Yuva Stadium");
     }
 
     if (tabTeamsCount) {
       tabTeamsCount.textContent = (tourney.teams || []).length;
     }
 
-    // Auction tab.
+    // Toggle Auction Tab Navigation based on Tournament Type (REGULAR vs AUCTION)
     const auctionTabNav = document.getElementById("tTabAuctionNav");
     if (auctionTabNav) {
-      auctionTabNav.style.display =
-        tourney.type === "AUCTION" ? "inline-flex" : "none";
+      auctionTabNav.style.display = tourney.type === "AUCTION" ? "inline-flex" : "none";
     }
 
-    // Winner banner.
     if (tourney.winner && winnerBanner && winnerTeamName) {
       winnerBanner.style.display = "flex";
       winnerTeamName.textContent = tourney.winner;
@@ -9644,48 +9597,19 @@ document.addEventListener("DOMContentLoaded", function () {
       winnerBanner.style.display = "none";
     }
 
-    // Progress bar.
+    // Progress Bar
     const totalMatches = (tourney.fixtures || []).length;
-    const doneMatches = (tourney.fixtures || [])
-      .filter(f => f.status === "COMPLETED").length;
-
-    const pct =
-      totalMatches > 0
-        ? Math.round((doneMatches / totalMatches) * 100)
-        : 0;
-
-    const pFill =
-      document.getElementById("tHeroProgressBar") ||
-      document.getElementById("tHeroProgressFill");
-
-    const pMatches =
-      document.getElementById("tHeroProgressLabel") ||
-      document.getElementById("tHeroProgressMatches");
-
-    const pPct =
-      document.getElementById("tHeroProgressPercent") ||
-      document.getElementById("tHeroProgressPct");
-
+    const doneMatches = (tourney.fixtures || []).filter(f => f.status === "COMPLETED").length;
+    const pct = totalMatches > 0 ? Math.round((doneMatches / totalMatches) * 100) : 0;
+    const pFill = document.getElementById("tHeroProgressBar") || document.getElementById("tHeroProgressFill");
+    const pMatches = document.getElementById("tHeroProgressLabel") || document.getElementById("tHeroProgressMatches");
+    const pPct = document.getElementById("tHeroProgressPercent") || document.getElementById("tHeroProgressPct");
     if (pFill) pFill.style.width = `${pct}%`;
+    if (pMatches) pMatches.textContent = `Matches: ${doneMatches} / ${totalMatches} Completed`;
+    if (pPct) pPct.textContent = `${pct}%`;
 
-    if (pMatches) {
-      pMatches.textContent =
-        `Matches: ${doneMatches} / ${totalMatches} Completed`;
-    }
-
-    if (pPct) {
-      pPct.textContent = `${pct}%`;
-    }
-
-    // Render selected tournament tab.
-    const curTab =
-      initialTab ||
-      activeTourneyDetailTab
-        .replace("tPane", "")
-        .replace("t", "")
-        .toLowerCase() ||
-      "overview";
-
+    // Render Active Tab Content
+    const curTab = initialTab || activeTourneyDetailTab.replace("tPane", "").replace("t", "").toLowerCase() || "overview";
     switchTournamentTab(curTab);
   }
 
