@@ -9609,32 +9609,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (pPct) pPct.textContent = `${pct}%`;
 
     // Render Active Tab Content
-    const curTab = initialTab || activeTourneyDetailTab || "overview";
+    const curTab = initialTab || activeTourneyDetailTab.replace("tPane", "").toLowerCase() || "overview";
     switchTournamentTab(curTab);
   }
 
   function switchTournamentTab(tabKey) {
-    // Normalize tournament tab keys safely.
-    // IMPORTANT: "teams" must remain "teams" (the old /^t/ rule changed it to "eams").
-    let normKey = String(tabKey || "").trim().toLowerCase();
-    normKey = normKey.replace(/^tpane/, "").replace(/^pane_t/, "").replace(/^pane_/, "");
-    const aliases = {
-      overview: "overview",
-      teams: "teams",
-      team: "teams",
-      fixtures: "fixtures",
-      fixture: "fixtures",
-      points: "points",
-      point: "points",
-      stats: "stats",
-      statistics: "stats",
-      rules: "rules",
-      results: "results",
-      result: "results",
-      auction: "auction",
-      chat: "chat"
-    };
-    normKey = aliases[normKey] || "overview";
+    // Normalize tabKey (e.g. 'overview', 'teams', 'fixtures', 'points', 'stats', 'rules', 'results', 'auction', 'chat')
+    let normKey = tabKey.toLowerCase().replace("tpane", "");
+    if (!normKey) normKey = "overview";
     activeTourneyDetailTab = normKey;
 
     const tourney = getTournamentById(activeTournamentId);
@@ -9642,8 +9624,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update Tab Navigation Buttons
     document.querySelectorAll(".t-nav-tab").forEach(tab => {
-      const rawTabKey = (tab.dataset.ttab || tab.dataset.tab || "").toLowerCase();
-      const tKey = rawTabKey.replace(/^tpane/, "").replace(/^pane_t/, "").replace(/^pane_/, "");
+      const tKey = (tab.dataset.ttab || tab.dataset.tab || "").toLowerCase().replace("tpane", "");
       tab.classList.toggle("active", tKey === normKey);
     });
 
@@ -9983,22 +9964,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // TAB 2: TEAMS & GROUP STAGES
   function renderTeamsTab(tourney) {
-    // Be defensive with older tournament records: if a legacy record has no
-    // top-level teams array, rebuild the participating list from groups/fixtures.
-    let teams = Array.isArray(tourney.teams) ? tourney.teams.slice() : [];
-    if (teams.length === 0) {
-      const recovered = [];
-      const addRecovered = (team) => {
-        const obj = typeof team === "string" ? { name: team } : (team && typeof team === "object" ? team : null);
-        const name = obj && String(obj.name || "").trim();
-        if (!name || recovered.some(t => String(t.name).toLowerCase() === name.toLowerCase())) return;
-        recovered.push({ ...obj, name, logo: obj.logo || "🏏", playerCount: obj.playerCount || (Array.isArray(obj.players) ? obj.players.length : 11) });
-      };
-      (tourney.groups || []).forEach(g => (g.teams || []).forEach(addRecovered));
-      (tourney.fixtures || []).forEach(f => { addRecovered(f.teamA); addRecovered(f.teamB); });
-      teams = recovered;
-      if (teams.length > 0) tourney.teams = teams;
-    }
+    const teams = tourney.teams || [];
     const countHeader = document.getElementById("tTeamsTotalHeader") || document.getElementById("tTeamsCountDisplay");
     const countTab = document.getElementById("tTabTeamsCount");
     const gridContainer = document.getElementById("tTeamsListGrid") || document.getElementById("tTeamsGridContainer");

@@ -12268,546 +12268,69 @@ body {
 
 
 /* =========================================================
-   CRIC YUVA — MOBILE APP / PROFESSIONAL UI POLISH
-   Safe responsive layer: keeps existing screens/features,
-   but makes the web version behave like a full-screen app.
+   FINAL MOBILE APP VIEWPORT — ONLY THE CURRENT SCREEN SCROLLS
+   (Targeted fix; existing Cric Yuva UI/features are preserved.)
 ========================================================= */
-
-html {
-  width: 100%;
-  min-height: 100%;
-  background: #050505;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-body {
-  width: 100%;
-  min-width: 0;
-  min-height: 100dvh;
-  margin: 0;
-  background: #050505;
-  overscroll-behavior-y: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.app-screen {
-  width: 100%;
-  min-width: 0;
-  min-height: 100dvh;
-  box-sizing: border-box;
-}
-
-button,
-a,
-input,
-select,
-textarea {
-  touch-action: manipulation;
-}
-
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.home-bottom-nav {
-  width: 100%;
-  max-width: none;
-  min-height: 70px;
-  height: calc(70px + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  box-sizing: border-box;
-}
-
-.home-screen,
-.tournament-screen,
-.my-team-screen,
-.match-history-screen,
-.player-stats-screen {
-  min-height: 100dvh;
-}
-
-/* Tournament detail page: app-like spacing and safe bottom area. */
-.tourney-view-wrapper {
-  width: 100%;
-  min-height: 100dvh;
-}
-
-.tourney-content-scroll,
-.tourney-detail-scroll {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
-}
-
-/* Teams tab — clear, tappable professional team cards. */
-#tPaneTeams .tourney-teams-header {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: linear-gradient(180deg, #0b0d12 0%, #0b0d12 82%, rgba(11,13,18,0) 100%);
-  padding: 4px 0 12px;
-}
-
-#tPaneTeams .tourney-all-teams-wrapper {
-  width: 100%;
-  min-width: 0;
-}
-
-#tPaneTeams .tourney-teams-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-#tPaneTeams .tourney-team-card {
-  width: 100%;
-  min-width: 0;
-  margin-bottom: 0 !important;
-  padding: 14px !important;
-  border-radius: 16px !important;
-  background: linear-gradient(145deg, #151821, #10131a) !important;
-  border: 1px solid #252d40 !important;
-  box-shadow: 0 5px 18px rgba(0,0,0,.22);
-  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
-}
-
-#tPaneTeams .tourney-team-card:active {
-  transform: scale(.985);
-  border-color: rgba(255,90,0,.7) !important;
-}
-
-#tPaneTeams .team-card-logo-badge {
-  width: 48px !important;
-  height: 48px !important;
-  min-width: 48px;
-  border-radius: 14px !important;
-  background: linear-gradient(145deg, #242a38, #171a22) !important;
-  border: 1px solid #394257 !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
-}
-
-#tPaneTeams .team-card-title {
-  font-size: 15px !important;
-  line-height: 1.2;
-}
-
-#tPaneTeams .team-card-sub {
-  line-height: 1.45;
-}
-
-#tPaneTeams .btn-manage-tourney-squad {
-  min-height: 38px;
-  padding: 7px 11px !important;
-  border-radius: 9px !important;
-}
-
-#tPaneTeams .team-fixtures-accordion {
-  margin-top: 10px !important;
-  border-radius: 11px !important;
-}
-
-/* Group cards stay readable on narrow phones. */
-#tPaneTeams .tourney-groups-section-container {
-  grid-template-columns: 1fr !important;
-  gap: 10px !important;
-}
-
-#tPaneTeams .group-card-box {
-  min-width: 0;
-  border-radius: 15px;
-}
-
-/* Compact phones */
-@media (max-width: 600px) {
-  .tourney-top-bar {
-    min-height: 58px;
-    padding: 9px 12px;
-  }
-
-  .tourney-page-title {
-    font-size: 13px;
-  }
-
-  .tourney-detail-scroll,
-  .tourney-content-scroll {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .tourney-tabs-nav {
-    border-radius: 13px;
-    padding: 4px;
-    gap: 3px;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    box-shadow: 0 5px 15px rgba(0,0,0,.25);
-  }
-
-  .t-nav-tab {
-    min-height: 36px;
-    padding: 8px 11px;
-    font-size: 10.5px;
-  }
-
-  .tourney-teams-header {
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .tourney-teams-actions {
+@media (max-width: 699px) {
+  html, body {
     width: 100%;
-  }
-
-  .tourney-teams-actions button {
-    flex: 1;
-    justify-content: center;
-  }
-
-  #tPaneTeams .team-card-top {
-    align-items: flex-start !important;
-  }
-
-  #tPaneTeams .team-card-left {
-    flex: 1 1 100%;
+    max-width: 100%;
     min-width: 0;
-  }
-
-  #tPaneTeams .tourney-team-card > .team-card-top > div:last-child {
-    width: 100%;
-    justify-content: flex-start !important;
-  }
-
-  #tPaneTeams .tourney-team-card > .team-card-top > div:last-child .btn-manage-tourney-squad {
-    flex: 1;
-    justify-content: center;
-  }
-
-  #tPaneTeams .team-fixtures-accordion > div:last-child > div {
-    align-items: flex-start !important;
-  }
-
-  .home-bottom-nav {
-    left: 0;
-    right: 0;
-  }
-}
-
-/* Android safe-area + very narrow screens */
-@media (max-width: 380px) {
-  .home-bottom-nav {
-    min-height: 66px;
-    height: calc(66px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .nav-item {
-    font-size: 10px;
-  }
-
-  .nav-item i {
-    font-size: 17px;
-  }
-
-  .center-plus-button {
-    width: 52px;
-    height: 52px;
-  }
-
-  #tPaneTeams .tourney-team-card {
-    padding: 12px !important;
-  }
-
-  #tPaneTeams .team-card-logo-badge {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px;
-  }
-}
-
-/* Desktop browser can still preview a phone-like app shell,
-   while real mobile/TWA fills the available viewport. */
-@media (min-width: 700px) {
-  body {
-    display: flex;
-    justify-content: center;
-    background: #050505;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
   }
 
   .app-screen {
-    width: 100%;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  .home-bottom-nav {
-    max-width: 520px;
-  }
-}
-
-/* =========================================================
-   CRIC YUVA — FINAL MOBILE APP VIEWPORT / SCROLL SYSTEM
-   Every app screen occupies exactly the phone viewport.
-   Only the screen's content area scrolls; headers/nav stay in place.
-========================================================= */
-html, body {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  overflow: hidden !important;
-  overscroll-behavior: none;
-}
-
-body {
-  margin: 0;
-  position: fixed;
-  inset: 0;
-}
-
-.app-screen {
-  width: 100%;
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  max-height: 100dvh !important;
-  overflow: hidden !important;
-  box-sizing: border-box;
-  position: relative;
-}
-
-.app-screen.active {
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  max-height: 100dvh !important;
-}
-
-/* Screens whose complete page is itself the scroll surface. */
-#screen2.login-screen,
-#screen3.create-screen,
-#screen4.profile-screen {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* HOME: fixed header + scrollable feed + fixed bottom navigation */
-#screen5.home-screen {
-  display: grid !important;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
-}
-
-#screen5 .home-top-bar {
-  position: relative !important;
-  top: auto !important;
-  flex-shrink: 0;
-}
-
-#screen5 .home-scroll-content {
-  min-height: 0 !important;
-  height: auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 18px !important;
-}
-
-#screen5 .home-bottom-nav {
-  position: relative !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  width: 100% !important;
-  max-width: none !important;
-  flex-shrink: 0;
-}
-
-/* MY TEAM: fixed header + only team content scrolls */
-#screen6.my-team-screen {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
-}
-#screen6 .team-top-bar {
-  position: relative !important;
-  top: auto !important;
-  flex: 0 0 auto;
-}
-#screen6 .team-scroll-content {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 24px !important;
-}
-
-/* START MATCH: fixed header/stepper + wizard content scrolls */
-#screen7.start-match-screen {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
-}
-#screen7 .match-top-bar,
-#screen7 .match-stepper-container {
-  flex: 0 0 auto;
-}
-#screen7 .match-top-bar { position: relative !important; top: auto !important; }
-#screen7 .match-wizard-content {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 24px !important;
-}
-
-/* LIVE SCORING: fixed header + score content scrolls */
-#screen8.live-scoring-screen {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
-}
-#screen8 .live-top-bar { position: relative !important; top: auto !important; flex: 0 0 auto; }
-#screen8 .live-score-scroll {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 24px !important;
-}
-
-/* HISTORY + STATS: existing inner scroll becomes the only scroll surface */
-#screen9.match-history-screen,
-#screen10.player-stats-screen {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
-}
-#screen9 .history-top-bar,
-#screen10 .stats-top-bar {
-  position: relative !important;
-  top: auto !important;
-  flex: 0 0 auto;
-}
-#screen9 .history-content-scroll,
-#screen10 .stats-content-scroll {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 24px !important;
-}
-
-/* TOURNAMENT: fixed header + tournament content scrolls */
-#screen11.tournament-screen {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
-}
-#screen11 .tourney-view-wrapper {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  height: 100% !important;
-  overflow: hidden !important;
-}
-#screen11 .tourney-top-bar {
-  position: relative !important;
-  top: auto !important;
-  flex: 0 0 auto;
-}
-#screen11 .tourney-content-scroll,
-#screen11 .tourney-detail-scroll {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  height: auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 24px !important;
-}
-
-/* Tournament detail tabs remain inside the scroll viewport. */
-#screen11 .tourney-tab-pane {
-  min-width: 0;
-}
-
-/* Teams tab: never allow a blank/zero-height team list. */
-#tPaneTeams .tourney-all-teams-wrapper,
-#tPaneTeams .tourney-teams-grid {
-  min-height: 1px !important;
-  width: 100% !important;
-}
-#tPaneTeams .tourney-teams-grid {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 10px !important;
-}
-#tPaneTeams .tourney-team-card {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Keep mobile content full width; no artificial side gutters. */
-@media (max-width: 699px) {
-  .app-screen,
-  #screen5.home-screen,
-  #screen6.my-team-screen,
-  #screen7.start-match-screen,
-  #screen8.live-scoring-screen,
-  #screen9.match-history-screen,
-  #screen10.player-stats-screen,
-  #screen11.tournament-screen {
-    width: 100% !important;
-    max-width: none !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
     margin: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 
-  #screen5 .home-scroll-content,
-  #screen6 .team-scroll-content,
-  #screen7 .match-wizard-content,
-  #screen8 .live-score-scroll,
-  #screen9 .history-content-scroll,
-  #screen10 .stats-content-scroll,
-  #screen11 .tourney-content-scroll,
-  #screen11 .tourney-detail-scroll {
-    scrollbar-width: none;
+  /* Do not let inactive screens take any space. */
+  .app-screen:not(.active) {
+    display: none !important;
   }
 
-  #screen5 .home-scroll-content::-webkit-scrollbar,
-  #screen6 .team-scroll-content::-webkit-scrollbar,
-  #screen7 .match-wizard-content::-webkit-scrollbar,
-  #screen8 .live-score-scroll::-webkit-scrollbar,
-  #screen9 .history-content-scroll::-webkit-scrollbar,
-  #screen10 .stats-content-scroll::-webkit-scrollbar,
-  #screen11 .tourney-content-scroll::-webkit-scrollbar,
-  #screen11 .tourney-detail-scroll::-webkit-scrollbar {
-    display: none;
+  /* Home: the page itself is the single scroll area. */
+  #screen5.home-screen {
+    overflow-y: auto !important;
   }
-}
+  #screen5 .home-scroll-content {
+    height: auto !important;
+    min-height: 0 !important;
+  }
 
-/* Desktop browser preview retains a centered phone-like shell. */
-@media (min-width: 700px) {
-  body {
-    position: relative;
-    inset: auto;
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
+  /* Tournament: header stays visible while its content scrolls. */
+  #screen11.tournament-screen {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
     overflow: hidden !important;
   }
-  .app-screen {
-    width: 100% !important;
-    max-width: 520px !important;
-    margin: 0 auto !important;
+  #screen11 .tourney-view-wrapper {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  #screen11 .tourney-content-scroll {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Full phone width — no artificial desktop-width side gutters. */
+  .home-bottom-nav {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
   }
 }
