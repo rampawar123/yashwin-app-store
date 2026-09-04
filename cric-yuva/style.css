@@ -44,7 +44,7 @@ body {
 .app-screen.match-history-screen.active,
 .app-screen.player-stats-screen.active,
 .app-screen.tournament-screen.active {
- display: flex !important;
+ display: block !important;
 }
 
 /* SCREEN 1 - SPLASH */
@@ -5726,7 +5726,7 @@ body {
 }
 
 .match-history-screen.active {
-  display: flex !important;
+  display: block !important;
 }
 
 .history-top-bar {
@@ -6370,7 +6370,7 @@ body {
 }
 
 .player-stats-screen.active {
-  display: flex !important;
+  display: block !important;
 }
 
 .stats-top-bar {
