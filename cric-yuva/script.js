@@ -3784,118 +3784,121 @@ document.addEventListener("DOMContentLoaded", function () {
   let pendingBoundary = null; // Stores { runs: 4 or 6, direction: "Cover" }
 
   function handleRunDelivery(runsScored, direction = "") {
-    const match = getActiveMatch();
-    if (!match) return;
+  const match = getActiveMatch();
+  if (!match) return;
+  if (["COMPLETED","TIED","ABANDONED"].includes(match.status)) return;
 
-    if (match.status === "COMPLETED" || match.status === "TIED" || match.status === "ABANDONED") {
-      return;
-    }
+  const innings = getCurrentInnings(match);
+  if (!innings) return;
 
-    const innings = getCurrentInnings(match);
-    if (!innings) return;
+  const maxOvers = match.overs || 20;
+  const maxWkts = match.isSuperOver ? 2 : 10;
 
-    // Strict boundary checks against over-bowling
-    const maxOvers = match.overs || 20;
-    const maxWkts = match.isSuperOver ? 2 : 10;
-    if (innings.overs >= maxOvers || innings.wickets >= maxWkts) {
+  if (innings.overs >= maxOvers || innings.wickets >= maxWkts) {
+    checkInningsCompletionStatus(match, innings);
+    return;
+  }
+
+  if (match.currentInningIndex === 2 && match.innings1) {
+    const target = (match.innings1.totalRuns || 0) + 1;
+    if (innings.totalRuns >= target) {
       checkInningsCompletionStatus(match, innings);
       return;
     }
-
-    if (match.currentInningIndex === 2 && match.innings1) {
-      const target = (match.innings1.totalRuns || 0) + 1;
-      if (innings.totalRuns >= target) {
-        checkInningsCompletionStatus(match, innings);
-        return;
-      }
-    }
-
-    // Save snapshot before changes
-    saveMatchHistorySnapshot(match);
-
-    const striker = innings.batting.find(b => b.isAtCrease && b.isStriker);
-    const bowler = innings.bowling.find(b => b.isCurrentBowler) || innings.bowling[0];
-
-    if (!striker || !bowler) {
-      alert("Please ensure striker and bowler are assigned.");
-      return;
-    }
-
-    // 1. Update Runs
-    innings.totalRuns += runsScored;
-    striker.runs += runsScored;
-    striker.balls += 1;
-    if (runsScored === 4) striker.fours = (striker.fours || 0) + 1;
-    if (runsScored === 6) striker.sixes = (striker.sixes || 0) + 1;
-
-    bowler.runs += runsScored;
-    innings.balls += 1;
-    bowler.balls += 1;
-
-    // 2. Add Delivery Bubble & Commentary
-    const overCoord = `${innings.overs}.${innings.balls}`;
-    let label = `${runsScored}`;
-    let typeClass = runsScored === 0 ? "dot" : runsScored === 4 ? "four" : runsScored === 6 ? "six" : "runs";
-    let eventName = runsScored === 0 ? "DOT BALL" : runsScored === 4 ? "FOUR" : runsScored === 6 ? "SIX" : `${runsScored} RUNS`;
-
-    innings.currentOverDeliveries.push({
-      label: label,
-      typeClass: typeClass,
-      runs: runsScored,
-      direction: direction,
-      ballNumber: innings.balls
-    });
-
-    let commText = "";
-    if (runsScored === 0) {
-      commText = `${bowler.name} to ${striker.name}, no run, solid defensive shot.`;
-    } else if (runsScored === 4) {
-      const dirText = direction ? ` through ${direction}` : "";
-      commText = `🏏 FOUR! ${striker.name} cracks a crisp boundary${dirText} off ${bowler.name}!`;
-    } else if (runsScored === 6) {
-      const dirText = direction ? ` over ${direction}` : "";
-      commText = `🚀 SIX! Massive hit! ${striker.name} lofts it high and handsome${dirText} into the stands!`;
-    } else {
-      commText = `${bowler.name} to ${striker.name}, ${runsScored} run${runsScored > 1 ? "s" : ""} taken with good running between wickets.`;
-    }
-
-    innings.commentary.push({
-      over: overCoord,
-      event: eventName,
-      badge: runsScored === 0 ? "•" : `${runsScored}`,
-      text: commText,
-      direction: direction,
-      runs: runsScored
-    });
-
-    // 3. Strike Rotation on Odd Runs (1, 3, 5)
-    if (runsScored % 2 !== 0) {
-      rotateStrike(innings);
-    }
-
-    // Check if 2nd innings target achieved on this ball
-    let targetAchievedIn2nd = false;
-    if (match.currentInningIndex === 2 && match.innings1) {
-      const target = (match.innings1.totalRuns || 0) + 1;
-      if (innings.totalRuns >= target) {
-        targetAchievedIn2nd = true;
-      }
-    }
-
-    // 4. Check Over Completion (6 Legal Balls) - ONLY if target not yet achieved
-    if (innings.balls >= 6 && !targetAchievedIn2nd) {
-      completeOver(innings, bowler, match);
-    }
-
-    // 5. Check Innings Target / Completion
-    checkInningsCompletionStatus(match, innings);
-
-    // 6. Save & Update UI
-    saveActiveMatchState(match);
-    renderLiveScoringPage(match);
   }
 
-  function rotateStrike(innings) {
+  saveMatchHistorySnapshot(match);
+
+  const striker = innings.batting.find(b => b.isAtCrease && b.isStriker);
+  const bowler = innings.bowling.find(b => b.isCurrentBowler) || innings.bowling[0];
+
+  if (!striker || !bowler) {
+    alert("Please ensure striker and bowler are assigned.");
+    return;
+  }
+
+  innings.totalRuns += runsScored;
+  striker.runs += runsScored;
+  striker.balls += 1;
+
+  if (runsScored === 4) striker.fours = (striker.fours || 0) + 1;
+  if (runsScored === 6) striker.sixes = (striker.sixes || 0) + 1;
+
+  bowler.runs += runsScored;
+
+  // Every normal scoring button = one legal ball.
+  innings.balls = (innings.balls || 0) + 1;
+  bowler.balls = (bowler.balls || 0) + 1;
+
+  const overCoord = `${innings.overs}.${innings.balls}`;
+  const label = String(runsScored);
+  const typeClass =
+    runsScored === 0 ? "dot" :
+    runsScored === 4 ? "four" :
+    runsScored === 6 ? "six" : "runs";
+
+  const eventName =
+    runsScored === 0 ? "DOT BALL" :
+    runsScored === 4 ? "FOUR" :
+    runsScored === 6 ? "SIX" : `${runsScored} RUNS`;
+
+  if (!Array.isArray(innings.currentOverDeliveries)) {
+    innings.currentOverDeliveries = [];
+  }
+
+  innings.currentOverDeliveries.push({
+    label,
+    typeClass,
+    runs: runsScored,
+    direction,
+    ballNumber: innings.balls
+  });
+
+  let commText = "";
+  if (runsScored === 0) {
+    commText = `${bowler.name} to ${striker.name}, no run, solid defensive shot.`;
+  } else if (runsScored === 4) {
+    const dirText = direction ? ` through ${direction}` : "";
+    commText = `🏏 FOUR! ${striker.name} cracks a crisp boundary${dirText} off ${bowler.name}!`;
+  } else if (runsScored === 6) {
+    const dirText = direction ? ` over ${direction}` : "";
+    commText = `🚀 SIX! Massive hit! ${striker.name} lofts it high and handsome${dirText} into the stands!`;
+  } else {
+    commText = `${bowler.name} to ${striker.name}, ${runsScored} run${runsScored > 1 ? "s" : ""} taken with good running between wickets.`;
+  }
+
+  innings.commentary.push({
+    over: overCoord,
+    event: eventName,
+    badge: runsScored === 0 ? "•" : label,
+    text: commText,
+    direction,
+    runs: runsScored
+  });
+
+  if (runsScored % 2 !== 0) {
+    rotateStrike(innings);
+  }
+
+  let targetAchievedIn2nd = false;
+  if (match.currentInningIndex === 2 && match.innings1) {
+    const target = (match.innings1.totalRuns || 0) + 1;
+    targetAchievedIn2nd = innings.totalRuns >= target;
+  }
+
+  // The 6th legal ball is recorded FIRST, then the over is completed.
+  if (innings.balls >= 6) {
+    if (!targetAchievedIn2nd) {
+      completeOver(innings, bowler, match);
+    }
+  }
+
+  checkInningsCompletionStatus(match, innings);
+  saveActiveMatchState(match);
+  renderLiveScoringPage(match);
+}
+
+function rotateStrike(innings) {
     const creaseBatters = innings.batting.filter(b => b.isAtCrease);
     if (creaseBatters.length === 2) {
       creaseBatters.forEach(b => {
@@ -4544,6 +4547,25 @@ document.addEventListener("DOMContentLoaded", function () {
       const battingFirst = document.getElementById("selectSuperOverBattingFirst")?.value;
       document.getElementById("superOverModal").style.display = "none";
       launchSuperOver(getActiveMatch(), battingFirst);
+    });
+  }
+
+  const btnKeepMatchTied = document.getElementById("btnKeepMatchTied");
+  if (btnKeepMatchTied) {
+    btnKeepMatchTied.addEventListener("click", () => {
+      const match = getActiveMatch();
+      if (!match) return;
+
+      match.status = "TIED";
+      match.result = "Match Tied";
+      document.getElementById("superOverModal").style.display = "none";
+
+      saveActiveMatchState(match);
+      saveMatchToHistoryStorage(match);
+      if (typeof syncMatchToTournament === "function") syncMatchToTournament(match);
+
+      renderLiveScoringPage(match);
+      showFinalMatchHub(match, "Match Tied");
     });
   }
 
