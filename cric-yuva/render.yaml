@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: cric-yuva
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: cric-yuva-data
+      mountPath: /data
+      sizeGB: 1
