@@ -1,65 +1,87 @@
 /**
- * Cric Yuva - Per-User Persistent Storage & IndexedDB Engine
- * Provides complete data isolation between registered users.
- * Migrates existing single-user localStorage data safely on startup.
+ * Cric Yuva - Fresh Mobile-Based Player Storage
+ * ------------------------------------------------
+ * Rules:
+ * 1. A player exists only after registration with a valid mobile number.
+ * 2. One mobile number = one Cric Yuva Player ID.
+ * 3. No guest/dummy player is created.
+ * 4. Tournament/player data is isolated by registered user ID.
+ *
+ * NOTE: This browser storage is the offline/local layer. For production/Play
+ * Store use, the server must be the final authority for authentication and IDs.
  */
 
 (function () {
   "use strict";
 
   const DB_NAME = "CricYuvaDB";
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
   const USERS_REGISTRY_KEY = "cricYuva_users_registry";
   const ACTIVE_USER_KEY = "cricYuva_active_user_id";
-  const LEGACY_MIGRATION_FLAG = "cricYuva_legacy_data_migrated_v1";
-
-  // Default guest user ID if no session exists
-  const DEFAULT_GUEST_ID = "CYU_DEFAULT_USER";
+  const LOGIN_KEY = "cricYuvaLoggedIn";
 
   let idbInstance = null;
 
-  // Initialize IndexedDB
+  function normalizeMobile(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  function isValidMobile(mobile) {
+    // India-first validation. Accepts a 10-digit mobile beginning 6-9.
+    return /^[6-9]\d{9}$/.test(mobile);
+  }
+
+  function makePlayerId(mobile) {
+    // Stable ID: the registered mobile is the source of truth.
+    return "CY-" + mobile;
+  }
+
+  function makeUserId(mobile) {
+    return "CYU-" + mobile;
+  }
+
   function openDatabase() {
     return new Promise((resolve) => {
       if (!window.indexedDB) {
-        console.warn("[CricYuvaDB] IndexedDB not supported; using localStorage only.");
         resolve(null);
         return;
       }
       try {
         const request = window.indexedDB.open(DB_NAME, DB_VERSION);
+
         request.onupgradeneeded = function (event) {
           const db = event.target.result;
+
           if (!db.objectStoreNames.contains("users")) {
             db.createObjectStore("users", { keyPath: "userId" });
           }
+
           if (!db.objectStoreNames.contains("user_data")) {
             const store = db.createObjectStore("user_data", { keyPath: "compositeKey" });
             store.createIndex("userId", "userId", { unique: false });
           }
         };
+
         request.onsuccess = function (event) {
           idbInstance = event.target.result;
           resolve(idbInstance);
         };
-        request.onerror = function (err) {
-          console.warn("[CricYuvaDB] Error opening IndexedDB:", err);
+
+        request.onerror = function () {
           resolve(null);
         };
       } catch (e) {
-        console.warn("[CricYuvaDB] Exception opening IndexedDB:", e);
         resolve(null);
       }
     });
   }
 
-  // User Registry Operations
   function getAllRegisteredUsers() {
     try {
       const raw = localStorage.getItem(USERS_REGISTRY_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const users = raw ? JSON.parse(raw) : [];
+      return Array.isArray(users) ? users : [];
     } catch (e) {
-      console.error("Error reading users registry:", e);
       return [];
     }
   }
@@ -67,268 +89,225 @@
   function saveRegisteredUsers(users) {
     try {
       localStorage.setItem(USERS_REGISTRY_KEY, JSON.stringify(users));
-      // Async mirror to IndexedDB
+
       if (idbInstance) {
         const tx = idbInstance.transaction("users", "readwrite");
         const store = tx.objectStore("users");
-        users.forEach((u) => store.put(u));
+        users.forEach((user) => store.put(user));
       }
     } catch (e) {
-      console.error("Error saving users registry:", e);
+      console.error("[CricYuvaStorage] Could not save users:", e);
     }
   }
 
   function getActiveUserId() {
-    const active = localStorage.getItem(ACTIVE_USER_KEY);
-    if (active && active.trim()) {
-      return active.trim();
+    const active = String(localStorage.getItem(ACTIVE_USER_KEY) || "").trim();
+
+    if (active) {
+      const users = getAllRegisteredUsers();
+      if (users.some((u) => u && u.userId === active)) {
+        return active;
+      }
+      localStorage.removeItem(ACTIVE_USER_KEY);
     }
-    // If not set, check if a registered user exists
-    const users = getAllRegisteredUsers();
-    if (users.length > 0) {
-      const firstId = users[0].userId;
-      localStorage.setItem(ACTIVE_USER_KEY, firstId);
-      return firstId;
-    }
-    return DEFAULT_GUEST_ID;
+
+    // Fresh app: no automatic guest/first-user session.
+    return "";
   }
 
   function setActiveUserId(userId) {
-    if (!userId) return;
+    if (!userId) return false;
+
+    const users = getAllRegisteredUsers();
+    const exists = users.some((u) => u && u.userId === userId);
+
+    if (!exists) return false;
+
     localStorage.setItem(ACTIVE_USER_KEY, userId);
+    localStorage.setItem(LOGIN_KEY, "true");
+    return true;
   }
 
   function clearActiveSession() {
-    localStorage.setItem("cricYuvaLoggedIn", "false");
+    localStorage.setItem(LOGIN_KEY, "false");
     localStorage.removeItem(ACTIVE_USER_KEY);
   }
 
-  // Key Scoper: transforms generic key into user-scoped key
   function getScopedKey(key, userId) {
     const uid = userId || getActiveUserId();
+    if (!uid) return null;
     return `CYU_${uid}_${key}`;
   }
 
-  // Read item with per-user isolation
   function getUserItem(key, fallback = null) {
-    const uid = getActiveUserId();
-    const scopedKey = getScopedKey(key, uid);
-    const val = localStorage.getItem(scopedKey);
-    if (val !== null) return val;
+    const scopedKey = getScopedKey(key);
+    if (!scopedKey) return fallback;
 
-    // Fallback: If legacy un-scoped key exists and active user is the migrated user, preserve it
-    const legacyVal = localStorage.getItem(key);
-    if (legacyVal !== null) {
-      // Auto-migrate to scoped key
-      try {
-        localStorage.setItem(scopedKey, legacyVal);
-      } catch (e) {}
-      return legacyVal;
+    try {
+      const value = localStorage.getItem(scopedKey);
+      return value !== null ? value : fallback;
+    } catch (e) {
+      return fallback;
     }
-
-    return fallback;
   }
 
-  // Write item with per-user isolation
   function setUserItem(key, value) {
     const uid = getActiveUserId();
     const scopedKey = getScopedKey(key, uid);
+
+    if (!uid || !scopedKey) {
+      console.warn("[CricYuvaStorage] No registered player is active.");
+      return false;
+    }
+
     try {
       localStorage.setItem(scopedKey, value);
     } catch (e) {
-      console.error(`Error writing ${scopedKey} to localStorage:`, e);
+      console.error("[CricYuvaStorage] Could not save:", key, e);
+      return false;
     }
 
-    // Mirror asynchronously to IndexedDB
     if (idbInstance) {
       try {
         const tx = idbInstance.transaction("user_data", "readwrite");
-        const store = tx.objectStore("user_data");
-        store.put({
+        tx.objectStore("user_data").put({
           compositeKey: `${uid}:${key}`,
           userId: uid,
-          key: key,
-          value: value,
+          key,
+          value,
           updatedAt: new Date().toISOString()
         });
       } catch (e) {
-        console.warn("IndexedDB mirror failed for", key, e);
+        // localStorage remains the offline fallback.
       }
     }
+
+    return true;
   }
 
-  // Remove item with per-user isolation
   function removeUserItem(key) {
     const uid = getActiveUserId();
     const scopedKey = getScopedKey(key, uid);
+
+    if (!uid || !scopedKey) return false;
+
     try {
       localStorage.removeItem(scopedKey);
     } catch (e) {}
 
     if (idbInstance) {
       try {
-        const tx = idbInstance.transaction("user_data", "readwrite");
-        const store = tx.objectStore("user_data");
-        store.delete(`${uid}:${key}`);
+        idbInstance
+          .transaction("user_data", "readwrite")
+          .objectStore("user_data")
+          .delete(`${uid}:${key}`);
       } catch (e) {}
     }
+
+    return true;
   }
 
-  // Register New User
   function registerUser(userData) {
-    const users = getAllRegisteredUsers();
-    const cleanMobile = (userData.mobile || "").trim().replace(/\D/g, "");
+    const cleanMobile = normalizeMobile(userData && userData.mobile);
 
-    // Check if mobile already registered
-    const existing = users.find((u) => u.mobile === cleanMobile);
-    if (existing) {
-      return { success: false, error: "Mobile number already registered. Please log in." };
+    if (!isValidMobile(cleanMobile)) {
+      return {
+        success: false,
+        error: "Enter a valid 10-digit Indian mobile number."
+      };
     }
 
-    const userId = "CYU-" + (cleanMobile.length >= 4 ? cleanMobile.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + "-" + Math.floor(100 + Math.random() * 900);
-    const playerId = "CY2026-" + (cleanMobile.length >= 4 ? cleanMobile.slice(-4) : "1001");
+    const name = String((userData && userData.name) || "").trim();
+    const password = String((userData && userData.password) || "");
+
+    if (!name) {
+      return { success: false, error: "Player name is required." };
+    }
+
+    if (password.length < 4) {
+      return { success: false, error: "Password must be at least 4 characters." };
+    }
+
+    const users = getAllRegisteredUsers();
+    const existing = users.find((u) => u && u.mobile === cleanMobile);
+
+    if (existing) {
+      return {
+        success: false,
+        error: "This mobile number is already registered. Please log in."
+      };
+    }
+
+    const userId = makeUserId(cleanMobile);
+    const playerId = makePlayerId(cleanMobile);
 
     const newUser = {
-      userId: userId,
+      userId,
+      playerId,
       mobile: cleanMobile,
-      password: userData.password,
-      name: userData.name || "Cric Yuva Player",
-      playerId: playerId,
+      name,
       createdAt: new Date().toISOString()
     };
 
     users.push(newUser);
     saveRegisteredUsers(users);
 
-    // Switch active session to this new user
     setActiveUserId(userId);
-    localStorage.setItem("cricYuvaLoggedIn", "true");
 
-    // Initialize user profile keys in isolated storage
-    setUserItem("cricYuvaMobile", cleanMobile);
+    // Credentials stay in this local offline layer only. The production server
+    // should authenticate/hash them and become the authoritative account store.
+    try {
+      localStorage.setItem(`CYU_${userId}_cricYuvaPassword`, password);
+      localStorage.setItem(`CYU_${userId}_cricYuvaMobile`, cleanMobile);
+    } catch (e) {}
+
+    setUserItem("cricYuvaProfileName", name);
     setUserItem("cricYuvaProfileMobile", cleanMobile);
-    setUserItem("cricYuvaPassword", userData.password);
-    setUserItem("cricYuvaProfileName", newUser.name);
     setUserItem("cricYuvaPlayerId", playerId);
 
     return { success: true, user: newUser };
   }
 
-  // Authenticate User Login
   function authenticateUser(mobile, password) {
-    const cleanMobile = (mobile || "").trim().replace(/\D/g, "");
-    const cleanPass = (password || "").trim();
+    const cleanMobile = normalizeMobile(mobile);
+    const cleanPass = String(password || "");
     const users = getAllRegisteredUsers();
 
-    const matched = users.find((u) => u.mobile === cleanMobile && u.password === cleanPass);
-    if (matched) {
-      setActiveUserId(matched.userId);
-      localStorage.setItem("cricYuvaLoggedIn", "true");
-      return { success: true, user: matched };
+    if (!isValidMobile(cleanMobile)) {
+      return { success: false, error: "Enter a valid 10-digit mobile number." };
     }
 
-    // Check legacy single-user credential in localStorage as safety fallback
-    const legMobile = (localStorage.getItem("cricYuvaMobile") || "").trim().replace(/\D/g, "");
-    const legPass = (localStorage.getItem("cricYuvaPassword") || "").trim();
-    if (legMobile && legMobile === cleanMobile && legPass === cleanPass) {
-      // Migrate and auto-register this legacy user
-      const legName = localStorage.getItem("cricYuvaProfileName") || "Player";
-      const legPid = localStorage.getItem("cricYuvaPlayerId") || ("CY2026-" + legMobile.slice(-4));
-      const newU = {
-        userId: "CYU-" + legMobile.slice(-4) + "-LEGACY",
-        mobile: legMobile,
-        password: legPass,
-        name: legName,
-        playerId: legPid,
-        createdAt: new Date().toISOString()
+    const matched = users.find((u) => u && u.mobile === cleanMobile);
+
+    if (!matched) {
+      return {
+        success: false,
+        error: "No Cric Yuva player is registered with this mobile number."
       };
-      users.push(newU);
-      saveRegisteredUsers(users);
-      setActiveUserId(newU.userId);
-      localStorage.setItem("cricYuvaLoggedIn", "true");
-      return { success: true, user: newU };
     }
 
-    return { success: false, error: "Invalid mobile number or password." };
-  }
-
-  // Legacy Data Migration on App Startup
-  function migrateLegacyDataIfRequired() {
+    let storedPassword = "";
     try {
-      const isMigrated = localStorage.getItem(LEGACY_MIGRATION_FLAG);
-      if (isMigrated) return;
+      storedPassword = localStorage.getItem(`CYU_${matched.userId}_cricYuvaPassword`) || "";
+    } catch (e) {}
 
-      const legacyMobile = localStorage.getItem("cricYuvaMobile") || localStorage.getItem("cricYuvaProfileMobile");
-      const legacyPass = localStorage.getItem("cricYuvaPassword");
-      const legacyName = localStorage.getItem("cricYuvaProfileName");
-
-      if (legacyMobile && legacyPass) {
-        const cleanMobile = legacyMobile.trim().replace(/\D/g, "");
-        const userId = "CYU-" + cleanMobile.slice(-4) + "-ORIG";
-        const playerId = localStorage.getItem("cricYuvaPlayerId") || ("CY2026-" + cleanMobile.slice(-4));
-
-        const existingUsers = getAllRegisteredUsers();
-        if (!existingUsers.some((u) => u.mobile === cleanMobile)) {
-          existingUsers.push({
-            userId: userId,
-            mobile: cleanMobile,
-            password: legacyPass,
-            name: legacyName || "Cric Yuva Player",
-            playerId: playerId,
-            createdAt: new Date().toISOString()
-          });
-          saveRegisteredUsers(existingUsers);
-        }
-
-        // Migrate un-scoped keys into this user's isolated namespace
-        const keysToMigrate = [
-          "cricYuvaTeamData",
-          "cricYuvaMatchHistory",
-          "cricYuvaActiveMatch",
-          "cricYuvaTournamentsList",
-          "cric_yuva_custom_clubs",
-          "cricYuvaProfileName",
-          "cricYuvaProfileMobile",
-          "cricYuvaProfileEmail",
-          "cricYuvaJerseyName",
-          "cricYuvaJerseyNumber",
-          "cricYuvaJerseySize",
-          "cricYuvaPantSize",
-          "cricYuvaDateOfBirth",
-          "cricYuvaProfilePhoto",
-          "cricYuvaPlayerId",
-          "cricYuvaMobile",
-          "cricYuvaPassword"
-        ];
-
-        keysToMigrate.forEach((k) => {
-          const val = localStorage.getItem(k);
-          if (val !== null) {
-            localStorage.setItem(`CYU_${userId}_${k}`, val);
-          }
-        });
-
-        // If currently logged in, activate this user
-        if (localStorage.getItem("cricYuvaLoggedIn") === "true") {
-          localStorage.setItem(ACTIVE_USER_KEY, userId);
-        }
-      }
-
-      localStorage.setItem(LEGACY_MIGRATION_FLAG, "true");
-    } catch (e) {
-      console.warn("Legacy migration notice:", e);
+    if (storedPassword !== cleanPass) {
+      return { success: false, error: "Invalid mobile number or password." };
     }
+
+    setActiveUserId(matched.userId);
+    return { success: true, user: matched };
   }
 
-  // Run startup migration and initialize IndexedDB
-  migrateLegacyDataIfRequired();
-  openDatabase().then((db) => {
-    if (db) {
-      console.log("[CricYuvaDB] IndexedDB initialized and active.");
-    }
-  });
+  function getCurrentUser() {
+    const uid = getActiveUserId();
+    if (!uid) return null;
 
-  // Export to Global Scope
+    return getAllRegisteredUsers().find((u) => u && u.userId === uid) || null;
+  }
+
+  openDatabase().then(() => {});
+
   window.CricYuvaStorage = {
     getActiveUserId,
     setActiveUserId,
@@ -339,6 +318,10 @@
     getAllRegisteredUsers,
     registerUser,
     authenticateUser,
-    getScopedKey
+    getScopedKey,
+    getCurrentUser,
+    normalizeMobile,
+    isValidMobile,
+    makePlayerId
   };
 })();
