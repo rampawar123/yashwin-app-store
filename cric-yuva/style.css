@@ -12479,3 +12479,13 @@ body {
     margin: 0 !important;
   }
 }
+
+
+/* Cric Yuva clean share/search additions */
+.global-search-result{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:#151515;border:1px solid #2b2b2b;border-radius:10px;padding:11px 12px;color:#fff;text-align:left;cursor:pointer;}
+.global-search-result span{font-size:10px;color:#ff7a29;font-weight:800;text-transform:uppercase;}
+.global-search-result b{font-size:12px;flex:1;text-align:right;}
+.global-search-empty{padding:30px 12px;text-align:center;color:#777;font-size:12px;}
+.notif-item{position:relative;padding-right:42px;}
+.notif-delete-btn{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:1px solid #3a2222;background:#211515;color:#f87171;border-radius:8px;cursor:pointer;}
+.notif-delete-btn:hover{background:#351818;}

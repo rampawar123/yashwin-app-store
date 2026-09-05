@@ -60,6 +60,74 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // ==========================================
+  // CLOUD API + SHARE/QR HELPERS
+  // ==========================================
+  const CricYuvaCloud = {
+    base: (window.CRIC_YUVA_API_BASE || "").replace(/\/$/, ""),
+    async request(path, options = {}) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch(this.base + path, { ...options, signal: controller.signal, headers: { "Content-Type": "application/json", ...(localStorage.getItem("cricYuvaCloudToken") ? { Authorization: `Bearer ${localStorage.getItem("cricYuvaCloudToken")}` } : {}), ...(options.headers || {}) } });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        return data;
+      } finally { clearTimeout(timer); }
+    },
+    register(payload) { return this.request("/api/auth/register", { method: "POST", body: JSON.stringify(payload) }); },
+    login(payload) { return this.request("/api/auth/login", { method: "POST", body: JSON.stringify(payload) }); },
+    joinTeam(payload) { return this.request("/api/join/team", { method: "POST", body: JSON.stringify(payload) }); },
+    joinTournament(payload) { return this.request("/api/join/tournament", { method: "POST", body: JSON.stringify(payload) }); },
+    playerRequest(payload) { return this.request("/api/player/request", { method: "POST", body: JSON.stringify(payload) }); },
+    saveLive(payload) { return this.request(`/api/live/match/${encodeURIComponent(payload.matchId)}`, { method: "POST", body: JSON.stringify(payload) }); }
+  };
+  window.CricYuvaCloud = CricYuvaCloud;
+
+  function getAppBaseUrl() {
+    return window.location.origin + window.location.pathname;
+  }
+
+  function buildShareUrl(type, id) {
+    return `${getAppBaseUrl()}?${encodeURIComponent(type)}=${encodeURIComponent(id || "")}`;
+  }
+
+  function openShareQr(title, url) {
+    const modal = document.getElementById("cricYuvaShareQrModal");
+    const titleEl = document.getElementById("shareQrTitle");
+    const urlEl = document.getElementById("shareQrUrl");
+    const canvas = document.getElementById("shareQrCanvas");
+    if (!modal || !urlEl) return;
+    if (titleEl) titleEl.textContent = title || "Share Cric Yuva";
+    urlEl.value = url;
+    if (canvas && window.QRCode && typeof window.QRCode.toCanvas === "function") {
+      window.QRCode.toCanvas(canvas, url, { width: 220, margin: 2 }, () => {});
+    }
+    modal.style.display = "flex";
+  }
+
+  function shareCurrentUrl(url, title = "Cric Yuva") {
+    if (navigator.share) { navigator.share({ title, url }).catch(() => {}); }
+    else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => showToast("Link copied!"));
+    else prompt("Share link:", url);
+  }
+
+  // One-time cleanup of known demo tournament records. User-created tournaments are preserved.
+  function cleanKnownDemoData() {
+    try {
+      const blockedIds = new Set(["tourney_ypl_2026", "tourney_champions_2026", "tourney_knockout_2026"]);
+      const raw = getUserStorage(TOURNAMENT_STORAGE_KEY, null);
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          const clean = list.filter(t => t && t.id && !blockedIds.has(t.id));
+          if (clean.length !== list.length) setUserStorage(TOURNAMENT_STORAGE_KEY, JSON.stringify(clean));
+        }
+      }
+    } catch (e) {}
+  }
+  cleanKnownDemoData();
+
+  // ==========================================
   // PROFILE DATA HELPERS & DRAWER SYNC
   // ==========================================
 
@@ -311,7 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const saveAccountButton = document.getElementById("saveAccountButton");
   if (saveAccountButton) {
-    saveAccountButton.addEventListener("click", function () {
+    saveAccountButton.addEventListener("click", async function () {
       const mobile = document.getElementById("newMobile");
       const password = document.getElementById("newPassword");
       const verifyPassword = document.getElementById("verifyPassword");
@@ -340,12 +408,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      let cloudRegistered = false;
+      try {
+        const cloud = await CricYuvaCloud.register({ mobile: mobileValue, password: passwordValue });
+        if (cloud && cloud.user) {
+          cloudRegistered = true;
+          localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
+          if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
+        }
+      } catch (e) { /* local fallback keeps offline testing usable */ }
+
       if (window.CricYuvaStorage) {
         const regRes = window.CricYuvaStorage.registerUser({
           mobile: mobileValue,
           password: passwordValue
         });
-        if (!regRes.success) {
+        if (!regRes.success && !cloudRegistered) {
           alert(regRes.error || "Could not register account. Please try again.");
           return;
         }
@@ -355,9 +433,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       localStorage.setItem("cricYuvaLoggedIn", "true");
 
-      // Initialize default team for this newly created account
-      const freshTeam = initDefaultTeam();
-      saveTeamData(freshTeam);
+      // Start with an empty real-player team; no demo squad is created.
+      removeUserStorage(TEAM_STORAGE_KEY);
 
       loadProfileData();
 
@@ -373,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const loginButton = document.getElementById("loginButton");
   if (loginButton) {
-    loginButton.addEventListener("click", function () {
+    loginButton.addEventListener("click", async function () {
       const loginMobile = document.getElementById("loginMobile");
       const loginPassword = document.getElementById("loginPassword");
 
@@ -387,6 +464,21 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      try {
+        const cloud = await CricYuvaCloud.login({ mobile: mob, password: pwd });
+        if (cloud && cloud.user) {
+          localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
+          if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
+          localStorage.setItem("cricYuvaLoggedIn", "true");
+          if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
+          if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
+          loadProfileData();
+          showScreen(isProfileCompleted() ? "screen5" : "screen4");
+          hydrateCloudData().finally(() => processPendingInvite());
+          return;
+        }
+      } catch (e) { /* use local account when server is unavailable */ }
+
       if (window.CricYuvaStorage) {
         const auth = window.CricYuvaStorage.authenticateUser(mob, pwd);
         if (auth.success) {
@@ -397,6 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             showScreen("screen4");
           }
+          hydrateCloudData().finally(() => processPendingInvite());
           return;
         } else {
           alert(auth.error || "Invalid mobile number or password!");
@@ -436,6 +529,8 @@ document.addEventListener("DOMContentLoaded", function () {
       window.CricYuvaStorage.clearActiveSession();
     }
     localStorage.removeItem("cricYuvaLoggedIn");
+    localStorage.removeItem("cricYuvaCloudToken");
+    localStorage.removeItem("cricYuvaCloudUserId");
     const loginMobile = document.getElementById("loginMobile");
     const loginPassword = document.getElementById("loginPassword");
     if (loginMobile) loginMobile.value = "";
@@ -497,7 +592,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const saveProfileButton = document.getElementById("saveProfileButton");
   if (saveProfileButton) {
-    saveProfileButton.addEventListener("click", function () {
+    saveProfileButton.addEventListener("click", async function () {
       const profileName = document.getElementById("profileName");
       const profileMobile = document.getElementById("profileMobile");
       const profileEmail = document.getElementById("profileEmail");
@@ -519,6 +614,19 @@ document.addEventListener("DOMContentLoaded", function () {
       if (jerseySize) localStorage.setItem("cricYuvaJerseySize", jerseySize.value);
       if (pantSize) localStorage.setItem("cricYuvaPantSize", pantSize.value);
       if (dateOfBirth) localStorage.setItem("cricYuvaDateOfBirth", dateOfBirth.value);
+
+      try {
+        await CricYuvaCloud.request("/api/profile", { method: "PUT", body: JSON.stringify({
+          name: localStorage.getItem("cricYuvaProfileName") || "",
+          mobile: localStorage.getItem("cricYuvaProfileMobile") || "",
+          email: localStorage.getItem("cricYuvaProfileEmail") || "",
+          jerseyName: localStorage.getItem("cricYuvaJerseyName") || "",
+          jerseyNumber: localStorage.getItem("cricYuvaJerseyNumber") || "",
+          jerseySize: localStorage.getItem("cricYuvaJerseySize") || "",
+          pantSize: localStorage.getItem("cricYuvaPantSize") || "",
+          dateOfBirth: localStorage.getItem("cricYuvaDateOfBirth") || ""
+        }) });
+      } catch (e) {}
 
       loadProfileData();
 
@@ -880,20 +988,10 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", function (e) {
       e.stopPropagation();
       const pastCard = btn.closest(".past-card");
-      if (pastCard) {
-        seedDefaultHistoryIfEmpty();
+      if (pastCard && pastCard.dataset.matchId) {
         const historyList = getMatchHistoryList();
-        const cardText = pastCard.textContent || "";
-        let matched = null;
-        if (cardText.includes("Royal Kings") || cardText.includes("Super Stars")) {
-          matched = historyList.find(m => m.matchId === "hist_sample_1" || (m.teamA?.name === "Royal Kings" || m.teamB?.name === "Royal Kings"));
-        } else if (cardText.includes("Bengal Lions") || cardText.includes("Cric Yuva XI")) {
-          matched = historyList.find(m => m.matchId === "hist_sample_2" || (m.teamA?.name === "Cric Yuva XI" || m.teamB?.name === "Cric Yuva XI"));
-        }
-        if (matched) {
-          openHistoryMatchDetailsModal(matched);
-          return;
-        }
+        const matched = historyList.find(m => m.matchId === pastCard.dataset.matchId);
+        if (matched) { openHistoryMatchDetailsModal(matched); return; }
       }
       if (scorecardModal) scorecardModal.style.display = "flex";
     });
@@ -1029,11 +1127,15 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="notif-item-desc">${n.message}</div>
             <div class="notif-item-time">${n.time}</div>
           </div>
+          <button type="button" class="notif-delete-btn" data-id="${n.id}" title="Delete notification" aria-label="Delete notification">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
         </div>
       `).join("");
 
       container.querySelectorAll(".notif-item").forEach(item => {
-        item.addEventListener("click", () => {
+        item.addEventListener("click", (event) => {
+          if (event.target.closest(".notif-delete-btn")) return;
           const id = item.dataset.id;
           const currentList = this.getNotifications();
           const target = currentList.find(x => x.id === id);
@@ -1042,6 +1144,14 @@ document.addEventListener("DOMContentLoaded", function () {
             this.save(currentList);
             item.classList.remove("unread");
           }
+        });
+      });
+      container.querySelectorAll(".notif-delete-btn").forEach(btn => {
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const id = btn.dataset.id;
+          this.save(this.getNotifications().filter(n => n.id !== id));
+          this.render();
         });
       });
     }
@@ -1231,11 +1341,11 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (e) {
     const btn = e.target.closest(".btn-start-upcoming-match");
     if (!btn) return;
-    const teamA = btn.dataset.teama || "Mumbai Yuva XI";
-    const teamB = btn.dataset.teamb || "Pune Strikers";
+    const teamA = btn.dataset.teama || "";
+    const teamB = btn.dataset.teamb || "";
     const overs = parseInt(btn.dataset.overs, 10) || 20;
-    const ground = btn.dataset.ground || "Wankhede Stadium, Mumbai";
-    const tournament = btn.dataset.tournament || "Yuva T20 League";
+    const ground = btn.dataset.ground || "";
+    const tournament = btn.dataset.tournament || "";
 
     openStartMatchSetup({
       teamA: teamA,
@@ -1388,7 +1498,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Save Team Data to localStorage (User-isolated)
   function saveTeamData(teamData) {
     try {
+      if (teamData && teamData.teamName && !teamData.id) teamData.id = `team_${String(teamData.teamName).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").slice(0, 40)}_${Date.now()}`;
       setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(teamData));
+      if (teamData && teamData.teamName && window.CricYuvaCloud) {
+        window.CricYuvaCloud.request("/api/teams", { method: "POST", body: JSON.stringify({
+          id: teamData.id || ("team_" + btoa(unescape(encodeURIComponent(teamData.teamName))).replace(/[^a-z0-9]/gi, "").slice(0, 24)),
+          name: teamData.teamName, logo: teamData.teamLogo || teamData.logo || "", players: teamData.players || [],
+          captainName: teamData.captainName || "", viceCaptainName: teamData.viceCaptainName || ""
+        }) }).catch(() => {});
+      }
     } catch (e) {
       console.error("Error saving team data:", e);
     }
@@ -1396,120 +1514,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize Default Team (incorporates real user profile data if available)
   function initDefaultTeam() {
-    const savedName = localStorage.getItem("cricYuvaProfileName") || localStorage.getItem("cricYuvaName") || "R. Sharma";
+    const savedName = localStorage.getItem("cricYuvaProfileName") || localStorage.getItem("cricYuvaName") || "";
     const savedPhoto = localStorage.getItem("cricYuvaProfilePhoto") || "";
-    const savedJersey = localStorage.getItem("cricYuvaJerseyNumber") || "45";
-
-    const defaultTeam = {
-      teamName: "Mumbai Yuva XI",
+    const savedJersey = localStorage.getItem("cricYuvaJerseyNumber") || "";
+    return {
+      teamName: "",
       teamLogo: "",
-      captainName: savedName.trim() ? savedName : "R. Sharma",
-      viceCaptainName: "V. Kohli",
-      players: [
-        {
-          id: "p_1",
-          name: savedName.trim() ? savedName : "R. Sharma",
-          role: "Batsman",
-          jersey: savedJersey || "45",
-          isCaptain: true,
-          isViceCaptain: false,
-          photo: savedPhoto || ""
-        },
-        {
-          id: "p_2",
-          name: "V. Kohli",
-          role: "Batsman",
-          jersey: "18",
-          isCaptain: false,
-          isViceCaptain: true,
-          photo: ""
-        },
-        {
-          id: "p_3",
-          name: "S. Gill",
-          role: "Batsman",
-          jersey: "77",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_4",
-          name: "S. Yadav",
-          role: "Batsman",
-          jersey: "63",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_5",
-          name: "H. Pandya",
-          role: "All-Rounder",
-          jersey: "33",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_6",
-          name: "R. Jadeja",
-          role: "All-Rounder",
-          jersey: "8",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_7",
-          name: "R. Pant",
-          role: "Wicket Keeper",
-          jersey: "17",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_8",
-          name: "J. Bumrah",
-          role: "Bowler",
-          jersey: "93",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_9",
-          name: "M. Shami",
-          role: "Bowler",
-          jersey: "11",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_10",
-          name: "M. Siraj",
-          role: "Bowler",
-          jersey: "73",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        },
-        {
-          id: "p_11",
-          name: "K. Yadav",
-          role: "Bowler",
-          jersey: "23",
-          isCaptain: false,
-          isViceCaptain: false,
-          photo: ""
-        }
-      ]
+      captainName: savedName.trim(),
+      viceCaptainName: "",
+      players: savedName.trim() ? [{
+        id: localStorage.getItem("cricYuvaPlayerId") || ("CY2026-" + (localStorage.getItem("cricYuvaProfileMobile") || "").slice(-4)),
+        name: savedName.trim(),
+        role: "Batsman",
+        jersey: savedJersey,
+        isCaptain: true,
+        isViceCaptain: false,
+        photo: savedPhoto
+      }] : []
     };
-
-    saveTeamData(defaultTeam);
-    return defaultTeam;
   }
 
   // Get Initials for Logo
@@ -1524,11 +1546,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderMyTeamPage(filter = currentRoleFilter) {
     currentRoleFilter = filter;
     let team = getTeamData();
-
-    // If no team in storage, load initial default squad
-    if (!team) {
-      team = initDefaultTeam();
-    }
 
     const noTeamContainer = document.getElementById("noTeamContainer");
     const activeTeamContainer = document.getElementById("activeTeamContainer");
@@ -2048,11 +2065,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnResetTeam = document.getElementById("btnResetTeam");
   if (btnResetTeam) {
     btnResetTeam.addEventListener("click", function () {
-      const confirmReset = confirm("Reset squad back to standard default 11-player lineup?");
+      const confirmReset = confirm("Clear this squad? Real registered players can be added again.");
       if (confirmReset) {
-        initDefaultTeam();
+        removeUserStorage(TEAM_STORAGE_KEY);
         renderMyTeamPage("all");
-        alert("Squad reset to default lineup.");
+        alert("Squad cleared. No demo players were added.");
       }
     });
   }
@@ -2065,86 +2082,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const MATCH_STORAGE_KEY = "cricYuvaActiveMatch";
 
   // Opponent Team Squad Presets
-  const OPPONENT_PRESETS = {
-    "Delhi Strikers": [
-      { id: "ds_1", name: "A. Kumar", role: "Batsman", isCaptain: true, isViceCaptain: false, jersey: "1" },
-      { id: "ds_2", name: "K. Verma", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "14" },
-      { id: "ds_3", name: "P. Shaw", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "100" },
-      { id: "ds_4", name: "M. Marsh", role: "All-Rounder", isCaptain: false, isViceCaptain: true, jersey: "8" },
-      { id: "ds_5", name: "R. Pant", role: "Wicket Keeper", isCaptain: false, isViceCaptain: false, jersey: "17" },
-      { id: "ds_6", name: "A. Patel", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "20" },
-      { id: "ds_7", name: "L. Yadav", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "22" },
-      { id: "ds_8", name: "A. Nortje", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "2" },
-      { id: "ds_9", name: "K. Yadav", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "23" },
-      { id: "ds_10", name: "I. Sharma", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "97" },
-      { id: "ds_11", name: "K. Ahmed", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "71" }
-    ],
-    "Royal Kings Bangalore": [
-      { id: "rkb_1", name: "F. du Plessis", role: "Batsman", isCaptain: true, isViceCaptain: false, jersey: "13" },
-      { id: "rkb_2", name: "V. Kohli", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "18" },
-      { id: "rkb_3", name: "R. Patidar", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "87" },
-      { id: "rkb_4", name: "G. Maxwell", role: "All-Rounder", isCaptain: false, isViceCaptain: true, jersey: "32" },
-      { id: "rkb_5", name: "C. Green", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "42" },
-      { id: "rkb_6", name: "D. Karthik", role: "Wicket Keeper", isCaptain: false, isViceCaptain: false, jersey: "19" },
-      { id: "rkb_7", name: "M. Lomror", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "7" },
-      { id: "rkb_8", name: "K. Sharma", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "3" },
-      { id: "rkb_9", name: "M. Siraj", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "73" },
-      { id: "rkb_10", name: "L. Ferguson", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "69" },
-      { id: "rkb_11", name: "Y. Dayal", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "12" }
-    ],
-    "Chennai Super XI": [
-      { id: "csx_1", name: "R. Gaikwad", role: "Batsman", isCaptain: true, isViceCaptain: false, jersey: "31" },
-      { id: "csx_2", name: "D. Conway", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "88" },
-      { id: "csx_3", name: "A. Rahane", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "27" },
-      { id: "csx_4", name: "S. Dube", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "25" },
-      { id: "csx_5", name: "R. Jadeja", role: "All-Rounder", isCaptain: false, isViceCaptain: true, jersey: "8" },
-      { id: "csx_6", name: "M.S. Dhoni", role: "Wicket Keeper", isCaptain: false, isViceCaptain: false, jersey: "7" },
-      { id: "csx_7", name: "M. Ali", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "18" },
-      { id: "csx_8", name: "S. Thakur", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "54" },
-      { id: "csx_9", name: "D. Chahar", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "90" },
-      { id: "csx_10", name: "M. Pathirana", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "9" },
-      { id: "csx_11", name: "M. Theekshana", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "61" }
-    ],
-    "Gujarat Warriors": [
-      { id: "gw_1", name: "S. Gill", role: "Batsman", isCaptain: true, isViceCaptain: false, jersey: "7" },
-      { id: "gw_2", name: "W. Saha", role: "Wicket Keeper", isCaptain: false, isViceCaptain: false, jersey: "6" },
-      { id: "gw_3", name: "S. Sudharsan", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "23" },
-      { id: "gw_4", name: "D. Miller", role: "Batsman", isCaptain: false, isViceCaptain: true, jersey: "10" },
-      { id: "gw_5", name: "A. Omarzai", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "44" },
-      { id: "gw_6", name: "R. Tewatia", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "14" },
-      { id: "gw_7", name: "R. Khan", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "19" },
-      { id: "gw_8", name: "M. Shami", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "11" },
-      { id: "gw_9", name: "M. Sharma", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "5" },
-      { id: "gw_10", name: "U. Yadav", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "19" },
-      { id: "gw_11", name: "N. Ahmad", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "82" }
-    ],
-    "Pune Blasters": [
-      { id: "pb_1", name: "K. Rahul", role: "Batsman", isCaptain: true, isViceCaptain: false, jersey: "1" },
-      { id: "pb_2", name: "Q. de Kock", role: "Wicket Keeper", isCaptain: false, isViceCaptain: false, jersey: "12" },
-      { id: "pb_3", name: "D. Hooda", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "5" },
-      { id: "pb_4", name: "N. Pooran", role: "Batsman", isCaptain: false, isViceCaptain: true, jersey: "29" },
-      { id: "pb_5", name: "M. Stoinis", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "17" },
-      { id: "pb_6", name: "A. Badoni", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "2" },
-      { id: "pb_7", name: "K. Pandya", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "24" },
-      { id: "pb_8", name: "R. Bishnoi", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "56" },
-      { id: "pb_9", name: "N. Haq", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "78" },
-      { id: "pb_10", name: "M. Khan", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "9" },
-      { id: "pb_11", name: "Y. Thakur", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "33" }
-    ],
-    "Bengal Lions": [
-      { id: "bl_1", name: "S. Iyer", role: "Batsman", isCaptain: true, isViceCaptain: false, jersey: "41" },
-      { id: "bl_2", name: "P. Salt", role: "Wicket Keeper", isCaptain: false, isViceCaptain: false, jersey: "28" },
-      { id: "bl_3", name: "V. Iyer", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "8" },
-      { id: "bl_4", name: "N. Rana", role: "Batsman", isCaptain: false, isViceCaptain: true, jersey: "12" },
-      { id: "bl_5", name: "A. Russell", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "12" },
-      { id: "bl_6", name: "R. Singh", role: "Batsman", isCaptain: false, isViceCaptain: false, jersey: "35" },
-      { id: "bl_7", name: "S. Narine", role: "All-Rounder", isCaptain: false, isViceCaptain: false, jersey: "74" },
-      { id: "bl_8", name: "M. Starc", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "56" },
-      { id: "bl_9", name: "H. Rana", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "22" },
-      { id: "bl_10", name: "V. Chakravarthy", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "29" },
-      { id: "bl_11", name: "C. Sakariya", role: "Bowler", isCaptain: false, isViceCaptain: false, jersey: "14" }
-    ]
-  };
+  // No demo opponent squads. Match rosters come only from registered teams.
+  const OPPONENT_PRESETS = {};
 
   // State Variables for Setup Wizard
   let currentWizardStep = 1;
@@ -2245,9 +2184,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const val = selectTeamA.value;
       if (val === "my_team") {
         const teamData = getTeamData() || initDefaultTeam();
-        return teamData.teamName || "Mumbai Yuva XI";
+        return teamData.teamName || "";
       } else if (val === "custom") {
-        return inputCustomTeamA.value.trim() || "Custom Team A";
+        return inputCustomTeamA.value.trim() || "";
       } else {
         return val;
       }
@@ -2255,9 +2194,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const val = selectTeamB.value;
       if (val === "my_team") {
         const teamData = getTeamData() || initDefaultTeam();
-        return teamData.teamName || "Mumbai Yuva XI";
+        return teamData.teamName || "";
       } else if (val === "custom") {
-        return inputCustomTeamB.value.trim() || "Opponent XI";
+        return inputCustomTeamB.value.trim() || "";
       } else {
         return val;
       }
@@ -2268,7 +2207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function getRosterForTeam(teamName, isMyTeam = false) {
     if (isMyTeam) {
       const teamData = getTeamData() || initDefaultTeam();
-      return (teamData.players && teamData.players.length > 0) ? teamData.players : initDefaultTeam().players;
+      return (teamData.players && teamData.players.length > 0) ? teamData.players : [];
     }
     // 1. Check if club exists in custom clubs or tournament squads
     try {
@@ -2380,7 +2319,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Sync Team A dropdown with saved team name
     const teamData = getTeamData() || initDefaultTeam();
-    const myTeamName = teamData.teamName || "Mumbai Yuva XI";
+    const myTeamName = teamData.teamName || "";
     if (selectTeamA && selectTeamA.options[0]) {
       selectTeamA.options[0].text = `🏏 ${myTeamName} (My Team)`;
     }
@@ -4459,19 +4398,6 @@ function rotateStrike(innings) {
     showToast(`⚡ Super Over Initialized! 1 Over • Max 2 Wickets.`);
   }
 
-  // ----------------------------------------------------
-  // 6. TOAST NOTIFICATIONS HELPER
-  // ----------------------------------------------------
-
-  function showToast(msg) {
-    const toast = document.getElementById("cricYuvaToast");
-    if (!toast) return;
-    toast.innerHTML = `<i class="fa-solid fa-circle-check text-orange"></i> <span>${msg}</span>`;
-    toast.style.display = "flex";
-    setTimeout(() => {
-      toast.style.display = "none";
-    }, 3200);
-  }
 
   // ----------------------------------------------------
   // 7. EVENT LISTENERS FOR MATCH FLOW MODALS & BUTTONS
@@ -5789,138 +5715,10 @@ function rotateStrike(innings) {
 
   // Check if sample history matches need to be seeded on first load
   function seedDefaultHistoryIfEmpty() {
-    const list = getMatchHistoryList();
-    if (list.length === 0) {
-      const sampleMatches = [
-        {
-          matchId: "hist_sample_1",
-          tournament: "Champions Trophy • Final",
-          ground: "Yuva International Stadium",
-          matchDate: new Date(Date.now() - 86400000 * 2).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }),
-          overs: 20,
-          status: "COMPLETED",
-          result: "Royal Kings won by 18 runs",
-          teamA: { name: "Royal Kings" },
-          teamB: { name: "Super Stars" },
-          toss: { winner: "Royal Kings", decision: "BAT" },
-          currentInningIndex: 2,
-          innings1: {
-            battingTeam: "Royal Kings",
-            bowlingTeam: "Super Stars",
-            totalRuns: 204,
-            wickets: 4,
-            overs: 20,
-            balls: 0,
-            extras: { wide: 5, noBall: 1, bye: 2, legBye: 4, penalty: 0, total: 12 },
-            batting: [
-              { name: "Rohit Sharma", runs: 78, balls: 44, fours: 8, sixes: 4, isOut: true, dismissal: "c sub b Nortje" },
-              { name: "Virat Kohli", runs: 65, balls: 38, fours: 6, sixes: 2, isOut: false, isAtCrease: false },
-              { name: "Suryakumar Yadav", runs: 32, balls: 16, fours: 3, sixes: 2, isOut: true, dismissal: "b Ahmed" },
-              { name: "Hardik Pandya", runs: 17, balls: 12, fours: 1, sixes: 1, isOut: false, isAtCrease: false }
-            ],
-            bowling: [
-              { name: "A. Nortje", overs: 4, balls: 0, maidens: 0, runs: 38, wickets: 2 },
-              { name: "K. Ahmed", overs: 4, balls: 0, maidens: 0, runs: 42, wickets: 1 },
-              { name: "K. Yadav", overs: 4, balls: 0, maidens: 0, runs: 35, wickets: 1 }
-            ],
-            commentary: [
-              { over: "19.6", event: "SIX", text: "Pandya lofts it high over deep mid-wicket for a massive MAXIMUM!", badge: "6", direction: "Mid-Wicket" },
-              { over: "19.5", event: "FOUR", text: "Clean cover drive by Pandya racing to the boundary!", badge: "4", direction: "Cover" },
-              { over: "18.3", event: "WICKET", text: "OUT! Caught at deep square leg! S. Yadav departs after a fine cameo.", badge: "W", direction: "Square Leg" }
-            ],
-            fallOfWickets: [
-              { wicketNum: 1, score: 85, batter: "Rohit Sharma", over: "9.4" },
-              { wicketNum: 2, score: 172, batter: "Suryakumar Yadav", over: "18.3" }
-            ]
-          },
-          innings2: {
-            battingTeam: "Super Stars",
-            bowlingTeam: "Royal Kings",
-            totalRuns: 186,
-            wickets: 9,
-            overs: 20,
-            balls: 0,
-            extras: { wide: 6, noBall: 0, bye: 1, legBye: 3, penalty: 0, total: 10 },
-            batting: [
-              { name: "David Warner", runs: 54, balls: 32, fours: 7, sixes: 2, isOut: true, dismissal: "c sub b Bumrah" },
-              { name: "M. Marsh", runs: 42, balls: 26, fours: 4, sixes: 2, isOut: true, dismissal: "b Shami" },
-              { name: "R. Pant", runs: 28, balls: 18, fours: 3, sixes: 1, isOut: true, dismissal: "c Keeper b Bumrah" }
-            ],
-            bowling: [
-              { name: "J. Bumrah", overs: 4, balls: 0, maidens: 1, runs: 22, wickets: 4 },
-              { name: "M. Shami", overs: 4, balls: 0, maidens: 0, runs: 34, wickets: 3 },
-              { name: "R. Jadeja", overs: 4, balls: 0, maidens: 0, runs: 29, wickets: 1 }
-            ],
-            commentary: [
-              { over: "19.6", event: "WICKET", text: "Bowled him! Clean timber by Bumrah to seal the championship title!", badge: "W", direction: "Straight" }
-            ],
-            fallOfWickets: [
-              { wicketNum: 1, score: 62, batter: "David Warner", over: "6.5" },
-              { wicketNum: 2, score: 110, batter: "M. Marsh", over: "12.1" }
-            ]
-          }
-        },
-        {
-          matchId: "hist_sample_2",
-          tournament: "Yuva Cup • Match 12",
-          ground: "City Cricket Ground",
-          matchDate: new Date(Date.now() - 86400000 * 5).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }),
-          overs: 20,
-          status: "COMPLETED",
-          result: "Cric Yuva XI won by 7 wickets",
-          teamA: { name: "Bengal Lions" },
-          teamB: { name: "Cric Yuva XI" },
-          toss: { winner: "Cric Yuva XI", decision: "BOWL" },
-          currentInningIndex: 2,
-          innings1: {
-            battingTeam: "Bengal Lions",
-            bowlingTeam: "Cric Yuva XI",
-            totalRuns: 159,
-            wickets: 7,
-            overs: 20,
-            balls: 0,
-            extras: { wide: 4, noBall: 1, bye: 0, legBye: 2, penalty: 0, total: 7 },
-            batting: [
-              { name: "S. Roy", runs: 62, balls: 45, fours: 6, sixes: 2, isOut: true, dismissal: "b Bowler" },
-              { name: "A. Bose", runs: 34, balls: 28, fours: 3, sixes: 0, isOut: false }
-            ],
-            bowling: [
-              { name: "K. Yadav", overs: 4, balls: 0, maidens: 0, runs: 28, wickets: 3 }
-            ],
-            commentary: [
-              { over: "19.6", event: "FOUR", text: "Boundary over backward point to finish the first innings.", badge: "4", direction: "Point" }
-            ],
-            fallOfWickets: [
-              { wicketNum: 1, score: 45, batter: "S. Roy", over: "6.2" }
-            ]
-          },
-          innings2: {
-            battingTeam: "Cric Yuva XI",
-            bowlingTeam: "Bengal Lions",
-            totalRuns: 162,
-            wickets: 3,
-            overs: 17,
-            balls: 1,
-            extras: { wide: 5, noBall: 0, bye: 1, legBye: 2, penalty: 0, total: 8 },
-            batting: [
-              { name: "A. Sharma", runs: 71, balls: 42, fours: 7, sixes: 3, isOut: false },
-              { name: "V. Verma", runs: 45, balls: 30, fours: 4, sixes: 2, isOut: true, dismissal: "c sub b Bose" }
-            ],
-            bowling: [
-              { name: "A. Bose", overs: 3.1, balls: 0, maidens: 0, runs: 31, wickets: 2 }
-            ],
-            commentary: [
-              { over: "17.1", event: "FOUR", text: "CRACKING SHOT! Driven through extra cover for FOUR to seal the victory!", badge: "4", direction: "Cover" }
-            ],
-            fallOfWickets: [
-              { wicketNum: 1, score: 68, batter: "V. Verma", over: "8.4" }
-            ]
-          }
-        }
-      ];
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(sampleMatches));
-    }
+    // Deliberately empty: match history is created only by real scored matches.
+    return;
   }
+
 
   // Render the Match History Cards List
   function renderMatchHistoryScreen() {
@@ -6728,7 +6526,7 @@ function rotateStrike(innings) {
       const myTeam = getMyTeamData();
       if (myTeam && myTeam.players) {
         myTeam.players.forEach(sp => {
-          const entry = getOrCreatePlayer(sp.name, myTeam.teamName || "Mumbai Yuva XI");
+          const entry = getOrCreatePlayer(sp.name, myTeam.teamName || "Unassigned Team");
           if (entry) {
             entry.role = sp.role || entry.role;
             entry.jersey = sp.jersey ? `#${sp.jersey}` : entry.jersey;
@@ -7432,7 +7230,7 @@ function rotateStrike(innings) {
 
     const userName = (localStorage.getItem("cricYuvaProfileName") || "Player").trim();
     const userPhoto = localStorage.getItem("cricYuvaProfilePhoto");
-    let userTeam = "Mumbai Yuva XI";
+    let userTeam = "No Team";
     try {
       const savedTeam = JSON.parse(localStorage.getItem("cricYuvaTeamData") || "null");
       if (savedTeam && savedTeam.name) userTeam = savedTeam.name;
@@ -8004,15 +7802,18 @@ function rotateStrike(innings) {
       if (data !== null && data !== undefined) {
         const parsed = JSON.parse(data);
         if (Array.isArray(parsed)) {
-          return parsed;
+          const blockedIds = new Set(["tourney_ypl_2026", "tourney_champions_2026", "tourney_knockout_2026"]);
+          const seen = new Set();
+          const clean = parsed.filter(t => t && t.id && !blockedIds.has(t.id) && !seen.has(t.id) && (seen.add(t.id), true));
+          if (clean.length !== parsed.length) { try { setUserStorage(TOURNAMENT_STORAGE_KEY, JSON.stringify(clean)); } catch (e) {} }
+          return clean;
         }
       }
     } catch (e) {
       console.error("Error reading tournaments from storage:", e);
     }
-    const seeded = seedDefaultTournaments();
-    saveTournamentsList(seeded);
-    return seeded;
+    // New installs start clean. Real tournaments are created by the user.
+    return [];
   }
 
   function saveTournamentsList(list) {
@@ -8039,6 +7840,9 @@ function rotateStrike(innings) {
       list.unshift(tourney);
     }
     saveTournamentsList(list);
+    if (window.CricYuvaCloud) {
+      window.CricYuvaCloud.request("/api/tournaments", { method: "POST", body: JSON.stringify(tourney) }).catch(() => {});
+    }
 
     if (isNew && window.NotificationService && window.NotificationService.addNotification) {
       window.NotificationService.addNotification({
@@ -8069,6 +7873,12 @@ function rotateStrike(innings) {
         list.push(club);
       }
       localStorage.setItem("cric_yuva_custom_clubs", JSON.stringify(list));
+      if (window.CricYuvaCloud && club && club.name) {
+        window.CricYuvaCloud.request("/api/teams", { method: "POST", body: JSON.stringify({
+          id: club.id || ("team_" + Date.now()), name: club.name, logo: club.logo || "", players: club.players || [],
+          captainName: club.captain || club.captainName || "", viceCaptainName: club.viceCaptain || club.viceCaptainName || ""
+        }) }).catch(() => {});
+      }
     } catch (e) {
       console.error("Error saving custom club:", e);
     }
@@ -8076,475 +7886,36 @@ function rotateStrike(innings) {
 
   // Generate a standard balanced 11-15 player squad with roles
   function generateDefaultSquadForClub(clubName, captainName, vcName) {
-    const cap = captainName || "Team Captain";
-    const vc = vcName || "Vice Captain";
-
-    const baseNames = [
-      { name: cap, role: "Batsman", isCaptain: true, isVC: false, isPlayingXi: true, jersey: "7" },
-      { name: vc, role: "All-Rounder", isCaptain: false, isVC: true, isPlayingXi: true, jersey: "18" },
-      { name: `${clubName.split(' ')[0]} Opener 1`, role: "Batsman", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "45" },
-      { name: `${clubName.split(' ')[0]} Opener 2`, role: "Batsman", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "1" },
-      { name: `${clubName.split(' ')[0]} Middle Order`, role: "Batsman", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "63" },
-      { name: `${clubName.split(' ')[0]} Wicketkeeper`, role: "Wicketkeeper", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "17" },
-      { name: `${clubName.split(' ')[0]} All-Rounder`, role: "All-Rounder", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "33" },
-      { name: `${clubName.split(' ')[0]} Spinner`, role: "Bowler", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "99" },
-      { name: `${clubName.split(' ')[0]} Pacer 1`, role: "Bowler", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "93" },
-      { name: `${clubName.split(' ')[0]} Pacer 2`, role: "Bowler", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "8" },
-      { name: `${clubName.split(' ')[0]} Fast Bowler`, role: "Bowler", isCaptain: false, isVC: false, isPlayingXi: true, jersey: "11" },
-      { name: `${clubName.split(' ')[0]} Reserve Batter`, role: "Batsman", isCaptain: false, isVC: false, isPlayingXi: false, jersey: "22" },
-      { name: `${clubName.split(' ')[0]} Reserve Bowler`, role: "Bowler", isCaptain: false, isVC: false, isPlayingXi: false, jersey: "55" }
-    ];
-    return baseNames;
+    // Demo squads are intentionally disabled. Teams must contain real registered players.
+    return [];
   }
+
 
   // Helper to retrieve club teams database (built-in + user-created)
   function getAvailableClubsList() {
-    const myTeam = getMyTeamData();
-    const myTeamName = myTeam.teamName || "Mumbai Yuva XI";
-    const myTeamLogo = myTeam.logo || "🏏";
-    const myTeamCount = (myTeam.players && myTeam.players.length) ? myTeam.players.length : 11;
+    const clubs = [];
+    const seen = new Set();
+    const addClub = (club) => {
+      if (!club || !club.name) return;
+      const key = club.name.trim().toLowerCase();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      clubs.push(club);
+    };
 
-    const defaultClubs = [
-      { id: "club_my_team", name: myTeamName, logo: myTeamLogo, playerCount: myTeamCount, captain: "R. Sharma", viceCaptain: "H. Pandya", city: "Mumbai", players: (myTeam.players && myTeam.players.length) ? myTeam.players : generateDefaultSquadForClub(myTeamName, "R. Sharma", "H. Pandya") },
-      { id: "club_delhi", name: "Delhi Strikers", logo: "⚡", playerCount: 13, captain: "V. Kohli", viceCaptain: "R. Pant", city: "Delhi", players: generateDefaultSquadForClub("Delhi Strikers", "V. Kohli", "R. Pant") },
-      { id: "club_bangalore", name: "Bangalore Royals", logo: "👑", playerCount: 13, captain: "F. du Plessis", viceCaptain: "G. Maxwell", city: "Bengaluru", players: generateDefaultSquadForClub("Bangalore Royals", "F. du Plessis", "G. Maxwell") },
-      { id: "club_chennai", name: "Chennai Super Kings", logo: "🦁", playerCount: 13, captain: "M.S. Dhoni", viceCaptain: "R. Jadeja", city: "Chennai", players: generateDefaultSquadForClub("Chennai Super Kings", "M.S. Dhoni", "R. Jadeja") },
-      { id: "club_kolkata", name: "Kolkata Knights", logo: "⚔️", playerCount: 13, captain: "S. Iyer", viceCaptain: "A. Russell", city: "Kolkata", players: generateDefaultSquadForClub("Kolkata Knights", "S. Iyer", "A. Russell") },
-      { id: "club_rajasthan", name: "Rajasthan Warriors", logo: "🛡️", playerCount: 13, captain: "S. Samson", viceCaptain: "J. Buttler", city: "Jaipur", players: generateDefaultSquadForClub("Rajasthan Warriors", "S. Samson", "J. Buttler") },
-      { id: "club_punjab", name: "Punjab Kings", logo: "🔥", playerCount: 13, captain: "S. Dhawan", viceCaptain: "S. Curran", city: "Mohali", players: generateDefaultSquadForClub("Punjab Kings", "S. Dhawan", "S. Curran") },
-      { id: "club_gujarat", name: "Gujarat Titans", logo: "⚡", playerCount: 13, captain: "S. Gill", viceCaptain: "R. Khan", city: "Ahmedabad", players: generateDefaultSquadForClub("Gujarat Titans", "S. Gill", "R. Khan") },
-      { id: "club_hyderabad", name: "Hyderabad Sun", logo: "🦅", playerCount: 13, captain: "P. Cummins", viceCaptain: "B. Kumar", city: "Hyderabad", players: generateDefaultSquadForClub("Hyderabad Sun", "P. Cummins", "B. Kumar") },
-      { id: "club_pune", name: "Pune Super Warriors", logo: "🎯", playerCount: 13, captain: "K. Rahul", viceCaptain: "M. Stoinis", city: "Pune", players: generateDefaultSquadForClub("Pune Super Warriors", "K. Rahul", "M. Stoinis") }
-    ];
+    const myTeam = getTeamData();
+    if (myTeam && myTeam.teamName) addClub(myTeam);
 
-    const customClubs = getCustomClubsList();
-    const map = new Map();
-    defaultClubs.forEach(c => map.set(c.name, c));
-    customClubs.forEach(c => map.set(c.name, c));
-
-    return Array.from(map.values());
+    getCustomClubsList().forEach(addClub);
+    return clubs;
   }
 
   // 2. SEED DEFAULT RICH TOURNAMENTS
   function seedDefaultTournaments() {
-    const clubs = getAvailableClubsList();
-    const t1Teams = clubs.slice(0, 6);
-    const t2Teams = clubs.slice(0, 8);
-
-    // League + Playoffs Tournament
-    const tourney1 = {
-      id: "tourney_ypl_2026",
-      name: "Yuva Premier League 2026",
-      logo: "🏆",
-      format: "League + Playoffs",
-      status: "ONGOING",
-      startDate: "2026-03-10",
-      endDate: "2026-04-15",
-      overs: 20,
-      grounds: [
-        "Wankhede Stadium, Mumbai",
-        "Chinnaswamy Stadium, Bengaluru",
-        "Eden Gardens, Kolkata"
-      ],
-      rules: {
-        ptsWin: 2,
-        ptsTie: 1,
-        maxOversBowler: 4,
-        superOver: true
-      },
-      teams: t1Teams,
-      groups: [],
-      fixtures: [
-        {
-          id: "fx_1",
-          stage: "League • Match 1",
-          teamA: t1Teams[0].name,
-          teamB: t1Teams[1].name,
-          date: "2026-03-10",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "COMPLETED",
-          scoreA: "184/5 (20.0)",
-          scoreB: "162/9 (20.0)",
-          winner: t1Teams[0].name,
-          resultText: `${t1Teams[0].name} won by 22 runs`,
-          pom: "R. Sharma (76 off 42)"
-        },
-        {
-          id: "fx_2",
-          stage: "League • Match 2",
-          teamA: t1Teams[2].name,
-          teamB: t1Teams[3].name,
-          date: "2026-03-12",
-          time: "19:30",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "COMPLETED",
-          scoreA: "205/4 (20.0)",
-          scoreB: "198/7 (20.0)",
-          winner: t1Teams[2].name,
-          resultText: `${t1Teams[2].name} won by 7 runs`,
-          pom: "V. Kohli (82 off 50)"
-        },
-        {
-          id: "fx_3",
-          stage: "League • Match 3",
-          teamA: t1Teams[4].name,
-          teamB: t1Teams[5].name,
-          date: "2026-03-14",
-          time: "19:30",
-          ground: "Eden Gardens, Kolkata",
-          status: "COMPLETED",
-          scoreA: "172/8 (20.0)",
-          scoreB: "175/4 (18.4)",
-          winner: t1Teams[5].name,
-          resultText: `${t1Teams[5].name} won by 6 wickets`,
-          pom: "S. Samson (64* off 38)"
-        },
-        {
-          id: "fx_4",
-          stage: "League • Match 4",
-          teamA: t1Teams[0].name,
-          teamB: t1Teams[2].name,
-          date: "2026-03-16",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "COMPLETED",
-          scoreA: "195/6 (20.0)",
-          scoreB: "188/8 (20.0)",
-          winner: t1Teams[0].name,
-          resultText: `${t1Teams[0].name} won by 7 runs`,
-          pom: "S. Yadav (68 off 32)"
-        },
-        {
-          id: "fx_5",
-          stage: "League • Match 5",
-          teamA: t1Teams[1].name,
-          teamB: t1Teams[3].name,
-          date: "2026-03-18",
-          time: "19:30",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "COMPLETED",
-          scoreA: "168/7 (20.0)",
-          scoreB: "171/3 (17.5)",
-          winner: t1Teams[3].name,
-          resultText: `${t1Teams[3].name} won by 7 wickets`,
-          pom: "R. Gaikwad (72* off 48)"
-        },
-        {
-          id: "fx_6",
-          stage: "League • Match 6",
-          teamA: t1Teams[0].name,
-          teamB: t1Teams[3].name,
-          date: "2026-03-22",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Scheduled",
-          pom: ""
-        },
-        {
-          id: "fx_7",
-          stage: "League • Match 7",
-          teamA: t1Teams[1].name,
-          teamB: t1Teams[4].name,
-          date: "2026-03-24",
-          time: "19:30",
-          ground: "Eden Gardens, Kolkata",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Scheduled",
-          pom: ""
-        },
-        {
-          id: "fx_8",
-          stage: "League • Match 8",
-          teamA: t1Teams[2].name,
-          teamB: t1Teams[5].name,
-          date: "2026-03-26",
-          time: "19:30",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Scheduled",
-          pom: ""
-        },
-        {
-          id: "fx_q1",
-          stage: "Qualifier 1 (Rank 1 vs Rank 2)",
-          teamA: "Rank 1 TBD",
-          teamB: "Rank 2 TBD",
-          date: "2026-04-08",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Winner qualifies for Final",
-          isPlayoff: true
-        },
-        {
-          id: "fx_el",
-          stage: "Eliminator (Rank 3 vs Rank 4)",
-          teamA: "Rank 3 TBD",
-          teamB: "Rank 4 TBD",
-          date: "2026-04-10",
-          time: "19:30",
-          ground: "Eden Gardens, Kolkata",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Winner advances to Qualifier 2",
-          isPlayoff: true
-        },
-        {
-          id: "fx_q2",
-          stage: "Qualifier 2 (Loser Q1 vs Winner Elim)",
-          teamA: "Loser Q1 TBD",
-          teamB: "Winner Elim TBD",
-          date: "2026-04-12",
-          time: "19:30",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Winner qualifies for Final",
-          isPlayoff: true
-        },
-        {
-          id: "fx_fn",
-          stage: "Grand Final (Winner Q1 vs Winner Q2)",
-          teamA: "Winner Q1 TBD",
-          teamB: "Winner Q2 TBD",
-          date: "2026-04-15",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Championship Match",
-          isPlayoff: true
-        }
-      ],
-      stats: {
-        totalRuns: 1645,
-        totalWickets: 53,
-        totalSixes: 68,
-        totalFours: 142,
-        topBatsmen: [
-          { name: "R. Sharma", team: t1Teams[0].name, runs: 184, matches: 3, avg: 61.3, sr: 168.8, hs: "76", fifties: 2, sixes: 11 },
-          { name: "V. Kohli", team: t1Teams[1].name, runs: 162, matches: 3, avg: 54.0, sr: 151.4, hs: "82", fifties: 1, sixes: 7 },
-          { name: "S. Samson", team: t1Teams[5].name, runs: 145, matches: 2, avg: 72.5, sr: 162.9, hs: "64*", fifties: 1, sixes: 9 },
-          { name: "S. Yadav", team: t1Teams[0].name, runs: 138, matches: 3, avg: 46.0, sr: 184.0, hs: "68", fifties: 1, sixes: 10 },
-          { name: "R. Gaikwad", team: t1Teams[3].name, runs: 128, matches: 2, avg: 64.0, sr: 143.8, hs: "72*", fifties: 1, sixes: 5 }
-        ],
-        topBowlers: [
-          { name: "J. Bumrah", team: t1Teams[0].name, wickets: 8, matches: 3, econ: 6.25, best: "4/18", dots: 36, overs: 12 },
-          { name: "M. Siraj", team: t1Teams[2].name, wickets: 6, matches: 3, econ: 7.50, best: "3/24", dots: 28, overs: 12 },
-          { name: "R. Jadeja", team: t1Teams[3].name, wickets: 5, matches: 2, econ: 6.80, best: "3/19", dots: 22, overs: 8 },
-          { name: "K. Yadav", team: t1Teams[1].name, wickets: 5, matches: 3, econ: 7.20, best: "2/22", dots: 24, overs: 11 },
-          { name: "Y. Chahal", team: t1Teams[5].name, wickets: 4, matches: 2, econ: 7.85, best: "3/31", dots: 18, overs: 8 }
-        ]
-      },
-      winner: null
-    };
-
-    // Group Stage Tournament
-    const groupA = [t2Teams[0], t2Teams[1], t2Teams[2], t2Teams[3]];
-    const groupB = [t2Teams[4], t2Teams[5], t2Teams[6], t2Teams[7]];
-
-    const tourney2 = {
-      id: "tourney_champions_2026",
-      name: "Inter-City Champions Trophy 2026",
-      logo: "🥇",
-      format: "Group Stage",
-      status: "ONGOING",
-      startDate: "2026-02-15",
-      endDate: "2026-03-05",
-      overs: 20,
-      grounds: [
-        "Wankhede Stadium, Mumbai",
-        "Chinnaswamy Stadium, Bengaluru"
-      ],
-      rules: {
-        ptsWin: 2,
-        ptsTie: 1,
-        maxOversBowler: 4,
-        superOver: true
-      },
-      teams: t2Teams,
-      groups: [
-        { id: "A", name: "Group A", teams: groupA },
-        { id: "B", name: "Group B", teams: groupB }
-      ],
-      fixtures: [
-        {
-          id: "fx_grp_1",
-          stage: "Group A • Match 1",
-          group: "A",
-          teamA: groupA[0].name,
-          teamB: groupA[1].name,
-          date: "2026-02-15",
-          time: "14:00",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "COMPLETED",
-          scoreA: "178/6 (20.0)",
-          scoreB: "174/8 (20.0)",
-          winner: groupA[0].name,
-          resultText: `${groupA[0].name} won by 4 runs`,
-          pom: "R. Sharma"
-        },
-        {
-          id: "fx_grp_2",
-          stage: "Group A • Match 2",
-          group: "A",
-          teamA: groupA[2].name,
-          teamB: groupA[3].name,
-          date: "2026-02-16",
-          time: "19:30",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "COMPLETED",
-          scoreA: "189/4 (20.0)",
-          scoreB: "165/9 (20.0)",
-          winner: groupA[2].name,
-          resultText: `${groupA[2].name} won by 24 runs`,
-          pom: "F. du Plessis"
-        },
-        {
-          id: "fx_grp_3",
-          stage: "Group B • Match 1",
-          group: "B",
-          teamA: groupB[0].name,
-          teamB: groupB[1].name,
-          date: "2026-02-17",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "COMPLETED",
-          scoreA: "192/5 (20.0)",
-          scoreB: "180/7 (20.0)",
-          winner: groupB[0].name,
-          resultText: `${groupB[0].name} won by 12 runs`,
-          pom: "S. Iyer"
-        },
-        {
-          id: "fx_grp_4",
-          stage: "Group B • Match 2",
-          group: "B",
-          teamA: groupB[2].name,
-          teamB: groupB[3].name,
-          date: "2026-02-18",
-          time: "14:00",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "COMPLETED",
-          scoreA: "160/9 (20.0)",
-          scoreB: "164/3 (17.2)",
-          winner: groupB[3].name,
-          resultText: `${groupB[3].name} won by 7 wickets`,
-          pom: "S. Gill"
-        },
-        {
-          id: "fx_grp_sf1",
-          stage: "Semi-Final 1 (Group A #1 vs Group B #2)",
-          teamA: "Group A Winner TBD",
-          teamB: "Group B Runner TBD",
-          date: "2026-03-02",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Semi-Final Match",
-          isPlayoff: true
-        },
-        {
-          id: "fx_grp_sf2",
-          stage: "Semi-Final 2 (Group B #1 vs Group A #2)",
-          teamA: "Group B Winner TBD",
-          teamB: "Group A Runner TBD",
-          date: "2026-03-03",
-          time: "19:30",
-          ground: "Chinnaswamy Stadium, Bengaluru",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Semi-Final Match",
-          isPlayoff: true
-        },
-        {
-          id: "fx_grp_fn",
-          stage: "Grand Final (Winner SF1 vs Winner SF2)",
-          teamA: "Winner SF1 TBD",
-          teamB: "Winner SF2 TBD",
-          date: "2026-03-05",
-          time: "19:30",
-          ground: "Wankhede Stadium, Mumbai",
-          status: "UPCOMING",
-          scoreA: "-",
-          scoreB: "-",
-          winner: null,
-          resultText: "Championship Final",
-          isPlayoff: true
-        }
-      ],
-      stats: {
-        totalRuns: 1392,
-        totalWickets: 45,
-        totalSixes: 49,
-        totalFours: 118,
-        topBatsmen: [
-          { name: "R. Sharma", team: groupA[0].name, runs: 124, matches: 2, avg: 62.0, sr: 155.0, hs: "78", fifties: 1, sixes: 8 },
-          { name: "S. Gill", team: groupB[3].name, runs: 118, matches: 2, avg: 59.0, sr: 147.5, hs: "68*", fifties: 1, sixes: 5 },
-          { name: "F. du Plessis", team: groupA[2].name, runs: 110, matches: 2, avg: 55.0, sr: 142.8, hs: "64", fifties: 1, sixes: 6 }
-        ],
-        topBowlers: [
-          { name: "J. Bumrah", team: groupA[0].name, wickets: 6, matches: 2, econ: 5.80, best: "3/16", dots: 26, overs: 8 },
-          { name: "M. Shami", team: groupB[3].name, wickets: 5, matches: 2, econ: 6.90, best: "3/22", dots: 20, overs: 8 }
-        ]
-      },
-      winner: null
-    };
-
-    // Knockout Cup
-    const tourney3 = {
-      id: "tourney_knockout_2026",
-      name: "Yuva Knockout Challenge 2026",
-      logo: "💥",
-      format: "Knockout",
-      status: "UPCOMING",
-      startDate: "2026-05-01",
-      endDate: "2026-05-10",
-      overs: 20,
-      grounds: ["Wankhede Stadium, Mumbai"],
-      rules: { ptsWin: 2, ptsTie: 1, maxOversBowler: 4, superOver: true },
-      teams: clubs.slice(0, 8),
-      groups: [],
-      fixtures: [
-        { id: "ko_qf1", stage: "Quarter-Final 1", teamA: clubs[0].name, teamB: clubs[1].name, date: "2026-05-01", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Knockout QF 1" },
-        { id: "ko_qf2", stage: "Quarter-Final 2", teamA: clubs[2].name, teamB: clubs[3].name, date: "2026-05-02", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Knockout QF 2" },
-        { id: "ko_qf3", stage: "Quarter-Final 3", teamA: clubs[4].name, teamB: clubs[5].name, date: "2026-05-03", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Knockout QF 3" },
-        { id: "ko_qf4", stage: "Quarter-Final 4", teamA: clubs[6].name, teamB: clubs[7].name, date: "2026-05-04", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Knockout QF 4" },
-        { id: "ko_sf1", stage: "Semi-Final 1", teamA: "Winner QF 1", teamB: "Winner QF 2", date: "2026-05-07", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Knockout SF 1", isPlayoff: true },
-        { id: "ko_sf2", stage: "Semi-Final 2", teamA: "Winner QF 3", teamB: "Winner QF 4", date: "2026-05-08", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Knockout SF 2", isPlayoff: true },
-        { id: "ko_fn", stage: "Grand Final", teamA: "Winner SF 1", teamB: "Winner SF 2", date: "2026-05-10", time: "19:30", ground: "Wankhede Stadium, Mumbai", status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null, resultText: "Championship Final", isPlayoff: true }
-      ],
-      stats: { totalRuns: 0, totalWickets: 0, totalSixes: 0, totalFours: 0, topBatsmen: [], topBowlers: [] },
-      winner: null
-    };
-
-    return [tourney1, tourney2, tourney3];
+    // Deliberately empty: new installs contain no demo tournaments.
+    return [];
   }
+
 
   // 3. COMPUTATION ENGINE: POINTS TABLE & NET RUN RATE (NRR)
   function parseCricketScoreForNRR(scoreStr, maxAllottedOvers = 20) {
@@ -8658,7 +8029,7 @@ function rotateStrike(innings) {
           rowA.runsScored += sA.runs;
           rowA.oversFaced += sA.oversDecimal;
           rowA.runsConceded += sB.runs;
-          rowA.oversBowled += sB.actualOversDecimal;
+          rowA.oversBowled += sB.oversDecimal;
         }
 
         if (isNoResult) {
@@ -8677,10 +8048,6 @@ function rotateStrike(innings) {
           rowA.l += 1;
           rowA.pts += ptsLoss;
           rowA.form.push("L");
-        } else {
-          rowA.t += 1;
-          rowA.pts += ptsTie;
-          rowA.form.push("T");
         }
       }
 
@@ -8690,7 +8057,7 @@ function rotateStrike(innings) {
           rowB.runsScored += sB.runs;
           rowB.oversFaced += sB.oversDecimal;
           rowB.runsConceded += sA.runs;
-          rowB.oversBowled += sA.actualOversDecimal;
+          rowB.oversBowled += sA.oversDecimal;
         }
 
         if (isNoResult) {
@@ -8709,10 +8076,6 @@ function rotateStrike(innings) {
           rowB.l += 1;
           rowB.pts += ptsLoss;
           rowB.form.push("L");
-        } else {
-          rowB.t += 1;
-          rowB.pts += ptsTie;
-          rowB.form.push("T");
         }
       }
     });
@@ -9858,162 +9221,101 @@ function rotateStrike(innings) {
   // 4.45 TOURNAMENT PLAYER STATS AGGREGATOR
   function aggregateTournamentPlayerStats(tourney) {
     if (!tourney) return;
+
+    const teams = Array.isArray(tourney.teams) ? tourney.teams : [];
+    const teamNames = new Map();
+    const registeredPlayers = new Map();
+    teams.forEach(team => {
+      const teamName = String(typeof team === "string" ? team : (team?.name || "")).trim();
+      if (!teamName) return;
+      teamNames.set(teamName.toLowerCase(), teamName);
+      (typeof team === "object" ? (team.players || []) : []).forEach(p => {
+        if (!p || !p.name) return;
+        const pid = String(p.id || "").trim();
+        const nameKey = `${teamName.toLowerCase()}::${String(p.name).trim().toLowerCase()}`;
+        registeredPlayers.set(pid ? `${teamName.toLowerCase()}::id:${pid}` : nameKey, true);
+      });
+    });
+
     const batsmenMap = {};
     const bowlersMap = {};
-    let totalRuns = 0;
-    let totalWickets = 0;
-    let totalSixes = 0;
-    let totalFours = 0;
+    let totalRuns = 0, totalWickets = 0, totalSixes = 0, totalFours = 0;
 
     let history = [];
-    try {
-      history = JSON.parse(getUserStorage("cricYuvaMatchHistory", "[]") || "[]");
-    } catch (e) {
-      history = [];
-    }
+    try { history = JSON.parse(getUserStorage("cricYuvaMatchHistory", "[]") || "[]"); } catch (e) { history = []; }
 
-    const tourneyFixtureIds = new Set(
-    (tourney.fixtures || []).map(f => f && f.id).filter(Boolean)
-  );
+    const fixtureIds = new Set((tourney.fixtures || []).map(f => f && f.id).filter(Boolean));
+    const normalizeTeam = value => String(value?.name || value || "").trim().toLowerCase();
+    const isParticipatingTeam = value => teamNames.has(normalizeTeam(value));
 
-  const tourneyMatches = history.filter(m => {
-    if (!m) return false;
+    const tourneyMatches = history.filter(m => {
+      if (!m) return false;
+      const directIdMatch = (m.tourneyId && m.tourneyId === tourney.id) || (m.tournamentId && m.tournamentId === tourney.id);
+      const fixtureMatch = (m.fixtureId && fixtureIds.has(m.fixtureId)) || (m.matchId && fixtureIds.has(m.matchId));
+      if (!directIdMatch && !fixtureMatch) return false;
 
-    const directIdMatch =
-      (m.tourneyId && m.tourneyId === tourney.id) ||
-      (m.tournamentId && m.tournamentId === tourney.id);
+      const explicitTeams = [m.teamA, m.teamB, m.teamAName, m.teamBName,
+        m.innings1?.battingTeam, m.innings1?.battingTeamName,
+        m.innings2?.battingTeam, m.innings2?.battingTeamName,
+        m.innings1?.bowlingTeam, m.innings1?.bowlingTeamName,
+        m.innings2?.bowlingTeam, m.innings2?.bowlingTeamName]
+        .map(normalizeTeam).filter(Boolean);
+      if (explicitTeams.length && explicitTeams.some(name => !isParticipatingTeam(name))) return false;
+      return explicitTeams.length === 0 || explicitTeams.some(isParticipatingTeam);
+    });
 
-    const fixtureMatch =
-      (m.fixtureId && tourneyFixtureIds.has(m.fixtureId)) ||
-      (m.matchId && tourneyFixtureIds.has(m.matchId));
+    const allowPlayer = (player, teamName) => {
+      if (!player || !player.name || !isParticipatingTeam(teamName)) return false;
+      if (!registeredPlayers.size) return true;
+      const pid = String(player.id || player.playerId || "").trim();
+      const teamKey = normalizeTeam(teamName);
+      return (pid && registeredPlayers.has(`${teamKey}::id:${pid}`)) || registeredPlayers.has(`${teamKey}::${String(player.name).trim().toLowerCase()}`);
+    };
 
-    const nameMatch =
-      (m.tournament && tourney.name &&
-        (
-          m.tournament.toLowerCase().includes(tourney.name.toLowerCase()) ||
-          tourney.name.toLowerCase().includes(m.tournament.toLowerCase())
-        ));
-
-    return directIdMatch || fixtureMatch || nameMatch;
-  });
-
-  tourneyMatches.forEach(match => {
+    tourneyMatches.forEach(match => {
       [match.innings1, match.innings2].forEach(inn => {
         if (!inn) return;
-        totalRuns += (inn.totalRuns || 0);
-        totalWickets += (inn.wickets || 0);
+        const battingTeam = String(inn.battingTeamName || inn.battingTeam || "").trim();
+        const bowlingTeam = String(inn.bowlingTeamName || inn.bowlingTeam || "").trim();
+        const validBat = isParticipatingTeam(battingTeam);
+        const validBowl = isParticipatingTeam(bowlingTeam);
+        if (!validBat && !validBowl) return;
 
-        (inn.batting || inn.batsmen || []).forEach(b => {
-          if (!b || !b.name) return;
-          const key = b.name.trim();
-          if (!batsmenMap[key]) {
-            batsmenMap[key] = {
-              name: b.name,
-              team: inn.battingTeam || "Team",
-              runs: 0,
-              balls: 0,
-              fours: 0,
-              sixes: 0,
-              innings: 0,
-              highestScore: 0,
-              fifties: 0,
-              hundreds: 0,
-              isOutCount: 0
-            };
-          }
+        totalRuns += Number(inn.totalRuns || 0);
+        totalWickets += Number(inn.wickets || 0);
+
+        if (validBat) (inn.batting || inn.batsmen || []).forEach(b => {
+          if (!allowPlayer(b, battingTeam)) return;
+          const pid = String(b.id || b.playerId || "").trim();
+          const key = `${normalizeTeam(battingTeam)}::${pid ? `id:${pid}` : String(b.name).trim().toLowerCase()}`;
+          if (!batsmenMap[key]) batsmenMap[key] = { id: pid, name: b.name, team: teamNames.get(normalizeTeam(battingTeam)) || battingTeam, runs: 0, balls: 0, fours: 0, sixes: 0, innings: 0, highestScore: 0, fifties: 0, hundreds: 0, isOutCount: 0 };
           const item = batsmenMap[key];
-          item.innings += 1;
-          item.runs += (b.runs || 0);
-          item.balls += (b.balls || 0);
-          item.fours += (b.fours || 0);
-          item.sixes += (b.sixes || 0);
-          totalFours += (b.fours || 0);
-          totalSixes += (b.sixes || 0);
+          item.innings += 1; item.runs += Number(b.runs || 0); item.balls += Number(b.balls || 0); item.fours += Number(b.fours || 0); item.sixes += Number(b.sixes || 0);
+          totalFours += Number(b.fours || 0); totalSixes += Number(b.sixes || 0);
           if (b.isOut) item.isOutCount += 1;
-          if ((b.runs || 0) > item.highestScore) item.highestScore = b.runs || 0;
-          if ((b.runs || 0) >= 100) item.hundreds += 1;
-          else if ((b.runs || 0) >= 50) item.fifties += 1;
+          if (Number(b.runs || 0) > item.highestScore) item.highestScore = Number(b.runs || 0);
+          if (Number(b.runs || 0) >= 100) item.hundreds += 1; else if (Number(b.runs || 0) >= 50) item.fifties += 1;
         });
 
-        (inn.bowling || inn.bowlers || []).forEach(bw => {
-          if (!bw || !bw.name) return;
-          const key = bw.name.trim();
-          const bwRuns = (typeof bw.runsConceded === "number") ? bw.runsConceded : ((typeof bw.runs === "number") ? bw.runs : 0);
-          if (!bowlersMap[key]) {
-            bowlersMap[key] = {
-              name: bw.name,
-              team: inn.bowlingTeam || "Team",
-              wickets: 0,
-              runsConceded: 0,
-              ballsBowled: 0,
-              maidens: 0,
-              innings: 0,
-              dots: 0,
-              bestWickets: 0,
-              bestRuns: 999
-            };
-          }
+        if (validBowl) (inn.bowling || inn.bowlers || []).forEach(bw => {
+          if (!allowPlayer(bw, bowlingTeam)) return;
+          const pid = String(bw.id || bw.playerId || "").trim();
+          const key = `${normalizeTeam(bowlingTeam)}::${pid ? `id:${pid}` : String(bw.name).trim().toLowerCase()}`;
+          const runsConceded = typeof bw.runsConceded === "number" ? bw.runsConceded : (typeof bw.runs === "number" ? bw.runs : 0);
+          if (!bowlersMap[key]) bowlersMap[key] = { id: pid, name: bw.name, team: teamNames.get(normalizeTeam(bowlingTeam)) || bowlingTeam, wickets: 0, runsConceded: 0, ballsBowled: 0, maidens: 0, innings: 0, dots: 0, bestWickets: 0, bestRuns: 999 };
           const item = bowlersMap[key];
-          item.innings += 1;
-          item.wickets += (bw.wickets || 0);
-          item.runsConceded += bwRuns;
-          const totalBalls = (bw.overs || 0) * 6 + (bw.balls || 0);
-          item.ballsBowled += totalBalls;
-          item.maidens += (bw.maidens || 0);
-          item.dots += (bw.dots || 0);
-
-          if (bw.wickets > item.bestWickets || (bw.wickets === item.bestWickets && bwRuns < item.bestRuns)) {
-            item.bestWickets = bw.wickets || 0;
-            item.bestRuns = bwRuns;
-          }
+          item.innings += 1; item.wickets += Number(bw.wickets || 0); item.runsConceded += Number(runsConceded || 0);
+          item.ballsBowled += (Number(bw.overs || 0) * 6) + Number(bw.balls || 0); item.maidens += Number(bw.maidens || 0); item.dots += Number(bw.dots || 0);
+          if (Number(bw.wickets || 0) > item.bestWickets || (Number(bw.wickets || 0) === item.bestWickets && Number(runsConceded || 0) < item.bestRuns)) { item.bestWickets = Number(bw.wickets || 0); item.bestRuns = Number(runsConceded || 0); }
         });
       });
     });
 
-    const topBatsmen = Object.values(batsmenMap).map(b => {
-      const avg = b.isOutCount > 0 ? (b.runs / b.isOutCount).toFixed(1) : (b.runs > 0 ? `${b.runs}.0` : "0.0");
-      const sr = b.balls > 0 ? ((b.runs / b.balls) * 100).toFixed(1) : "0.0";
-      return {
-        name: b.name,
-        team: b.team,
-        runs: b.runs,
-        balls: b.balls,
-        innings: b.innings,
-        hs: b.highestScore,
-        avg: avg,
-        sr: sr,
-        fours: b.fours,
-        sixes: b.sixes,
-        fifties: b.fifties,
-        hundreds: b.hundreds
-      };
-    }).sort((a, b) => b.runs - a.runs || b.sr - a.sr);
+    const topBatsmen = Object.values(batsmenMap).map(b => ({ id:b.id, name:b.name, team:b.team, runs:b.runs, balls:b.balls, innings:b.innings, hs:b.highestScore, avg:b.isOutCount > 0 ? (b.runs / b.isOutCount).toFixed(1) : (b.runs > 0 ? `${b.runs}.0` : "0.0"), sr:b.balls > 0 ? ((b.runs / b.balls) * 100).toFixed(1) : "0.0", fours:b.fours, sixes:b.sixes, fifties:b.fifties, hundreds:b.hundreds })).sort((a,b)=>b.runs-a.runs || Number(b.sr)-Number(a.sr));
+    const topBowlers = Object.values(bowlersMap).map(b => ({ id:b.id, name:b.name, team:b.team, wickets:b.wickets, overs:(b.ballsBowled/6).toFixed(1), runs:b.runsConceded, maidens:b.maidens, econ:b.ballsBowled > 0 ? ((b.runsConceded/b.ballsBowled)*6).toFixed(2) : "0.00", best:b.bestWickets > 0 ? `${b.bestWickets}/${b.bestRuns}` : "0/0", dots:b.dots })).sort((a,b)=>b.wickets-a.wickets || Number(a.econ)-Number(b.econ));
 
-    const topBowlers = Object.values(bowlersMap).map(bw => {
-      const ovs = (bw.ballsBowled / 6).toFixed(1);
-      const econ = bw.ballsBowled > 0 ? ((bw.runsConceded / bw.ballsBowled) * 6).toFixed(2) : "0.00";
-      const bestStr = bw.bestWickets > 0 ? `${bw.bestWickets}/${bw.bestRuns === 999 ? 0 : bw.bestRuns}` : "0/0";
-      return {
-        name: bw.name,
-        team: bw.team,
-        wickets: bw.wickets,
-        overs: ovs,
-        runs: bw.runsConceded,
-        maidens: bw.maidens,
-        econ: econ,
-        best: bestStr,
-        dots: bw.dots
-      };
-    }).sort((a, b) => b.wickets - a.wickets || parseFloat(a.econ) - parseFloat(b.econ));
-
-    tourney.stats = {
-      totalRuns,
-      totalWickets,
-      totalSixes,
-      totalFours,
-      topBatsmen: topBatsmen,
-      topBowlers: topBowlers
-    };
+    tourney.stats = { totalRuns, totalWickets, totalSixes, totalFours, topBatsmen, topBowlers };
+    return tourney.stats;
   }
 
   // 4.5 REAL-TIME MATCH TOURNAMENT SYNCHRONIZER
@@ -10024,13 +9326,17 @@ function rotateStrike(innings) {
       let modified = false;
 
       tourneyList.forEach(t => {
-        // Check if match belongs to tournament either by tournament name, tourneyId, or matching fixture
-        const isMatchingTourney = (match.tourneyId && match.tourneyId === t.id) ||
-                                  (match.tournamentId && match.tournamentId === t.id) ||
-                                  (match.tournament && t.name && match.tournament.toLowerCase().includes(t.name.toLowerCase())) ||
-                                  (t.name && match.tournament && t.name.toLowerCase().includes(match.tournament.toLowerCase()));
-
-        if (!isMatchingTourney) return;
+        // A match belongs to a tournament only through an exact tournament/fixture ID.
+        // Name fallback is allowed only when the name is exact AND both teams belong to this tournament.
+        const directTourney = (match.tourneyId && match.tourneyId === t.id) || (match.tournamentId && match.tournamentId === t.id);
+        const fixtureIds = new Set((t.fixtures || []).map(f => f && f.id).filter(Boolean));
+        const directFixture = (match.fixtureId && fixtureIds.has(match.fixtureId)) || (match.matchId && fixtureIds.has(match.matchId));
+        const mTeamA = String(match.teamA?.name || match.teamA || "").trim().toLowerCase();
+        const mTeamB = String(match.teamB?.name || match.teamB || "").trim().toLowerCase();
+        const tTeams = new Set((t.teams || []).map(tm => String(typeof tm === "string" ? tm : (tm?.name || "")).trim().toLowerCase()).filter(Boolean));
+        const exactNameFallback = !directTourney && !directFixture && !!match.tournament && !!t.name && String(match.tournament).trim().toLowerCase() === String(t.name).trim().toLowerCase() && tTeams.has(mTeamA) && tTeams.has(mTeamB);
+        if (!directTourney && !directFixture && !exactNameFallback) return;
+        if ((mTeamA && !tTeams.has(mTeamA)) || (mTeamB && !tTeams.has(mTeamB))) return;
 
         let fix = null;
         if (match.fixtureId || match.matchId) {
@@ -10125,6 +9431,13 @@ function rotateStrike(innings) {
 
       if (modified) {
         saveTournamentsList(tourneyList);
+        if (window.CricYuvaCloud) {
+          tourneyList.forEach(t => {
+            if (t && t.id && (t.id === activeTournamentId || t.fixtures?.some(f => f && (f.id === match.fixtureId || f.id === match.matchId)))) {
+              window.CricYuvaCloud.request("/api/tournaments", { method: "POST", body: JSON.stringify(t) }).catch(() => {});
+            }
+          });
+        }
         if (activeTournamentId) {
           openTournamentDetails(activeTournamentId);
         }
@@ -10292,6 +9605,22 @@ function rotateStrike(innings) {
   }
 
   // 6. RENDER TOURNAMENT DETAILS VIEW (7 TABS)
+  function resolveTournamentOutcome(tourney) {
+    if (!tourney) return null;
+    const teams = new Set((tourney.teams || []).map(t => String(typeof t === "string" ? t : (t?.name || "")).trim()).filter(Boolean));
+    const validTeam = name => name && teams.has(String(name).trim());
+    const fixtures = tourney.fixtures || [];
+    const finalFix = [...fixtures].reverse().find(f => f && f.status === "COMPLETED" && f.winner && /final/i.test(f.stage || "") && !/semi|quarter|third/i.test(f.stage || ""));
+    if (finalFix && validTeam(finalFix.winner) && validTeam(finalFix.teamA) && validTeam(finalFix.teamB)) {
+      const runnerUp = finalFix.winner === finalFix.teamA ? finalFix.teamB : finalFix.teamA;
+      if (validTeam(runnerUp)) { tourney.winner = finalFix.winner; tourney.runnerUp = runnerUp; }
+    } else if (tourney.winner && !validTeam(tourney.winner)) {
+      tourney.winner = null;
+      tourney.runnerUp = null;
+    }
+    return { winner: tourney.winner || null, runnerUp: tourney.runnerUp || null };
+  }
+
   function openTournamentDetails(tourneyId, initialTab) {
     const tourney = getTournamentById(tourneyId);
     if (!tourney) return;
@@ -10300,6 +9629,7 @@ function rotateStrike(innings) {
 
     if (typeof updatePlayoffBrackets === "function") updatePlayoffBrackets(tourney);
     if (typeof aggregateTournamentPlayerStats === "function") aggregateTournamentPlayerStats(tourney);
+    resolveTournamentOutcome(tourney);
 
     const listView = document.getElementById("tournamentsListView");
     const detailView = document.getElementById("tournamentDetailView");
@@ -10350,6 +9680,8 @@ function rotateStrike(innings) {
     if (tourney.winner && winnerBanner && winnerTeamName) {
       winnerBanner.style.display = "flex";
       winnerTeamName.textContent = tourney.winner;
+      const runnerEl = document.getElementById("tHeroRunnerUpName");
+      if (runnerEl) runnerEl.textContent = tourney.runnerUp ? `Runner-Up: ${tourney.runnerUp}` : "Runner-Up: —";
     } else if (winnerBanner) {
       winnerBanner.style.display = "none";
     }
@@ -11536,48 +10868,7 @@ function getMasterPlayerDatabase() {
   const masterMap = new Map();
 
   // 1. Predefined Star & Domestic Players (Unique IDs, Real Details & Indian Mobiles)
-  const defaultStarPlayers = [
-    { id: "p_1", name: "Rohit Sharma", role: "Top-Order Batsman", mobile: "+91 98201 11045", basePrice: 2.0, avatar: "🏏", type: "Domestic", jersey: 45 },
-    { id: "p_2", name: "Virat Kohli", role: "Top-Order Batsman", mobile: "+91 98111 22018", basePrice: 2.0, avatar: "👑", type: "Domestic", jersey: 18 },
-    { id: "p_3", name: "Shubman Gill", role: "Opening Batsman", mobile: "+91 98140 33077", basePrice: 2.0, avatar: "⚡", type: "Domestic", jersey: 77 },
-    { id: "p_4", name: "Suryakumar Yadav", role: "Middle-Order Batsman", mobile: "+91 98205 44063", basePrice: 2.0, avatar: "🎯", type: "Domestic", jersey: 63 },
-    { id: "p_5", name: "Hardik Pandya", role: "Pace All-Rounder", mobile: "+91 98260 55033", basePrice: 2.0, avatar: "🔥", type: "Domestic", jersey: 33 },
-    { id: "p_6", name: "Ravindra Jadeja", role: "Spin All-Rounder", mobile: "+91 98280 66008", basePrice: 2.0, avatar: "🗡️", type: "Domestic", jersey: 8 },
-    { id: "p_7", name: "Rishabh Pant", role: "Wicketkeeper Batsman", mobile: "+91 98115 77017", basePrice: 2.0, avatar: "🧤", type: "Domestic", jersey: 17 },
-    { id: "p_8", name: "Jasprit Bumrah", role: "Fast Bowler", mobile: "+91 98790 88093", basePrice: 2.0, avatar: "💥", type: "Domestic", jersey: 93 },
-    { id: "p_9", name: "Mohammed Shami", role: "Fast Bowler", mobile: "+91 98370 99011", basePrice: 2.0, avatar: "🎯", type: "Domestic", jersey: 11 },
-    { id: "p_10", name: "Mohammed Siraj", role: "Fast Bowler", mobile: "+91 98480 10013", basePrice: 1.5, avatar: "⚡", type: "Domestic", jersey: 13 },
-    { id: "p_11", name: "Kuldeep Yadav", role: "Spin Bowler", mobile: "+91 98390 11023", basePrice: 1.5, avatar: "🌀", type: "Domestic", jersey: 23 },
-    { id: "p_12", name: "Yashasvi Jaiswal", role: "Opening Batsman", mobile: "+91 98208 12064", basePrice: 2.0, avatar: "🌟", type: "Domestic", jersey: 64 },
-    { id: "p_13", name: "Sanju Samson", role: "Wicketkeeper Batsman", mobile: "+91 98470 13009", basePrice: 2.0, avatar: "🧤", type: "Domestic", jersey: 9 },
-    { id: "p_14", name: "Heinrich Klaasen", role: "Wicketkeeper Batsman", mobile: "+27 82 140 4521", basePrice: 2.0, avatar: "💥", type: "Overseas", jersey: 45 },
-    { id: "p_15", name: "Travis Head", role: "Top-Order Batsman", mobile: "+61 41 150 6214", basePrice: 2.0, avatar: "⚡", type: "Overseas", jersey: 62 },
-    { id: "p_16", name: "Rashid Khan", role: "Spin All-Rounder", mobile: "+93 70 160 1928", basePrice: 2.0, avatar: "🌀", type: "Overseas", jersey: 19 },
-    { id: "p_17", name: "Mitchell Starc", role: "Fast Bowler", mobile: "+61 42 170 5623", basePrice: 2.0, avatar: "🏹", type: "Overseas", jersey: 56 },
-    { id: "p_18", name: "Andre Russell", role: "Pace All-Rounder", mobile: "+1 876 180 1212", basePrice: 2.0, avatar: "💪", type: "Overseas", jersey: 12 },
-    { id: "p_19", name: "Trent Boult", role: "Fast Bowler", mobile: "+64 21 190 1822", basePrice: 2.0, avatar: "⚡", type: "Overseas", jersey: 18 },
-    { id: "p_20", name: "Nicholas Pooran", role: "Wicketkeeper Batsman", mobile: "+1 868 200 2929", basePrice: 2.0, avatar: "🧤", type: "Overseas", jersey: 29 },
-    { id: "p_21", name: "Sunil Narine", role: "Spin All-Rounder", mobile: "+1 868 210 7474", basePrice: 2.0, avatar: "🌀", type: "Overseas", jersey: 74 },
-    { id: "p_22", name: "Arshdeep Singh", role: "Fast Bowler", mobile: "+91 98150 22002", basePrice: 1.5, avatar: "🎯", type: "Domestic", jersey: 2 },
-    { id: "p_23", name: "Rinku Singh", role: "Finisher Batsman", mobile: "+91 98375 23035", basePrice: 1.5, avatar: "🔥", type: "Domestic", jersey: 35 },
-    { id: "p_24", name: "Axar Patel", role: "Spin All-Rounder", mobile: "+91 98250 24020", basePrice: 1.5, avatar: "🗡️", type: "Domestic", jersey: 20 },
-    { id: "p_25", name: "Jos Buttler", role: "Wicketkeeper Batsman", mobile: "+44 77 250 6363", basePrice: 2.0, avatar: "👑", type: "Overseas", jersey: 63 },
-    { id: "p_26", name: "Yuzvendra Chahal", role: "Spin Bowler", mobile: "+91 98120 26003", basePrice: 1.5, avatar: "🌀", type: "Domestic", jersey: 3 },
-    { id: "p_27", name: "Marcus Stoinis", role: "Pace All-Rounder", mobile: "+61 43 270 1717", basePrice: 1.5, avatar: "💪", type: "Overseas", jersey: 17 },
-    { id: "p_28", name: "Phil Salt", role: "Wicketkeeper Batsman", mobile: "+44 78 280 2828", basePrice: 1.5, avatar: "⚡", type: "Overseas", jersey: 28 },
-    { id: "p_29", name: "Harshit Rana", role: "Fast Bowler", mobile: "+91 98100 29022", basePrice: 1.0, avatar: "🎯", type: "Domestic", jersey: 22 },
-    { id: "p_30", name: "Abhishek Sharma", role: "All-Rounder", mobile: "+91 98145 30004", basePrice: 1.5, avatar: "🔥", type: "Domestic", jersey: 4 },
-    { id: "p_31", name: "Mayank Yadav", role: "Fast Bowler", mobile: "+91 98118 31099", basePrice: 1.0, avatar: "⚡", type: "Domestic", jersey: 99 },
-    { id: "p_32", name: "Tilak Varma", role: "Middle-Order Batsman", mobile: "+91 98495 32009", basePrice: 1.5, avatar: "🌟", type: "Domestic", jersey: 9 },
-    { id: "p_33", name: "Ruturaj Gaikwad", role: "Top-Order Batsman", mobile: "+91 98220 33031", basePrice: 2.0, avatar: "🏏", type: "Domestic", jersey: 31 },
-    { id: "p_34", name: "Shivam Dube", role: "Pace All-Rounder", mobile: "+91 98209 34025", basePrice: 1.5, avatar: "💪", type: "Domestic", jersey: 25 },
-    { id: "p_35", name: "Washington Sundar", role: "Spin All-Rounder", mobile: "+91 98400 35005", basePrice: 1.0, avatar: "🌀", type: "Domestic", jersey: 5 },
-    { id: "p_36", name: "Nitish Kumar Reddy", role: "Pace All-Rounder", mobile: "+91 98485 36067", basePrice: 1.0, avatar: "🌟", type: "Domestic", jersey: 67 },
-    { id: "p_37", name: "Varun Chakravarthy", role: "Mystery Spin Bowler", mobile: "+91 98405 37029", basePrice: 1.5, avatar: "🌀", type: "Domestic", jersey: 29 },
-    { id: "p_38", name: "Khaleel Ahmed", role: "Left-Arm Fast Bowler", mobile: "+91 98295 38071", basePrice: 1.0, avatar: "🎯", type: "Domestic", jersey: 71 },
-    { id: "p_39", name: "T Natarajan", role: "Yorker Bowler", mobile: "+91 98425 39044", basePrice: 1.0, avatar: "🎯", type: "Domestic", jersey: 44 },
-    { id: "p_40", name: "Avesh Khan", role: "Fast Bowler", mobile: "+91 98270 40065", basePrice: 1.0, avatar: "⚡", type: "Domestic", jersey: 65 }
-  ];
+  const defaultStarPlayers = [];
 
   defaultStarPlayers.forEach(p => masterMap.set(p.id, { ...p }));
 
@@ -13033,6 +12324,7 @@ function saveActiveTournament(tourney) {
       list.push(tourney);
     }
     saveTournamentsList(list);
+    if (window.CricYuvaCloud) window.CricYuvaCloud.request("/api/tournaments", { method: "POST", body: JSON.stringify(tourney) }).catch(() => {});
   } catch (e) {
     console.error("Error saving active tournament:", e);
   }
@@ -13081,8 +12373,7 @@ async function renderTournamentChatTab(tourney) {
 
   // Fetch chat history from REST API
   try {
-    const res = await fetch(`/api/chat/tournament/${encodeURIComponent(tourney.id)}`);
-    const data = await res.json();
+    const data = await CricYuvaCloud.request(`/api/chat/tournament/${encodeURIComponent(tourney.id)}`);
     if (data.success && Array.isArray(data.messages)) {
       renderChatMessagesList(messagesList, data.messages, userId);
     } else if (messagesList) {
@@ -13221,9 +12512,8 @@ if (tChatInputForm) {
 
     // 2. Persist via REST API
     try {
-      await fetch(`/api/chat/tournament/${encodeURIComponent(activeTournamentId)}`, {
+      await CricYuvaCloud.request(`/api/chat/tournament/${encodeURIComponent(activeTournamentId)}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
     } catch (err) {
@@ -13290,8 +12580,7 @@ async function openTeamChatModal(teamName, tourneyId) {
 
   // Fetch squad chat history
   try {
-    const res = await fetch(`/api/chat/team/${encodeURIComponent(currentTeamChatTourneyId)}/${encodeURIComponent(teamName)}`);
-    const data = await res.json();
+    const data = await CricYuvaCloud.request(`/api/chat/team/${encodeURIComponent(currentTeamChatTourneyId)}/${encodeURIComponent(teamName)}`);
     if (data.success && Array.isArray(data.messages)) {
       renderChatMessagesList(messagesList, data.messages, userId);
     } else if (messagesList) {
@@ -13359,9 +12648,8 @@ if (teamChatModalInputForm) {
 
     // 2. Persist via REST
     try {
-      await fetch(`/api/chat/team/${encodeURIComponent(currentTeamChatTourneyId)}/${encodeURIComponent(currentTeamChatTeamName)}`, {
+      await CricYuvaCloud.request(`/api/chat/team/${encodeURIComponent(currentTeamChatTourneyId)}/${encodeURIComponent(currentTeamChatTeamName)}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
     } catch (err) {
@@ -14268,23 +13556,7 @@ if (btnTourneyEdit) {
     btnTourneyShare.addEventListener("click", () => {
       const tourney = getTournamentById(activeTournamentId);
       if (!tourney) return;
-      if (navigator.share) {
-        navigator.share({
-          title: tourney.name,
-          text: `Check out ${tourney.name} live scores, points table and fixtures on Cric Yuva!`,
-          url: window.location.href
-        }).catch(() => {});
-      } else {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(window.location.href).then(() => {
-            showToast(`Link to ${tourney.name} copied to clipboard!`);
-          }).catch(() => {
-            showToast(`Share URL: ${window.location.href}`);
-          });
-        } else {
-          showToast(`Share URL: ${window.location.href}`);
-        }
-      }
+      openShareQr("Join Tournament: " + tourney.name, buildShareUrl("joinTournament", tourney.id));
     });
   }
 
@@ -15340,7 +14612,7 @@ if (btnTourneyEdit) {
     if (club && club.players && club.players.length > 0) {
       currentEditingSquad = JSON.parse(JSON.stringify(club.players));
     } else {
-      currentEditingSquad = generateDefaultSquadForClub(teamName, club?.captain, club?.viceCaptain);
+      currentEditingSquad = [];
     }
 
     renderSquadModalPlayersList();
@@ -15696,19 +14968,16 @@ if (btnTourneyEdit) {
       const name = (document.getElementById("inputNewClubName") || document.getElementById("customClubName"))?.value?.trim();
       const city = (document.getElementById("inputNewClubCity") || document.getElementById("customClubCity"))?.value?.trim() || "Local";
       const logo = (document.getElementById("inputNewClubEmoji") || document.getElementById("customClubSelectedLogo"))?.value || "🏏";
-      const captain = (document.getElementById("inputNewClubCaptain") || document.getElementById("customClubCaptain"))?.value?.trim() || "Captain";
-      const viceCaptain = (document.getElementById("inputNewClubViceCaptain") || document.getElementById("customClubVC"))?.value?.trim() || "Vice Captain";
-      const autoSquad = (document.getElementById("chkAutoGenerateSquad") || document.getElementById("checkAutoGenerateSquad"))?.checked !== false;
-
+      const captain = (document.getElementById("inputNewClubCaptain") || document.getElementById("customClubCaptain"))?.value?.trim() || "";
+      const viceCaptain = (document.getElementById("inputNewClubViceCaptain") || document.getElementById("customClubVC"))?.value?.trim() || "";
       if (!name) {
         alert("Please enter a Team Name.");
         return;
       }
 
-      const squad = autoSquad ? generateDefaultSquadForClub(name, captain, viceCaptain) : [
-        { name: captain, role: "Batsman", isCaptain: true, isVC: false, isPlayingXi: true, jersey: "7" },
-        { name: viceCaptain, role: "All-Rounder", isCaptain: false, isVC: true, isPlayingXi: true, jersey: "18" }
-      ];
+      const squad = [];
+      if (captain) squad.push({ id: `p_${Date.now()}_c`, name: captain, role: "Batsman", isCaptain: true, isViceCaptain: false, isPlayingXi: true, jersey: "" });
+      if (viceCaptain && viceCaptain.toLowerCase() !== captain.toLowerCase()) squad.push({ id: `p_${Date.now()}_vc`, name: viceCaptain, role: "All-Rounder", isCaptain: false, isViceCaptain: true, isPlayingXi: true, jersey: "" });
 
       const newClub = {
         id: `club_custom_${Date.now()}`,
@@ -15934,14 +15203,9 @@ if (btnTourneyEdit) {
       });
 
       // 2. Also POST to REST backend for persistence
-      fetch(`/api/live/match/${mId}`, {
+      CricYuvaCloud.request(`/api/live/match/${encodeURIComponent(mId)}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matchData: payload,
-          tournamentId: matchData.tournamentId || null,
-          scorerUserId: (window.currentUser && window.currentUser.id) || "scorer_1"
-        })
+        body: JSON.stringify({ matchData: payload, tournamentId: matchData.tournamentId || null })
       }).catch(err => console.warn("[REST Sync Error]:", err));
 
       // 3. Update localStorage & BroadcastChannel
@@ -16280,19 +15544,10 @@ if (btnTourneyEdit) {
 
       // Authorize with backend
       try {
-        const res = await fetch("/api/live/stream/authorize", {
+        const data = await CricYuvaCloud.request("/api/live/stream/authorize", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: (window.currentUser && window.currentUser.id) || "user_default",
-            tournamentId: tournamentId,
-            matchId: matchId,
-            destinations: destinations,
-            cameraSlot: selectedCameraIngest
-          })
+          body: JSON.stringify({ tournamentId, matchId, destinations, cameraSlot: selectedCameraIngest })
         });
-
-        const data = await res.json();
         if (!data.success) {
           this.isBroadcasting = false;
           const msg = data.message || data.error || "Permission Denied";
@@ -16330,11 +15585,7 @@ if (btnTourneyEdit) {
       this.peerConnections.clear();
 
       try {
-        await fetch("/api/live/stream/stop", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ matchId: mId })
-        });
+        await CricYuvaCloud.request("/api/live/stream/stop", { method: "POST", body: JSON.stringify({ matchId: mId }) });
 
         RealtimeLiveService.send({
           type: "STOP_BROADCAST",
@@ -16604,8 +15855,8 @@ if (btnTourneyEdit) {
       matchData = PublicLiveScoreService.getLiveMatchStream() || (getActiveMatch ? getActiveMatch() : null);
     }
 
-    const tAName = matchData?.teamA?.name || matchData?.teamA || "Mumbai Yuva XI";
-    const tBName = matchData?.teamB?.name || matchData?.teamB || "Delhi Strikers";
+    const tAName = matchData?.teamA?.name || matchData?.teamA || "Team A";
+    const tBName = matchData?.teamB?.name || matchData?.teamB || "Team B";
     const tourneyName = matchData?.tournament || matchData?.tourneyName || "Cric Yuva Live Championship";
     const ground = matchData?.ground || "Wankhede Stadium, Mumbai";
     const matchOvers = matchData?.overs || 20;
@@ -16691,12 +15942,7 @@ if (btnTourneyEdit) {
     // In-crease Batters
     const battersContainer = document.getElementById("pubLiveBattersRows");
     let creaseBatters = (activeInn.batting || []).filter(b => b.isAtCrease);
-    if (creaseBatters.length === 0) {
-      creaseBatters = [
-        { name: "Rohit Sharma", runs: Math.max(16, Math.floor(runs * 0.45)), balls: 14, fours: 3, sixes: 1, isStriker: true, isAtCrease: true },
-        { name: "Suryakumar Yadav", runs: Math.max(10, Math.floor(runs * 0.3)), balls: 8, fours: 2, sixes: 0, isStriker: false, isAtCrease: true }
-      ];
-    }
+    if (creaseBatters.length === 0) creaseBatters = [];
 
     if (pubOvBatters && creaseBatters.length >= 2) {
       pubOvBatters.textContent = `${creaseBatters[0].name} ${creaseBatters[0].runs}*(${creaseBatters[0].balls}) • ${creaseBatters[1].name} ${creaseBatters[1].runs}(${creaseBatters[1].balls})`;
@@ -17056,8 +16302,8 @@ if (btnTourneyEdit) {
     const teamAObj = (tourney?.teams || []).find(t => (typeof t === "object" ? t.name : t) === fix.teamA) || allClubs.find(c => c.name === fix.teamA);
     const teamBObj = (tourney?.teams || []).find(t => (typeof t === "object" ? t.name : t) === fix.teamB) || allClubs.find(c => c.name === fix.teamB);
 
-    const squadA = (typeof teamAObj === "object" && teamAObj?.players?.length > 0) ? teamAObj.players : generateDefaultSquadForClub(fix.teamA, teamAObj?.captain, teamAObj?.viceCaptain);
-    const squadB = (typeof teamBObj === "object" && teamBObj?.players?.length > 0) ? teamBObj.players : generateDefaultSquadForClub(fix.teamB, teamBObj?.captain, teamBObj?.viceCaptain);
+    const squadA = (typeof teamAObj === "object" && Array.isArray(teamAObj.players)) ? teamAObj.players : [];
+    const squadB = (typeof teamBObj === "object" && Array.isArray(teamBObj.players)) ? teamBObj.players : [];
 
     const inn1 = createInningsStructure(fix.teamA, fix.teamB, squadA, squadB);
 
@@ -17280,7 +16526,6 @@ if (btnTourneyEdit) {
       }
     });
 
-    matchSelect.innerHTML += '<option value="MATCH-001">Default Demo Match: Mumbai Yuva XI vs Delhi Strikers [MATCH-001]</option>';
   }
 
   function populateBroadcastTournamentsDropdown(selectedTourneyId = null) {
@@ -17674,6 +16919,13 @@ if (btnTourneyEdit) {
     });
   }
 
+  const btnQrBroadcastViewerLink = document.getElementById("btnQrBroadcastViewerLink");
+  if (btnQrBroadcastViewerLink) btnQrBroadcastViewerLink.addEventListener("click", () => {
+    const mId = currentBroadcastSource?.matchId;
+    if (mId) openShareQr("Live Match: " + mId, buildShareUrl("live", mId));
+    else showToast("Start or select a live match first.", true);
+  });
+
   // Close Broadcast Center
   const broadcastCloseBtn = document.getElementById("broadcastCloseBtn");
   if (broadcastCloseBtn) {
@@ -17686,14 +16938,125 @@ if (btnTourneyEdit) {
     });
   }
 
+  async function hydrateCloudData() {
+    if (!localStorage.getItem("cricYuvaCloudToken")) return;
+    try {
+      const data = await CricYuvaCloud.request("/api/tournaments");
+      const local = getTournamentsList(); const byId = new Map(local.map(t => [t.id, t]));
+      (data.tournaments || []).forEach(t => { if (t?.id && !byId.has(t.id)) byId.set(t.id, t); });
+      saveTournamentsList([...byId.values()]);
+    } catch (e) {}
+    try {
+      const data = await CricYuvaCloud.request("/api/teams");
+      const local = getCustomClubsList(); const byName = new Map(local.map(t => [String(t.name || "").toLowerCase(), t]));
+      (data.teams || []).forEach(t => { if (t?.name) byName.set(String(t.name).toLowerCase(), t); });
+      localStorage.setItem("cric_yuva_custom_clubs", JSON.stringify([...byName.values()]));
+    } catch (e) {}
+  }
+
+  function rememberInvite(type, id) {
+    try { localStorage.setItem("cricYuvaPendingInvite", JSON.stringify({ type, id })); } catch (e) {}
+  }
+  async function processPendingInvite() {
+    let invite = null;
+    try { invite = JSON.parse(localStorage.getItem("cricYuvaPendingInvite") || "null"); } catch (e) {}
+    if (!invite || !invite.id || !localStorage.getItem("cricYuvaCloudToken")) return;
+    try {
+      if (invite.type === "team") await CricYuvaCloud.joinTeam({ teamId: invite.id });
+      else if (invite.type === "tournament") await CricYuvaCloud.joinTournament({ tournamentId: invite.id });
+      else if (invite.type === "player") await CricYuvaCloud.playerRequest({ playerId: invite.id });
+      localStorage.removeItem("cricYuvaPendingInvite");
+      showToast("Invite request sent successfully.");
+    } catch (e) {}
+  }
+
+  // ==========================================
+  // GLOBAL SEARCH + SHARE/QR ACTIONS
+  // ==========================================
+  hydrateCloudData().finally(() => processPendingInvite());
+
+  const globalSearchBtn = document.getElementById("globalSearchBtn");
+  const globalSearchModal = document.getElementById("globalSearchModal");
+  const globalSearchInput = document.getElementById("globalSearchInput");
+  const globalSearchResults = document.getElementById("globalSearchResults");
+  function renderGlobalSearch(query) {
+    if (!globalSearchResults) return;
+    const q = String(query || "").trim().toLowerCase();
+    const rows = [];
+    getTournamentsList().forEach(t => {
+      if (!q || t.name.toLowerCase().includes(q)) rows.push({ type: "Tournament", name: t.name, action: () => openTournamentDetails(t.id) });
+      (t.teams || []).forEach(tm => {
+        if (tm.name && (!q || tm.name.toLowerCase().includes(q))) rows.push({ type: "Team", name: tm.name, action: () => openTournamentDetails(t.id, "teams") });
+        (tm.players || []).forEach(p => {
+          if (p.name && (!q || p.name.toLowerCase().includes(q) || String(p.id || "").toLowerCase().includes(q))) rows.push({ type: "Player", name: p.name, action: () => openPlayerProfileDetailModal(p.id || p.name) });
+        });
+      });
+    });
+    const team = getTeamData();
+    if (team) {
+      if (!q || team.teamName.toLowerCase().includes(q)) rows.push({ type: "My Team", name: team.teamName, action: () => showScreen("screen6") });
+      (team.players || []).forEach(p => { if (p.name && (!q || p.name.toLowerCase().includes(q) || String(p.id || "").toLowerCase().includes(q))) rows.push({ type: "Player", name: p.name, action: () => openPlayerProfileDetailModal(p.id || p.name) }); });
+    }
+    const unique = []; const seen = new Set();
+    rows.forEach(r => { const k = `${r.type}:${r.name}`; if (!seen.has(k)) { seen.add(k); unique.push(r); } });
+    globalSearchResults.innerHTML = unique.slice(0, 30).map((r, i) => `<button type="button" class="global-search-result" data-i="${i}"><span>${escapeHtml(r.type)}</span><b>${escapeHtml(r.name)}</b></button>`).join("") || `<div class="global-search-empty">No real teams, players or tournaments found.</div>`;
+    globalSearchResults.querySelectorAll(".global-search-result").forEach((el, i) => el.addEventListener("click", () => { unique[i].action(); if (globalSearchModal) globalSearchModal.style.display = "none"; }));
+  }
+  if (globalSearchBtn && globalSearchModal) {
+    globalSearchBtn.addEventListener("click", () => { globalSearchModal.style.display = "flex"; if (globalSearchInput) { globalSearchInput.value = ""; renderGlobalSearch(""); globalSearchInput.focus(); } });
+  }
+  if (globalSearchInput) globalSearchInput.addEventListener("input", () => renderGlobalSearch(globalSearchInput.value));
+  document.getElementById("globalSearchCloseBtn")?.addEventListener("click", () => { if (globalSearchModal) globalSearchModal.style.display = "none"; });
+
+  document.getElementById("shareQrCloseBtn")?.addEventListener("click", () => { document.getElementById("cricYuvaShareQrModal").style.display = "none"; });
+  document.getElementById("shareQrCopyBtn")?.addEventListener("click", () => { const v = document.getElementById("shareQrUrl")?.value || ""; if (navigator.clipboard) navigator.clipboard.writeText(v).then(() => showToast("Link copied!")); });
+  document.getElementById("shareQrShareBtn")?.addEventListener("click", () => { const v = document.getElementById("shareQrUrl")?.value || ""; shareCurrentUrl(v, document.getElementById("shareQrTitle")?.textContent || "Cric Yuva"); });
+
+  const teamShareBtn = document.getElementById("btnTeamShareQr");
+  if (teamShareBtn) teamShareBtn.addEventListener("click", () => { const team = getTeamData(); if (team?.teamName) openShareQr("Join Team: " + team.teamName, buildShareUrl("joinTeam", team.id || team.teamName)); else showToast("Create your real team first.", true); });
+
+  const appShareBtn = document.getElementById("btnAppShare");
+  if (appShareBtn) appShareBtn.addEventListener("click", () => openShareQr("Open / Download Cric Yuva", buildShareUrl("download", "cric-yuva")));
+
+  const playerRequestBtn = document.getElementById("btnPlayerRequestQr");
+  if (playerRequestBtn) playerRequestBtn.addEventListener("click", () => {
+    if (!currentDetailPlayerId) return;
+    openShareQr("Player Request: " + currentDetailPlayerId, buildShareUrl("playerRequest", currentDetailPlayerId));
+  });
+
+
   // Auto-open via URL query parameters on page load
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const qMatchId = urlParams.get("matchId") || urlParams.get("match");
     const qTourneyId = urlParams.get("tourneyId") || urlParams.get("tournamentId");
     const qBroadcast = urlParams.get("broadcast") || urlParams.get("studio");
+    const qJoinTeam = urlParams.get("joinTeam");
+    const qJoinTournament = urlParams.get("joinTournament");
+    const qPlayerRequest = urlParams.get("playerRequest");
+    const qLive = urlParams.get("live");
 
-    if (qBroadcast) {
+    if (qJoinTeam) {
+      rememberInvite("team", qJoinTeam);
+      setTimeout(async () => {
+        try { await CricYuvaCloud.joinTeam({ teamId: qJoinTeam, userId: localStorage.getItem("cricYuvaCloudUserId") || "" }); showToast("Team join request sent successfully."); }
+        catch (e) { showToast("Team join link received. Please log in to send the request."); }
+      }, 500);
+    } else if (qJoinTournament) {
+      rememberInvite("tournament", qJoinTournament);
+      setTimeout(async () => {
+        try { await CricYuvaCloud.joinTournament({ tournamentId: qJoinTournament, userId: localStorage.getItem("cricYuvaCloudUserId") || "" }); showToast("Tournament join request sent successfully."); }
+        catch (e) { showToast("Tournament join link received. Please log in to join."); }
+      }, 500);
+    } else if (qPlayerRequest) {
+      rememberInvite("player", qPlayerRequest);
+      setTimeout(async () => {
+        try { await CricYuvaCloud.playerRequest({ playerId: qPlayerRequest, requesterId: localStorage.getItem("cricYuvaCloudUserId") || "" }); showToast("Player request sent successfully."); }
+        catch (e) { showToast("Player request link received. Please log in to send it."); }
+      }, 500);
+    } else if (qLive) {
+      setTimeout(() => openPublicLiveScoreModal(qLive), 500);
+    } else if (qBroadcast) {
       setTimeout(() => {
         openBroadcastCenterModal(qTourneyId ? "TOURNAMENT" : "SINGLE_MATCH", qTourneyId || qMatchId);
       }, 500);
@@ -17713,139 +17076,23 @@ if (btnTourneyEdit) {
   // MASTER PLAYER DIRECTORY & SEARCH TO SQUAD
   // ==========================================
   function getMasterPlayerDirectory() {
-    return [
-      { id: "dir_rohit", name: "Rohit Sharma", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "45", matches: 48, runs: 1680, hs: "118*", avg: "44.2", sr: "142.8", fifties: 14, hundreds: 2, wickets: 12, econ: "7.6" },
-      { id: "dir_virat", name: "Virat Kohli", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium", jersey: "18", matches: 52, runs: 2150, hs: "122*", avg: "52.4", sr: "138.5", fifties: 19, hundreds: 3, wickets: 4, econ: "8.1" },
-      { id: "dir_shubman", name: "Shubman Gill", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "77", matches: 36, runs: 1240, hs: "126*", avg: "41.3", sr: "146.2", fifties: 9, hundreds: 2, wickets: 0, econ: "0.0" },
-      { id: "dir_surya", name: "Suryakumar Yadav", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium", jersey: "63", matches: 42, runs: 1520, hs: "117", avg: "46.1", sr: "172.4", fifties: 12, hundreds: 4, wickets: 0, econ: "0.0" },
-      { id: "dir_jaiswal", name: "Yashasvi Jaiswal", role: "Batsman", batStyle: "Left Hand Bat", bowlStyle: "Leg break", jersey: "64", matches: 28, runs: 980, hs: "100", avg: "37.7", sr: "158.3", fifties: 7, hundreds: 1, wickets: 2, econ: "8.4" },
-      { id: "dir_shreyas", name: "Shreyas Iyer", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Leg break", jersey: "96", matches: 34, runs: 1050, hs: "94*", avg: "38.9", sr: "134.6", fifties: 8, hundreds: 0, wickets: 1, econ: "8.0" },
-      { id: "dir_rinku", name: "Rinku Singh", role: "Batsman", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "35", matches: 26, runs: 680, hs: "67*", avg: "48.6", sr: "175.8", fifties: 4, hundreds: 0, wickets: 0, econ: "0.0" },
-      { id: "dir_ruturaj", name: "Ruturaj Gaikwad", role: "Batsman", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "31", matches: 30, runs: 1100, hs: "123*", avg: "42.3", sr: "140.1", fifties: 7, hundreds: 1, wickets: 0, econ: "0.0" },
-      { id: "dir_tilak", name: "Tilak Varma", role: "Batsman", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "72", matches: 25, runs: 740, hs: "84*", avg: "39.0", sr: "144.2", fifties: 5, hundreds: 0, wickets: 4, econ: "7.9" },
-      
-      { id: "dir_pant", name: "Rishabh Pant", role: "Wicket Keeper", batStyle: "Left Hand Bat", bowlStyle: "None", jersey: "17", matches: 40, runs: 1320, hs: "128*", avg: "36.7", sr: "148.9", fifties: 8, hundreds: 1, wickets: 0, econ: "0.0" },
-      { id: "dir_klrahul", name: "KL Rahul", role: "Wicket Keeper", batStyle: "Right Hand Bat", bowlStyle: "None", jersey: "1", matches: 45, runs: 1780, hs: "132*", avg: "43.4", sr: "136.2", fifties: 15, hundreds: 2, wickets: 0, econ: "0.0" },
-      { id: "dir_sanju", name: "Sanju Samson", role: "Wicket Keeper", batStyle: "Right Hand Bat", bowlStyle: "None", jersey: "9", matches: 32, runs: 960, hs: "111", avg: "34.3", sr: "152.0", fifties: 6, hundreds: 2, wickets: 0, econ: "0.0" },
-      { id: "dir_ishan", name: "Ishan Kishan", role: "Wicket Keeper", batStyle: "Left Hand Bat", bowlStyle: "None", jersey: "32", matches: 29, runs: 850, hs: "99", avg: "31.5", sr: "145.3", fifties: 5, hundreds: 0, wickets: 0, econ: "0.0" },
-      { id: "dir_dhoni", name: "M.S. Dhoni", role: "Wicket Keeper", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium", jersey: "7", matches: 60, runs: 1850, hs: "84*", avg: "39.8", sr: "138.9", fifties: 11, hundreds: 0, wickets: 1, econ: "7.0" },
-
-      { id: "dir_hardik", name: "Hardik Pandya", role: "All-Rounder", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "33", matches: 46, runs: 1120, hs: "91*", avg: "33.9", sr: "154.5", fifties: 6, hundreds: 0, wickets: 38, econ: "8.2" },
-      { id: "dir_jadeja", name: "Ravindra Jadeja", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Left-arm Orthodox", jersey: "8", matches: 50, runs: 950, hs: "62*", avg: "28.8", sr: "132.4", fifties: 3, hundreds: 0, wickets: 45, econ: "7.4" },
-      { id: "dir_axar", name: "Axar Patel", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Slow Left-arm", jersey: "20", matches: 38, runs: 640, hs: "65", avg: "25.6", sr: "139.1", fifties: 3, hundreds: 0, wickets: 34, econ: "7.2" },
-      { id: "dir_dube", name: "Shivam Dube", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Medium", jersey: "25", matches: 27, runs: 620, hs: "95*", avg: "34.4", sr: "158.9", fifties: 4, hundreds: 0, wickets: 8, econ: "9.1" },
-      { id: "dir_washington", name: "Washington Sundar", role: "All-Rounder", batStyle: "Left Hand Bat", bowlStyle: "Right-arm Offbreak", jersey: "5", matches: 24, runs: 320, hs: "50", avg: "22.8", sr: "128.0", fifties: 1, hundreds: 0, wickets: 22, econ: "6.9" },
-
-      { id: "dir_bumrah", name: "Jasprit Bumrah", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "93", matches: 48, runs: 92, hs: "16*", avg: "9.2", sr: "85.2", fifties: 0, hundreds: 0, wickets: 62, econ: "6.4" },
-      { id: "dir_shami", name: "Mohammed Shami", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "11", matches: 44, runs: 75, hs: "21", avg: "8.3", sr: "98.7", fifties: 0, hundreds: 0, wickets: 56, econ: "7.8" },
-      { id: "dir_kuldeep", name: "Kuldeep Yadav", role: "Bowler", batStyle: "Left Hand Bat", bowlStyle: "Left-arm Wrist Spin", jersey: "23", matches: 38, runs: 60, hs: "19*", avg: "10.0", sr: "78.9", fifties: 0, hundreds: 0, wickets: 48, econ: "6.8" },
-      { id: "dir_siraj", name: "Mohammed Siraj", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Fast", jersey: "13", matches: 36, runs: 45, hs: "14*", avg: "7.5", sr: "80.4", fifties: 0, hundreds: 0, wickets: 42, econ: "8.3" },
-      { id: "dir_arshdeep", name: "Arshdeep Singh", role: "Bowler", batStyle: "Left Hand Bat", bowlStyle: "Left-arm Fast", jersey: "2", matches: 32, runs: 38, hs: "12*", avg: "6.3", sr: "82.6", fifties: 0, hundreds: 0, wickets: 45, econ: "8.4" },
-      { id: "dir_chahal", name: "Yuzvendra Chahal", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Leg break", jersey: "3", matches: 42, runs: 30, hs: "8*", avg: "5.0", sr: "55.6", fifties: 0, hundreds: 0, wickets: 54, econ: "7.9" },
-      { id: "dir_bishnoi", name: "Ravi Bishnoi", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Leg break", jersey: "56", matches: 26, runs: 25, hs: "11*", avg: "8.3", sr: "71.4", fifties: 0, hundreds: 0, wickets: 36, econ: "7.5" },
-      { id: "dir_bhuvi", name: "Bhuvneshwar Kumar", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium Fast", jersey: "15", matches: 46, runs: 180, hs: "28*", avg: "15.0", sr: "105.9", fifties: 0, hundreds: 0, wickets: 52, econ: "6.9" },
-      { id: "dir_chahar", name: "Deepak Chahar", role: "Bowler", batStyle: "Right Hand Bat", bowlStyle: "Right-arm Medium Fast", jersey: "28", matches: 28, runs: 140, hs: "39*", avg: "20.0", sr: "122.8", fifties: 0, hundreds: 0, wickets: 35, econ: "8.1" }
-    ];
-  }
-
-  let currentSearchRoleFilter = "all";
-
-  function openTeamPlayerSearchModal() {
-    const modal = document.getElementById("teamPlayerSearchModal");
-    if (!modal) return;
-    const input = document.getElementById("inputSearchTeamPlayer");
-    if (input) input.value = "";
-    currentSearchRoleFilter = "all";
-
-    document.querySelectorAll("#teamPlayerSearchModal [data-search-filter]").forEach(chip => {
-      chip.classList.toggle("active", chip.getAttribute("data-search-filter") === "all");
-    });
-
-    renderTeamPlayerSearchResults("");
-    modal.style.display = "flex";
-    if (input) input.focus();
-  }
-
-  function closeTeamPlayerSearchModal() {
-    const modal = document.getElementById("teamPlayerSearchModal");
-    if (modal) modal.style.display = "none";
-  }
-
-  function renderTeamPlayerSearchResults(query = "") {
-    const container = document.getElementById("teamPlayerSearchResultsList");
-    if (!container) return;
-
-    const directory = getMasterPlayerDirectory();
-    const team = getTeamData() || initDefaultTeam();
-    const existingPlayerNames = (team.players || []).map(p => (p.name || "").toLowerCase().trim());
-    const existingPlayerIds = (team.players || []).map(p => p.id);
-
-    const q = query.toLowerCase().trim();
-    const filtered = directory.filter(p => {
-      const matchRole = currentSearchRoleFilter === "all" || p.role === currentSearchRoleFilter;
-      const matchQuery = !q || p.name.toLowerCase().includes(q) || p.role.toLowerCase().includes(q) || (p.batStyle && p.batStyle.toLowerCase().includes(q)) || (p.bowlStyle && p.bowlStyle.toLowerCase().includes(q));
-      return matchRole && matchQuery;
-    });
-
-    if (filtered.length === 0) {
-      container.innerHTML = `
-        <div style="text-align:center; padding:32px 14px; color:#8c93a4;">
-          <i class="fa-solid fa-user-slash" style="font-size:28px; margin-bottom:8px; opacity:0.5;"></i>
-          <div style="font-size:13px; font-weight:700; color:#fff;">No Players Found</div>
-          <div style="font-size:11px; margin-top:3px;">Try a different name or role filter</div>
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = filtered.map(player => {
-      const isAlreadyInTeam = existingPlayerNames.includes(player.name.toLowerCase().trim()) || existingPlayerIds.includes(player.id);
-      let roleBadgeClass = "bat-tag";
-      let roleIcon = '<i class="fa-solid fa-baseball-bat-ball"></i>';
-      if (player.role === "Bowler") {
-        roleBadgeClass = "bowl-tag";
-        roleIcon = '<i class="fa-solid fa-bullseye"></i>';
-      } else if (player.role === "All-Rounder") {
-        roleBadgeClass = "ar-tag";
-        roleIcon = '<i class="fa-solid fa-bolt"></i>';
-      } else if (player.role === "Wicket Keeper") {
-        roleBadgeClass = "wk-tag";
-        roleIcon = '<i class="fa-solid fa-mitten"></i>';
-      }
-
-      return `
-        <div class="searched-player-card" style="background:#171c28; border:1px solid #232b3d; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-          <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-            <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, rgba(255,90,0,0.2), rgba(255,90,0,0.05)); border:1px solid rgba(255,90,0,0.3); display:flex; align-items:center; justify-content:center; color:var(--orange); font-weight:800; font-size:14px; flex-shrink:0;">
-              ${getInitials(player.name)}
-            </div>
-            <div style="min-width:0;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <strong style="font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${player.name}</strong>
-                <span style="font-size:9px; background:#222a3d; color:#94a3b8; padding:1px 4px; border-radius:3px;">#${player.jersey}</span>
-              </div>
-              <div style="display:flex; align-items:center; gap:5px; margin-top:2px; flex-wrap:wrap;">
-                <span class="role-badge ${roleBadgeClass}" style="font-size:9.5px; padding:2px 6px;">${roleIcon} ${player.role}</span>
-                <span style="font-size:10px; color:#8c93a4;">${player.runs} Runs • ${player.wickets} Wkts</span>
-              </div>
-            </div>
-          </div>
-          <div>
-            ${isAlreadyInTeam 
-              ? `<span class="in-squad-badge"><i class="fa-solid fa-check"></i> In Squad</span>`
-              : `<button type="button" class="btn-add-to-squad btn-add-searched-player" data-player-id="${player.id}">+ Add to Team</button>`
-            }
-          </div>
-        </div>
-      `;
-    }).join("");
-
-    container.querySelectorAll(".btn-add-searched-player").forEach(btn => {
-      btn.addEventListener("click", function() {
-        const pId = this.getAttribute("data-player-id");
-        addPlayerFromDirectoryToSquad(pId);
-      });
-    });
+    const out = [];
+    const seen = new Set();
+    const add = (p, teamName = "") => {
+      if (!p || !p.name) return;
+      const id = String(p.id || `${teamName}_${p.name}`).trim();
+      const key = id.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ ...p, id, team: p.team || teamName });
+    };
+    const myTeam = getTeamData();
+    if (myTeam) (myTeam.players || []).forEach(p => add(p, myTeam.teamName || ""));
+    getCustomClubsList().forEach(c => (c.players || []).forEach(p => add(p, c.name || "")));
+    getTournamentsList().forEach(t => (t.teams || []).forEach(tm =>
+      (tm.players || []).forEach(p => add(p, tm.name || ""))
+    ));
+    return out;
   }
 
   function addPlayerFromDirectoryToSquad(playerId) {
@@ -17978,15 +17225,8 @@ if (btnTourneyEdit) {
     }
 
     if (!player) {
-      player = {
-        id: query.startsWith("CY") ? query : `CY2026-${query.replace(/\s+/g, '').toUpperCase().slice(0, 4)}`,
-        name: query,
-        role: "Batsman",
-        team: "Yuva XI",
-        jersey: "18",
-        batStyle: "Right-hand Bat",
-        bowlStyle: "Right-arm Medium"
-      };
+      showToast("Player not found. Search a registered player or add the player first.", true);
+      return;
     }
 
     currentDetailPlayerId = player.id || query;
