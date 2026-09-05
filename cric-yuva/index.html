@@ -214,7 +214,7 @@
 
  <!-- PLAYER ID -->
  <div class="player-id">
- ID: <span id="playerId">CY20240001</span>
+ ID: <span id="playerId">—</span>
  </div>
 
  <!-- PROFILE DETAILS -->
@@ -388,7 +388,7 @@
  <div class="scorecard-teams-vs">
  <div class="score-team-col">
  <div class="team-initial-circle">MY</div>
- <span class="team-name">Team A</span>
+ <span class="team-name">—</span>
  <span class="team-score-big">0/0</span>
  <span class="team-overs">0.0 / 20 ov</span>
  </div>
@@ -675,7 +675,7 @@
  <h3 class="team-name-title" id="teamNameDisplay">My Team</h3>
  <div class="team-quick-tags">
  <span class="squad-count-chip" id="teamTotalPlayersCount">
- <i class="fa-solid fa-users"></i> 11 Players
+ <i class="fa-solid fa-users"></i> <span id="teamTotalPlayersCountValue">0</span> Players
  </span>
  <span class="status-chip active">
  <i class="fa-solid fa-circle"></i> Active Squad
@@ -822,7 +822,7 @@
  <option value="custom">➕ Custom Team...</option>
  </select>
  </div>
- <input type="text" id="inputCustomTeamA" class="custom-team-input" placeholder="Enter Team A Name" style="display:none;">
+ <input type="text" id="inputCustomTeamA" class="custom-team-input" placeholder="Enter team name" style="display:none;">
  </div>
 
  <div class="versus-divider">
@@ -842,7 +842,7 @@
  <option value="custom">➕ Custom Opponent...</option>
  </select>
  </div>
- <input type="text" id="inputCustomTeamB" class="custom-team-input" placeholder="Enter Team B Name" style="display:none;">
+ <input type="text" id="inputCustomTeamB" class="custom-team-input" placeholder="Enter team name" style="display:none;">
  </div>
 
  </div>
@@ -955,18 +955,18 @@
  <!-- TEAM SQUAD TABS -->
  <div class="squad-team-tabs">
  <button type="button" class="squad-tab-btn active" id="tabSquadTeamA">
- <span class="tab-team-name" id="tabTeamANameDisplay">Team A</span>
+ <span class="tab-team-name" id="tabTeamANameDisplay">—</span>
  <span class="tab-count-badge" id="badgeCountTeamA">11 Selected</span>
  </button>
  <button type="button" class="squad-tab-btn" id="tabSquadTeamB">
- <span class="tab-team-name" id="tabTeamBNameDisplay">Team B</span>
+ <span class="tab-team-name" id="tabTeamBNameDisplay">—</span>
  <span class="tab-count-badge" id="badgeCountTeamB">11 Selected</span>
  </button>
  </div>
 
  <!-- QUICK SELECTION HELPER -->
  <div class="squad-tools-bar">
- <span class="squad-selection-status" id="squadSelectionStatusText">Selecting Playing XI for Team A</span>
+ <span class="squad-selection-status" id="squadSelectionStatusText">Select a team to choose Playing XI</span>
  <div class="squad-tool-actions">
  <button type="button" class="btn-squad-tool" id="btnSelectAllSquad">
  <i class="fa-solid fa-check-double"></i> Select All
@@ -985,7 +985,7 @@
  <!-- SELECTED PLAYERS SUMMARY STRIP -->
  <div class="selected-players-tray">
  <div class="tray-header">
- <strong>Selected Lineup (<span id="trayCountDisplay">11</span> Players):</strong>
+ <strong>Selected Lineup (<span id="trayCountDisplay">0</span> Players):</strong>
  </div>
  <div class="tray-chips-container" id="trayChipsContainer">
  <!-- Rendered selected player pills -->
@@ -1047,14 +1047,14 @@
  <label class="toss-team-option">
  <input type="radio" name="tossWinnerRadio" value="teamA" id="tossWinnerTeamA" checked>
  <div class="toss-option-card">
- <div class="toss-opt-badge">TEAM A</div>
+ <div class="toss-opt-badge">—</div>
  <strong id="tossLabelTeamA">My Team</strong>
  </div>
  </label>
  <label class="toss-team-option">
  <input type="radio" name="tossWinnerRadio" value="teamB" id="tossWinnerTeamB">
  <div class="toss-option-card">
- <div class="toss-opt-badge">TEAM B</div>
+ <div class="toss-opt-badge">—</div>
  <strong id="tossLabelTeamB">Registered Team</strong>
  </div>
  </label>
@@ -1091,7 +1091,7 @@
  <div class="summary-key-values">
  <div class="summary-item">
  <span>Fixture:</span>
- <strong id="sumFixture">Team A vs Team B</strong>
+ <strong id="sumFixture">—</strong>
  </div>
  <div class="summary-item">
  <span>Format:</span>
@@ -1103,7 +1103,7 @@
  </div>
  <div class="summary-item">
  <span>1st Inning:</span>
- <strong id="sumBattingFirst" class="orange-text">Batting: Team A</strong>
+ <strong id="sumBattingFirst" class="orange-text">Batting: —</strong>
  </div>
  </div>
  </div>
@@ -1407,11 +1407,11 @@
  <div class="match-tab-pane" id="paneLiveSquads" style="display:none;">
  <div class="squads-dual-grid">
  <div class="squad-side-box">
- <h5 id="liveSummaryTeamAName">Team A (11)</h5>
+ <h5 id="liveSummaryTeamAName">—</h5>
  <ul id="liveSummaryTeamAPlayers" class="mini-players-ul"></ul>
  </div>
  <div class="squad-side-box">
- <h5 id="liveSummaryTeamBName">Team B (11)</h5>
+ <h5 id="liveSummaryTeamBName">—</h5>
  <ul id="liveSummaryTeamBPlayers" class="mini-players-ul"></ul>
  </div>
  </div>
@@ -1642,7 +1642,7 @@
           </div>
           <div class="my-rank-info">
             <div class="my-rank-sublabel"><i class="fa-solid fa-user-astronaut text-orange"></i> Your Standing</div>
-            <div class="my-rank-name" id="myRankUserName">Player Name</div>
+            <div class="my-rank-name" id="myRankUserName">—</div>
             <div class="my-rank-team" id="myRankTeamName">My Team</div>
           </div>
         </div>
@@ -2698,9 +2698,9 @@
       <div class="modal-form">
         <!-- 1ST INNINGS SCORE SUMMARY CARD -->
         <div class="innings-break-card">
-          <div class="break-team-title" id="break1stInningsTeam">Team A Batting Summary</div>
+          <div class="break-team-title" id="break1stInningsTeam">Batting Summary</div>
           <div class="break-score-row">
-            <span class="break-score" id="break1stInningsScore">165/6</span>
+            <span class="break-score" id="break1stInningsScore">—</span>
             <span class="break-overs" id="break1stInningsOvers">(20.0 / 20 Ov)</span>
             <span class="break-crr" id="break1stInningsCrr">CRR: 8.25</span>
           </div>
@@ -2709,7 +2709,7 @@
           <div class="break-performers-grid">
             <div class="break-performer-box">
               <div class="performer-badge"><i class="fa-solid fa-baseball-bat-ball"></i> Top Batsman</div>
-              <div class="performer-name" id="breakTopBatterName">Player Name</div>
+              <div class="performer-name" id="breakTopBatterName">—</div>
               <div class="performer-stat" id="breakTopBatterStat">68 (42b, 7x4, 3x6)</div>
             </div>
             <div class="break-performer-box">
@@ -2725,7 +2725,7 @@
           <div class="target-label">2ND INNINGS EQUATION</div>
           <div class="target-number-large" id="breakTargetRuns">Target: 166 Runs</div>
           <div class="target-equation" id="breakTargetEquation">
-            <span id="breakChasingTeam">Team B</span> need 166 runs in 0.0 overs (RRR: 8.30)
+            <span id="breakChasingTeam">—</span>
           </div>
         </div>
 
@@ -2841,19 +2841,19 @@
         <!-- MATCH RESULT HERO BANNER -->
         <div class="final-result-hero">
           <div class="final-result-icon">🏆</div>
-          <div class="final-result-text" id="finalResultBannerText">Team A won by 18 runs</div>
+          <div class="final-result-text" id="finalResultBannerText">—</div>
           <div class="final-match-meta" id="finalMatchVenueDate">Main Ground • 20 Overs</div>
         </div>
 
         <!-- TWO INNINGS MINI COMPARISON -->
         <div class="final-innings-comparison">
           <div class="final-inn-row" id="finalInn1Summary">
-            <span class="final-inn-team">Team A</span>
-            <span class="final-inn-score">165/6 (20.0 Ov)</span>
+            <span class="final-inn-team">—</span>
+            <span class="final-inn-score">—</span>
           </div>
           <div class="final-inn-row" id="finalInn2Summary">
-            <span class="final-inn-team">Team B</span>
-            <span class="final-inn-score">147/9 (20.0 Ov)</span>
+            <span class="final-inn-team">—</span>
+            <span class="final-inn-score">—</span>
           </div>
         </div>
 
@@ -2867,7 +2867,7 @@
             <div class="award-badge-icon"><i class="fa-solid fa-crown"></i></div>
             <div class="award-content">
               <span class="award-type-label">PLAYER OF THE MATCH</span>
-              <h4 class="award-winner-name" id="potmWinnerName">Player Name</h4>
+              <h4 class="award-winner-name" id="potmWinnerName">—</h4>
               <p class="award-winner-team" id="potmWinnerTeam">Team Name</p>
               <div class="award-stat-pill" id="potmWinnerStat">68 runs & 2/18</div>
             </div>
@@ -2982,11 +2982,11 @@
         <!-- TEAMS SCORE SUMMARY BOX -->
         <div class="history-scores-comparison">
           <div class="history-team-score-card" id="historyTeamACard">
-            <div class="h-team-name" id="historyTeamAName">Team A</div>
-            <div class="h-team-runs" id="historyTeamARuns">165/6 <small>(20.0)</small></div>
+            <div class="h-team-name" id="historyTeamAName">—</div>
+            <div class="h-team-runs" id="historyTeamARuns">—</div>
           </div>
           <div class="history-team-score-card" id="historyTeamBCard">
-            <div class="h-team-name" id="historyTeamBName">Team B</div>
+            <div class="h-team-name" id="historyTeamBName">—</div>
             <div class="h-team-runs" id="historyTeamBRuns">148/9 <small>(20.0)</small></div>
           </div>
         </div>
@@ -3104,7 +3104,7 @@
             <div class="p-hero-num" id="pStatsJersey">#18</div>
           </div>
           <div class="p-hero-info">
-            <div class="p-hero-name" id="pStatsName">Player Name</div>
+            <div class="p-hero-name" id="pStatsName">—</div>
             <div class="p-hero-team-role">
               <span class="p-hero-team" id="pStatsTeam">Team</span>
               <span class="p-dot-sep">•</span>
@@ -3439,7 +3439,7 @@
  </div>
  <div style="flex:1; min-width:0;">
  <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
- <h3 id="playerDetailFullName" style="font-size:17px; font-weight:800; color:#fff; margin:0;">Player Name</h3>
+ <h3 id="playerDetailFullName" style="font-size:17px; font-weight:800; color:#fff; margin:0;">—</h3>
  <span id="playerDetailJerseyBadge" style="background:#ff5a00; color:#000; font-size:10.5px; font-weight:900; padding:2px 6px; border-radius:4px;">#45</span>
  <span id="playerDetailXIStatusBadge" style="background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">PLAYING XI</span>
  </div>
@@ -3607,9 +3607,9 @@
  <span id="drawerAvatarInitial">P</span>
  </div>
  <div class="drawer-user-text">
- <h4 id="drawerUserName">Player Name</h4>
+ <h4 id="drawerUserName">—</h4>
  <p id="drawerUserMobile">+91 0000000000</p>
- <span class="drawer-badge-id" id="drawerPlayerId">CY20240001</span>
+ <span class="drawer-badge-id" id="drawerPlayerId">—</span>
  </div>
  </div>
  <button type="button" class="drawer-close-btn" id="drawerCloseBtn">
@@ -5209,7 +5209,7 @@
          <div class="b-overlay-score-strip" style="z-index:10; position:absolute; bottom:0; left:0; right:0;">
            <div class="b-score-main-bar">
              <div class="b-score-team-block">
-               <span class="b-score-team-name" id="bOverlayBatTeam">Team Alpha</span>
+               <span class="b-score-team-name" id="bOverlayBatTeam">—</span>
                <span class="b-score-digits" id="bOverlayScore">0/0</span>
                <span class="b-score-overs" id="bOverlayOvers">(0.0 / 20.0 Ov)</span>
              </div>
