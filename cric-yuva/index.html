@@ -5,6 +5,8 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title>CRIC YUVA</title>
  <link rel="stylesheet" href="style.css">
+ <link rel="manifest" href="manifest.webmanifest">
+ <meta name="theme-color" content="#ff5a00">
  <!-- ICONS -->
  <link rel="stylesheet"
  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -306,6 +308,12 @@
  </div>
  </div>
  <div class="top-bar-actions">
+ <button type="button" class="top-action-btn" id="globalSearchBtn" title="Search Cric Yuva">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ </button>
+ <button type="button" class="top-action-btn" id="btnAppShare" title="Share / Download App">
+ <i class="fa-solid fa-qrcode"></i>
+ </button>
  <button type="button" class="top-action-btn" id="notifButton" title="Notifications">
  <i class="fa-regular fa-bell"></i>
  <span class="notif-badge" id="homeNotifBadge"></span>
@@ -351,7 +359,7 @@
  </div>
  </div>
  <div class="video-overlay-footer">
- <span class="stream-title">Mumbai Yuva vs Delhi Strikers (T20 Semis)</span>
+ <span class="stream-title">No live match selected</span>
  <button type="button" class="fullscreen-stream-btn" id="expandStreamBtn"><i class="fa-solid fa-expand"></i></button>
  </div>
  </div>
@@ -359,13 +367,13 @@
  <!-- LIVE TICKER PATTI BELOW VIDEO -->
  <div class="live-ticker-patti">
  <div class="ticker-team-score">
- <b>MUMBAI YUVA</b>
- <span class="ticker-score">142/3 <small>(15.2 Ov)</small></span>
+ <b>NO LIVE MATCH</b>
+ <span class="ticker-score">—</span>
  </div>
  <div class="ticker-divider"></div>
  <div class="ticker-rate-info">
- <span>CRR: <b>9.26</b></span>
- <span>Target: <b>186</b> <small>(Req: 44 off 28)</small></span>
+ <span>CRR: <b>—</b></span>
+ <span>Select a live match to view score</span>
  </div>
  </div>
  </div>
@@ -373,37 +381,37 @@
  <!-- SCORECARD VIEW (SHOWN IF TOGGLED OR NO VIDEO STREAM) -->
  <div class="live-scorecard-fallback-card" id="liveScorecardContainer" style="display:none;">
  <div class="scorecard-top-info">
- <span class="tournament-tag">T20 PREMIER CUP • MATCH 14</span>
- <span class="venue-text">Yuva Cricket Stadium, Ground A</span>
+ <span class="tournament-tag">CRIC YUVA LIVE MATCH</span>
+ <span class="venue-text">Select ground</span>
  </div>
 
  <div class="scorecard-teams-vs">
  <div class="score-team-col">
  <div class="team-initial-circle">MY</div>
- <span class="team-name">Mumbai Yuva</span>
- <span class="team-score-big">142/3</span>
- <span class="team-overs">15.2 / 20 ov</span>
+ <span class="team-name">Team A</span>
+ <span class="team-score-big">0/0</span>
+ <span class="team-overs">0.0 / 20 ov</span>
  </div>
  <div class="score-vs-divider">
  <span class="vs-text">VS</span>
- <span class="chase-equation">Need 44 runs<br>in 28 balls</span>
+ <span class="chase-equation">Waiting for live score</span>
  </div>
  <div class="score-team-col">
  <div class="team-initial-circle dark-circ">DS</div>
- <span class="team-name">Delhi Strikers</span>
- <span class="team-score-big">185/6</span>
- <span class="team-overs">20.0 ov</span>
+ <span class="team-name">Registered Team</span>
+ <span class="team-score-big">0/0</span>
+ <span class="team-overs">0.0 ov</span>
  </div>
  </div>
 
  <div class="current-batsmen-row">
  <div class="batsman-stat">
- <span class="stat-name">🏏 R. Sharma *</span>
- <span class="stat-fig">58 (34b)</span>
+ <span class="stat-name">🏏 Striker *</span>
+ <span class="stat-fig">0 (0b)</span>
  </div>
  <div class="batsman-stat">
- <span class="stat-name">🏏 V. Kohli</span>
- <span class="stat-fig">42 (26b)</span>
+ <span class="stat-name">🏏 Non-Striker</span>
+ <span class="stat-fig">0 (0b)</span>
  </div>
  </div>
 
@@ -547,79 +555,7 @@
  <button type="button" class="view-all-link" id="btnHomeViewAllUpcoming">View All</button>
  </div>
  <div class="upcoming-cards-container" id="homeUpcomingContainer">
- <!-- UPCOMING MATCH CARD 1 -->
- <div class="upcoming-match-card">
- <div class="upcoming-card-top">
- <div class="upcoming-tourney-badge">
- <i class="fa-solid fa-trophy"></i>
- <span>YUVA T20 LEAGUE • MATCH 14</span>
- </div>
- <div class="upcoming-countdown-badge">
- <i class="fa-regular fa-clock"></i>
- <span>TODAY • 04:30 PM</span>
- </div>
- </div>
- <div class="upcoming-card-teams">
- <div class="upcoming-team-col">
- <div class="upcoming-team-avatar">MY</div>
- <span class="upcoming-team-name">Mumbai Yuva</span>
- </div>
- <div class="upcoming-vs-badge">VS</div>
- <div class="upcoming-team-col">
- <div class="upcoming-team-avatar dark">PS</div>
- <span class="upcoming-team-name">Pune Strikers</span>
- </div>
- </div>
- <div class="upcoming-card-info">
- <div class="upcoming-venue-text">
- <i class="fa-solid fa-location-dot"></i>
- <span>Wankhede Stadium, Mumbai • 20 Overs</span>
- </div>
- </div>
- <div class="upcoming-card-footer">
- <span class="upcoming-timer-text"><i class="fa-solid fa-stopwatch"></i> Starts in 2h 15m</span>
- <button type="button" class="upcoming-action-btn btn-start-upcoming-match" data-teama="Mumbai Yuva XI" data-teamb="Pune Strikers" data-overs="20" data-ground="Wankhede Stadium, Mumbai" data-tournament="Yuva T20 League">
- <i class="fa-solid fa-play"></i> Start Match
- </button>
- </div>
- </div>
-
- <!-- UPCOMING MATCH CARD 2 -->
- <div class="upcoming-match-card">
- <div class="upcoming-card-top">
- <div class="upcoming-tourney-badge">
- <i class="fa-solid fa-trophy"></i>
- <span>CHAMPIONS CUP • QUARTER-FINAL</span>
- </div>
- <div class="upcoming-countdown-badge">
- <i class="fa-regular fa-clock"></i>
- <span>TOMORROW • 02:00 PM</span>
- </div>
- </div>
- <div class="upcoming-card-teams">
- <div class="upcoming-team-col">
- <div class="upcoming-team-avatar dark">DD</div>
- <span class="upcoming-team-name">Delhi Dynamos</span>
- </div>
- <div class="upcoming-vs-badge">VS</div>
- <div class="upcoming-team-col">
- <div class="upcoming-team-avatar dark">GT</div>
- <span class="upcoming-team-name">Gujarat Titans</span>
- </div>
- </div>
- <div class="upcoming-card-info">
- <div class="upcoming-venue-text">
- <i class="fa-solid fa-location-dot"></i>
- <span>DY Patil Stadium, Navi Mumbai • 20 Overs</span>
- </div>
- </div>
- <div class="upcoming-card-footer">
- <span class="upcoming-timer-text"><i class="fa-solid fa-bullhorn"></i> Toss at 01:30 PM</span>
- <button type="button" class="upcoming-action-btn btn-start-upcoming-match" data-teama="Delhi Dynamos" data-teamb="Gujarat Titans" data-overs="20" data-ground="DY Patil Stadium, Navi Mumbai" data-tournament="Champions Cup">
- <i class="fa-solid fa-play"></i> Start Match
- </button>
- </div>
- </div>
+   <div style="text-align:center;padding:18px;color:#777;background:#141414;border-radius:10px;font-size:12px;">No upcoming matches from your tournaments.</div>
  </div>
  </div>
 
@@ -635,124 +571,12 @@
 
  <!-- LIVE MATCHES TAB CONTENT -->
  <div class="match-cards-container" id="liveMatchesContainer">
- 
- <!-- MATCH CARD 1 -->
- <div class="match-card">
- <div class="match-card-header">
- <span class="match-tag-name">T20 PREMIER LEAGUE • SEMI-FINAL</span>
- <span class="match-live-chip"><i class="fa-solid fa-circle"></i> LIVE</span>
- </div>
- <div class="match-card-body">
- <div class="team-score-row">
- <div class="team-avatar-name">
- <span class="team-initials">MY</span>
- <span class="name">Mumbai Yuva</span>
- </div>
- <span class="runs">142/3 <small>(15.2)</small></span>
- </div>
- <div class="team-score-row opponent">
- <div class="team-avatar-name">
- <span class="team-initials dark">DS</span>
- <span class="name">Delhi Strikers</span>
- </div>
- <span class="runs">185/6 <small>(20.0)</small></span>
- </div>
- </div>
- <div class="match-card-footer">
- <span class="match-summary-text">Mumbai Yuva need 44 runs in 28 balls</span>
- <button type="button" class="card-action-btn view-scorecard-btn">Scorecard</button>
- </div>
- </div>
-
- <!-- MATCH CARD 2 -->
- <div class="match-card">
- <div class="match-card-header">
- <span class="match-tag-name">YUVA CUP • GROUP STAGE</span>
- <span class="match-live-chip"><i class="fa-solid fa-circle"></i> LIVE</span>
- </div>
- <div class="match-card-body">
- <div class="team-score-row">
- <div class="team-avatar-name">
- <span class="team-initials">PB</span>
- <span class="name">Pune Blasters</span>
- </div>
- <span class="runs">88/1 <small>(8.4)</small></span>
- </div>
- <div class="team-score-row opponent">
- <div class="team-avatar-name">
- <span class="team-initials dark">GW</span>
- <span class="name">Gujarat Warriors</span>
- </div>
- <span class="runs">156/8 <small>(20.0)</small></span>
- </div>
- </div>
- <div class="match-card-footer">
- <span class="match-summary-text">Pune Blasters need 69 runs in 68 balls</span>
- <button type="button" class="card-action-btn view-scorecard-btn">Scorecard</button>
- </div>
- </div>
-
+   <div style="text-align:center;padding:18px;color:#777;background:#141414;border-radius:10px;font-size:12px;">No live matches right now.</div>
  </div>
 
  <!-- PAST MATCHES TAB CONTENT (HIDDEN BY DEFAULT) -->
  <div class="match-cards-container" id="pastMatchesContainer" style="display:none;">
- 
- <!-- PAST MATCH 1 -->
- <div class="match-card past-card">
- <div class="match-card-header">
- <span class="match-tag-name">CHAMPIONS TROPHY • FINAL</span>
- <span class="match-past-chip">COMPLETED</span>
- </div>
- <div class="match-card-body">
- <div class="team-score-row winner">
- <div class="team-avatar-name">
- <span class="team-initials">RK</span>
- <span class="name">Royal Kings 👑</span>
- </div>
- <span class="runs">204/4 <small>(20.0)</small></span>
- </div>
- <div class="team-score-row opponent">
- <div class="team-avatar-name">
- <span class="team-initials dark">SS</span>
- <span class="name">Super Stars</span>
- </div>
- <span class="runs">186/9 <small>(20.0)</small></span>
- </div>
- </div>
- <div class="match-card-footer">
- <span class="match-summary-text orange-text">Royal Kings won by 18 runs</span>
- <button type="button" class="card-action-btn view-scorecard-btn">Scorecard</button>
- </div>
- </div>
-
- <!-- PAST MATCH 2 -->
- <div class="match-card past-card">
- <div class="match-card-header">
- <span class="match-tag-name">YUVA CUP • MATCH 12</span>
- <span class="match-past-chip">COMPLETED</span>
- </div>
- <div class="match-card-body">
- <div class="team-score-row winner">
- <div class="team-avatar-name">
- <span class="team-initials">CY</span>
- <span class="name">Cric Yuva XI 👑</span>
- </div>
- <span class="runs">162/3 <small>(17.1)</small></span>
- </div>
- <div class="team-score-row opponent">
- <div class="team-avatar-name">
- <span class="team-initials dark">BL</span>
- <span class="name">Bengal Lions</span>
- </div>
- <span class="runs">159/7 <small>(20.0)</small></span>
- </div>
- </div>
- <div class="match-card-footer">
- <span class="match-summary-text orange-text">Cric Yuva XI won by 7 wickets</span>
- <button type="button" class="card-action-btn view-scorecard-btn">Scorecard</button>
- </div>
- </div>
-
+   <div style="text-align:center;padding:18px;color:#777;background:#141414;border-radius:10px;font-size:12px;">No completed matches yet.</div>
  </div>
 
  </div>
@@ -814,6 +638,9 @@
  <button type="button" class="top-action-btn" id="teamTopActionBtn" title="Team Options">
  <i class="fa-solid fa-pen-to-square"></i>
  </button>
+ <button type="button" class="top-action-btn" id="btnTeamShareQr" title="Team Join Link / QR">
+ <i class="fa-solid fa-qrcode"></i>
+ </button>
  </div>
  </header>
 
@@ -845,7 +672,7 @@
  </div>
  <div class="team-meta-info">
  <div class="team-badge-pill">OFFICIAL SQUAD</div>
- <h3 class="team-name-title" id="teamNameDisplay">Mumbai Yuva XI</h3>
+ <h3 class="team-name-title" id="teamNameDisplay">My Team</h3>
  <div class="team-quick-tags">
  <span class="squad-count-chip" id="teamTotalPlayersCount">
  <i class="fa-solid fa-users"></i> 11 Players
@@ -866,14 +693,14 @@
  <div class="leader-icon-badge">👑</div>
  <div class="leader-text">
  <small>CAPTAIN (C)</small>
- <strong id="teamCaptainDisplay">R. Sharma</strong>
+ <strong id="teamCaptainDisplay">Captain</strong>
  </div>
  </div>
  <div class="leader-box vice-captain-box">
  <div class="leader-icon-badge">🎖️</div>
  <div class="leader-text">
  <small>VICE-CAPTAIN (VC)</small>
- <strong id="teamViceCaptainDisplay">V. Kohli</strong>
+ <strong id="teamViceCaptainDisplay">Non-Striker</strong>
  </div>
  </div>
  </div>
@@ -910,7 +737,7 @@
  <!-- TEAM FOOTER ACTIONS -->
  <div class="team-footer-actions">
  <button type="button" class="btn-reset-team" id="btnResetTeam">
- <i class="fa-solid fa-rotate-right"></i> Reset to Default Squad
+ <i class="fa-solid fa-rotate-right"></i> Reset Squad
  </button>
  </div>
 
@@ -991,11 +818,7 @@
  <div class="form-group-field">
  <label for="selectTeamA" class="mini-label">Select Team A <span class="req">*</span></label>
  <select id="selectTeamA" class="match-select-input" required>
- <option value="my_team">🏏 Mumbai Yuva XI (My Team)</option>
- <option value="Delhi Strikers">Delhi Strikers</option>
- <option value="Royal Kings Bangalore">Royal Kings Bangalore</option>
- <option value="Chennai Super XI">Chennai Super XI</option>
- <option value="Gujarat Warriors">Gujarat Warriors</option>
+ <option value="">Select a registered team</option>
  <option value="custom">➕ Custom Team...</option>
  </select>
  </div>
@@ -1015,13 +838,7 @@
  <div class="form-group-field">
  <label for="selectTeamB" class="mini-label">Select Team B <span class="req">*</span></label>
  <select id="selectTeamB" class="match-select-input" required>
- <option value="Delhi Strikers">Delhi Strikers</option>
- <option value="Royal Kings Bangalore">Royal Kings Bangalore</option>
- <option value="Chennai Super XI">Chennai Super XI</option>
- <option value="Gujarat Warriors">Gujarat Warriors</option>
- <option value="Pune Blasters">Pune Blasters</option>
- <option value="Bengal Lions">Bengal Lions</option>
- <option value="my_team">🏏 Mumbai Yuva XI (My Team)</option>
+ <option value="">Select a registered team</option>
  <option value="custom">➕ Custom Opponent...</option>
  </select>
  </div>
@@ -1035,7 +852,7 @@
  <label for="inputMatchTitle" class="form-label-styled">Match Title / Name <span class="req">*</span></label>
  <div class="styled-input-box">
  <i class="fa-solid fa-font"></i>
- <input type="text" id="inputMatchTitle" placeholder="e.g. Yuva T20 Championship - Match 1" value="Yuva T20 Clash 2026" required>
+ <input type="text" id="inputMatchTitle" placeholder="e.g. Yuva T20 Championship - Match 1" value="" required>
  </div>
  </div>
 
@@ -1060,8 +877,7 @@
  <div class="styled-input-box">
  <i class="fa-solid fa-medal"></i>
  <select id="selectTournament">
- <option value="Cric Yuva Premier Cup 2026">🏆 Cric Yuva Premier Cup 2026</option>
- <option value="Yuva Champions Trophy">🥇 Yuva Champions Trophy</option>
+
  <option value="Monsoon Super League">🌧️ Monsoon Super League</option>
  <option value="City Club Championship">🏙️ City Club Championship</option>
  <option value="Bilateral Friendly Cup">🤝 Bilateral Friendly Cup</option>
@@ -1232,14 +1048,14 @@
  <input type="radio" name="tossWinnerRadio" value="teamA" id="tossWinnerTeamA" checked>
  <div class="toss-option-card">
  <div class="toss-opt-badge">TEAM A</div>
- <strong id="tossLabelTeamA">Mumbai Yuva XI</strong>
+ <strong id="tossLabelTeamA">My Team</strong>
  </div>
  </label>
  <label class="toss-team-option">
  <input type="radio" name="tossWinnerRadio" value="teamB" id="tossWinnerTeamB">
  <div class="toss-option-card">
  <div class="toss-opt-badge">TEAM B</div>
- <strong id="tossLabelTeamB">Delhi Strikers</strong>
+ <strong id="tossLabelTeamB">Registered Team</strong>
  </div>
  </label>
  </div>
@@ -1265,7 +1081,7 @@
  <div class="callout-icon">📢</div>
  <div class="callout-text">
  <strong id="tossCalloutHeading">TOSS RESULT</strong>
- <p id="tossCalloutSentence">Mumbai Yuva XI won the toss and elected to BAT first.</p>
+ <p id="tossCalloutSentence">My Team won the toss and elected to BAT first.</p>
  </div>
  </div>
 
@@ -1370,7 +1186,7 @@
  <div class="team-title-wrap">
  <div class="team-crest-mini" id="liveScoreBattingLogo">MY</div>
  <div>
- <h3 class="team-title" id="liveScoreBattingTeam">Mumbai Yuva XI</h3>
+ <h3 class="team-title" id="liveScoreBattingTeam">My Team</h3>
  <span class="batting-status-pill" id="liveInningStatusPill">1st Inning • Batting</span>
  </div>
  </div>
@@ -1384,7 +1200,7 @@
  <div class="team-title-wrap">
  <div class="team-crest-mini opponent" id="liveScoreBowlingLogo">DS</div>
  <div>
- <h4 class="team-sub-title" id="liveScoreBowlingTeam">Delhi Strikers</h4>
+ <h4 class="team-sub-title" id="liveScoreBowlingTeam">Registered Team</h4>
  <span class="bowling-status-pill">Bowling</span>
  </div>
  </div>
@@ -1398,7 +1214,7 @@
  <!-- TOSS & MATCH STATUS BANNER -->
  <div class="hero-toss-banner" id="liveScoreTossBanner">
  <i class="fa-solid fa-coins"></i>
- <span id="liveScoreTossBannerText">Mumbai Yuva XI won the toss and elected to bat.</span>
+ <span id="liveScoreTossBannerText">My Team won the toss and elected to bat.</span>
  </div>
  </div>
 
@@ -1827,7 +1643,7 @@
           <div class="my-rank-info">
             <div class="my-rank-sublabel"><i class="fa-solid fa-user-astronaut text-orange"></i> Your Standing</div>
             <div class="my-rank-name" id="myRankUserName">Player Name</div>
-            <div class="my-rank-team" id="myRankTeamName">Mumbai Yuva XI</div>
+            <div class="my-rank-team" id="myRankTeamName">My Team</div>
           </div>
         </div>
         <div class="my-rank-right">
@@ -2220,8 +2036,8 @@
             <div class="winner-trophy-icon">🏆</div>
             <div class="winner-text-wrap">
               <span class="winner-label">TOURNAMENT CHAMPIONS</span>
-              <h3 class="winner-team-name" id="tHeroWinnerName">Mumbai Yuva XI</h3>
-              <p class="winner-sub" id="tHeroRunnerUpName">Runner-Up: Delhi Strikers</p>
+              <h3 class="winner-team-name" id="tHeroWinnerName">My Team</h3>
+              <p class="winner-sub" id="tHeroRunnerUpName">Runner-Up: Registered Team</p>
             </div>
           </div>
 
@@ -2893,7 +2709,7 @@
           <div class="break-performers-grid">
             <div class="break-performer-box">
               <div class="performer-badge"><i class="fa-solid fa-baseball-bat-ball"></i> Top Batsman</div>
-              <div class="performer-name" id="breakTopBatterName">Rohit Sharma</div>
+              <div class="performer-name" id="breakTopBatterName">Player Name</div>
               <div class="performer-stat" id="breakTopBatterStat">68 (42b, 7x4, 3x6)</div>
             </div>
             <div class="break-performer-box">
@@ -2909,7 +2725,7 @@
           <div class="target-label">2ND INNINGS EQUATION</div>
           <div class="target-number-large" id="breakTargetRuns">Target: 166 Runs</div>
           <div class="target-equation" id="breakTargetEquation">
-            <span id="breakChasingTeam">Team B</span> need 166 runs in 20.0 overs (RRR: 8.30)
+            <span id="breakChasingTeam">Team B</span> need 166 runs in 0.0 overs (RRR: 8.30)
           </div>
         </div>
 
@@ -3025,7 +2841,7 @@
         <!-- MATCH RESULT HERO BANNER -->
         <div class="final-result-hero">
           <div class="final-result-icon">🏆</div>
-          <div class="final-result-text" id="finalResultBannerText">Mumbai Yuva won by 18 runs</div>
+          <div class="final-result-text" id="finalResultBannerText">Team A won by 18 runs</div>
           <div class="final-match-meta" id="finalMatchVenueDate">Main Ground • 20 Overs</div>
         </div>
 
@@ -3288,9 +3104,9 @@
             <div class="p-hero-num" id="pStatsJersey">#18</div>
           </div>
           <div class="p-hero-info">
-            <div class="p-hero-name" id="pStatsName">Rohit Sharma</div>
+            <div class="p-hero-name" id="pStatsName">Player Name</div>
             <div class="p-hero-team-role">
-              <span class="p-hero-team" id="pStatsTeam">Royal Kings</span>
+              <span class="p-hero-team" id="pStatsTeam">Team</span>
               <span class="p-dot-sep">•</span>
               <span class="p-hero-role" id="pStatsRole">Top-order Batter</span>
             </div>
@@ -3469,6 +3285,10 @@
             <i class="fa-solid fa-share-nodes text-orange"></i>
             <span>Share Profile</span>
           </button>
+          <button type="button" class="btn-final-action" id="btnPlayerRequestQr">
+            <i class="fa-solid fa-user-plus text-orange"></i>
+            <span>Player Request Link / QR</span>
+          </button>
           <button type="button" class="btn-final-action secondary-btn" id="btnClosePlayerProfile">
             <i class="fa-solid fa-check"></i>
             <span>Done</span>
@@ -3545,10 +3365,10 @@
 
  <!-- VICE-CAPTAIN SELECTION / NAME -->
  <div class="form-group">
- <label for="inputViceCaptainName" class="form-label">Vice-Captain (VC)</label>
+ <label for="inputViceCaptainName" class="form-label">Non-Striker (VC)</label>
  <div class="modal-input-box">
  <i class="fa-solid fa-medal text-orange"></i>
- <input type="text" id="inputViceCaptainName" placeholder="Vice-Captain Player Name">
+ <input type="text" id="inputViceCaptainName" placeholder="Non-Striker Player Name">
  </div>
  </div>
 
@@ -3619,7 +3439,7 @@
  </div>
  <div style="flex:1; min-width:0;">
  <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
- <h3 id="playerDetailFullName" style="font-size:17px; font-weight:800; color:#fff; margin:0;">Rohit Sharma</h3>
+ <h3 id="playerDetailFullName" style="font-size:17px; font-weight:800; color:#fff; margin:0;">Player Name</h3>
  <span id="playerDetailJerseyBadge" style="background:#ff5a00; color:#000; font-size:10.5px; font-weight:900; padding:2px 6px; border-radius:4px;">#45</span>
  <span id="playerDetailXIStatusBadge" style="background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">PLAYING XI</span>
  </div>
@@ -3681,7 +3501,7 @@
  <i class="fa-solid fa-crown"></i> <span id="labelSetCaptain">Make Captain (C)</span>
  </button>
  <button type="button" id="btnDetailSetViceCaptain" style="background:#1e293b; border:1px solid #334155; color:#38bdf8; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
- <i class="fa-solid fa-shield"></i> <span id="labelSetVC">Make Vice-Captain</span>
+ <i class="fa-solid fa-shield"></i> <span id="labelSetVC">Make Non-Striker</span>
  </button>
  <button type="button" id="btnDetailEditPlayer" style="background:#1e293b; border:1px solid #334155; color:#ff5a00; padding:10px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
  <i class="fa-solid fa-pen-to-square"></i> Edit Details
@@ -3760,7 +3580,7 @@
  </label>
  <label class="designation-toggle">
  <input type="checkbox" id="checkIsViceCaptain">
- <span class="designation-badge vc">🎖️ Vice-Captain (VC)</span>
+ <span class="designation-badge vc">🎖️ Non-Striker (VC)</span>
  </label>
  </div>
  </div>
@@ -4129,7 +3949,7 @@
                <i class="fa-solid fa-chevron-down arrow-icon"></i>
              </button>
              <div class="faq-answer-content">
-               Yes! Open <b>My Team</b> to customize your 11-player squad, assign Captain (C) and Vice-Captain (VC) badges, filter by playing roles (Batsman, Bowler, All-Rounder, Wicketkeeper), or add new custom players.
+               Yes! Open <b>My Team</b> to customize your 11-player squad, assign Captain (C) and Non-Striker (VC) badges, filter by playing roles (Batsman, Bowler, All-Rounder, Wicketkeeper), or add new custom players.
              </div>
            </div>
          </div>
@@ -4160,12 +3980,12 @@
  </div>
  <div class="popup-body">
  <div class="scorecard-match-header">
- <span class="title">Mumbai Yuva vs Delhi Strikers</span>
+ <span class="title">No live match selected</span>
  <span class="tag">T20 Semi-Final</span>
  </div>
  
  <div class="scorecard-inning-box">
- <h4>Delhi Strikers: 185/6 (20.0 Ov)</h4>
+ <h4>Team B score unavailable</h4>
  <table class="scorecard-mini-table">
  <thead>
  <tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr>
@@ -4179,14 +3999,14 @@
  </div>
 
  <div class="scorecard-inning-box">
- <h4>Mumbai Yuva: 142/3 (15.2 Ov) • Target 186</h4>
+ <h4>Team A score unavailable</h4>
  <table class="scorecard-mini-table">
  <thead>
  <tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr>
  </thead>
  <tbody>
- <tr><td>R. Sharma *</td><td>58</td><td>34</td><td>6</td><td>3</td><td>170.5</td></tr>
- <tr><td>V. Kohli</td><td>42</td><td>26</td><td>4</td><td>1</td><td>161.5</td></tr>
+ <tr><td>Striker *</td><td>58</td><td>34</td><td>6</td><td>3</td><td>170.5</td></tr>
+ <tr><td>Non-Striker</td><td>42</td><td>26</td><td>4</td><td>1</td><td>161.5</td></tr>
  <tr><td>S. Yadav</td><td>22</td><td>14</td><td>2</td><td>1</td><td>157.1</td></tr>
  </tbody>
  </table>
@@ -4952,11 +4772,8 @@
          </div>
        </div>
 
-       <div class="form-group" style="background:#181818; padding:10px 12px; border-radius:8px; border:1px solid #282828;">
-         <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#ccc; font-size:12px; font-weight:700;">
-           <input type="checkbox" id="chkAutoGenerateSquad" checked style="accent-color:#ff5a00; width:16px; height:16px;">
-           <span>Auto-populate full 11-player squad roster</span>
-         </label>
+       <div class="form-group" style="background:#181818; padding:10px 12px; border-radius:8px; border:1px solid #282828; color:#aaa; font-size:12px;">
+         <i class="fa-solid fa-shield-halved text-orange"></i> Team starts clean. Add only real registered players to the squad.
        </div>
 
        <button type="submit" class="btn-modal-submit" id="btnSubmitCreateClub">
@@ -5484,6 +5301,9 @@
             <button type="button" class="btn-card-mini-action" id="btnCopyBroadcastViewerLink" style="padding:10px 12px; border-radius:10px;" title="Copy Public Viewer Link">
               <i class="fa-solid fa-share-nodes text-orange"></i>
             </button>
+            <button type="button" class="btn-card-mini-action" id="btnQrBroadcastViewerLink" style="padding:10px 12px; border-radius:10px;" title="Live Link / QR">
+              <i class="fa-solid fa-qrcode text-orange"></i>
+            </button>
             <button type="button" class="btn-start-broadcast" id="btnStartBroadcastSession">
               <i class="fa-solid fa-circle-play"></i> START BROADCAST
             </button>
@@ -5495,25 +5315,7 @@
          </div>
        </div>
 
-       <!-- 8. BROADCAST SESSION BAR & CONTROLLER -->
-       <div class="broadcast-session-bar">
-         <div class="b-session-info">
-           <span class="label">Session Status</span>
-           <span class="value" id="bSessionStatusText" style="color:#94a3b8;">● IDLE (Ready to Stream)</span>
-         </div>
 
-         <div style="display:flex; gap:8px;">
-           <button type="button" class="btn-card-mini-action" id="btnCopyBroadcastViewerLink" style="padding:10px 12px; border-radius:10px;" title="Copy Public Viewer Link">
-             <i class="fa-solid fa-link text-orange"></i>
-           </button>
-           <button type="button" class="btn-start-broadcast" id="btnStartBroadcastSession">
-             <i class="fa-solid fa-circle-play"></i> START BROADCAST
-           </button>
-           <button type="button" class="btn-stop-broadcast" id="btnStopBroadcastSession" style="display:none;">
-             <i class="fa-solid fa-circle-stop"></i> STOP BROADCAST
-           </button>
-         </div>
-       </div>
      </div>
    </div>
  </div>
@@ -5602,7 +5404,7 @@
          <!-- LIVE SCORE OVERLAY ON BOTTOM OF VIDEO -->
          <div class="pub-video-score-overlay" id="pubVideoScoreOverlay">
            <div class="pub-overlay-team-score">
-             <span class="pub-ov-bat-team" id="pubOvBatTeam">Mumbai Yuva XI</span>
+             <span class="pub-ov-bat-team" id="pubOvBatTeam">My Team</span>
              <span class="pub-ov-score" id="pubOvScore">0/0</span>
              <span class="pub-ov-overs" id="pubOvOvers">(0.0 / 20 Ov)</span>
              <span class="pub-ov-crr" id="pubOvCrr">CRR: 0.00</span>
@@ -5767,7 +5569,36 @@
     </div>
   </div>
 
+  <!-- GLOBAL SEARCH -->
+  <div class="modal-backdrop" id="globalSearchModal" style="display:none; z-index:100001;">
+    <div class="team-modal-sheet" style="max-height:85vh;">
+      <div class="sheet-header"><h3><i class="fa-solid fa-magnifying-glass text-orange"></i> Search Cric Yuva</h3><button type="button" class="sheet-close-btn" id="globalSearchCloseBtn"><i class="fa-solid fa-xmark"></i></button></div>
+      <div style="padding:12px 0;">
+        <input id="globalSearchInput" type="search" placeholder="Search player, team or tournament..." style="width:100%;box-sizing:border-box;background:#141414;border:1px solid #333;border-radius:10px;padding:12px 14px;color:#fff;outline:none;">
+      </div>
+      <div id="globalSearchResults" style="display:flex;flex-direction:column;gap:7px;max-height:55vh;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- SHARE / QR HUB -->
+  <div class="modal-backdrop" id="cricYuvaShareQrModal" style="display:none; z-index:100002;">
+    <div class="team-modal-sheet" style="max-width:430px;text-align:center;">
+      <div class="sheet-header"><h3 id="shareQrTitle">Share Cric Yuva</h3><button type="button" class="sheet-close-btn" id="shareQrCloseBtn"><i class="fa-solid fa-xmark"></i></button></div>
+      <div style="padding:14px 0;">
+        <canvas id="shareQrCanvas" width="220" height="220" style="background:#fff;border-radius:12px;padding:8px;max-width:75vw;"></canvas>
+        <input id="shareQrUrl" type="text" readonly style="width:100%;box-sizing:border-box;margin-top:12px;background:#141414;border:1px solid #333;border-radius:9px;padding:10px;color:#fff;font-size:11px;">
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button type="button" class="btn-modal-submit" id="shareQrCopyBtn" style="flex:1;"><i class="fa-regular fa-copy"></i> Copy Link</button>
+          <button type="button" class="btn-modal-submit" id="shareQrShareBtn" style="flex:1;"><i class="fa-solid fa-share-nodes"></i> Share</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="server-config.js"></script>
   <script src="storage.js"></script>
   <script src="script.js"></script>
+  <script>if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));</script>
 </body>
 </html>
