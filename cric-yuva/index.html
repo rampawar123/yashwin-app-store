@@ -4344,6 +4344,32 @@
            </div>
          </div>
 
+         <!-- GROUP COUNT (GROUP STAGE ONLY) -->
+         <div class="form-group" id="tournamentGroupCountWrap" style="display:none;">
+           <label for="selectTourneyGroupCount" class="form-label">Number of Groups</label>
+           <div class="modal-input-box">
+             <i class="fa-solid fa-layer-group text-orange"></i>
+             <select id="selectTourneyGroupCount">
+               <option value="2">2 Groups</option>
+               <option value="3">3 Groups</option>
+               <option value="4">4 Groups</option>
+               <option value="5">5 Groups</option>
+               <option value="6">6 Groups</option>
+               <option value="7">7 Groups</option>
+               <option value="8">8 Groups</option>
+             </select>
+           </div>
+           <p class="form-hint">For Group Stage: top 2 teams from each group qualify.</p>
+        <!-- THIRD-PLACE PLAYOFF / PRIZE -->
+        <div class="form-group">
+          <label class="form-label">Third Prize</label>
+          <div class="modal-input-box" style="justify-content:flex-start; gap:10px;">
+            <input type="checkbox" id="inputTourneyThirdPrize" style="accent-color:#ff5a00; width:18px; height:18px; cursor:pointer;">
+            <label for="inputTourneyThirdPrize" style="font-size:13px; color:#fff; cursor:pointer; margin:0;">Enable Third-Place Playoff</label>
+          </div>
+          <p class="form-hint">If enabled, the two losing Semi-Final teams will play for 3rd place.</p>
+        </div></div>
+
          <!-- DATES ROW -->
          <div class="form-row-dual">
            <div class="form-group">

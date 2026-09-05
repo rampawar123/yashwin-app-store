@@ -2273,7 +2273,19 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1. Check if club exists in custom clubs or tournament squads
     try {
       if (typeof getAvailableClubsList === "function") {
-        const allClubs = getAvailableClubsList();
+        if (format === "Group Stage") {
+        const teamCount = wizardSelectedTeams.length;
+        const minTeams = groupCount * 3;
+        const maxTeams = groupCount * 5;
+
+        if (teamCount < minTeams || teamCount > maxTeams) {
+          showToast(`For ${groupCount} groups, select ${minTeams}-${maxTeams} teams (3-5 teams per group).`);
+          if (typeof goToWizardStep === "function") goToWizardStep(2);
+          return;
+        }
+      }
+
+      const allClubs = getAvailableClubsList();
         const found = allClubs.find(c => c.name && c.name.toLowerCase() === teamName.toLowerCase());
         if (found && found.players && found.players.length > 0) {
           return JSON.parse(JSON.stringify(found.players));
@@ -4593,7 +4605,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         let history = [];
-        const savedHist = localStorage.getItem("cricYuvaMatchHistory");
+        const savedHist = getUserStorage("cricYuvaMatchHistory", "[]");
         if (savedHist) history = JSON.parse(savedHist);
         
         // Check if already in history
@@ -4604,7 +4616,7 @@ document.addEventListener("DOMContentLoaded", function () {
           history.unshift(match);
         }
 
-        localStorage.setItem("cricYuvaMatchHistory", JSON.stringify(history));
+        setUserStorage("cricYuvaMatchHistory", JSON.stringify(history));
         showToast("Match successfully saved to History!");
       } catch (err) {
         console.error("Error saving match to history:", err);
@@ -8555,7 +8567,18 @@ document.addEventListener("DOMContentLoaded", function () {
       overs = maxAllottedOvers;
     }
 
-    return { runs, oversDecimal: overs > 0 ? overs : maxAllottedOvers, wickets, isAllOut, hasData: true };
+    const actualOversDecimal = overs > 0 ? overs : maxAllottedOvers;
+    const nrrOversFaced = isAllOut && actualOversDecimal < maxAllottedOvers
+      ? maxAllottedOvers
+      : actualOversDecimal;
+    return {
+      runs,
+      oversDecimal: nrrOversFaced,
+      actualOversDecimal,
+      wickets,
+      isAllOut,
+      hasData: true
+    };
   }
 
   function computePointsTable(tourney, teamList) {
@@ -8613,7 +8636,7 @@ document.addEventListener("DOMContentLoaded", function () {
           rowA.runsScored += sA.runs;
           rowA.oversFaced += sA.oversDecimal;
           rowA.runsConceded += sB.runs;
-          rowA.oversBowled += sB.oversDecimal;
+          rowA.oversBowled += sB.actualOversDecimal;
         }
 
         if (isNoResult) {
@@ -8645,7 +8668,7 @@ document.addEventListener("DOMContentLoaded", function () {
           rowB.runsScored += sB.runs;
           rowB.oversFaced += sB.oversDecimal;
           rowB.runsConceded += sA.runs;
-          rowB.oversBowled += sA.oversDecimal;
+          rowB.oversBowled += sA.actualOversDecimal;
         }
 
         if (isNoResult) {
@@ -8678,8 +8701,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const forRate = r.runsScored / r.oversFaced;
         const againstRate = r.runsConceded / r.oversBowled;
         r.nrr = parseFloat((forRate - againstRate).toFixed(3));
-      } else if (r.oversFaced > 0) {
-        r.nrr = parseFloat((r.runsScored / r.oversFaced).toFixed(3));
       } else {
         r.nrr = 0.000;
       }
@@ -9097,6 +9118,47 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
+    } else if (groups.length >= 5) {
+      // 5+ groups: top 2 from every group qualify; automatic Top-8 playoff.
+      currDate = addDays(currDate, 2);
+      for (let i = 0; i < 4; i++) {
+        fixtures.push({
+          id: `fx_gen_auto_qf${i + 1}`,
+          stage: `Quarter-Final ${i + 1}`,
+          teamA: `Overall Qualified #${i + 1}`,
+          teamB: `Overall Qualified #${8 - i}`,
+          date: formatDateStr(currDate),
+          time: "19:30",
+          ground: venues[i % venues.length],
+          status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null,
+          resultText: "Quarter-Final", isPlayoff: true
+        });
+        currDate = addDays(currDate, 1);
+      }
+      fixtures.push({
+        id: "fx_gen_auto_sf1", stage: "Semi-Final 1",
+        teamA: "Winner Quarter-Final 1", teamB: "Winner Quarter-Final 2",
+        date: formatDateStr(currDate), time: "19:30", ground: venues[0],
+        status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null,
+        resultText: "Semi-Final", isPlayoff: true
+      });
+      currDate = addDays(currDate, 1);
+      fixtures.push({
+        id: "fx_gen_auto_sf2", stage: "Semi-Final 2",
+        teamA: "Winner Quarter-Final 3", teamB: "Winner Quarter-Final 4",
+        date: formatDateStr(currDate), time: "19:30",
+        ground: venues[venues.length > 1 ? 1 : 0],
+        status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null,
+        resultText: "Semi-Final", isPlayoff: true
+      });
+      currDate = addDays(currDate, 1);
+      fixtures.push({
+        id: "fx_gen_auto_fn", stage: "Grand Final",
+        teamA: "Winner Semi-Final 1", teamB: "Winner Semi-Final 2",
+        date: formatDateStr(currDate), time: "19:30", ground: venues[0],
+        status: "UPCOMING", scoreA: "-", scoreB: "-", winner: null,
+        resultText: "Grand Final", isPlayoff: true
+      });
     } else if (format === "Knockout") {
       // Quarter-Finals or First Round
       for (let i = 0; i < teamNames.length; i += 2) {
@@ -9360,6 +9422,36 @@ document.addEventListener("DOMContentLoaded", function () {
             fn.teamA = sf1.winner;
           }
 
+          // Third-Place Playoff: losing Semi-Finalists play for 3rd place
+          if (tourney.rules?.thirdPrize) {
+            let third = getFixture("fx_gen_third");
+            if (!third) {
+              third = {
+                id: "fx_gen_third",
+                stage: "Third-Place Playoff",
+                teamA: "Loser Semi-Final 1",
+                teamB: "Loser Semi-Final 2",
+                date: "",
+                time: "19:30",
+                ground: (tourney.grounds || ["Yuva Stadium, Mumbai"])[0],
+                status: "UPCOMING",
+                scoreA: "-",
+                scoreB: "-",
+                winner: null,
+                resultText: "Third Place",
+                isPlayoff: true
+              };
+              fixtures.push(third);
+            }
+
+            if (sf1 && sf1.status === "COMPLETED" && sf1.winner &&
+                sf2 && sf2.status === "COMPLETED" && sf2.winner &&
+                third.status !== "COMPLETED") {
+              third.teamA = sf1.teamA === sf1.winner ? sf1.teamB : sf1.teamA;
+              third.teamB = sf2.teamA === sf2.winner ? sf2.teamB : sf2.teamA;
+            }
+          }
+
           if (sf2 && sf2.status === "COMPLETED" && sf2.winner &&
               fn && fn.status !== "COMPLETED") {
             fn.teamB = sf2.winner;
@@ -9430,6 +9522,36 @@ document.addEventListener("DOMContentLoaded", function () {
           fn.teamA = sf1.winner;
         }
 
+        // Third-Place Playoff: losing Semi-Finalists play for 3rd place
+        if (tourney.rules?.thirdPrize) {
+          let third = getFixture("fx_gen_third");
+          if (!third) {
+            third = {
+              id: "fx_gen_third",
+              stage: "Third-Place Playoff",
+              teamA: "Loser Semi-Final 1",
+              teamB: "Loser Semi-Final 2",
+              date: "",
+              time: "19:30",
+              ground: (tourney.grounds || ["Yuva Stadium, Mumbai"])[0],
+              status: "UPCOMING",
+              scoreA: "-",
+              scoreB: "-",
+              winner: null,
+              resultText: "Third Place",
+              isPlayoff: true
+            };
+            fixtures.push(third);
+          }
+
+          if (sf1 && sf1.status === "COMPLETED" && sf1.winner &&
+              sf2 && sf2.status === "COMPLETED" && sf2.winner &&
+              third.status !== "COMPLETED") {
+            third.teamA = sf1.teamA === sf1.winner ? sf1.teamB : sf1.teamA;
+            third.teamB = sf2.teamA === sf2.winner ? sf2.teamB : sf2.teamA;
+          }
+        }
+
         if (sf2 && sf2.status === "COMPLETED" && sf2.winner &&
             fn && fn.status !== "COMPLETED") {
           fn.teamB = sf2.winner;
@@ -9441,7 +9563,215 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-    } else if (tourney.format === "Knockout" || tourney.format === "Knockout Cup") {
+    else if (qualified.length >= 5) {
+      // 5+ Groups: top 2 from every group qualify.
+      // 6 qualified -> 6-team playoff.
+      // 8 or more qualified -> top 8-team playoff.
+
+      const allQualified = [];
+
+      qualified.forEach(q => {
+        const table = computePointsTable(tourney, q.group.teams || []);
+
+        table.slice(0, 2).forEach(row => {
+          allQualified.push({
+            team: row.team,
+            points: row.points || 0,
+            nrr: row.nrr || 0,
+            wins: row.wins || 0,
+            group: q.group.id
+          });
+        });
+      });
+
+      allQualified.sort((a, b) =>
+        (b.points - a.points) ||
+        (b.nrr - a.nrr) ||
+        (b.wins - a.wins) ||
+        a.team.localeCompare(b.team)
+      );
+
+      const playoffSize = allQualified.length >= 8 ? 8 : 6;
+      const selected = allQualified.slice(0, playoffSize);
+
+      const autoFixture = (id, stage, teamA, teamB) => {
+        let f = fixtures.find(x => x.id === id);
+
+        if (!f) {
+          f = {
+            id,
+            stage,
+            teamA,
+            teamB,
+            date: "",
+            time: "19:30",
+            ground: (tourney.grounds || ["Yuva Stadium, Mumbai"])[0],
+            status: "UPCOMING",
+            scoreA: "-",
+            scoreB: "-",
+            winner: null,
+            resultText: stage,
+            isPlayoff: true
+          };
+          fixtures.push(f);
+        }
+
+        return f;
+      };
+
+      if (playoffSize === 6) {
+        const q1 = autoFixture(
+          "fx_gen_auto_q1",
+          "Qualifier 1",
+          selected[2].team,
+          selected[5].team
+        );
+
+        const q2 = autoFixture(
+          "fx_gen_auto_q2",
+          "Qualifier 2",
+          selected[3].team,
+          selected[4].team
+        );
+
+        const sf1 = autoFixture(
+          "fx_gen_auto_sf1",
+          "Semi-Final 1",
+          selected[0].team,
+          "Winner Qualifier 2"
+        );
+
+        const sf2 = autoFixture(
+          "fx_gen_auto_sf2",
+          "Semi-Final 2",
+          selected[1].team,
+          "Winner Qualifier 1"
+        );
+
+        const fn = autoFixture(
+          "fx_gen_auto_fn",
+          "Grand Final",
+          "Winner Semi-Final 1",
+          "Winner Semi-Final 2"
+        );
+
+        if (q1.status === "COMPLETED" && q1.winner && sf2.status !== "COMPLETED")
+          sf2.teamB = q1.winner;
+
+        if (q2.status === "COMPLETED" && q2.winner && sf1.status !== "COMPLETED")
+          sf1.teamB = q2.winner;
+
+        if (sf1.status === "COMPLETED" && sf1.winner && fn.status !== "COMPLETED")
+          fn.teamA = sf1.winner;
+
+        if (sf2.status === "COMPLETED" && sf2.winner && fn.status !== "COMPLETED")
+          fn.teamB = sf2.winner;
+
+        if (tourney.rules?.thirdPrize) {
+          const third = autoFixture(
+            "fx_gen_auto_third",
+            "Third-Place Playoff",
+            "Loser Semi-Final 1",
+            "Loser Semi-Final 2"
+          );
+
+          third.resultText = "Third Place";
+
+          if (
+            sf1.status === "COMPLETED" && sf1.winner &&
+            sf2.status === "COMPLETED" && sf2.winner &&
+            third.status !== "COMPLETED"
+          ) {
+            third.teamA =
+              sf1.teamA === sf1.winner ? sf1.teamB : sf1.teamA;
+
+            third.teamB =
+              sf2.teamA === sf2.winner ? sf2.teamB : sf2.teamA;
+          }
+        }
+
+        if (fn.status === "COMPLETED" && fn.winner) {
+          tourney.winner = fn.winner;
+          tourney.status = "COMPLETED";
+        }
+
+      } else {
+        const qfs = [];
+
+        for (let i = 0; i < 4; i++) {
+          qfs.push(autoFixture(
+            `fx_gen_auto_qf${i + 1}`,
+            `Quarter-Final ${i + 1}`,
+            selected[i].team,
+            selected[7 - i].team
+          ));
+        }
+
+        const sf1 = autoFixture(
+          "fx_gen_auto_sf1",
+          "Semi-Final 1",
+          "Winner Quarter-Final 1",
+          "Winner Quarter-Final 2"
+        );
+
+        const sf2 = autoFixture(
+          "fx_gen_auto_sf2",
+          "Semi-Final 2",
+          "Winner Quarter-Final 3",
+          "Winner Quarter-Final 4"
+        );
+
+        qfs.forEach((f, i) => {
+          if (f.status === "COMPLETED" && f.winner) {
+            if (i === 0 && sf1.status !== "COMPLETED") sf1.teamA = f.winner;
+            if (i === 1 && sf1.status !== "COMPLETED") sf1.teamB = f.winner;
+            if (i === 2 && sf2.status !== "COMPLETED") sf2.teamA = f.winner;
+            if (i === 3 && sf2.status !== "COMPLETED") sf2.teamB = f.winner;
+          }
+        });
+
+        const fn = autoFixture(
+          "fx_gen_auto_fn",
+          "Grand Final",
+          "Winner Semi-Final 1",
+          "Winner Semi-Final 2"
+        );
+
+        if (sf1.status === "COMPLETED" && sf1.winner && fn.status !== "COMPLETED")
+          fn.teamA = sf1.winner;
+
+        if (sf2.status === "COMPLETED" && sf2.winner && fn.status !== "COMPLETED")
+          fn.teamB = sf2.winner;
+
+        if (tourney.rules?.thirdPrize) {
+          const third = autoFixture(
+            "fx_gen_auto_third",
+            "Third-Place Playoff",
+            "Loser Semi-Final 1",
+            "Loser Semi-Final 2"
+          );
+
+          third.resultText = "Third Place";
+
+          if (
+            sf1.status === "COMPLETED" && sf1.winner &&
+            sf2.status === "COMPLETED" && sf2.winner &&
+            third.status !== "COMPLETED"
+          ) {
+            third.teamA =
+              sf1.teamA === sf1.winner ? sf1.teamB : sf1.teamA;
+
+            third.teamB =
+              sf2.teamA === sf2.winner ? sf2.teamB : sf2.teamA;
+          }
+        }
+
+        if (fn.status === "COMPLETED" && fn.winner) {
+          tourney.winner = fn.winner;
+          tourney.status = "COMPLETED";
+        }
+      }
+    } } else if (tourney.format === "Knockout" || tourney.format === "Knockout Cup") {
       const qf1 = fixtures.find(f => (f.id && f.id.includes("qf_1")) || (f.stage && f.stage.includes("Quarter-Final 1")));
       const qf2 = fixtures.find(f => (f.id && f.id.includes("qf_2")) || (f.stage && f.stage.includes("Quarter-Final 2")));
       const qf3 = fixtures.find(f => (f.id && f.id.includes("qf_3")) || (f.stage && f.stage.includes("Quarter-Final 3")));
@@ -9467,6 +9797,35 @@ document.addEventListener("DOMContentLoaded", function () {
         if (fn && fn.status !== "COMPLETED") fn.teamB = sf2.winner;
       }
 
+      if (tourney.rules?.thirdPrize && sf1 && sf2) {
+        let third = fixtures.find(f => f.id === "fx_ko_third");
+        if (!third) {
+          third = {
+            id: "fx_ko_third",
+            stage: "Third-Place Playoff",
+            teamA: "Loser Semi-Final 1",
+            teamB: "Loser Semi-Final 2",
+            date: "",
+            time: "19:30",
+            ground: (tourney.grounds || ["Yuva Stadium, Mumbai"])[0],
+            status: "UPCOMING",
+            scoreA: "-",
+            scoreB: "-",
+            winner: null,
+            resultText: "Third Place",
+            isPlayoff: true
+          };
+          fixtures.push(third);
+        }
+
+        if (sf1.status === "COMPLETED" && sf1.winner &&
+            sf2.status === "COMPLETED" && sf2.winner &&
+            third.status !== "COMPLETED") {
+          third.teamA = sf1.teamA === sf1.winner ? sf1.teamB : sf1.teamA;
+          third.teamB = sf2.teamA === sf2.winner ? sf2.teamB : sf2.teamA;
+        }
+      }
+
       if (fn && fn.status === "COMPLETED" && fn.winner) {
         tourney.winner = fn.winner;
         tourney.status = "COMPLETED";
@@ -9486,17 +9845,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let history = [];
     try {
-      history = JSON.parse(localStorage.getItem("cricYuvaMatchHistory") || "[]");
+      history = JSON.parse(getUserStorage("cricYuvaMatchHistory", "[]") || "[]");
     } catch (e) {
       history = [];
     }
 
-    const tourneyMatches = history.filter(m => 
-      (m.tourneyId && m.tourneyId === tourney.id) ||
-      (m.tournament && tourney.name && m.tournament.toLowerCase().includes(tourney.name.toLowerCase()))
-    );
+    const tourneyFixtureIds = new Set(
+    (tourney.fixtures || []).map(f => f && f.id).filter(Boolean)
+  );
 
-    tourneyMatches.forEach(match => {
+  const tourneyMatches = history.filter(m => {
+    if (!m) return false;
+
+    const directIdMatch =
+      (m.tourneyId && m.tourneyId === tourney.id) ||
+      (m.tournamentId && m.tournamentId === tourney.id);
+
+    const fixtureMatch =
+      (m.fixtureId && tourneyFixtureIds.has(m.fixtureId)) ||
+      (m.matchId && tourneyFixtureIds.has(m.matchId));
+
+    const nameMatch =
+      (m.tournament && tourney.name &&
+        (
+          m.tournament.toLowerCase().includes(tourney.name.toLowerCase()) ||
+          tourney.name.toLowerCase().includes(m.tournament.toLowerCase())
+        ));
+
+    return directIdMatch || fixtureMatch || nameMatch;
+  });
+
+  tourneyMatches.forEach(match => {
       [match.innings1, match.innings2].forEach(inn => {
         if (!inn) return;
         totalRuns += (inn.totalRuns || 0);
@@ -10806,7 +11185,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <tr style="border-bottom:1px solid #222222;">
                 <td style="padding:10px 8px;"><span class="pos-badge ${i === 0 ? 'qualify-zone' : ''}">${i + 1}</span></td>
                 <td class="team-cell" style="padding:10px 8px;"><div><b style="color:#ffffff;">${b.name}</b><br><small style="color:#888888;">${b.team}</small></div></td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${b.matches}</td>
+                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${b.innings || 0}</td>
                 <td style="padding:10px 8px; text-align:center; font-weight:800; color:#ff7a29; font-size:14px;">${b.runs}</td>
                 <td style="padding:10px 8px; text-align:center; color:#ffffff;">${b.hs}</td>
                 <td style="padding:10px 8px; text-align:center; color:#cccccc;">${b.avg}</td>
@@ -10837,7 +11216,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <tr style="border-bottom:1px solid #222222;">
                 <td style="padding:10px 8px;"><span class="pos-badge ${i === 0 ? 'qualify-zone' : ''}">${i + 1}</span></td>
                 <td class="team-cell" style="padding:10px 8px;"><div><b style="color:#ffffff;">${w.name}</b><br><small style="color:#888888;">${w.team}</small></div></td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${w.matches}</td>
+                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${w.innings || 0}</td>
                 <td style="padding:10px 8px; text-align:center; font-weight:800; color:#c084fc; font-size:14px;">${w.wickets}</td>
                 <td style="padding:10px 8px; text-align:center; color:#ffffff;">${w.best}</td>
                 <td style="padding:10px 8px; text-align:center; color:#cccccc;">${w.econ}</td>
@@ -10863,7 +11242,7 @@ document.addEventListener("DOMContentLoaded", function () {
           </thead>
           <tbody>
             ${list.map((b, i) => {
-              const fours = Math.floor((b.runs * 0.4) / 4);
+              const fours = b.fours || 0;
               const sixes = b.sixes || 0;
               const bRuns = (fours * 4) + (sixes * 6);
               return `
@@ -11119,7 +11498,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <div style="font-size:28px;">⚡</div>
           <div>
             <span style="font-size:11px; color:#38bdf8; font-weight:800;">MAXIMUM SIXES AWARD</span>
-            <h4 style="margin:2px 0 0 0; color:#ffffff; font-size:15px; font-weight:800;">${topB ? `${topB.name} (${topB.sixes || 8} Sixes)` : 'TBD'}</h4>
+            <h4 style="margin:2px 0 0 0; color:#ffffff; font-size:15px; font-weight:800;">${topB ? `${topB.name} (${topB.sixes || 0} Sixes)` : 'TBD'}</h4>
           </div>
         </div>
       `;
@@ -13660,6 +14039,20 @@ if (btnTourneyEdit) {
     });
   }
 
+  // Tournament Format: Show/Hide Group Count
+  const selectTourneyFormat = document.getElementById("selectTourneyFormat");
+  const tournamentGroupCountWrap = document.getElementById("tournamentGroupCountWrap");
+
+  if (selectTourneyFormat && tournamentGroupCountWrap) {
+    const syncGroupCountVisibility = () => {
+      tournamentGroupCountWrap.style.display =
+        selectTourneyFormat.value === "Group Stage" ? "" : "none";
+    };
+
+    selectTourneyFormat.addEventListener("change", syncGroupCountVisibility);
+    syncGroupCountVisibility();
+  }
+
   // Submit Create Tournament Form
   const createTournamentForm = document.getElementById("createTournamentForm");
   if (createTournamentForm) {
@@ -13673,6 +14066,9 @@ if (btnTourneyEdit) {
       const startDate = document.getElementById("inputTourneyStartDate")?.value || "2026-04-01";
       const endDate = document.getElementById("inputTourneyEndDate")?.value || "2026-05-01";
       const overs = parseInt(document.getElementById("inputTourneyOvers")?.value) || 20;
+      const groupCount = format === "Group Stage"
+        ? Math.max(2, parseInt(document.getElementById("selectTourneyGroupCount")?.value) || 2)
+        : 0;
 
       // Extract grounds
       const groundInputs = document.querySelectorAll(".tourney-ground-field");
@@ -13700,6 +14096,21 @@ if (btnTourneyEdit) {
         return found || { id: `team_${Math.random()}`, name: name, logo: "🏏", playerCount: 11, city: "City" };
       });
 
+      // Build configured groups for Group Stage
+      const tournamentGroups = format === "Group Stage"
+        ? Array.from({ length: groupCount }, (_, i) => ({
+            id: String.fromCharCode(65 + i),
+            name: `Group ${String.fromCharCode(65 + i)}`,
+            teams: []
+          }))
+        : [];
+
+      if (format === "Group Stage") {
+        participatingTeams.forEach((team, index) => {
+          tournamentGroups[index % groupCount].teams.push(team);
+        });
+      }
+
       // Auto-generate fixtures
       const fixtures = generateTournamentFixtures(
       format,
@@ -13726,13 +14137,11 @@ if (btnTourneyEdit) {
           ptsWin: ptsWin,
           ptsTie: ptsTie,
           maxOversBowler: maxOversBowler,
-          superOver: superOver
+          superOver: superOver,
+          thirdPrize: !!document.getElementById("inputTourneyThirdPrize")?.checked
         },
         teams: participatingTeams,
-        groups: format === "Group Stage" ? [
-          { id: "A", name: "Group A", teams: participatingTeams.slice(0, Math.ceil(participatingTeams.length / 2)) },
-          { id: "B", name: "Group B", teams: participatingTeams.slice(Math.ceil(participatingTeams.length / 2)) }
-        ] : [],
+        groups: tournamentGroups,
         fixtures: fixtures,
         stats: {
           totalRuns: 0,
