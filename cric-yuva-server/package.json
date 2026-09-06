@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node server.js"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
     "express": "^5.1.0",
     "ws": "^8.18.3"
   },
