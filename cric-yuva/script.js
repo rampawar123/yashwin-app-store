@@ -10514,151 +10514,227 @@ function rotateStrike(innings) {
     const container = document.getElementById("tStatsLeaderboardContainer");
     if (!container) return;
 
-    const topB = tourney.stats?.topBatsmen?.[0];
-    const topW = tourney.stats?.topBowlers?.[0];
+    const category = activeTourneyStatsCategory || "batting";
+    const stats = tourney.stats || {};
+    const topB = stats.topBatsmen?.[0];
+    const topW = stats.topBowlers?.[0];
 
+    const norm = value => String(value || "").trim().toLowerCase();
+
+    const getProfile = stat => {
+      if (!stat) return { photo: "", logo: "" };
+
+      const team = (tourney.teams || []).find(t =>
+        norm(typeof t === "string" ? t : t?.name) === norm(stat.team)
+      );
+
+      const players = team && typeof team === "object" && Array.isArray(team.players)
+        ? team.players
+        : [];
+
+      const player = players.find(p =>
+        String(p?.id || "").trim() === String(stat.id || "").trim()
+      ) || players.find(p => norm(p?.name) === norm(stat.name));
+
+      return {
+        photo: player?.photo || "",
+        logo: typeof team === "object" ? (team.logo || team.teamLogo || "") : ""
+      };
+    };
+
+    const profileHtml = (stat, borderColor) => {
+      const profile = getProfile(stat);
+      const photo = profile.photo;
+      const logo = profile.logo;
+
+      const playerPhoto = photo
+        ? `<img src="${photo}" alt="${escapeHtml(stat.name || "Player")}" style="width:52px;height:52px;object-fit:cover;border-radius:50%;display:block;">`
+        : `<div style="width:52px;height:52px;border-radius:50%;background:#292929;border:2px solid ${borderColor};display:flex;align-items:center;justify-content:center;color:#ffffff;font-size:18px;font-weight:900;">${escapeHtml((stat.name || "P").charAt(0).toUpperCase())}</div>`;
+
+      const teamLogo = logo
+        ? (/^(data:image|https?:\/\/)/i.test(String(logo))
+          ? `<img src="${logo}" alt="${escapeHtml(stat.team || "Team")}" style="width:24px;height:24px;object-fit:contain;border-radius:6px;background:#292929;">`
+          : `<span style="font-size:22px;">${escapeHtml(String(logo))}</span>`)
+        : `<span style="font-size:18px;">🏏</span>`;
+
+      return `
+        <div style="position:relative;flex-shrink:0;">
+          ${playerPhoto}
+          <div style="position:absolute;right:-5px;bottom:-4px;width:25px;height:25px;border-radius:7px;background:#181818;border:1px solid #444;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            ${teamLogo}
+          </div>
+        </div>
+      `;
+    };
+
+    let leaderHtml = "";
     let categoryTableHtml = "";
-    if (activeTourneyStatsCategory === "batting") {
-      const list = tourney.stats?.topBatsmen || [];
+
+    if (category === "batting") {
+      const list = stats.topBatsmen || [];
+
+      leaderHtml = topB ? `
+        <div style="background:#1e1e1e;border:2px solid #ff5a0044;border-radius:14px;padding:16px;margin-bottom:16px;">
+          <span style="background:#ff5a0022;color:#ff7a29;font-size:11px;font-weight:800;padding:4px 9px;border-radius:6px;">🟠 TOP BATSMAN</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+              ${profileHtml(topB, "#ff5a00")}
+              <div style="min-width:0;">
+                <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 3px 0;">${escapeHtml(topB.name)}</h4>
+                <span style="font-size:12px;color:#aaaaaa;">${escapeHtml(topB.team)}</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:22px;font-weight:900;color:#ff7a29;">${topB.runs} <span style="font-size:12px;color:#888;">Runs</span></div>
+              <span style="font-size:11px;color:#aaaaaa;">Avg: ${topB.avg} • SR: ${topB.sr}</span>
+            </div>
+          </div>
+        </div>
+      ` : "";
+
       categoryTableHtml = `
-        <table class="table-custom" style="width:100%; border-collapse:collapse; margin-top:16px;">
-          <thead>
-            <tr style="border-bottom:2px solid #333333; color:#aaaaaa; font-size:12px; text-align:left;">
-              <th style="padding:10px 8px;">Rank</th>
-              <th style="padding:10px 8px;">Batsman</th>
-              <th style="padding:10px 8px; text-align:center;">Mat</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:800; color:#ff7a29;">Runs</th>
-              <th style="padding:10px 8px; text-align:center;">HS</th>
-              <th style="padding:10px 8px; text-align:center;">Avg</th>
-              <th style="padding:10px 8px; text-align:center;">SR</th>
-              <th style="padding:10px 8px; text-align:center;">6s</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map((b, i) => `
-              <tr style="border-bottom:1px solid #222222;">
-                <td style="padding:10px 8px;"><span class="pos-badge ${i === 0 ? 'qualify-zone' : ''}">${i + 1}</span></td>
-                <td class="team-cell" style="padding:10px 8px;"><div><b style="color:#ffffff;">${b.name}</b><br><small style="color:#888888;">${b.team}</small></div></td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${b.innings || 0}</td>
-                <td style="padding:10px 8px; text-align:center; font-weight:800; color:#ff7a29; font-size:14px;">${b.runs}</td>
-                <td style="padding:10px 8px; text-align:center; color:#ffffff;">${b.hs}</td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${b.avg}</td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${b.sr}</td>
-                <td style="padding:10px 8px; text-align:center; font-weight:700; color:#ff5a00;">${b.sixes || 0}</td>
+        <div style="overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;">
+          <table class="table-custom" style="width:100%;min-width:680px;border-collapse:collapse;margin-top:0;">
+            <thead>
+              <tr style="border-bottom:2px solid #333;color:#aaa;font-size:12px;text-align:left;">
+                <th style="padding:10px 8px;">Rank</th>
+                <th style="padding:10px 8px;">Batsman</th>
+                <th style="padding:10px 8px;text-align:center;">Mat</th>
+                <th style="padding:10px 8px;text-align:center;color:#ff7a29;">Runs</th>
+                <th style="padding:10px 8px;text-align:center;">HS</th>
+                <th style="padding:10px 8px;text-align:center;">Avg</th>
+                <th style="padding:10px 8px;text-align:center;">SR</th>
+                <th style="padding:10px 8px;text-align:center;">6s</th>
               </tr>
-            `).join("") || `<tr><td colspan="8" style="padding:30px; text-align:center; color:#777777;">No tournament batting stats logged yet</td></tr>`}
-          </tbody>
-        </table>
-      `;
-    } else if (activeTourneyStatsCategory === "bowling") {
-      const list = tourney.stats?.topBowlers || [];
-      categoryTableHtml = `
-        <table class="table-custom" style="width:100%; border-collapse:collapse; margin-top:16px;">
-          <thead>
-            <tr style="border-bottom:2px solid #333333; color:#aaaaaa; font-size:12px; text-align:left;">
-              <th style="padding:10px 8px;">Rank</th>
-              <th style="padding:10px 8px;">Bowler</th>
-              <th style="padding:10px 8px; text-align:center;">Mat</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:800; color:#c084fc;">Wkts</th>
-              <th style="padding:10px 8px; text-align:center;">Best</th>
-              <th style="padding:10px 8px; text-align:center;">Econ</th>
-              <th style="padding:10px 8px; text-align:center;">Dots</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map((w, i) => `
-              <tr style="border-bottom:1px solid #222222;">
-                <td style="padding:10px 8px;"><span class="pos-badge ${i === 0 ? 'qualify-zone' : ''}">${i + 1}</span></td>
-                <td class="team-cell" style="padding:10px 8px;"><div><b style="color:#ffffff;">${w.name}</b><br><small style="color:#888888;">${w.team}</small></div></td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${w.innings || 0}</td>
-                <td style="padding:10px 8px; text-align:center; font-weight:800; color:#c084fc; font-size:14px;">${w.wickets}</td>
-                <td style="padding:10px 8px; text-align:center; color:#ffffff;">${w.best}</td>
-                <td style="padding:10px 8px; text-align:center; color:#cccccc;">${w.econ}</td>
-                <td style="padding:10px 8px; text-align:center; color:#888888;">${w.dots || 0}</td>
-              </tr>
-            `).join("") || `<tr><td colspan="7" style="padding:30px; text-align:center; color:#777777;">No tournament bowling stats logged yet</td></tr>`}
-          </tbody>
-        </table>
-      `;
-    } else if (activeTourneyStatsCategory === "boundaries") {
-      const list = tourney.stats?.topBatsmen || [];
-      categoryTableHtml = `
-        <table class="table-custom" style="width:100%; border-collapse:collapse; margin-top:16px;">
-          <thead>
-            <tr style="border-bottom:2px solid #333333; color:#aaaaaa; font-size:12px; text-align:left;">
-              <th style="padding:10px 8px;">Rank</th>
-              <th style="padding:10px 8px;">Player</th>
-              <th style="padding:10px 8px;">Team</th>
-              <th style="padding:10px 8px; text-align:center;">Fours (4s)</th>
-              <th style="padding:10px 8px; text-align:center; color:#ff5a00; font-weight:800;">Sixes (6s)</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:800; color:#ff7a29;">Boundary Runs</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map((b, i) => {
-              const fours = b.fours || 0;
-              const sixes = b.sixes || 0;
-              const bRuns = (fours * 4) + (sixes * 6);
-              return `
-                <tr style="border-bottom:1px solid #222222;">
-                  <td style="padding:10px 8px;"><span class="pos-badge">${i + 1}</span></td>
-                  <td class="team-cell" style="padding:10px 8px; font-weight:700; color:#ffffff;">${b.name}</td>
-                  <td style="padding:10px 8px; color:#aaaaaa;">${b.team}</td>
-                  <td style="padding:10px 8px; text-align:center; color:#cccccc;">${fours}</td>
-                  <td style="padding:10px 8px; text-align:center; color:#ff7a29; font-weight:800;">${sixes}</td>
-                  <td style="padding:10px 8px; text-align:center; font-weight:800; color:#ffffff;">${bRuns}</td>
+            </thead>
+            <tbody>
+              ${list.map((b, i) => `
+                <tr style="border-bottom:1px solid #222;">
+                  <td style="padding:10px 8px;"><span class="pos-badge ${i === 0 ? "qualify-zone" : ""}">${i + 1}</span></td>
+                  <td class="team-cell" style="padding:10px 8px;"><b style="color:#fff;">${escapeHtml(b.name)}</b><br><small style="color:#888;">${escapeHtml(b.team)}</small></td>
+                  <td style="padding:10px 8px;text-align:center;color:#ccc;">${b.innings || 0}</td>
+                  <td style="padding:10px 8px;text-align:center;font-weight:800;color:#ff7a29;">${b.runs}</td>
+                  <td style="padding:10px 8px;text-align:center;color:#fff;">${b.hs}</td>
+                  <td style="padding:10px 8px;text-align:center;color:#ccc;">${b.avg}</td>
+                  <td style="padding:10px 8px;text-align:center;color:#ccc;">${b.sr}</td>
+                  <td style="padding:10px 8px;text-align:center;font-weight:700;color:#ff5a00;">${b.sixes || 0}</td>
                 </tr>
-              `;
-            }).join("") || `<tr><td colspan="6" style="padding:30px; text-align:center; color:#777777;">No boundary stats logged yet</td></tr>`}
-          </tbody>
-        </table>
+              `).join("") || `<tr><td colspan="8" style="padding:30px;text-align:center;color:#777;">No tournament batting stats logged yet</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else if (category === "bowling") {
+      const list = stats.topBowlers || [];
+
+      leaderHtml = topW ? `
+        <div style="background:#1e1e1e;border:2px solid #a855f744;border-radius:14px;padding:16px;margin-bottom:16px;">
+          <span style="background:#a855f722;color:#c084fc;font-size:11px;font-weight:800;padding:4px 9px;border-radius:6px;">🟣 TOP BOWLER</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+              ${profileHtml(topW, "#a855f7")}
+              <div style="min-width:0;">
+                <h4 style="font-size:16px;font-weight:800;color:#fff;margin:0 0 3px 0;">${escapeHtml(topW.name)}</h4>
+                <span style="font-size:12px;color:#aaa;">${escapeHtml(topW.team)}</span>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:22px;font-weight:900;color:#c084fc;">${topW.wickets} <span style="font-size:12px;color:#888;">Wkts</span></div>
+              <span style="font-size:11px;color:#aaa;">Econ: ${topW.econ} • Best: ${topW.best}</span>
+            </div>
+          </div>
+        </div>
+      ` : "";
+
+      categoryTableHtml = `
+        <div style="overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;">
+          <table class="table-custom" style="width:100%;min-width:680px;border-collapse:collapse;margin-top:0;">
+            <thead>
+              <tr style="border-bottom:2px solid #333;color:#aaa;font-size:12px;text-align:left;">
+                <th style="padding:10px 8px;">Rank</th>
+                <th style="padding:10px 8px;">Bowler</th>
+                <th style="padding:10px 8px;text-align:center;">Mat</th>
+                <th style="padding:10px 8px;text-align:center;color:#c084fc;">Wkts</th>
+                <th style="padding:10px 8px;text-align:center;">Best</th>
+                <th style="padding:10px 8px;text-align:center;">Econ</th>
+                <th style="padding:10px 8px;text-align:center;">Dots</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map((w, i) => `
+                <tr style="border-bottom:1px solid #222;">
+                  <td style="padding:10px 8px;"><span class="pos-badge ${i === 0 ? "qualify-zone" : ""}">${i + 1}</span></td>
+                  <td class="team-cell" style="padding:10px 8px;"><b style="color:#fff;">${escapeHtml(w.name)}</b><br><small style="color:#888;">${escapeHtml(w.team)}</small></td>
+                  <td style="padding:10px 8px;text-align:center;color:#ccc;">${w.innings || 0}</td>
+                  <td style="padding:10px 8px;text-align:center;font-weight:800;color:#c084fc;">${w.wickets}</td>
+                  <td style="padding:10px 8px;text-align:center;color:#fff;">${w.best}</td>
+                  <td style="padding:10px 8px;text-align:center;color:#ccc;">${w.econ}</td>
+                  <td style="padding:10px 8px;text-align:center;color:#888;">${w.dots || 0}</td>
+                </tr>
+              `).join("") || `<tr><td colspan="7" style="padding:30px;text-align:center;color:#777;">No tournament bowling stats logged yet</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else {
+      const list = stats.topBatsmen || [];
+      const boundaryList = [...list].sort((a, b) =>
+        (Number(b.sixes) || 0) - (Number(a.sixes) || 0) ||
+        (Number(b.fours) || 0) - (Number(a.fours) || 0)
+      );
+      const leader = boundaryList[0];
+
+      leaderHtml = leader ? `
+        <div style="background:#1e1e1e;border:2px solid #ff7a2944;border-radius:14px;padding:16px;margin-bottom:16px;">
+          <span style="background:#ff7a2922;color:#ff7a29;font-size:11px;font-weight:800;padding:4px 9px;border-radius:6px;">🔥 MOST SIXES & FOURS</span>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:14px;">
+            ${profileHtml(leader, "#ff7a29")}
+            <div style="min-width:0;">
+              <h4 style="font-size:16px;font-weight:800;color:#fff;margin:0 0 3px 0;">${escapeHtml(leader.name)}</h4>
+              <span style="font-size:12px;color:#aaa;">${escapeHtml(leader.team)}</span>
+              <div style="font-size:12px;color:#ff7a29;font-weight:800;margin-top:5px;">4s: ${leader.fours || 0} • 6s: ${leader.sixes || 0}</div>
+            </div>
+          </div>
+        </div>
+      ` : "";
+
+      categoryTableHtml = `
+        <div style="overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;">
+          <table class="table-custom" style="width:100%;min-width:680px;border-collapse:collapse;margin-top:0;">
+            <thead>
+              <tr style="border-bottom:2px solid #333;color:#aaa;font-size:12px;text-align:left;">
+                <th style="padding:10px 8px;">Rank</th>
+                <th style="padding:10px 8px;">Player</th>
+                <th style="padding:10px 8px;">Team</th>
+                <th style="padding:10px 8px;text-align:center;">Fours (4s)</th>
+                <th style="padding:10px 8px;text-align:center;color:#ff5a00;">Sixes (6s)</th>
+                <th style="padding:10px 8px;text-align:center;color:#ff7a29;">Boundary Runs</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${boundaryList.map((b, i) => {
+                const fours = Number(b.fours) || 0;
+                const sixes = Number(b.sixes) || 0;
+                return `
+                  <tr style="border-bottom:1px solid #222;">
+                    <td style="padding:10px 8px;"><span class="pos-badge">${i + 1}</span></td>
+                    <td class="team-cell" style="padding:10px 8px;font-weight:700;color:#fff;">${escapeHtml(b.name)}</td>
+                    <td style="padding:10px 8px;color:#aaa;">${escapeHtml(b.team)}</td>
+                    <td style="padding:10px 8px;text-align:center;color:#ccc;">${fours}</td>
+                    <td style="padding:10px 8px;text-align:center;color:#ff7a29;font-weight:800;">${sixes}</td>
+                    <td style="padding:10px 8px;text-align:center;font-weight:800;color:#fff;">${(fours * 4) + (sixes * 6)}</td>
+                  </tr>
+                `;
+              }).join("") || `<tr><td colspan="6" style="padding:30px;text-align:center;color:#777;">No boundary stats logged yet</td></tr>`}
+            </tbody>
+          </table>
+        </div>
       `;
     }
 
     container.innerHTML = `
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:16px;">
-        <!-- ORANGE CAP -->
-        <div class="cap-card orange" style="background:#1e1e1e; border:2px solid #ff5a0044; border-radius:14px; padding:16px;">
-          <span class="cap-badge-tag orange" style="background:#ff5a0022; color:#ff7a29; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">🟠 ORANGE CAP LEADER</span>
-          ${topB ? `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-              <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:48px; height:48px; border-radius:12px; background:#292929; border:2px solid #ff5a00; display:flex; align-items:center; justify-content:center; font-size:24px;">🏏</div>
-                <div>
-                  <h4 style="font-size:15px; font-weight:800; color:#ffffff; margin:0 0 2px 0;">${topB.name}</h4>
-                  <span style="font-size:12px; color:#aaaaaa;">${topB.team}</span>
-                </div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:22px; font-weight:900; color:#ff7a29;">${topB.runs} <span style="font-size:12px; color:#888888;">Runs</span></div>
-                <span style="font-size:11px; color:#aaaaaa;">Avg: ${topB.avg} • SR: ${topB.sr}</span>
-              </div>
-            </div>
-          ` : `<p style="color:#777; margin-top:10px; font-size:12px;">Awaiting batting records</p>`}
-        </div>
-
-        <!-- PURPLE CAP -->
-        <div class="cap-card purple" style="background:#1e1e1e; border:2px solid #a855f744; border-radius:14px; padding:16px;">
-          <span class="cap-badge-tag purple" style="background:#a855f722; color:#c084fc; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">🟣 PURPLE CAP LEADER</span>
-          ${topW ? `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-              <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:48px; height:48px; border-radius:12px; background:#292929; border:2px solid #a855f7; display:flex; align-items:center; justify-content:center; font-size:24px;">🎯</div>
-                <div>
-                  <h4 style="font-size:15px; font-weight:800; color:#ffffff; margin:0 0 2px 0;">${topW.name}</h4>
-                  <span style="font-size:12px; color:#aaaaaa;">${topW.team}</span>
-                </div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:22px; font-weight:900; color:#c084fc;">${topW.wickets} <span style="font-size:12px; color:#888888;">Wkts</span></div>
-                <span style="font-size:11px; color:#aaaaaa;">Econ: ${topW.econ} • Best: ${topW.best}</span>
-              </div>
-            </div>
-          ` : `<p style="color:#777; margin-top:10px; font-size:12px;">Awaiting bowling records</p>`}
-        </div>
-      </div>
-
-      <div class="leaderboard-table-wrap" style="background:#1e1e1e; border:1px solid #333333; border-radius:14px; padding:16px;">
+      ${leaderHtml}
+      <div class="leaderboard-table-wrap" style="background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:16px;">
         ${categoryTableHtml}
       </div>
     `;
@@ -13644,7 +13720,7 @@ if (btnTourneyEdit) {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".ts-cat-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      activeTourneyStatsCategory = btn.dataset.category || "batting";
+      activeTourneyStatsCategory = btn.dataset.tscat || "batting";
       const tourney = getTournamentById(activeTournamentId);
       if (tourney) renderStatsTab(tourney);
     });
