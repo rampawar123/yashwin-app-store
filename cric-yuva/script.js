@@ -16456,10 +16456,9 @@ if (btnTourneyEdit) {
   // ==========================================
 
   function launchSocialLiveStreamApp(platform, matchId = null) {
-    const p = (platform || "").toLowerCase();
-    let appUri = "";
-    let webUrl = "";
-    let platformLabel = "YouTube";
+    const p = String(platform || "").toLowerCase();
+    let platformLabel = "Live Stream";
+    let webUrl = "https://studio.youtube.com/";
 
     const effectiveMatchId = matchId ||
       (currentBroadcastSource && currentBroadcastSource.matchId) ||
@@ -16470,41 +16469,26 @@ if (btnTourneyEdit) {
 
     if (p.includes("yt") || p.includes("youtube")) {
       platformLabel = "YouTube";
-      appUri = "vnd.youtube://";
-      webUrl = "https://studio.youtube.com/channel/UC/livestreaming";
+      webUrl = "https://studio.youtube.com/";
     } else if (p.includes("insta") || p.includes("instagram")) {
       platformLabel = "Instagram";
-      appUri = "instagram://camera";
       webUrl = "https://www.instagram.com/";
     } else if (p.includes("fb") || p.includes("facebook")) {
       platformLabel = "Facebook";
-      appUri = "fb://facewebmodal/f?href=https://www.facebook.com/live/create";
       webUrl = "https://www.facebook.com/live/producer";
-    } else {
-      platformLabel = "Live Stream";
-      webUrl = "https://studio.youtube.com";
     }
 
-    // Automatically copy Live Score link to clipboard so user can paste it in live stream chat / description
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+      if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(viewerLink).catch(() => {});
       }
     } catch (e) {}
 
     showToast(`Opening ${platformLabel}... Live score link copied to clipboard!`);
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile && appUri) {
-      const clickTime = Date.now();
-      window.location.href = appUri;
-      setTimeout(() => {
-        if (Date.now() - clickTime < 1800) {
-          window.open(webUrl, "_blank");
-        }
-      }, 1200);
-    } else {
-      window.open(webUrl, "_blank");
+    const opened = window.open(webUrl, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      window.location.href = webUrl;
     }
   }
 
