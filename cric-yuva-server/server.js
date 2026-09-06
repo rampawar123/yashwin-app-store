@@ -143,6 +143,7 @@ wss.on("connection", (ws) => {
   });
 });
 
+app.get("/api/health", (req, res) => res.json({ ok: true, service: "cric-yuva-server" }));
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Cric Yuva Server running on port ${PORT}`);
 });
