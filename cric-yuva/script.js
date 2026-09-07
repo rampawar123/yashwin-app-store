@@ -10940,7 +10940,7 @@ function rotateStrike(innings) {
 // =========================================================================
 
 // Master Player Database Collector (preserves real IDs, mobile numbers, roles, base prices)
-function getMasterPlayerDatabase() {
+let auctionCloudPlayersCache = []; async function loadAuctionCloudPlayers() { try { const d = await CricYuvaCloud.request("/api/players/search"); auctionCloudPlayersCache = (d.players || []).map(p => ({ id:p.id, name:p.name, role:p.role || "All-Rounder", mobile:p.mobile || "", basePrice:Number(p.basePrice) || 1.0, avatar:p.photoUrl || p.photo_url || "🏏", type:"Cloud Player", jersey:p.jerseyNumber || p.jersey_number || 7 })); } catch(e) { console.warn("Auction cloud players load failed:",e); } } function getMasterPlayerDatabase() {
   const masterMap = new Map();
 
   // 1. Predefined Star & Domestic Players (Unique IDs, Real Details & Indian Mobiles)
@@ -11000,11 +11000,12 @@ function getMasterPlayerDatabase() {
     console.warn("Could not load customClubs into master player DB:", e);
   }
 
+  auctionCloudPlayersCache.forEach(p => { if (!masterMap.has(p.id)) masterMap.set(p.id, {...p}); });
   return Array.from(masterMap.values());
 }
 
 // 1. INITIALIZE / SYNCHRONIZE TOURNAMENT AUCTION
-function initTournamentAuction(tourney) {
+function initTournamentAuction(tourney) {\n  loadAuctionCloudPlayers().then(() => { if (tourney.auction && tourney.auction.pool.length === 0) renderAuctionTab(tourney); });
   if (!tourney) return;
 
   const defaultPurse = (tourney.rules && tourney.rules.auctionPurse) || 100.0;
