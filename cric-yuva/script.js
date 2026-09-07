@@ -11005,7 +11005,7 @@ let auctionCloudPlayersCache = []; async function loadAuctionCloudPlayers() { tr
 }
 
 // 1. INITIALIZE / SYNCHRONIZE TOURNAMENT AUCTION
-function initTournamentAuction(tourney) {\n  loadAuctionCloudPlayers().then(() => { if (tourney.auction && tourney.auction.pool.length === 0) renderAuctionTab(tourney); });
+function initTournamentAuction(tourney) {  loadAuctionCloudPlayers().then(() => { if (tourney.auction && tourney.auction.pool.length === 0) renderAuctionTab(tourney); });
   if (!tourney) return;
 
   const defaultPurse = (tourney.rules && tourney.rules.auctionPurse) || 100.0;
