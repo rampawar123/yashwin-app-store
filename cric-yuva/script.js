@@ -11014,6 +11014,7 @@ function initTournamentAuction(tourney) {  loadAuctionCloudPlayers().then(() => 
 
   if (!tourney.auction) {
     tourney.auction = {
+      auctionId: "AUCT-" + String(tourney.id),
       pursePerTeam: defaultPurse,
       minSquad: minSquad,
       maxSquad: maxSquad,
@@ -12401,6 +12402,7 @@ function saveActiveTournament(tourney) {
       list.push(tourney);
     }
     saveTournamentsList(list);
+    if (window.CricYuvaCloud && tourney.auction?.auctionId) window.CricYuvaCloud.request(`/api/auction-tournaments/${encodeURIComponent(tourney.auction.auctionId)}`, { method: "PUT", body: JSON.stringify({ auctionTournament: { tournamentId: tourney.id, name: tourney.name || "Auction", auctionState: tourney.auction, status: "active" } }) }).catch(e => console.warn("Auction state save failed:", e));
     if (window.CricYuvaCloud) window.CricYuvaCloud.request("/api/tournaments", { method: "POST", body: JSON.stringify(tourney) }).catch(() => {});
   } catch (e) {
     console.error("Error saving active tournament:", e);
