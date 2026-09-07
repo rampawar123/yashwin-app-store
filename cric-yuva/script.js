@@ -11005,6 +11005,26 @@ let auctionCloudPlayersCache = []; async function loadAuctionCloudPlayers() { tr
 }
 
 // 1. INITIALIZE / SYNCHRONIZE TOURNAMENT AUCTION
+const auctionCloudStateLoaded = new Set();
+async function loadAuctionCloudState(tourney) {
+  const aid = tourney.auction && tourney.auction.auctionId;
+  if (!window.CricYuvaCloud || !aid || auctionCloudStateLoaded.has(aid)) return;
+  try {
+    const d = await CricYuvaCloud.request("/api/auction-tournaments/" + encodeURIComponent(aid));
+    if (d && d.auctionTournament && d.auctionTournament.auctionState) {
+      Object.assign(tourney.auction, d.auctionTournament.auctionState);
+      auctionCloudStateLoaded.add(aid);
+      if (document.getElementById("tAuctionContainer")) renderAuctionTab(tourney);
+      return;
+    }
+  } catch (e) {
+    try {
+      await CricYuvaCloud.request("/api/auction-tournaments",{method:"POST",body:JSON.stringify({auctionTournament:{auctionId:aid,tournamentId:tourney.id,name:tourney.name||"Auction",basePrice:tourney.auction.pursePerTeam,auctionState:tourney.auction,status:"active"}})});
+      auctionCloudStateLoaded.add(aid);
+    } catch (createErr) { console.warn("Auction cloud state load/create failed:",createErr); }
+  }
+}
+
 function initTournamentAuction(tourney) {  loadAuctionCloudPlayers().then(() => { if (tourney.auction && tourney.auction.pool.length === 0) renderAuctionTab(tourney); });
   if (!tourney) return;
 
@@ -11039,6 +11059,8 @@ function initTournamentAuction(tourney) {  loadAuctionCloudPlayers().then(() => 
   if (!tourney.auction.filter) tourney.auction.filter = "all";
   if (!tourney.auction.roleFilter) tourney.auction.roleFilter = "all";
   if (tourney.auction.search === undefined) tourney.auction.search = "";
+
+  loadAuctionCloudState(tourney);
 
   // 2. Populate Initial Pool if empty
   if (tourney.auction.pool.length === 0) {
