@@ -2,9 +2,17 @@ services:
   - type: web
     name: cric-yuva
     runtime: node
+    rootDir: cric-yuva
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_BOOTSTRAP_MOBILE
+        sync: false
+      - key: DATABASE_URL
+        sync: false
     disk:
       name: cric-yuva-data
       mountPath: /data

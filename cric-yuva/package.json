@@ -1,13 +1,19 @@
 {
-  "name": "cric-yuva-server",
-  "version": "2.0.0",
+  "name": "cric-yuva",
+  "version": "19.0.0",
   "private": true,
   "type": "commonjs",
   "engines": { "node": ">=20" },
-  "scripts": { "start": "node server.js" },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check db.js && node --check phase-engine.js",
+    "verify": "node verify-phase-1-19.js"
+  },
   "dependencies": {
-    "better-sqlite3": "^11.10.0",
+    "@electric-sql/pglite": "^0.3.14",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
+    "postgres": "^3.4.7",
     "ws": "^8.18.0"
   }
 }
