@@ -3576,6 +3576,19 @@
  </div>
 
  <form id="playerForm" class="modal-form">
+
+ <!-- REGISTERED ACCOUNT SEARCH -->
+ <div id="registeredPlayerQuickSearch" style="background:#0f131c;border:1px solid #293249;border-radius:12px;padding:12px;margin-bottom:12px;">
+   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+     <div style="color:#ff7a00;font-weight:800;font-size:13px;"><i class="fa-solid fa-user-check"></i> ADD REGISTERED PLAYER</div>
+     <span style="font-size:10px;color:#7f8aa3;">Name • Mobile • Player ID</span>
+   </div>
+   <div style="position:relative;">
+     <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:12px;color:#64748b;"></i>
+     <input type="text" id="inputQuickRegisteredPlayerSearch" placeholder="Search real user by name, mobile or ID..." style="width:100%;box-sizing:border-box;background:#090c12;border:1px solid #30394e;color:#fff;padding:10px 12px 10px 36px;border-radius:9px;outline:none;font-size:12px;">
+   </div>
+   <div id="quickRegisteredPlayerResults" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:180px;overflow:auto;"></div>
+ </div>
  
  <!-- PLAYER PHOTO UPLOAD -->
  <div class="form-group-center">

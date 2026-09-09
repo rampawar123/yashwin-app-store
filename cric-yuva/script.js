@@ -120,11 +120,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   function localRegisteredPlayers(query) {
     const q = String(query || "").trim().toLowerCase();
-    if (!window.CricYuvaStorage || q.length < 2) return [];
-    return window.CricYuvaStorage.getAllRegisteredUsers().filter(u => {
-      const hay = [u.name, u.mobile, u.playerId, u.userId].map(v => String(v || "").toLowerCase());
-      return hay.some(v => v.includes(q));
-    }).map(u => ({ name:u.name, mobile:u.mobile, playerId:u.playerId, userId:u.userId, role:"All-Rounder", jerseyNumber:7, type:"Registered" }));
+    if (!window.CricYuvaStorage) return [];
+    const users = window.CricYuvaStorage.getAllRegisteredUsers?.() || [];
+    return users.filter(u => {
+      const hay = [u.name, u.mobile, u.playerId, u.userId, u.jerseyName].map(v => String(v || "").toLowerCase());
+      return !q || hay.some(v => v.includes(q));
+    }).map(u => ({
+      id: u.playerId || u.userId || "",
+      playerId: u.playerId || u.userId || "",
+      userId: u.userId || "",
+      name: u.name || "Player", mobile: u.mobile || "",
+      role: u.role || "All-Rounder",
+      jerseyNumber: u.jerseyNumber || u.jersey || "",
+      jerseyName: u.jerseyName || u.name || "",
+      photoUrl: u.photoUrl || u.photo || "",
+      avatar: u.photoUrl || u.photo || "🏏",
+      basePrice: Number(u.basePrice) || 1.0,
+      type: "Registered User"
+    }));
   }
 
   function getAppBaseUrl() {
@@ -2111,6 +2124,63 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (btnAddPlayerOpen) btnAddPlayerOpen.addEventListener("click", openAddPlayerModal);
+
+  // Quick registered-user search inside the Add Squad Player dialog.
+  // This makes the visible "+ Add Player" flow account-aware instead of
+  // requiring users to discover a separate search button.
+  const quickRegisteredSearch = document.getElementById("inputQuickRegisteredPlayerSearch");
+  const quickRegisteredResults = document.getElementById("quickRegisteredPlayerResults");
+  let quickRegisteredTimer = null;
+  async function renderQuickRegisteredPlayers(query) {
+    if (!quickRegisteredResults) return;
+    const q = String(query || "").trim();
+    if (q.length < 1) {
+      quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#667085;padding:4px 2px;">Type a name, mobile number or Player ID to find a registered Cric Yuva user.</div>`;
+      return;
+    }
+    quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#94a3b8;padding:6px;text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>`;
+    let players = localRegisteredPlayers(q);
+    try {
+      const data = await CricYuvaCloud.searchPlayers(q);
+      const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
+      players = [...players, ...cloudPlayers];
+    } catch (e) { /* GitHub Pages: local registry remains available */ }
+    const seen = new Set();
+    players = players.filter(p => {
+      const key = String(p.playerId || p.player_id || p.id || p.mobile || p.name || '').toLowerCase();
+      if (!key || seen.has(key)) return false; seen.add(key); return true;
+    });
+    if (!players.length) {
+      quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#94a3b8;padding:8px;text-align:center;">No registered user found. The player must create an account first.</div>`;
+      return;
+    }
+    const team = getTeamData() || {players:[]};
+    quickRegisteredResults.innerHTML = players.slice(0, 20).map(p => {
+      const pid = String(p.playerId || p.player_id || p.id || '');
+      const mobile = String(p.mobile || '');
+      const already = (team.players || []).some(x => String(x.playerId || x.id || '') === pid || (mobile && String(x.mobile || '') === mobile));
+      return `<button type="button" class="quick-reg-player" data-player-json="${encodeURIComponent(JSON.stringify(p))}" ${already?'disabled':''} style="width:100%;text-align:left;background:#151a24;border:1px solid #2a3449;border-radius:9px;padding:8px 9px;color:#fff;display:flex;align-items:center;gap:8px;cursor:${already?'default':'pointer'};opacity:${already?'.55':'1'};">
+        <span style="width:32px;height:32px;border-radius:50%;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;font-size:10px;">${escapeHtml((p.name||'P').slice(0,2).toUpperCase())}</span>
+        <span style="flex:1;min-width:0;"><b style="font-size:11px;display:block;">${escapeHtml(p.name||'Player')}</b><small style="color:#60a5fa;">${escapeHtml(pid)}</small><small style="color:#94a3b8;"> • ${escapeHtml(mobile||'No mobile')}</small></span>
+        <span style="font-size:10px;font-weight:800;color:${already?'#94a3b8':'#ff7a00'};">${already?'ADDED':'+ ADD'}</span>
+      </button>`;
+    }).join('');
+    quickRegisteredResults.querySelectorAll('.quick-reg-player:not([disabled])').forEach(btn => btn.addEventListener('click', () => {
+      try {
+        const player = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
+        addRegisteredCloudPlayerToSquad(player);
+        if (playerModal) playerModal.style.display = 'none';
+        if (quickRegisteredSearch) quickRegisteredSearch.value = '';
+        if (quickRegisteredResults) quickRegisteredResults.innerHTML = '';
+      } catch (e) { showToast('Could not add registered player', true); }
+    }));
+  }
+  if (quickRegisteredSearch) {
+    quickRegisteredSearch.addEventListener('input', function() {
+      clearTimeout(quickRegisteredTimer);
+      quickRegisteredTimer = setTimeout(() => renderQuickRegisteredPlayers(this.value), 180);
+    });
+  }
 
   if (playerModalCloseBtn && playerModal) {
     playerModalCloseBtn.addEventListener("click", () => playerModal.style.display = "none");
@@ -11150,6 +11220,31 @@ let auctionCloudPlayersCache = []; async function loadAuctionCloudPlayers() { tr
     console.warn("Could not load customClubs into master player DB:", e);
   }
 
+  // 4. Registered Cric Yuva accounts (works on GitHub Pages/local fallback too).
+  // These are real accounts created through the registration flow and are searchable
+  // in the Auction master database by Player ID, mobile number, or name.
+  try {
+    localRegisteredPlayers("").forEach(p => {
+      const pid = String(p.playerId || p.userId || p.id || "").trim();
+      if (!pid) return;
+      if (!masterMap.has(pid)) {
+        masterMap.set(pid, {
+          id: pid, playerId: pid, userId: p.userId || "",
+          name: p.name || "Registered Player",
+          role: p.role || "All-Rounder",
+          mobile: p.mobile || "",
+          basePrice: Number(p.basePrice) || 1.0,
+          avatar: p.avatar || p.photoUrl || "🏏",
+          type: "Registered User",
+          jersey: p.jerseyNumber || 7
+        });
+      }
+    });
+  } catch (e) {
+    console.warn("Could not load local registered users into auction master DB:", e);
+  }
+
+  // 5. Cloud registered players remain authoritative when available.
   auctionCloudPlayersCache.forEach(p => { if (!masterMap.has(p.id)) masterMap.set(p.id, {...p}); });
   return Array.from(masterMap.values());
 }
@@ -17318,42 +17413,97 @@ if (btnTourneyEdit) {
     const container = document.getElementById("teamPlayerSearchResultsList");
     if (!container) return;
     const q = String(query || "").trim();
-    if (q.length < 2) {
-      container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">Type at least 2 characters to search registered players by <b>name, mobile or Player ID</b>.</div>`;
+    if (q.length < 1) {
+      container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">
+        Search a <b>real registered user</b> by Player Name, Mobile Number or Player ID.<br>
+        <span style="font-size:10px;color:#667085;">Example: Chetan • 9840721983 • CY-9840721983</span>
+      </div>`;
       return;
     }
     container.innerHTML = `<div style="text-align:center;padding:25px;color:#8892a8;font-size:12px;"><i class="fa-solid fa-spinner fa-spin"></i> Searching registered players...</div>`;
     try {
       let players = [];
+      // Always check the browser registry first. This is essential on GitHub Pages,
+      // where the API POST/search endpoint may not exist.
+      players = localRegisteredPlayers(q);
       try {
         const data = await CricYuvaCloud.searchPlayers(q);
-        players = Array.isArray(data?.players) ? data.players : [];
+        const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
+        const merged = [...players, ...cloudPlayers];
+        const seen = new Set();
+        players = merged.filter(p => {
+          const key = String(p.playerId || p.player_id || p.id || p.mobile || p.name || '').toLowerCase();
+          if (!key || seen.has(key)) return false;
+          seen.add(key); return true;
+        });
       } catch (e) {
-        if (!isStaticApiError(e)) throw e;
-        players = localRegisteredPlayers(q);
+        // Static GitHub Pages / unavailable API: local registered-user search remains active.
+        if (!isStaticApiError(e)) console.warn("Cloud player search failed:", e);
       }
+
       window._cricYuvaCloudPlayers = players;
       if (!players.length) {
-        container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">No registered player found for <b>${escapeHtml(q)}</b>.</div>`;
+        container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">
+          No registered player found for <b>${escapeHtml(q)}</b>.<br>
+          <span style="font-size:10px;color:#667085;">The player must first create a Cric Yuva account.</span>
+        </div>`;
         return;
       }
+
       const team = getTeamData() || {players:[]};
       container.innerHTML = players.map(p => {
-        const pid = p.playerId || p.player_id || p.id || "";
-        const already = (team.players || []).some(x => x.playerId === pid || x.id === pid || (x.name || "").toLowerCase() === (p.name || "").toLowerCase());
-        const photo = p.photoUrl || p.photo_url || p.profile_photo || "";
+        const pid = String(p.playerId || p.player_id || p.id || "");
+        const mobile = String(p.mobile || "");
+        const already = (team.players || []).some(x =>
+          String(x.playerId || x.id || "") === pid ||
+          (mobile && String(x.mobile || "") === mobile) ||
+          String(x.name || "").toLowerCase() === String(p.name || "").toLowerCase()
+        );
+        const photo = p.photoUrl || p.photo_url || p.profile_photo || p.photo || "";
+        const role = p.role || "All-Rounder";
+        const safeJson = encodeURIComponent(JSON.stringify(p));
         return `<div style="background:#161922;border:1px solid #293249;border-radius:12px;padding:11px;display:flex;align-items:center;gap:10px;">
-          <div style="width:42px;height:42px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}</div>
-          <div style="flex:1;min-width:0;"><b style="color:#fff;font-size:13px;">${escapeHtml(p.name || "Player")}</b><div style="font-size:10px;color:#93a0b8;margin-top:3px;">ID: ${escapeHtml(pid)} • Mobile: ${escapeHtml(p.mobile || "—")}</div><div style="font-size:10px;color:#f59e0b;margin-top:2px;">${escapeHtml(p.role || "All-Rounder")}</div></div>
-          <button type="button" class="btn-add-registered-player" data-player-json="${encodeURIComponent(JSON.stringify(p))}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:7px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};">${already ? "✓ Added" : "+ ADD"}</button>
+          <div style="width:44px;height:44px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;flex:none;">
+            ${photo ? `<img src="${escapeHtml(photo)}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <b style="color:#fff;font-size:13px;display:block;">${escapeHtml(p.name || "Player")}</b>
+            <div style="font-size:10px;color:#60a5fa;margin-top:3px;font-weight:800;">Player ID: ${escapeHtml(pid || "Not assigned")}</div>
+            <div style="font-size:10px;color:#93a0b8;margin-top:2px;">Mobile: ${escapeHtml(mobile || "—")} • ${escapeHtml(role)}</div>
+          </div>
+          <button type="button" class="btn-add-registered-player" data-player-json="${safeJson}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:8px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};">${already ? "✓ Added" : "+ ADD"}</button>
         </div>`;
       }).join("");
+
       container.querySelectorAll(".btn-add-registered-player:not([disabled])").forEach(btn => btn.addEventListener("click", () => {
-        try { const p = JSON.parse(decodeURIComponent(btn.dataset.playerJson)); addRegisteredCloudPlayerToSquad(p); } catch(e) { showToast("Could not add player", true); }
+        try {
+          const player = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
+          addRegisteredCloudPlayerToSquad(player);
+        } catch(e) { showToast("Could not add player", true); }
       }));
     } catch (e) {
-      container.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444;font-size:12px;">Registered player search requires the Cric Yuva API server.</div>`;
+      console.error("Registered player search failed:", e);
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444;font-size:12px;">Unable to search players right now.</div>`;
     }
+  }
+
+  function openTeamPlayerSearchModal() {
+    const modal = document.getElementById("teamPlayerSearchModal");
+    if (!modal) return;
+    modal.style.display = "flex";
+    const input = document.getElementById("inputSearchTeamPlayer");
+    if (input) { input.value = ""; setTimeout(() => input.focus(), 50); }
+    renderRegisteredTeamPlayerResults("");
+  }
+
+  function closeTeamPlayerSearchModal() {
+    const modal = document.getElementById("teamPlayerSearchModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  // Fallback directory search: registered accounts are first-class players.
+  function getRegisteredUsersAsDirectoryPlayers() {
+    return localRegisteredPlayers("");
   }
 
   function addRegisteredCloudPlayerToSquad(p) {
@@ -17389,6 +17539,9 @@ if (btnTourneyEdit) {
     getTournamentsList().forEach(t => (t.teams || []).forEach(tm =>
       (tm.players || []).forEach(p => add(p, tm.name || ""))
     ));
+    // Include every locally registered Cric Yuva account so global/team search
+    // can find a real user even when GitHub Pages has no API backend.
+    getRegisteredUsersAsDirectoryPlayers().forEach(p => add(p, "Registered Users"));
     return out;
   }
 
@@ -17650,6 +17803,12 @@ if (btnTourneyEdit) {
   const btnCloseTeamPlayerSearch = document.getElementById("btnCloseTeamPlayerSearch");
   if (btnCloseTeamPlayerSearch) {
     btnCloseTeamPlayerSearch.addEventListener("click", closeTeamPlayerSearchModal);
+  }
+  const teamPlayerSearchModal = document.getElementById("teamPlayerSearchModal");
+  if (teamPlayerSearchModal) {
+    teamPlayerSearchModal.addEventListener("click", e => {
+      if (e.target === teamPlayerSearchModal) closeTeamPlayerSearchModal();
+    });
   }
 
   const inputSearchTeamPlayer = document.getElementById("inputSearchTeamPlayer");
