@@ -351,7 +351,7 @@ const otpLimiter = async (req, res, next) => {
 app.post("/api/auth/request-otp", otpLimiter, async (req, res) => {
   try {
     const sql = await getDatabase();
-    const { mobile } = req.body || {};
+    const { mobile, purpose = "login" } = req.body || {};
 
     if (!mobile) {
       return res.status(400).json({ ok: false, success: false, error: "Mobile number is required" });
@@ -371,11 +371,24 @@ app.post("/api/auth/request-otp", otpLimiter, async (req, res) => {
       VALUES (${cleanMobile}, ${otp}, ${expiresAt}, 0, FALSE, ${now})
     `;
 
+    // Delivery hook: configure OTP_WEBHOOK_URL for a real SMS/WhatsApp provider.
+    // During development/test, OTP_DEV_MODE defaults to true so the UI can be tested end-to-end.
+    let delivered = false;
+    if (process.env.OTP_WEBHOOK_URL) {
+      try {
+        const r = await fetch(process.env.OTP_WEBHOOK_URL, {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ mobile: cleanMobile, otp, purpose, expiresInSeconds: 300, app: "Cric Yuva" })
+        });
+        delivered = r.ok;
+      } catch (e) { console.error("OTP delivery webhook error:", e.message); }
+    }
+    const devMode = String(process.env.OTP_DEV_MODE || "true").toLowerCase() !== "false";
     res.json({
-      ok: true,
-      success: true,
-      message: "OTP sent successfully to " + cleanMobile,
-      expiresInSeconds: 300
+      ok: true, success: true, delivered,
+      message: delivered ? "OTP sent successfully" : "OTP generated successfully",
+      expiresInSeconds: 300,
+      ...(devMode && !delivered ? { devOtp: otp } : {})
     });
   } catch (err) {
     console.error("Request OTP error:", err.message);
@@ -387,7 +400,7 @@ app.post("/api/auth/request-otp", otpLimiter, async (req, res) => {
 app.post("/api/auth/verify-otp", async (req, res) => {
   try {
     const sql = await getDatabase();
-    const { mobile, code } = req.body || {};
+    const { mobile, code, purpose = "login", name, password } = req.body || {};
 
     if (!mobile || !code) {
       return res.status(400).json({ ok: false, success: false, error: "Mobile number and OTP code are required" });
@@ -443,57 +456,30 @@ app.post("/api/auth/verify-otp", async (req, res) => {
     `;
 
     let user;
-    if (userRows.length > 0) {
+    if (purpose === "register") {
+      if (userRows.length > 0) {
+        return res.status(409).json({ ok:false, success:false, error:"An account with this mobile number already exists. Please log in." });
+      }
+      const cleanName = String(name || "").trim();
+      const cleanPassword = String(password || "");
+      if (!cleanName) return res.status(400).json({ ok:false, success:false, error:"Player name is required" });
+      if (cleanPassword.length < 4) return res.status(400).json({ ok:false, success:false, error:"Password must be at least 4 characters" });
+      const userId = "USR-" + Date.now() + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
+      const passwordHash = hashPassword(cleanPassword);
+      const playerId = await generatePermanentPlayerId(sql);
+      await sql`INSERT INTO users (user_id, mobile, name, password_hash, player_id, created_at) VALUES (${userId}, ${cleanMobile}, ${cleanName}, ${passwordHash}, ${playerId}, ${now})`;
+      const profile = { name: cleanName, mobile: cleanMobile, playerId, role:"All-Rounder", jerseyNumber:7 };
+      await sql`INSERT INTO profiles (user_id, data_json, updated_at) VALUES (${userId}, ${JSON.stringify(profile)}::jsonb, ${now})`;
+      await sql`INSERT INTO players (player_id,user_id,name,mobile,role,jersey_number,data_json,created_at,updated_at) VALUES (${playerId},${userId},${cleanName},${cleanMobile},'All-Rounder',7,${JSON.stringify(profile)}::jsonb,${now},${now})`;
+      user = { user_id:userId, mobile:cleanMobile, name:cleanName, player_id:playerId };
+    } else {
+      if (userRows.length === 0) return res.status(404).json({ ok:false, success:false, error:"No account found with this mobile number. Please create an account first." });
       user = userRows[0];
       if (!user.player_id) {
         const newPlayerId = await generatePermanentPlayerId(sql);
         await sql`UPDATE users SET player_id = ${newPlayerId} WHERE user_id = ${user.user_id}`;
         user.player_id = newPlayerId;
       }
-    } else {
-      const userId = "USR-" + Date.now() + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
-      const dummyHash = hashPassword(crypto.randomBytes(16).toString("hex"));
-
-      const existingPlayer = await sql`SELECT player_id FROM players WHERE mobile = ${cleanMobile} LIMIT 1`;
-      let playerId;
-      if (existingPlayer.length > 0 && existingPlayer[0].player_id) {
-        playerId = existingPlayer[0].player_id;
-      } else {
-        playerId = await generatePermanentPlayerId(sql);
-      }
-
-      await sql`
-        INSERT INTO users (user_id, mobile, name, password_hash, player_id, created_at)
-        VALUES (${userId}, ${cleanMobile}, ${'Player ' + cleanMobile.slice(-4)}, ${dummyHash}, ${playerId}, ${now})
-      `;
-
-      user = { user_id: userId, mobile: cleanMobile, name: 'Player ' + cleanMobile.slice(-4), player_id: playerId };
-
-      const defaultProfile = {
-        name: user.name,
-        mobile: cleanMobile,
-        playerId,
-        role: "All-Rounder",
-        jerseyNumber: 7
-      };
-      await sql`
-        INSERT INTO profiles (user_id, data_json, updated_at)
-        VALUES (${userId}, ${JSON.stringify(defaultProfile)}::jsonb, ${now})
-        ON CONFLICT (user_id) DO UPDATE SET
-          data_json = EXCLUDED.data_json,
-          updated_at = EXCLUDED.updated_at
-      `;
-      await sql`
-        INSERT INTO players (player_id, user_id, name, mobile, role, data_json, created_at, updated_at)
-        VALUES (${playerId}, ${userId}, ${user.name}, ${cleanMobile}, 'All-Rounder', ${JSON.stringify(defaultProfile)}::jsonb, ${now}, ${now})
-        ON CONFLICT (player_id) DO UPDATE SET
-          user_id = EXCLUDED.user_id,
-          name = EXCLUDED.name,
-          mobile = EXCLUDED.mobile,
-          role = EXCLUDED.role,
-          data_json = EXCLUDED.data_json,
-          updated_at = EXCLUDED.updated_at
-      `;
     }
 
     const token = crypto.randomBytes(32).toString("hex");

@@ -86,7 +86,10 @@
 
  <!-- LOGIN BUTTON -->
  <button class="main-button" id="loginButton">
- LOG IN
+ LOG IN WITH PASSWORD
+ </button>
+ <button class="outline-button" id="loginOtpButton" type="button" style="margin-top:10px;">
+ <i class="fa-solid fa-message"></i> LOGIN WITH OTP
  </button>
 
  <div class="or-line">
@@ -112,6 +115,29 @@
  </div>
  </section>
 
+ <!-- LOGIN WITH OTP MODAL -->
+ <div class="modal-backdrop" id="loginOtpModal" style="display:none; z-index:100000;">
+   <div class="team-modal-sheet" style="max-width:430px;">
+     <div class="sheet-header">
+       <h3>LOGIN WITH OTP</h3>
+       <button type="button" class="sheet-close-btn" id="loginOtpCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+     </div>
+     <div class="modal-form">
+       <div class="form-group">
+         <label class="form-label">Mobile Number <span class="req">*</span></label>
+         <div class="modal-input-box"><i class="fa-solid fa-mobile-screen-button"></i><input type="tel" id="loginOtpMobile" maxlength="10" placeholder="Enter 10-digit mobile"></div>
+       </div>
+       <button type="button" class="btn-modal-submit" id="requestLoginOtpButton"><i class="fa-solid fa-paper-plane"></i> SEND OTP</button>
+       <div class="form-group" id="loginOtpCodeGroup" style="display:none;">
+         <label class="form-label">OTP <span class="req">*</span></label>
+         <div class="modal-input-box"><i class="fa-solid fa-shield-halved"></i><input type="tel" id="loginOtpCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter 6-digit OTP"></div>
+       </div>
+       <button type="button" class="main-button" id="verifyLoginOtpButton" style="display:none;"><i class="fa-solid fa-right-to-bracket"></i> VERIFY & LOGIN</button>
+       <div id="otpDevHint" style="display:none; margin-top:10px; padding:10px; border-radius:9px; background:#1b2333; color:#fbbf24; font-size:12px; text-align:center;"></div>
+     </div>
+   </div>
+ </div>
+
  <!-- SCREEN 3 - CREATE ACCOUNT -->
  <section class="app-screen create-screen" id="screen3">
  <div class="page-header light-header">
@@ -127,6 +153,20 @@
  <span>NEW ACCOUNT</span>
  </h1>
  <p>Join Cric Yuva Family!</p>
+ </div>
+
+ <!-- PLAYER NAME -->
+ <div class="form-input">
+ <i class="fa-solid fa-user"></i>
+ <div>
+ <label>Player Name</label>
+ <input
+ type="text"
+ id="newPlayerName"
+ placeholder="Enter your player name"
+ autocomplete="name"
+ >
+ </div>
  </div>
 
  <!-- MOBILE -->
@@ -174,9 +214,21 @@
  </button>
  </div>
 
+ <!-- OTP VERIFICATION -->
+ <div class="form-input" id="registerOtpRow" style="display:none;">
+ <i class="fa-solid fa-shield-halved"></i>
+ <div>
+ <label>OTP Verification</label>
+ <input type="tel" id="registerOtp" placeholder="Enter 6-digit OTP" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+ </div>
+ </div>
+ <button class="outline-button" id="requestRegisterOtpButton" type="button" style="display:none; margin-top:8px;">
+ <i class="fa-solid fa-paper-plane"></i> SEND / RESEND OTP
+ </button>
+
  <!-- SAVE -->
  <button class="save-button" id="saveAccountButton">
- SAVE
+ VERIFY OTP & CREATE ACCOUNT
  </button>
  </div>
  </section>
@@ -3400,7 +3452,7 @@
  <div style="padding:12px 14px 8px 14px;">
  <div class="team-search-box" style="width:100%; margin-bottom:10px;">
  <i class="fa-solid fa-magnifying-glass"></i>
- <input type="text" id="inputSearchTeamPlayer" placeholder="Search by player name, style, or role..." style="width:100%;">
+ <input type="text" id="inputSearchTeamPlayer" placeholder="Search registered player by name, mobile, or Player ID..." style="width:100%;">
  <button type="button" id="btnSearchClearQuery" style="background:none; border:none; color:#8c93a4; cursor:pointer; display:none;"><i class="fa-solid fa-circle-xmark"></i></button>
  </div>
 

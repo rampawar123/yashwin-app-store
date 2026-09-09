@@ -75,6 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
       } finally { clearTimeout(timer); }
     },
     register(payload) { return this.request("/api/auth/register", { method: "POST", body: JSON.stringify(payload) }); },
+    requestOtp(payload) { return this.request("/api/auth/request-otp", { method: "POST", body: JSON.stringify(payload) }); },
+    verifyOtp(payload) { return this.request("/api/auth/verify-otp", { method: "POST", body: JSON.stringify(payload) }); },
+    searchPlayers(query) { return this.request("/api/players/search?q=" + encodeURIComponent(query || "")); },
     login(payload) { return this.request("/api/auth/login", { method: "POST", body: JSON.stringify(payload) }); },
     joinTeam(payload) { return this.request("/api/join/team", { method: "POST", body: JSON.stringify(payload) }); },
     joinTournament(payload) { return this.request("/api/join/tournament", { method: "POST", body: JSON.stringify(payload) }); },
@@ -378,70 +381,85 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   const saveAccountButton = document.getElementById("saveAccountButton");
+  const requestRegisterOtpButton = document.getElementById("requestRegisterOtpButton");
+  const registerOtpRow = document.getElementById("registerOtpRow");
+  const registerOtp = document.getElementById("registerOtp");
+  let registerOtpRequested = false;
+
+  async function requestRegistrationOtp() {
+    const playerName = document.getElementById("newPlayerName");
+    const mobile = document.getElementById("newMobile");
+    const password = document.getElementById("newPassword");
+    const verifyPassword = document.getElementById("verifyPassword");
+    if (!playerName || !mobile || !password || !verifyPassword) return;
+    const nameValue = playerName.value.trim();
+    const mobileValue = mobile.value.trim();
+    const passwordValue = password.value.trim();
+    const verifyValue = verifyPassword.value.trim();
+    if (!nameValue) return alert("Please enter your player name.");
+    if (!/^\d{10}$/.test(mobileValue)) return alert("Please enter a valid 10 digit mobile number.");
+    if (passwordValue.length < 4) return alert("Password must be at least 4 characters.");
+    if (passwordValue !== verifyValue) return alert("Password does not match!");
+    try {
+      const result = await CricYuvaCloud.requestOtp({ mobile: mobileValue, purpose: "register" });
+      registerOtpRequested = true;
+      if (registerOtpRow) registerOtpRow.style.display = "flex";
+      if (requestRegisterOtpButton) requestRegisterOtpButton.style.display = "flex";
+      if (registerOtp) registerOtp.focus();
+      if (result && result.devOtp) alert("TEST OTP: " + result.devOtp);
+      else alert("OTP sent. Enter the 6-digit OTP to create your account.");
+    } catch (e) {
+      alert(e.message || "OTP service is unavailable. Please start the Cric Yuva API server.");
+    }
+  }
+
   if (saveAccountButton) {
     saveAccountButton.addEventListener("click", async function () {
+      if (!registerOtpRequested) { await requestRegistrationOtp(); return; }
+      const playerName = document.getElementById("newPlayerName");
       const mobile = document.getElementById("newMobile");
       const password = document.getElementById("newPassword");
       const verifyPassword = document.getElementById("verifyPassword");
-
-      if (!mobile || !password || !verifyPassword) {
-        alert("Input fields not found. Please check form.");
-        return;
-      }
-
+      const nameValue = playerName.value.trim();
       const mobileValue = mobile.value.trim();
       const passwordValue = password.value.trim();
-      const verifyPasswordValue = verifyPassword.value.trim();
-
-      if (mobileValue.length !== 10) {
-        alert("Please enter a valid 10 digit mobile number.");
+      const verifyValue = verifyPassword.value.trim();
+      const otpValue = (registerOtp?.value || "").trim();
+      if (!nameValue || !/^\d{10}$/.test(mobileValue) || passwordValue.length < 4 || passwordValue !== verifyValue) {
+        registerOtpRequested = false;
+        await requestRegistrationOtp();
         return;
       }
-
-      if (passwordValue.length < 4) {
-        alert("Password must be at least 4 characters.");
-        return;
-      }
-
-      if (passwordValue !== verifyPasswordValue) {
-        alert("Password does not match!");
-        return;
-      }
-
-      let cloudRegistered = false;
+      if (!/^\d{6}$/.test(otpValue)) return alert("Enter the 6-digit OTP.");
       try {
-        const cloud = await CricYuvaCloud.register({ mobile: mobileValue, password: passwordValue });
-        if (cloud && cloud.user) {
-          cloudRegistered = true;
-          localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
-          if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
-        }
-      } catch (e) { /* local fallback keeps offline testing usable */ }
-
-      if (window.CricYuvaStorage) {
-        const regRes = window.CricYuvaStorage.registerUser({
-          mobile: mobileValue,
-          password: passwordValue
-        });
-        if (!regRes.success && !cloudRegistered) {
-          alert(regRes.error || "Could not register account. Please try again.");
-          return;
-        }
-      } else {
+        const cloud = await CricYuvaCloud.verifyOtp({ mobile: mobileValue, code: otpValue, purpose: "register", name: nameValue, password: passwordValue });
+        if (!cloud || !cloud.user) throw new Error("Account creation failed.");
+        localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
+        if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
         localStorage.setItem("cricYuvaMobile", mobileValue);
-        localStorage.setItem("cricYuvaPassword", passwordValue);
+        localStorage.setItem("cricYuvaProfileMobile", mobileValue);
+        localStorage.setItem("cricYuvaProfileName", nameValue);
+        if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
+        if (window.CricYuvaStorage) {
+          const regRes = window.CricYuvaStorage.registerUser({ name: nameValue, mobile: mobileValue, password: passwordValue });
+          if (!regRes.success && regRes.error && !/already registered/i.test(regRes.error)) console.warn(regRes.error);
+          if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
+        }
+        localStorage.setItem("cricYuvaLoggedIn", "true");
+        removeUserStorage(TEAM_STORAGE_KEY);
+        registerOtpRequested = false;
+        if (registerOtpRow) registerOtpRow.style.display = "none";
+        if (requestRegisterOtpButton) requestRegisterOtpButton.style.display = "none";
+        if (registerOtp) registerOtp.value = "";
+        loadProfileData();
+        alert("Account created successfully! Your permanent Player ID is " + (cloud.user.playerId || "generated").toString() + ".");
+        showScreen("screen4");
+      } catch (e) {
+        alert(e.message || "Invalid OTP or account creation failed.");
       }
-      localStorage.setItem("cricYuvaLoggedIn", "true");
-
-      // Start with an empty real-player team; no demo squad is created.
-      removeUserStorage(TEAM_STORAGE_KEY);
-
-      loadProfileData();
-
-      alert("Account created successfully! Now set up your Player Profile.");
-      showScreen("screen4");
     });
   }
+  if (requestRegisterOtpButton) requestRegisterOtpButton.addEventListener("click", requestRegistrationOtp);
 
 
   // ==========================================
@@ -1389,6 +1407,57 @@ document.addEventListener("DOMContentLoaded", function () {
   if (navMenu) {
     navMenu.addEventListener("click", openMenuDrawer);
   }
+
+
+  // ==========================================
+  // OTP LOGIN
+  // ==========================================
+  const loginOtpButton = document.getElementById("loginOtpButton");
+  const loginOtpModal = document.getElementById("loginOtpModal");
+  const loginOtpCloseBtn = document.getElementById("loginOtpCloseBtn");
+  const requestLoginOtpButton = document.getElementById("requestLoginOtpButton");
+  const verifyLoginOtpButton = document.getElementById("verifyLoginOtpButton");
+  const loginOtpMobile = document.getElementById("loginOtpMobile");
+  const loginOtpCode = document.getElementById("loginOtpCode");
+  const loginOtpCodeGroup = document.getElementById("loginOtpCodeGroup");
+  const otpDevHint = document.getElementById("otpDevHint");
+  if (loginOtpButton && loginOtpModal) loginOtpButton.addEventListener("click", () => { loginOtpModal.style.display = "flex"; if (loginOtpMobile) loginOtpMobile.focus(); });
+  if (loginOtpCloseBtn && loginOtpModal) loginOtpCloseBtn.addEventListener("click", () => loginOtpModal.style.display = "none");
+  if (requestLoginOtpButton) requestLoginOtpButton.addEventListener("click", async () => {
+    const mob = (loginOtpMobile?.value || "").trim();
+    if (!/^\d{10}$/.test(mob)) return alert("Please enter a valid 10 digit mobile number.");
+    try {
+      const result = await CricYuvaCloud.requestOtp({ mobile: mob, purpose: "login" });
+      if (loginOtpCodeGroup) loginOtpCodeGroup.style.display = "block";
+      if (verifyLoginOtpButton) verifyLoginOtpButton.style.display = "flex";
+      if (otpDevHint && result?.devOtp) { otpDevHint.textContent = "TEST OTP: " + result.devOtp; otpDevHint.style.display = "block"; }
+      if (loginOtpCode) loginOtpCode.focus();
+      else alert("OTP sent. Enter the 6-digit OTP.");
+    } catch (e) { alert(e.message || "OTP service unavailable."); }
+  });
+  if (verifyLoginOtpButton) verifyLoginOtpButton.addEventListener("click", async () => {
+    const mob = (loginOtpMobile?.value || "").trim();
+    const code = (loginOtpCode?.value || "").trim();
+    if (!/^\d{10}$/.test(mob) || !/^\d{6}$/.test(code)) return alert("Enter valid mobile number and 6-digit OTP.");
+    try {
+      const cloud = await CricYuvaCloud.verifyOtp({ mobile: mob, code, purpose: "login" });
+      localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
+      if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
+      localStorage.setItem("cricYuvaLoggedIn", "true");
+      localStorage.setItem("cricYuvaMobile", mob);
+      localStorage.setItem("cricYuvaProfileMobile", mob);
+      if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
+      if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
+      if (window.CricYuvaStorage) {
+        const localUser = window.CricYuvaStorage.getAllRegisteredUsers().find(u => u && u.mobile === mob);
+        if (localUser) window.CricYuvaStorage.setActiveUserId(localUser.userId);
+      }
+      loginOtpModal.style.display = "none";
+      loadProfileData();
+      showScreen(isProfileCompleted() ? "screen5" : "screen4");
+      hydrateCloudData().finally(() => processPendingInvite());
+    } catch (e) { alert(e.message || "Invalid OTP."); }
+  });
 
 
   // ==========================================
@@ -12779,48 +12848,42 @@ if (btnSqOpenTeamChat) {
 function getMasterPlayersDirectory() {
   const masterList = [];
   const addedIds = new Set();
-
-  // 1. Default auction / master players
-  if (typeof getDefaultAuctionPlayers === "function") {
-    const defaults = getDefaultAuctionPlayers();
-    defaults.forEach(p => {
-      if (!addedIds.has(p.id)) {
-        addedIds.add(p.id);
-        masterList.push({
-          id: p.id,
-          name: p.name,
-          role: p.role || "All-Rounder",
-          avatar: p.avatar || "🏏",
-          type: p.type || "Domestic",
-          jersey: p.jersey || 7,
-          mobile: p.mobile || ""
-        });
-      }
+  const add = (p, type) => {
+    if (!p || !p.name) return;
+    const pid = String(p.playerId || p.player_id || p.id || ("P_" + p.name)).trim();
+    const key = pid.toLowerCase();
+    if (addedIds.has(key)) return;
+    addedIds.add(key);
+    masterList.push({
+      ...p, id: pid, playerId: pid,
+      name: p.name, role: p.role || "All-Rounder",
+      avatar: p.avatar || p.photoUrl || p.photo_url || p.profile_photo || "🏏",
+      type: type || p.type || "Registered",
+      jersey: p.jersey || p.jerseyNumber || p.jersey_number || 7,
+      mobile: p.mobile || ""
     });
-  }
-
-  // 2. Custom club players
-  const customClubs = getCustomClubsList();
-  customClubs.forEach(c => {
-    (c.players || []).forEach((p, idx) => {
-      const pid = p.id || `P_CLUB_${c.id || c.name}_${idx + 1}`;
-      if (!addedIds.has(pid)) {
-        addedIds.add(pid);
-        masterList.push({
-          id: pid,
-          name: p.name,
-          role: p.role || "Batsman",
-          avatar: p.avatar || "🏏",
-          type: "Club",
-          jersey: p.jersey || idx + 1,
-          mobile: p.mobile || ""
-        });
-      }
-    });
-  });
-
+  };
+  if (typeof getDefaultAuctionPlayers === "function") getDefaultAuctionPlayers().forEach(p => add(p, p.type || "Domestic"));
+  getCustomClubsList().forEach(c => (c.players || []).forEach(p => add({ ...p, team: c.name }, "Club")));
+  // Cached cloud registered players are authoritative for account-linked searching.
+  if (Array.isArray(window._cricYuvaCloudPlayers)) window._cricYuvaCloudPlayers.forEach(p => add(p, "Registered"));
   return masterList;
 }
+
+async function searchRegisteredPlayersFromCloud(query) {
+  try {
+    const q = String(query || "").trim();
+    if (!q) return [];
+    const data = await CricYuvaCloud.searchPlayers(q);
+    const players = Array.isArray(data?.players) ? data.players : [];
+    window._cricYuvaCloudPlayers = players;
+    return players;
+  } catch (e) {
+    console.warn("Registered player search unavailable:", e);
+    return [];
+  }
+}
+
 
 function openMasterPlayerSearchModal() {
   const modal = document.getElementById("masterPlayerSearchModal");
@@ -12839,11 +12902,12 @@ function openMasterPlayerSearchModal() {
   if (input) input.focus();
 }
 
-function renderMasterPlayerSearchResults(query) {
+async function renderMasterPlayerSearchResults(query) {
   const container = document.getElementById("masterPlayerSearchResultsList");
   if (!container) return;
 
   const q = (query || "").trim().toLowerCase();
+  if (q.length >= 2) await searchRegisteredPlayersFromCloud(q);
   const allPlayers = getMasterPlayersDirectory();
   const filtered = allPlayers.filter(p => {
     if (!q) return true;
@@ -17158,6 +17222,60 @@ if (btnTourneyEdit) {
 
 
   // ==========================================
+  // REGISTERED PLAYER SEARCH -> SQUAD
+  // ==========================================
+  let teamSearchTimer = null;
+  let lastTeamCloudQuery = "";
+  async function renderRegisteredTeamPlayerResults(query) {
+    const container = document.getElementById("teamPlayerSearchResultsList");
+    if (!container) return;
+    const q = String(query || "").trim();
+    if (q.length < 2) {
+      container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">Type at least 2 characters to search registered players by <b>name, mobile or Player ID</b>.</div>`;
+      return;
+    }
+    container.innerHTML = `<div style="text-align:center;padding:25px;color:#8892a8;font-size:12px;"><i class="fa-solid fa-spinner fa-spin"></i> Searching registered players...</div>`;
+    try {
+      const data = await CricYuvaCloud.searchPlayers(q);
+      const players = Array.isArray(data?.players) ? data.players : [];
+      window._cricYuvaCloudPlayers = players;
+      if (!players.length) {
+        container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">No registered player found for <b>${escapeHtml(q)}</b>.</div>`;
+        return;
+      }
+      const team = getTeamData() || {players:[]};
+      container.innerHTML = players.map(p => {
+        const pid = p.playerId || p.player_id || p.id || "";
+        const already = (team.players || []).some(x => x.playerId === pid || x.id === pid || (x.name || "").toLowerCase() === (p.name || "").toLowerCase());
+        const photo = p.photoUrl || p.photo_url || p.profile_photo || "";
+        return `<div style="background:#161922;border:1px solid #293249;border-radius:12px;padding:11px;display:flex;align-items:center;gap:10px;">
+          <div style="width:42px;height:42px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}</div>
+          <div style="flex:1;min-width:0;"><b style="color:#fff;font-size:13px;">${escapeHtml(p.name || "Player")}</b><div style="font-size:10px;color:#93a0b8;margin-top:3px;">ID: ${escapeHtml(pid)} • Mobile: ${escapeHtml(p.mobile || "—")}</div><div style="font-size:10px;color:#f59e0b;margin-top:2px;">${escapeHtml(p.role || "All-Rounder")}</div></div>
+          <button type="button" class="btn-add-registered-player" data-player-json="${encodeURIComponent(JSON.stringify(p))}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:7px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};">${already ? "✓ Added" : "+ ADD"}</button>
+        </div>`;
+      }).join("");
+      container.querySelectorAll(".btn-add-registered-player:not([disabled])").forEach(btn => btn.addEventListener("click", () => {
+        try { const p = JSON.parse(decodeURIComponent(btn.dataset.playerJson)); addRegisteredCloudPlayerToSquad(p); } catch(e) { showToast("Could not add player", true); }
+      }));
+    } catch (e) {
+      container.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444;font-size:12px;">Registered player search requires the Cric Yuva API server.</div>`;
+    }
+  }
+
+  function addRegisteredCloudPlayerToSquad(p) {
+    const team = getTeamData() || initDefaultTeam();
+    if (!team.players) team.players = [];
+    const pid = String(p.playerId || p.player_id || p.id || "").trim();
+    if (!pid) return showToast("Player ID missing", true);
+    if (team.players.some(x => x.playerId === pid || x.id === pid || (x.name||"").toLowerCase() === (p.name||"").toLowerCase())) return showToast(`${p.name} is already in your squad!`);
+    const xi = team.players.filter(x => x.inPlayingXI !== false).length;
+    team.players.push({ id: "squad_" + pid, playerId: pid, userId: p.userId || p.user_id || null, name: p.name, mobile: p.mobile || "", role: p.role || "All-Rounder", jersey: p.jerseyNumber || p.jersey_number || "", jerseyName: p.jerseyName || p.jersey_name || p.name || "", photo: p.photoUrl || p.photo_url || p.profile_photo || "", inPlayingXI: xi < 11, isCaptain:false, isViceCaptain:false, matches:0, runs:0, wickets:0 });
+    saveTeamData(team); renderMyTeamPage();
+    showToast(`${p.name} added to squad • ${pid}`);
+    renderRegisteredTeamPlayerResults(document.getElementById("inputSearchTeamPlayer")?.value || "");
+  }
+
+  // ==========================================
   // MASTER PLAYER DIRECTORY & SEARCH TO SQUAD
   // ==========================================
   function getMasterPlayerDirectory() {
@@ -17448,7 +17566,11 @@ if (btnTourneyEdit) {
       if (btnSearchClearQuery) {
         btnSearchClearQuery.style.display = val ? "block" : "none";
       }
-      renderTeamPlayerSearchResults(val);
+      clearTimeout(teamSearchTimer);
+      teamSearchTimer = setTimeout(() => {
+        if (val.trim().length >= 2) renderRegisteredTeamPlayerResults(val);
+        else renderTeamPlayerSearchResults(val);
+      }, 250);
     });
   }
 
