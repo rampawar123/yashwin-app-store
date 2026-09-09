@@ -141,6 +141,19 @@ CREATE TABLE IF NOT EXISTS chats (
 );
 CREATE INDEX IF NOT EXISTS idx_chats_room ON chats(room_type, room_id);
 
+CREATE TABLE IF NOT EXISTS youtube_connections (
+  user_id TEXT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+  channel_id TEXT,
+  channel_title TEXT,
+  access_token_enc TEXT,
+  refresh_token_enc TEXT,
+  token_expiry BIGINT,
+  scope TEXT,
+  created_at BIGINT NOT NULL,
+  updated_at BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_youtube_connections_channel ON youtube_connections(channel_id);
+
 CREATE TABLE IF NOT EXISTS streams (
   match_id TEXT PRIMARY KEY,
   tournament_id TEXT,

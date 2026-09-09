@@ -1020,6 +1020,12 @@
  <div class="squad-tools-bar">
  <span class="squad-selection-status" id="squadSelectionStatusText">Select a team to choose Playing XI</span>
  <div class="squad-tool-actions">
+ <button type="button" class="btn-squad-tool" id="btnMatchSearchTeamA" style="color:#60a5fa;border-color:#3b82f6;">
+ <i class="fa-solid fa-magnifying-glass"></i> Search Team A Player
+ </button>
+ <button type="button" class="btn-squad-tool" id="btnMatchSearchTeamB" style="color:#60a5fa;border-color:#3b82f6;">
+ <i class="fa-solid fa-magnifying-glass"></i> Search Team B Player
+ </button>
  <button type="button" class="btn-squad-tool" id="btnSelectAllSquad">
  <i class="fa-solid fa-check-double"></i> Select All
  </button>
@@ -1057,6 +1063,27 @@
  </div>
  </div>
 
+
+ <!-- ================= REAL REGISTERED PLAYER SEARCH FOR MATCH ================= -->
+ <div class="modal-backdrop" id="matchRegisteredPlayerSearchModal" style="display:none;z-index:100000;">
+   <div class="team-modal-sheet" style="max-width:560px;max-height:88vh;display:flex;flex-direction:column;background:#12151d;border:1px solid #28334a;">
+     <div class="sheet-header" style="border-bottom:1px solid #232c42;padding-bottom:12px;">
+       <div>
+         <span class="create-badge" style="background:rgba(59,130,246,.16);color:#60a5fa;border:1px solid rgba(59,130,246,.35);">REAL REGISTERED PLAYERS</span>
+         <h3 id="matchRegisteredPlayerSearchTitle" style="color:#fff;font-size:16px;margin:5px 0 0;"><i class="fa-solid fa-magnifying-glass text-orange"></i> Search Registered Player</h3>
+       </div>
+       <button type="button" class="sheet-close-btn" id="btnCloseMatchRegisteredPlayerSearch"><i class="fa-solid fa-xmark"></i></button>
+     </div>
+     <div style="padding:12px 0 8px;">
+       <div class="team-search-box" style="width:100%;">
+         <i class="fa-solid fa-magnifying-glass"></i>
+         <input type="text" id="inputMatchRegisteredPlayerSearch" placeholder="Search by Player Name, Mobile Number or Player ID..." style="width:100%;">
+       </div>
+       <div style="font-size:10px;color:#667085;margin-top:7px;">Only registered Cric Yuva accounts can be added. No dummy players are generated.</div>
+     </div>
+     <div id="matchRegisteredPlayerSearchResults" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;max-height:430px;padding-right:3px;"></div>
+   </div>
+ </div>
 
  <!-- ================= STEP 3: TOSS & START MATCH ================= -->
  <div class="wizard-step-card" id="wizardStep3" style="display:none;">
@@ -5072,11 +5099,7 @@
      <div style="background:#111; padding:8px 16px; border-bottom:1px solid #222; display:flex; align-items:center; justify-content:space-between; font-size:12px;">
        <span style="color:#888;">Chatting As:</span>
        <div style="display:flex; align-items:center; gap:8px;">
-         <select id="teamChatSenderSelect" style="background:#1c1c1c; color:#fff; border:1px solid #333; border-radius:6px; padding:4px 8px; font-size:12px;">
-           <option value="Captain">👑 Team Captain</option>
-           <option value="Manager">📋 Team Manager</option>
-           <option value="Player">🏏 Squad Player</option>
-         </select>
+         <strong id="teamChatCurrentUser" style="color:#60a5fa; font-size:12px;">Registered Player</strong>
        </div>
      </div>
 
@@ -5128,6 +5151,35 @@
      <div id="masterPlayerSearchResultsList" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; max-height:360px;">
        <!-- Dynamically rendered -->
      </div>
+   </div>
+ </div>
+
+ <!-- =========================================
+      POPUP MODAL: AUCTION TOURNAMENT CHAT ROOM
+ ========================================== -->
+ <div class="modal-backdrop" id="auctionChatModal" style="display:none;">
+   <div class="team-modal-sheet" style="max-width:520px; height:85vh; display:flex; flex-direction:column; padding:0; overflow:hidden;">
+     <div style="background:#1a1a1a; padding:12px 16px; border-bottom:1px solid #262626; display:flex; justify-content:space-between; align-items:center;">
+       <div style="display:flex; align-items:center; gap:10px;">
+         <span style="font-size:24px;">🔨</span>
+         <div>
+           <h4 id="auctionChatModalName" style="margin:0; font-size:15px; color:#fff;">Auction Tournament Chat</h4>
+           <span style="font-size:11px; color:#f59e0b;"><i class="fa-solid fa-lock" style="font-size:8px;"></i> Registered Auction Players Only</span>
+         </div>
+       </div>
+       <button type="button" class="sheet-close-btn" id="auctionChatModalCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+     </div>
+     <div style="background:#111; padding:8px 16px; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+       <span style="color:#888;">Chatting as</span>
+       <strong id="auctionChatCurrentUser" style="color:#f59e0b;">Registered Player</strong>
+     </div>
+     <div id="auctionChatMessagesList" style="flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:#141414;">
+       <div style="text-align:center; color:#666; font-size:12px; padding:30px 0;"><i class="fa-solid fa-comments" style="font-size:24px; display:block; margin-bottom:8px;"></i>Loading auction chat...</div>
+     </div>
+     <form id="auctionChatInputForm" style="background:#181818; padding:10px 12px; border-top:1px solid #262626; display:flex; gap:8px; align-items:center;">
+       <input type="text" id="auctionChatInputText" placeholder="Message auction players..." style="flex:1; background:#0d0d0d; border:1px solid #333; border-radius:8px; padding:10px 12px; color:#fff; font-size:13px;" required>
+       <button type="submit" style="background:#f59e0b; color:#111; border:none; padding:10px 16px; border-radius:8px; font-weight:800; cursor:pointer;"><span>Send</span> <i class="fa-solid fa-paper-plane"></i></button>
+     </form>
    </div>
  </div>
 
@@ -5301,7 +5353,7 @@
               <i class="fa-solid fa-tower-broadcast text-orange"></i>
               <strong>Go Live on Social Media</strong>
             </div>
-            <span class="b-social-stream-subtitle">Launch your live stream on mobile apps and share your live score</span>
+            <span class="b-social-stream-subtitle">Sign in to your social account, then publish the Cric Yuva live video + score link</span>
           </div>
 
           <!-- APP DEEP LINK BUTTONS -->
@@ -5310,7 +5362,7 @@
               <div class="b-social-app-icon"><i class="fa-brands fa-youtube"></i></div>
               <div class="b-social-app-info">
                 <strong>YouTube Live</strong>
-                <small>Launch App / Studio</small>
+                <small>Sign in & open Live Control Room</small>
               </div>
               <i class="fa-solid fa-arrow-up-right-from-square b-social-arrow"></i>
             </button>
