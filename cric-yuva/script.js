@@ -82,7 +82,11 @@ document.addEventListener("DOMContentLoaded", function () {
     joinTeam(payload) { return this.request("/api/join/team", { method: "POST", body: JSON.stringify(payload) }); },
     joinTournament(payload) { return this.request("/api/join/tournament", { method: "POST", body: JSON.stringify(payload) }); },
     playerRequest(payload) { return this.request("/api/player/request", { method: "POST", body: JSON.stringify(payload) }); },
-    saveLive(payload) { return this.request(`/api/live/match/${encodeURIComponent(payload.matchId)}`, { method: "POST", body: JSON.stringify(payload) }); }
+    saveLive(payload) { return this.request(`/api/live/match/${encodeURIComponent(payload.matchId)}`, { method: "POST", body: JSON.stringify(payload) }); },
+    youtubeStatus() { return this.request("/api/youtube/status"); },
+    youtubeAuth() { return this.request("/api/youtube/auth"); },
+    createYoutubeLive(payload) { return this.request("/api/youtube/live/create", { method:"POST", body:JSON.stringify(payload) }); },
+    stopYoutubeLive(payload) { return this.request("/api/youtube/live/stop", { method:"POST", body:JSON.stringify(payload) }); }
   };
   window.CricYuvaCloud = CricYuvaCloud;
 
@@ -184,6 +188,76 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   cleanKnownDemoData();
 
+  // Remove legacy/demo team records left behind by older Phase builds.
+  // IMPORTANT: registered user accounts are NOT deleted; only stale team/
+  // tournament references created by the old demo system are cleaned.
+  function cleanLegacyDummyTeamAndPlayers() {
+    const dummyTeamNames = new Set([
+      "mumbai yuva xi",
+      "mumbai yuva xi team",
+      "yuva xi",
+      "demo team",
+      "sample team",
+      "test team"
+    ]);
+    const isDummyTeam = (team) => {
+      const name = String(team?.teamName || team?.name || "").trim().toLowerCase();
+      const id = String(team?.id || "").trim().toLowerCase();
+      return dummyTeamNames.has(name) || id.includes("demo_team") || id.includes("sample_team") || id.includes("mumbai_yuva_xi");
+    };
+    try {
+      // Never let the old unscoped legacy team resurrect on a new load.
+      localStorage.removeItem(TEAM_STORAGE_KEY);
+    } catch (e) {}
+
+    try {
+      const scopedTeamRaw = getUserStorage(TEAM_STORAGE_KEY, null);
+      if (scopedTeamRaw) {
+        const team = JSON.parse(scopedTeamRaw);
+        if (isDummyTeam(team)) removeUserStorage(TEAM_STORAGE_KEY);
+      }
+    } catch (e) {}
+
+    try {
+      const rawClubs = localStorage.getItem("cric_yuva_custom_clubs");
+      if (rawClubs) {
+        const clubs = JSON.parse(rawClubs);
+        if (Array.isArray(clubs)) {
+          const cleanClubs = clubs.filter(c => !isDummyTeam(c));
+          if (cleanClubs.length !== clubs.length) localStorage.setItem("cric_yuva_custom_clubs", JSON.stringify(cleanClubs));
+        }
+      }
+    } catch (e) {}
+
+    // Remove stale dummy-team references from tournaments without deleting
+    // real tournaments or registered player accounts.
+    try {
+      const rawT = getUserStorage(TOURNAMENT_STORAGE_KEY, null);
+      if (rawT) {
+        const list = JSON.parse(rawT);
+        if (Array.isArray(list)) {
+          let changed = false;
+          list.forEach(t => {
+            if (!t || typeof t !== "object") return;
+            if (Array.isArray(t.teams)) {
+              const before = t.teams.length;
+              t.teams = t.teams.filter(tm => !isDummyTeam(tm));
+              if (before !== t.teams.length) changed = true;
+            }
+            if (t.auction && Array.isArray(t.auction.pool)) {
+              const before = t.auction.pool.length;
+              t.auction.pool = t.auction.pool.filter(p => !isDummyTeam(p) && !dummyTeamNames.has(String(p?.team || "").trim().toLowerCase()));
+              if (before !== t.auction.pool.length) changed = true;
+            }
+          });
+          if (changed) setUserStorage(TOURNAMENT_STORAGE_KEY, JSON.stringify(list));
+        }
+      }
+    } catch (e) {}
+  }
+  // Runs once on every load so stale demo data cannot return from browser cache.
+  cleanLegacyDummyTeamAndPlayers();
+
   // ==========================================
   // PROFILE DATA HELPERS & DRAWER SYNC
   // ==========================================
@@ -277,6 +351,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // SCREEN FUNCTION
   // ==========================================
 
+  const LAST_SCREEN_KEY = "cricYuvaLastScreen";
+  function rememberLastScreen(screenId) {
+    if (!screenId || screenId === "screen1" || screenId === "screen2" || screenId === "screen3" || screenId === "screen4") return;
+    try { localStorage.setItem(LAST_SCREEN_KEY, screenId); } catch (e) {}
+  }
+
   function showScreen(screenId) {
     document.querySelectorAll(".app-screen").forEach(function (screen) {
       screen.classList.remove("active");
@@ -285,6 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
       targetScreen.classList.add("active");
+      rememberLastScreen(screenId);
       window.scrollTo(0, 0);
       targetScreen.scrollTop = 0;
       const innerScrolls = targetScreen.querySelectorAll(".history-content-scroll, .stats-content-scroll, .tourney-content-scroll, .tourney-detail-scroll, .home-scroll-content, .team-scroll-content, .live-score-scroll");
@@ -331,9 +412,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return "screen4";
     }
 
-    // 3 & 4. If account exists and profile is already completed:
-    //    If user has NOT logged out: App reload/reopen must directly show MAIN HOME PAGE (Screen 5)
+    // 3 & 4. If account exists and profile is completed, reopen the last
+    //    app page the player was using instead of always forcing Home.
     if (loggedIn) {
+      const savedScreen = localStorage.getItem(LAST_SCREEN_KEY);
+      const allowed = new Set(["screen5","screen6","screen7","screen8","screen9","screen10","screen11"]);
+      if (savedScreen && allowed.has(savedScreen) && document.getElementById(savedScreen)) return savedScreen;
       return "screen5";
     }
 
@@ -1647,7 +1731,20 @@ document.addEventListener("DOMContentLoaded", function () {
   function getTeamData() {
     try {
       const data = getUserStorage(TEAM_STORAGE_KEY);
-      return data ? JSON.parse(data) : null;
+      if (data) return JSON.parse(data);
+
+      // Migration/compatibility: older Phase builds saved the team in the
+      // unscoped key. If a logged-in user has that legacy record, import it
+      // into the current user scope once.
+      const legacy = localStorage.getItem(TEAM_STORAGE_KEY);
+      if (legacy) {
+        const parsed = JSON.parse(legacy);
+        if (parsed && parsed.teamName) {
+          setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(parsed));
+          return parsed;
+        }
+      }
+      return null;
     } catch (e) {
       console.error("Error reading team data:", e);
       return null;
@@ -1661,17 +1758,28 @@ document.addEventListener("DOMContentLoaded", function () {
   // Save Team Data to localStorage (User-isolated)
   function saveTeamData(teamData) {
     try {
-      if (teamData && teamData.teamName && !teamData.id) teamData.id = `team_${String(teamData.teamName).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").slice(0, 40)}_${Date.now()}`;
-      setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(teamData));
-      if (teamData && teamData.teamName && window.CricYuvaCloud) {
+      if (!teamData || !String(teamData.teamName || "").trim()) return false;
+      if (!Array.isArray(teamData.players)) teamData.players = [];
+      if (!teamData.id) teamData.id = `team_${String(teamData.teamName).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").slice(0, 40)}_${Date.now()}`;
+
+      const serialized = JSON.stringify(teamData);
+      const scopedSaved = setUserStorage(TEAM_STORAGE_KEY, serialized);
+
+      // Keep a legacy copy for Phase-13 GitHub Pages compatibility. The
+      // user-scoped key remains the primary source of truth.
+      try { localStorage.setItem(TEAM_STORAGE_KEY, serialized); } catch (e) {}
+
+      if (teamData && window.CricYuvaCloud) {
         window.CricYuvaCloud.request("/api/teams", { method: "POST", body: JSON.stringify({
-          id: teamData.id || ("team_" + btoa(unescape(encodeURIComponent(teamData.teamName))).replace(/[^a-z0-9]/gi, "").slice(0, 24)),
-          name: teamData.teamName, logo: teamData.teamLogo || teamData.logo || "", players: teamData.players || [],
-          captainName: teamData.captainName || "", viceCaptainName: teamData.viceCaptainName || ""
+          id: teamData.id, name: teamData.teamName, logo: teamData.teamLogo || teamData.logo || "",
+          players: teamData.players, captainName: teamData.captainName || "",
+          viceCaptainName: teamData.viceCaptainName || ""
         }) }).catch(() => {});
       }
+      return !!scopedSaved || !!localStorage.getItem(TEAM_STORAGE_KEY);
     } catch (e) {
       console.error("Error saving team data:", e);
+      return false;
     }
   }
 
@@ -1713,11 +1821,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const noTeamContainer = document.getElementById("noTeamContainer");
     const activeTeamContainer = document.getElementById("activeTeamContainer");
 
-    if (!team || !team.players || team.players.length === 0) {
+    // A team is valid as soon as it has a team name. It may start with 0
+    // players; the Add Player action is available from the team page.
+    if (!team || !team.teamName || !String(team.teamName).trim()) {
       if (noTeamContainer) noTeamContainer.style.display = "block";
       if (activeTeamContainer) activeTeamContainer.style.display = "none";
       return;
     }
+    if (!Array.isArray(team.players)) team.players = [];
 
     if (noTeamContainer) noTeamContainer.style.display = "none";
     if (activeTeamContainer) activeTeamContainer.style.display = "flex";
@@ -2054,7 +2165,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      saveTeamData(team);
+      const saved = saveTeamData(team);
+      if (!saved) {
+        alert("Team could not be saved. Please make sure you are logged in and try again.");
+        return;
+      }
       if (teamModal) teamModal.style.display = "none";
       renderMyTeamPage(currentRoleFilter);
       alert("Team details saved successfully!");
@@ -2466,20 +2581,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (OPPONENT_PRESETS[teamName]) {
       return JSON.parse(JSON.stringify(OPPONENT_PRESETS[teamName]));
     }
-    // Generate custom 11 players for custom opponent team
-    const customPlayers = [];
-    const roles = ["Batsman", "Batsman", "Batsman", "Batsman", "All-Rounder", "All-Rounder", "Wicketkeeper", "Bowler", "Bowler", "Bowler", "Bowler"];
-    for (let i = 1; i <= 11; i++) {
-      customPlayers.push({
-        id: "custom_" + i + "_" + Date.now(),
-        name: `${teamName} Player ${i}`,
-        role: roles[i - 1] || "Batsman",
-        isCaptain: i === 1,
-        isViceCaptain: i === 2,
-        jersey: String(i)
-      });
-    }
-    return customPlayers;
+    // No dummy/generated players. A match roster must be assembled from
+    // real registered Cric Yuva users using Player Name, Mobile Number or Player ID.
+    return [];
   }
 
   // Helper: Set Step in Wizard
@@ -2718,6 +2822,115 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // REAL REGISTERED PLAYER SEARCH FOR MATCH ROSTERS
+  // Match, Tournament and Auction all use the same account-backed player source.
+  // No dummy/generated players are ever created for a match roster.
+  // ---------------------------------------------------------------------------
+  let matchRosterSearchTimer = null;
+  let matchRosterSearchSide = "teamA";
+
+  function openMatchRosterPlayerSearch(side) {
+    matchRosterSearchSide = side === "teamB" ? "teamB" : "teamA";
+    const modal = document.getElementById("matchRegisteredPlayerSearchModal");
+    const input = document.getElementById("inputMatchRegisteredPlayerSearch");
+    const title = document.getElementById("matchRegisteredPlayerSearchTitle");
+    const teamName = getResolvedTeamName(matchRosterSearchSide);
+    if (!modal) return;
+    if (title) title.textContent = `Add Registered Player to ${teamName || (matchRosterSearchSide === "teamA" ? "Team A" : "Team B")}`;
+    modal.style.display = "flex";
+    if (input) { input.value = ""; setTimeout(() => input.focus(), 50); }
+    renderMatchRegisteredPlayerResults("");
+  }
+
+  function closeMatchRosterPlayerSearch() {
+    const modal = document.getElementById("matchRegisteredPlayerSearchModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  async function renderMatchRegisteredPlayerResults(query) {
+    const container = document.getElementById("matchRegisteredPlayerSearchResults");
+    if (!container) return;
+    const q = String(query || "").trim();
+    if (!q) {
+      container.innerHTML = `<div style="text-align:center;padding:28px 12px;color:#8892a8;font-size:12px;">Search a <b>real registered Cric Yuva player</b> by Name, Mobile Number or Player ID.</div>`;
+      return;
+    }
+    container.innerHTML = `<div style="text-align:center;padding:22px;color:#8892a8;font-size:12px;"><i class="fa-solid fa-spinner fa-spin"></i> Searching registered players...</div>`;
+
+    let players = [];
+    try { players = localRegisteredPlayers(q); } catch (e) { players = []; }
+    try {
+      const data = await CricYuvaCloud.searchPlayers(q);
+      const cloud = Array.isArray(data?.players) ? data.players : [];
+      const merged = [...players, ...cloud];
+      const seen = new Set();
+      players = merged.filter(p => {
+        const key = String(p.playerId || p.player_id || p.id || p.mobile || p.name || "").toLowerCase();
+        if (!key || seen.has(key)) return false;
+        seen.add(key); return true;
+      });
+    } catch (e) {
+      if (!isStaticApiError(e)) console.warn("Match registered-player cloud search failed:", e);
+    }
+
+    const roster = matchRosterSearchSide === "teamA" ? teamASquadList : teamBSquadList;
+    if (!players.length) {
+      container.innerHTML = `<div style="text-align:center;padding:28px 12px;color:#8892a8;font-size:12px;">No registered player found for <b>${escapeHtml(q)}</b>.<br><span style="font-size:10px;color:#667085;">The player must create a Cric Yuva account first.</span></div>`;
+      return;
+    }
+
+    container.innerHTML = players.slice(0, 30).map(p => {
+      const pid = String(p.playerId || p.player_id || p.id || "");
+      const mobile = String(p.mobile || "");
+      const already = roster.some(x =>
+        String(x.playerId || x.player_id || x.id || "") === pid ||
+        (mobile && String(x.mobile || "") === mobile)
+      );
+      const photo = p.photoUrl || p.photo_url || p.profile_photo || p.photo || "";
+      const role = p.role || "All-Rounder";
+      const safe = encodeURIComponent(JSON.stringify(p));
+      return `<div style="background:#151a24;border:1px solid #293249;border-radius:11px;padding:10px;display:flex;align-items:center;gap:10px;">
+        <div style="width:42px;height:42px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;flex:none;">${photo ? `<img src="${escapeHtml(photo)}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((p.name || "P").slice(0,2).toUpperCase())}</div>
+        <div style="flex:1;min-width:0;">
+          <b style="display:block;color:#fff;font-size:13px;">${escapeHtml(p.name || "Player")}</b>
+          <div style="font-size:10px;color:#60a5fa;margin-top:2px;">🆔 ${escapeHtml(pid || "No ID")}</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:2px;">📱 ${escapeHtml(mobile || "No mobile")} • ${escapeHtml(role)}</div>
+        </div>
+        <button type="button" class="btn-add-match-registered-player" data-player-json="${safe}" ${already ? "disabled" : ""} style="border:0;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};">${already ? "✓ Added" : "+ ADD"}</button>
+      </div>`;
+    }).join("");
+
+    container.querySelectorAll(".btn-add-match-registered-player:not([disabled])").forEach(btn => {
+      btn.addEventListener("click", () => {
+        try {
+          const p = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
+          const target = matchRosterSearchSide === "teamA" ? teamASquadList : teamBSquadList;
+          const pid = String(p.playerId || p.player_id || p.id || "").trim();
+          const mobile = String(p.mobile || "").trim();
+          if (!pid) { showToast("Registered player has no Player ID", true); return; }
+          if (target.some(x => String(x.playerId || x.player_id || x.id || "") === pid || (mobile && String(x.mobile || "") === mobile))) {
+            showToast(`${p.name} is already in this match squad!`);
+            return;
+          }
+          target.push({
+            id: pid, playerId: pid, userId: p.userId || p.user_id || null,
+            name: p.name || "Registered Player", mobile, role: p.role || "All-Rounder",
+            jersey: p.jerseyNumber || p.jersey_number || "",
+            jerseyName: p.jerseyName || p.jersey_name || p.name || "",
+            photo: p.photoUrl || p.photo_url || p.profile_photo || p.photo || "",
+            isCaptain: false, isViceCaptain: false
+          });
+          if (matchRosterSearchSide === "teamA") selectedPlayingXiTeamA = [];
+          else selectedPlayingXiTeamB = [];
+          renderPlayingXiList();
+          renderMatchRegisteredPlayerResults(document.getElementById("inputMatchRegisteredPlayerSearch")?.value || "");
+          showToast(`${p.name} added to ${matchRosterSearchSide === "teamA" ? "Team A" : "Team B"} match squad.`);
+        } catch (e) { showToast("Could not add registered player", true); }
+      });
+    });
+  }
+
   // Render Step 2: Playing XI Roster
   function renderPlayingXiList() {
     if (!playingXiListContainer) return;
@@ -2830,6 +3043,21 @@ document.addEventListener("DOMContentLoaded", function () {
       renderPlayingXiList();
     });
   }
+
+  const btnMatchSearchTeamA = document.getElementById("btnMatchSearchTeamA");
+  const btnMatchSearchTeamB = document.getElementById("btnMatchSearchTeamB");
+  if (btnMatchSearchTeamA) btnMatchSearchTeamA.addEventListener("click", () => openMatchRosterPlayerSearch("teamA"));
+  if (btnMatchSearchTeamB) btnMatchSearchTeamB.addEventListener("click", () => openMatchRosterPlayerSearch("teamB"));
+
+  const matchSearchClose = document.getElementById("btnCloseMatchRegisteredPlayerSearch");
+  if (matchSearchClose) matchSearchClose.addEventListener("click", closeMatchRosterPlayerSearch);
+  const matchSearchModal = document.getElementById("matchRegisteredPlayerSearchModal");
+  if (matchSearchModal) matchSearchModal.addEventListener("click", e => { if (e.target === matchSearchModal) closeMatchRosterPlayerSearch(); });
+  const matchSearchInput = document.getElementById("inputMatchRegisteredPlayerSearch");
+  if (matchSearchInput) matchSearchInput.addEventListener("input", e => {
+    clearTimeout(matchRosterSearchTimer);
+    matchRosterSearchTimer = setTimeout(() => renderMatchRegisteredPlayerResults(e.target.value), 180);
+  });
 
   // Step 2 Quick Tools (Select All & Reset)
   if (btnSelectAllSquad) {
@@ -12702,7 +12930,7 @@ async function renderTournamentChatTab(tourney) {
     RealtimeLiveService.connectWebSocket();
     RealtimeLiveService.send({
       type: "SUBSCRIBE_CHAT",
-      room: `tournament:${tourney.id}`,
+      room: `TOURNAMENT:${tourney.id}`,
       userId: userId,
       role: "Official"
     });
@@ -12837,7 +13065,7 @@ if (tChatInputForm) {
 
     const userId = getCurrentCricYuvaUserId();
     const senderName = localStorage.getItem("cricYuvaProfileName") || localStorage.getItem("cricYuvaName") || "Tournament Official";
-    const role = "Organizer";
+    const role = "Player";
 
     const payload = {
       tourneyId: activeTournamentId,
@@ -12909,7 +13137,7 @@ async function openTeamChatModal(teamName, tourneyId) {
     RealtimeLiveService.connectWebSocket();
     RealtimeLiveService.send({
       type: "SUBSCRIBE_CHAT",
-      room: `team:${currentTeamChatTourneyId}:${teamName}`,
+      room: `TEAM:${currentTeamChatTourneyId}:${teamName}`,
       userId: userId,
       role: "Player"
     });
@@ -15521,6 +15749,10 @@ if (btnTourneyEdit) {
           this.trigger("team_chat", msg.message || msg);
           break;
 
+        case "AUCTION_CHAT_MESSAGE":
+          this.trigger("auction_chat", msg.message || msg);
+          break;
+
         case "CHAT_HISTORY":
           this.trigger("chat_history", msg);
           break;
@@ -16727,44 +16959,137 @@ if (btnTourneyEdit) {
   // MOBILE-FIRST SOCIAL LIVE STREAM DEEP-LINKING
   // ==========================================
 
-  function launchSocialLiveStreamApp(platform, matchId = null) {
+  async function launchSocialLiveStreamApp(platform, matchId = null) {
     const p = String(platform || "").toLowerCase();
-    let platformLabel = "Live Stream";
-    let webUrl = "https://studio.youtube.com/";
-
     const effectiveMatchId = matchId ||
       (currentBroadcastSource && currentBroadcastSource.matchId) ||
-      (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) ||
-      "MATCH-001";
+      (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) || "MATCH-001";
 
-    const viewerLink = `${window.location.origin}${window.location.pathname}?view=live&matchId=${encodeURIComponent(effectiveMatchId)}`;
+    if (!p.includes("yt") && !p.includes("youtube")) {
+      let webUrl = p.includes("instagram") ? "https://www.instagram.com/" : "https://www.facebook.com/live/producer";
+      const viewerLink = `${window.location.origin}${window.location.pathname}?view=live&matchId=${encodeURIComponent(effectiveMatchId)}`;
+      try { await navigator.clipboard?.writeText(viewerLink); } catch (_) {}
+      showToast(`Opening ${p.includes("instagram") ? "Instagram" : "Facebook"}...`);
+      const opened = window.open(webUrl, "_blank", "noopener,noreferrer");
+      if (!opened) window.location.href = webUrl;
+      return;
+    }
 
-    if (p.includes("yt") || p.includes("youtube")) {
-      platformLabel = "YouTube";
-      webUrl = "https://studio.youtube.com/";
-    } else if (p.includes("insta") || p.includes("instagram")) {
-      platformLabel = "Instagram";
-      webUrl = "https://www.instagram.com/";
-    } else if (p.includes("fb") || p.includes("facebook")) {
-      platformLabel = "Facebook";
-      webUrl = "https://www.facebook.com/live/producer";
+    if (!localStorage.getItem("cricYuvaCloudToken")) {
+      alert("Please login to your Cric Yuva cloud account first, then connect YouTube Live.");
+      return;
     }
 
     try {
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(viewerLink).catch(() => {});
+      let status = await CricYuvaCloud.youtubeStatus();
+      if (!status.connected) {
+        const auth = await CricYuvaCloud.youtubeAuth();
+        if (!auth.authorizationUrl) throw new Error("YouTube authorization URL was not returned.");
+        const popup = window.open(auth.authorizationUrl, "cricYuvaYouTubeOAuth", "width=520,height=720,resizable=yes,scrollbars=yes");
+        if (!popup) {
+          alert("Popup blocked. Please allow popups for Cric Yuva and tap YouTube again.");
+          return;
+        }
+        showToast("🔐 YouTube authorization opened. Complete Google permission, then return here.");
+        for (let i = 0; i < 30; i++) {
+          await new Promise(r => setTimeout(r, 2000));
+          try { status = await CricYuvaCloud.youtubeStatus(); } catch (_) { status = {connected:false}; }
+          if (status.connected) break;
+        }
+        if (!status.connected) {
+          showToast("YouTube was not connected yet. Please complete Google authorization and try again.");
+          return;
+        }
       }
-    } catch (e) {}
 
-    showToast(`Opening ${platformLabel}... Live score link copied to clipboard!`);
+      const source = currentBroadcastSource || {};
+      const match = (typeof getActiveMatch === "function" ? getActiveMatch() : null) || {};
+      const suggestedTitle = source.title || match.title || `Cric Yuva Live — ${effectiveMatchId}`;
+      const result = await CricYuvaCloud.createYoutubeLive({
+        matchId: effectiveMatchId,
+        title: suggestedTitle,
+        description: `Live cricket match ${effectiveMatchId} powered by Cric Yuva.`,
+        privacyStatus: "public"
+      });
+      if (!result.success) throw new Error(result.error || "Unable to create YouTube Live.");
 
-    const opened = window.open(webUrl, "_blank", "noopener,noreferrer");
-    if (!opened) {
-      window.location.href = webUrl;
+      try { await navigator.clipboard?.writeText(result.youtubeLiveUrl || ""); } catch (_) {}
+      const ingestText = result.ingestionAddress ? `\n\nVideo source setup:\nServer: ${result.ingestionAddress}\nStream key: ${result.streamKey || "created by YouTube"}` : "";
+      const openNow = confirm(`✅ YouTube Live created!\n\n${result.title}\n\nWatch link:\n${result.youtubeLiveUrl}\n\nThe link has been copied.\n\nNOTE: YouTube still needs an RTMP video source/encoder to receive the camera video.${ingestText}\n\nOpen YouTube Live now?`);
+      if (openNow) window.open(result.youtubeLiveUrl, "_blank", "noopener,noreferrer");
+      showToast("🔴 YouTube Live event created successfully.");
+    } catch (e) {
+      console.error("YouTube Live error:", e);
+      alert(`YouTube Live failed:\n\n${e.message || e}`);
     }
   }
 
   // ==========================================
+// =========================================================================
+// 7.7 AUCTION TOURNAMENT CHAT ROOM
+// =========================================================================
+let currentAuctionChatTourneyId = null;
+
+async function openAuctionChatModal(tourney) {
+  if (!tourney || !tourney.id) return;
+  currentAuctionChatTourneyId = tourney.id;
+  const modal = document.getElementById("auctionChatModal");
+  if (!modal) return;
+  const title = document.getElementById("auctionChatModalName");
+  const userEl = document.getElementById("auctionChatCurrentUser");
+  const list = document.getElementById("auctionChatMessagesList");
+  const name = localStorage.getItem("cricYuvaProfileName") || localStorage.getItem("cricYuvaName") || "Registered Player";
+  if (title) title.textContent = `${tourney.name || "Auction Tournament"} — Auction Chat`;
+  if (userEl) userEl.textContent = `${name} • ${getCurrentCricYuvaUserId()}`;
+  modal.style.display = "flex";
+  const userId = getCurrentCricYuvaUserId();
+  if (window.RealtimeLiveService) {
+    RealtimeLiveService.connectWebSocket();
+    RealtimeLiveService.send({type:"SUBSCRIBE_CHAT", room:`auction:${tourney.id}`, userId, role:"Player"});
+  }
+  if (list) list.innerHTML = `<div style="text-align:center;padding:30px;color:#888;"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading auction chat...</p></div>`;
+  try {
+    const d = await CricYuvaCloud.request(`/api/chat/auction/${encodeURIComponent(tourney.id)}`);
+    if (d.success && Array.isArray(d.messages)) renderChatMessagesList(list, d.messages, userId);
+  } catch (e) {
+    const key = `cricYuvaAuctionChat_${tourney.id}`;
+    try { const local = JSON.parse(localStorage.getItem(key)||"[]"); renderChatMessagesList(list, local, userId); } catch (_) {}
+  }
+}
+
+const btnOpenAuctionChat = document.getElementById("btnOpenAuctionChat");
+if (btnOpenAuctionChat) btnOpenAuctionChat.addEventListener("click", () => {
+  const t = typeof getTournamentById === "function" ? getTournamentById(activeTournamentId) : null;
+  if (t) openAuctionChatModal(t);
+});
+const auctionChatModalCloseBtn = document.getElementById("auctionChatModalCloseBtn");
+if (auctionChatModalCloseBtn) auctionChatModalCloseBtn.addEventListener("click", () => {
+  const m=document.getElementById("auctionChatModal"); if(m) m.style.display="none";
+});
+const auctionChatInputForm = document.getElementById("auctionChatInputForm");
+if (auctionChatInputForm) auctionChatInputForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!currentAuctionChatTourneyId) return;
+  const input=document.getElementById("auctionChatInputText"); const text=(input?.value||"").trim(); if(!text)return;
+  input.value="";
+  const uid=getCurrentCricYuvaUserId();
+  const senderName=localStorage.getItem("cricYuvaProfileName")||localStorage.getItem("cricYuvaName")||"Registered Player";
+  const payload={tournamentId:currentAuctionChatTourneyId,userId:uid,senderName,message:text,role:"Player",timestamp:Date.now()};
+  if(window.RealtimeLiveService) RealtimeLiveService.send({type:"AUCTION_CHAT_MESSAGE",tourneyId:currentAuctionChatTourneyId,message:payload});
+  try { await CricYuvaCloud.request(`/api/chat/auction/${encodeURIComponent(currentAuctionChatTourneyId)}`,{method:"POST",body:JSON.stringify({message:text})}); }
+  catch(_) {
+    const key=`cricYuvaAuctionChat_${currentAuctionChatTourneyId}`;
+    try { const a=JSON.parse(localStorage.getItem(key)||"[]"); a.push(payload); localStorage.setItem(key,JSON.stringify(a.slice(-100))); } catch(__){}
+  }
+  appendSingleChatMessage(document.getElementById("auctionChatMessagesList"),payload,uid);
+});
+
+if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
+  if (currentAuctionChatTourneyId && String(msg.tourneyId||msg.tournamentId)===String(currentAuctionChatTourneyId)) {
+    appendSingleChatMessage(document.getElementById("auctionChatMessagesList"), msg.message || msg, getCurrentCricYuvaUserId());
+  }
+});
+
   // BROADCAST CENTER CONTROLLER
   // ==========================================
 
