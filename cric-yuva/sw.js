@@ -1,4 +1,4 @@
-const CACHE = "cric-yuva-v3-auth-otp-shell";
+const CACHE = "cric-yuva-v5-player-youtube-fix";
 const SHELL = ["./", "./index.html", "./style.css", "./script.js", "./storage.js", "./server-config.js", "./manifest.webmanifest", "./cric-yuva-logo.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
