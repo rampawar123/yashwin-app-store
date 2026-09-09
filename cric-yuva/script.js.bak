@@ -86,47 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   window.CricYuvaCloud = CricYuvaCloud;
 
-  // GitHub Pages is a static host and cannot handle POST /api/* requests.
-  // Keep a safe browser-only OTP fallback for development/testing so the
-  // registration and OTP UI remains usable when the API is not deployed.
-  const LOCAL_OTP_PREFIX = "cricYuva_local_otp_";
-  function localOtpKey(mobile, purpose) {
-    return LOCAL_OTP_PREFIX + String(purpose || "login") + "_" + String(mobile || "").trim();
-  }
-  function createLocalOtp(mobile, purpose) {
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    const record = { code, expiresAt: Date.now() + 5 * 60 * 1000, attempts: 0, used: false };
-    try { localStorage.setItem(localOtpKey(mobile, purpose), JSON.stringify(record)); } catch (e) {}
-    return code;
-  }
-  function verifyLocalOtp(mobile, code, purpose) {
-    let record = null;
-    try { record = JSON.parse(localStorage.getItem(localOtpKey(mobile, purpose)) || "null"); } catch (e) {}
-    if (!record) throw new Error("No OTP found. Please request a new OTP.");
-    if (record.used) throw new Error("This OTP has already been used. Please request a new OTP.");
-    if (Date.now() > Number(record.expiresAt || 0)) throw new Error("OTP has expired. Please request a new OTP.");
-    if (Number(record.attempts || 0) >= 5) throw new Error("Maximum verification attempts exceeded. Please request a new OTP.");
-    if (String(record.code) !== String(code).trim()) {
-      record.attempts = Number(record.attempts || 0) + 1;
-      try { localStorage.setItem(localOtpKey(mobile, purpose), JSON.stringify(record)); } catch (e) {}
-      throw new Error("Invalid OTP code.");
-    }
-    record.used = true;
-    try { localStorage.setItem(localOtpKey(mobile, purpose), JSON.stringify(record)); } catch (e) {}
-    return true;
-  }
-  function isStaticApiError(error) {
-    return /HTTP 405|HTTP 404|Failed to fetch|NetworkError|Load failed|API server/i.test(String(error && error.message || error));
-  }
-  function localRegisteredPlayers(query) {
-    const q = String(query || "").trim().toLowerCase();
-    if (!window.CricYuvaStorage || q.length < 2) return [];
-    return window.CricYuvaStorage.getAllRegisteredUsers().filter(u => {
-      const hay = [u.name, u.mobile, u.playerId, u.userId].map(v => String(v || "").toLowerCase());
-      return hay.some(v => v.includes(q));
-    }).map(u => ({ name:u.name, mobile:u.mobile, playerId:u.playerId, userId:u.userId, role:"All-Rounder", jerseyNumber:7, type:"Registered" }));
-  }
-
   function getAppBaseUrl() {
     return window.location.origin + window.location.pathname;
   }
@@ -450,15 +409,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (result && result.devOtp) alert("TEST OTP: " + result.devOtp);
       else alert("OTP sent. Enter the 6-digit OTP to create your account.");
     } catch (e) {
-      if (isStaticApiError(e)) {
-        const devOtp = createLocalOtp(mobileValue, "register");
-        registerOtpRequested = true;
-        if (registerOtpRow) registerOtpRow.style.display = "flex";
-        if (requestRegisterOtpButton) requestRegisterOtpButton.style.display = "flex";
-        if (registerOtp) registerOtp.focus();
-        alert("API server is not connected. TEST OTP: " + devOtp + "\n\nFor real SMS OTP, deploy/connect the Cric Yuva API server.");
-        return;
-      }
       alert(e.message || "OTP service is unavailable. Please start the Cric Yuva API server.");
     }
   }
@@ -482,16 +432,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       if (!/^\d{6}$/.test(otpValue)) return alert("Enter the 6-digit OTP.");
       try {
-        let cloud = null;
-        let usedLocalAuth = false;
-        try {
-          cloud = await CricYuvaCloud.verifyOtp({ mobile: mobileValue, code: otpValue, purpose: "register", name: nameValue, password: passwordValue });
-        } catch (e) {
-          if (!isStaticApiError(e)) throw e;
-          verifyLocalOtp(mobileValue, otpValue, "register");
-          usedLocalAuth = true;
-          cloud = { user: { userId: "CYU-" + mobileValue, mobile: mobileValue, name: nameValue, playerId: "CY-" + mobileValue }, token: "local-" + mobileValue };
-        }
+        const cloud = await CricYuvaCloud.verifyOtp({ mobile: mobileValue, code: otpValue, purpose: "register", name: nameValue, password: passwordValue });
         if (!cloud || !cloud.user) throw new Error("Account creation failed.");
         localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
         if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
@@ -501,11 +442,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
         if (window.CricYuvaStorage) {
           const regRes = window.CricYuvaStorage.registerUser({ name: nameValue, mobile: mobileValue, password: passwordValue });
-          if (!regRes.success) {
-            if (/already registered/i.test(regRes.error || "")) throw new Error(regRes.error);
-            throw new Error(regRes.error || "Could not save local account.");
-          }
-          if (usedLocalAuth && regRes.user?.playerId) localStorage.setItem("cricYuvaPlayerId", regRes.user.playerId);
+          if (!regRes.success && regRes.error && !/already registered/i.test(regRes.error)) console.warn(regRes.error);
+          if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
         }
         localStorage.setItem("cricYuvaLoggedIn", "true");
         removeUserStorage(TEAM_STORAGE_KEY);
@@ -1495,33 +1433,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (otpDevHint && result?.devOtp) { otpDevHint.textContent = "TEST OTP: " + result.devOtp; otpDevHint.style.display = "block"; }
       if (loginOtpCode) loginOtpCode.focus();
       else alert("OTP sent. Enter the 6-digit OTP.");
-    } catch (e) {
-      if (isStaticApiError(e)) {
-        const devOtp = createLocalOtp(mob, "login");
-        if (loginOtpCodeGroup) loginOtpCodeGroup.style.display = "block";
-        if (verifyLoginOtpButton) verifyLoginOtpButton.style.display = "flex";
-        if (otpDevHint) { otpDevHint.textContent = "TEST OTP: " + devOtp + " (API offline)"; otpDevHint.style.display = "block"; }
-        if (loginOtpCode) loginOtpCode.focus();
-        return;
-      }
-      alert(e.message || "OTP service unavailable.");
-    }
+    } catch (e) { alert(e.message || "OTP service unavailable."); }
   });
   if (verifyLoginOtpButton) verifyLoginOtpButton.addEventListener("click", async () => {
     const mob = (loginOtpMobile?.value || "").trim();
     const code = (loginOtpCode?.value || "").trim();
     if (!/^\d{10}$/.test(mob) || !/^\d{6}$/.test(code)) return alert("Enter valid mobile number and 6-digit OTP.");
     try {
-      let cloud = null;
-      try {
-        cloud = await CricYuvaCloud.verifyOtp({ mobile: mob, code, purpose: "login" });
-      } catch (e) {
-        if (!isStaticApiError(e)) throw e;
-        verifyLocalOtp(mob, code, "login");
-        const localUser = window.CricYuvaStorage?.getAllRegisteredUsers?.().find(u => u && u.mobile === mob);
-        if (!localUser) throw new Error("No Cric Yuva player is registered with this mobile number.");
-        cloud = { user: localUser, token: "local-" + mob };
-      }
+      const cloud = await CricYuvaCloud.verifyOtp({ mobile: mob, code, purpose: "login" });
       localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
       if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
       localStorage.setItem("cricYuvaLoggedIn", "true");
@@ -12955,17 +12874,10 @@ async function searchRegisteredPlayersFromCloud(query) {
   try {
     const q = String(query || "").trim();
     if (!q) return [];
-    try {
-      const data = await CricYuvaCloud.searchPlayers(q);
-      const players = Array.isArray(data?.players) ? data.players : [];
-      window._cricYuvaCloudPlayers = players;
-      return players;
-    } catch (e) {
-      if (!isStaticApiError(e)) throw e;
-      const players = localRegisteredPlayers(q);
-      window._cricYuvaCloudPlayers = players;
-      return players;
-    }
+    const data = await CricYuvaCloud.searchPlayers(q);
+    const players = Array.isArray(data?.players) ? data.players : [];
+    window._cricYuvaCloudPlayers = players;
+    return players;
   } catch (e) {
     console.warn("Registered player search unavailable:", e);
     return [];
@@ -17324,14 +17236,8 @@ if (btnTourneyEdit) {
     }
     container.innerHTML = `<div style="text-align:center;padding:25px;color:#8892a8;font-size:12px;"><i class="fa-solid fa-spinner fa-spin"></i> Searching registered players...</div>`;
     try {
-      let players = [];
-      try {
-        const data = await CricYuvaCloud.searchPlayers(q);
-        players = Array.isArray(data?.players) ? data.players : [];
-      } catch (e) {
-        if (!isStaticApiError(e)) throw e;
-        players = localRegisteredPlayers(q);
-      }
+      const data = await CricYuvaCloud.searchPlayers(q);
+      const players = Array.isArray(data?.players) ? data.players : [];
       window._cricYuvaCloudPlayers = players;
       if (!players.length) {
         container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">No registered player found for <b>${escapeHtml(q)}</b>.</div>`;
