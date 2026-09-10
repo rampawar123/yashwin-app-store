@@ -12491,3 +12491,32 @@ body {
 .notif-item{position:relative;padding-right:42px;}
 .notif-delete-btn{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:1px solid #3a2222;background:#211515;color:#f87171;border-radius:8px;cursor:pointer;}
 .notif-delete-btn:hover{background:#351818;}
+
+/* LOGIN OTP - VERIFY BUTTON FIX */
+#verifyLoginOtpButton {
+  width: 100% !important;
+  min-height: 58px !important;
+  margin: 12px 0 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 0 18px !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  font-size: 15px !important;
+  letter-spacing: 0.8px !important;
+}
+
+#verifyLoginOtpButton i {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  flex: 0 0 auto !important;
+}
+
