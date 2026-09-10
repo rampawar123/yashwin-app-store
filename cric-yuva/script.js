@@ -122,7 +122,39 @@ document.addEventListener("DOMContentLoaded", function () {
   function isStaticApiError(error) {
     return /HTTP 405|HTTP 404|Failed to fetch|NetworkError|Load failed|API server/i.test(String(error && error.message || error));
   }
+  function syncActiveProfileToRegisteredDirectory() {
+    try {
+      const activeId = String(window.CricYuvaStorage?.getActiveUserId?.() || localStorage.getItem("cricYuvaCloudUserId") || "").trim();
+      const mobile = String(localStorage.getItem("cricYuvaProfileMobile") || localStorage.getItem("cricYuvaMobile") || "").replace(/\D/g, "");
+      const playerId = String(localStorage.getItem("cricYuvaPlayerId") || (mobile ? "CY-" + mobile : "")).trim();
+      const name = String(localStorage.getItem("cricYuvaProfileName") || "").trim();
+      if (!mobile && !playerId && !activeId) return;
+      let users = window.CricYuvaStorage?.getAllRegisteredUsers?.() || [];
+      if (!Array.isArray(users)) users = [];
+      let user = users.find(u => String(u?.userId || "") === activeId || (mobile && String(u?.mobile || "").replace(/\D/g, "") === mobile) || (playerId && String(u?.playerId || "") === playerId));
+      if (!user) {
+        user = { userId: activeId || (mobile ? "CYU-" + mobile : ""), playerId, mobile, name };
+        users.push(user);
+      }
+      if (name) user.name = name;
+      if (mobile) user.mobile = mobile;
+      if (playerId) user.playerId = playerId;
+      user.jerseyName = localStorage.getItem("cricYuvaJerseyName") || user.jerseyName || name;
+      user.jerseyNumber = localStorage.getItem("cricYuvaJerseyNumber") || user.jerseyNumber || "";
+      user.jerseySize = localStorage.getItem("cricYuvaJerseySize") || user.jerseySize || "";
+      user.role = localStorage.getItem("cricYuvaPlayingRole") || user.role || "All-Rounder";
+      user.email = localStorage.getItem("cricYuvaProfileEmail") || user.email || "";
+      user.dateOfBirth = localStorage.getItem("cricYuvaDateOfBirth") || user.dateOfBirth || "";
+      const photo = localStorage.getItem("cricYuvaProfilePhoto") || user.photoUrl || "";
+      if (photo) { user.photoUrl = photo; user.photo = photo; user.profilePhoto = photo; }
+      localStorage.setItem("cricYuva_users_registry", JSON.stringify(users));
+      try { window.CricYuvaStorage?.saveRegisteredUsers?.(users); } catch(e) {}
+    } catch(e) { console.warn("Could not sync active profile directory:", e); }
+  }
+
   function localRegisteredPlayers(query) {
+    syncActiveProfileToRegisteredDirectory();
+
     const q = String(query || "").trim().toLowerCase();
     const users = window.CricYuvaStorage?.getAllRegisteredUsers?.() || [];
 
@@ -794,6 +826,203 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // ==========================================
+  // UNIVERSAL IMAGE CROP TOOL
+  // Lets the user choose exactly which part of a photo/logo to keep.
+  // Used for Profile Photo, Team Logo, Squad Player Photo and Tournament Logo.
+  // ==========================================
+  let cyCropState = null;
+
+  function ensureCricYuvaCropper() {
+    if (document.getElementById("cricYuvaCropModal")) return;
+    const wrap = document.createElement("div");
+    wrap.id = "cricYuvaCropModal";
+    wrap.style.cssText = "position:fixed;inset:0;z-index:99999;display:none;background:rgba(0,0,0,.82);align-items:center;justify-content:center;padding:14px;box-sizing:border-box;";
+    wrap.innerHTML = `
+      <div style="width:min(94vw,520px);max-height:94vh;overflow:auto;background:#121722;border:1px solid #34405a;border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.55);padding:16px;box-sizing:border-box;color:#fff;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+          <div><div id="cyCropTitle" style="font-size:18px;font-weight:900;">Adjust Photo</div><div style="font-size:11px;color:#94a3b8;margin-top:3px;">Drag photo • Zoom • Keep the part you want</div></div>
+          <button type="button" id="cyCropCancelTop" style="width:36px;height:36px;border-radius:50%;border:1px solid #3a465f;background:#1a2030;color:#fff;font-size:20px;">×</button>
+        </div>
+        <div id="cyCropViewport" style="position:relative;width:min(82vw,420px);height:min(82vw,420px);max-width:420px;max-height:420px;margin:0 auto;background:#070a10;border:2px solid #ff7a00;border-radius:14px;overflow:hidden;touch-action:none;">
+          <img id="cyCropImage" alt="Crop preview" draggable="false" style="position:absolute;max-width:none;user-select:none;-webkit-user-drag:none;cursor:grab;transform-origin:top left;">
+          <div style="position:absolute;inset:0;pointer-events:none;border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 0 0 9999px rgba(0,0,0,.06);"></div>
+          <div style="position:absolute;left:25%;top:25%;width:50%;height:50%;border:1px dashed rgba(255,255,255,.65);border-radius:10px;pointer-events:none;"></div>
+        </div>
+        <div style="margin:14px 4px 4px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#aab4c8;margin-bottom:6px;"><span>Zoom</span><span id="cyCropZoomValue">100%</span></div>
+          <input id="cyCropZoom" type="range" min="50" max="300" value="100" step="1" style="width:100%;accent-color:#ff7a00;">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button type="button" id="cyCropReset" style="flex:1;padding:12px;border-radius:10px;border:1px solid #39445b;background:#1a2030;color:#fff;font-weight:800;">↺ Reset</button>
+          <button type="button" id="cyCropCancel" style="flex:1;padding:12px;border-radius:10px;border:1px solid #39445b;background:#1a2030;color:#fff;font-weight:800;">Cancel</button>
+          <button type="button" id="cyCropApply" style="flex:1.4;padding:12px;border-radius:10px;border:0;background:linear-gradient(135deg,#ff7a00,#ff4d00);color:#fff;font-weight:900;">✓ Use This Crop</button>
+        </div>
+      </div>`;
+    document.body.appendChild(wrap);
+
+    const img = document.getElementById("cyCropImage");
+    const viewport = document.getElementById("cyCropViewport");
+    const zoom = document.getElementById("cyCropZoom");
+    const zoomValue = document.getElementById("cyCropZoomValue");
+
+    function closeCrop(cancelled) {
+      wrap.style.display = "none";
+      if (cancelled && cyCropState && cyCropState.fileInput) cyCropState.fileInput.value = "";
+      cyCropState = null;
+      img.removeAttribute("src");
+    }
+
+    function applyZoom() {
+      if (!cyCropState || !cyCropState.img) return;
+      const st = cyCropState;
+      const z = Number(zoom.value) / 100;
+      const scale = st.baseScale * z;
+      const oldScale = st.scale || scale;
+      const cx = st.viewW / 2, cy = st.viewH / 2;
+      // Keep the point under the viewport center stable while zooming.
+      const relX = (cx - st.x) / oldScale;
+      const relY = (cy - st.y) / oldScale;
+      st.scale = scale;
+      st.x = cx - relX * scale;
+      st.y = cy - relY * scale;
+      st.x = Math.min(0, Math.max(st.viewW - st.img.naturalWidth * scale, st.x));
+      st.y = Math.min(0, Math.max(st.viewH - st.img.naturalHeight * scale, st.y));
+      img.style.width = (st.img.naturalWidth * scale) + "px";
+      img.style.height = (st.img.naturalHeight * scale) + "px";
+      img.style.left = st.x + "px";
+      img.style.top = st.y + "px";
+      zoomValue.textContent = Math.round(Number(zoom.value)) + "%";
+    }
+
+    function resetCrop() {
+      if (!cyCropState || !cyCropState.img) return;
+      const st = cyCropState;
+      zoom.value = 100;
+      st.baseScale = Math.max(st.viewW / st.img.naturalWidth, st.viewH / st.img.naturalHeight);
+      st.scale = st.baseScale;
+      st.x = (st.viewW - st.img.naturalWidth * st.scale) / 2;
+      st.y = (st.viewH - st.img.naturalHeight * st.scale) / 2;
+      applyZoom();
+    }
+
+    zoom.addEventListener("input", applyZoom);
+    document.getElementById("cyCropReset").addEventListener("click", resetCrop);
+    document.getElementById("cyCropCancel").addEventListener("click", () => closeCrop(true));
+    document.getElementById("cyCropCancelTop").addEventListener("click", () => closeCrop(true));
+    wrap.addEventListener("click", e => { if (e.target === wrap) closeCrop(true); });
+
+    let dragging = false, lastX = 0, lastY = 0;
+    const startDrag = e => { if (!cyCropState) return; dragging = true; lastX = e.clientX ?? e.touches?.[0]?.clientX ?? 0; lastY = e.clientY ?? e.touches?.[0]?.clientY ?? 0; img.style.cursor = "grabbing"; };
+    const moveDrag = e => {
+      if (!dragging || !cyCropState) return;
+      const x = e.clientX ?? e.touches?.[0]?.clientX ?? lastX;
+      const y = e.clientY ?? e.touches?.[0]?.clientY ?? lastY;
+      const dx = x-lastX, dy = y-lastY; lastX=x; lastY=y;
+      const st = cyCropState;
+      st.x = Math.min(0, Math.max(st.viewW - st.img.naturalWidth*st.scale, st.x+dx));
+      st.y = Math.min(0, Math.max(st.viewH - st.img.naturalHeight*st.scale, st.y+dy));
+      img.style.left = st.x+"px"; img.style.top = st.y+"px";
+      if (e.cancelable) e.preventDefault();
+    };
+    const endDrag = () => { dragging=false; img.style.cursor="grab"; };
+    viewport.addEventListener("pointerdown", startDrag);
+    window.addEventListener("pointermove", moveDrag, {passive:false});
+    window.addEventListener("pointerup", endDrag);
+
+    document.getElementById("cyCropApply").addEventListener("click", () => {
+      if (!cyCropState || !cyCropState.img) return;
+      const st = cyCropState;
+      const outSize = 640;
+      const canvas = document.createElement("canvas"); canvas.width=outSize; canvas.height=outSize;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#101522"; ctx.fillRect(0,0,outSize,outSize);
+      const sourceX = Math.max(0, (0-st.x)/st.scale);
+      const sourceY = Math.max(0, (0-st.y)/st.scale);
+      const sourceW = Math.min(st.img.naturalWidth-sourceX, st.viewW/st.scale);
+      const sourceH = Math.min(st.img.naturalHeight-sourceY, st.viewH/st.scale);
+      ctx.drawImage(st.img, sourceX, sourceY, sourceW, sourceH, 0, 0, outSize, outSize);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      const cb = st.callback; const input = st.fileInput;
+      wrap.style.display="none"; cyCropState=null; img.removeAttribute("src");
+      if (input) input.value="";
+      if (typeof cb === "function") cb(dataUrl);
+    });
+  }
+
+  function openCricYuvaImageCropper(file, callback, title, fileInput) {
+    if (!file || !/^image\//i.test(file.type || "")) return;
+    ensureCricYuvaCropper();
+    const wrap=document.getElementById("cricYuvaCropModal");
+    const img=document.getElementById("cyCropImage");
+    const viewport=document.getElementById("cyCropViewport");
+    const zoom=document.getElementById("cyCropZoom");
+    const titleEl=document.getElementById("cyCropTitle");
+    titleEl.textContent=title || "Adjust Photo";
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const source=new Image();
+      source.onload=()=>{
+        const viewW=viewport.clientWidth, viewH=viewport.clientHeight;
+        cyCropState={img:source,viewW,viewH,baseScale:Math.max(viewW/source.naturalWidth,viewH/source.naturalHeight),scale:1,x:0,y:0,callback,fileInput};
+        img.src=e.target.result;
+        zoom.value=100;
+        requestAnimationFrame(()=>{
+          const st=cyCropState;
+          st.baseScale=Math.max(st.viewW/st.img.naturalWidth,st.viewH/st.img.naturalHeight);
+          st.scale=st.baseScale;
+          st.x=(st.viewW-st.img.naturalWidth*st.scale)/2;
+          st.y=(st.viewH-st.img.naturalHeight*st.scale)/2;
+          img.style.width=(st.img.naturalWidth*st.scale)+"px"; img.style.height=(st.img.naturalHeight*st.scale)+"px";
+          img.style.left=st.x+"px"; img.style.top=st.y+"px";
+          document.getElementById("cyCropZoomValue").textContent="100%";
+          wrap.style.display="flex";
+        });
+      };
+      source.onerror=()=>{ callback(e.target.result); };
+      source.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function cyIsImageData(value) {
+    return typeof value === "string" && /^data:image\//i.test(value);
+  }
+  function cyLogoMarkup(value, fallback = "🏆", cls = "") {
+    const v = value || fallback;
+    if (cyIsImageData(v)) return `<img src="${escapeHtml(v)}" alt="Logo" class="${cls}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;">`;
+    return escapeHtml(v);
+  }
+  function cySetLogoElement(el, value, fallback = "🏆") {
+    if (!el) return;
+    el.innerHTML = cyLogoMarkup(value, fallback);
+  }
+
+  // ==========================================
+  function readAndFitProfilePhoto(file, callback) {
+
+    if (!file || !/^image\//i.test(file.type || "")) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const size = 640;
+        const canvas = document.createElement("canvas");
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#151824"; ctx.fillRect(0,0,size,size);
+        const scale = Math.min(size / img.width, size / img.height);
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const x = Math.round((size - w) / 2), y = Math.round((size - h) / 2);
+        ctx.drawImage(img, x, y, w, h);
+        callback(canvas.toDataURL("image/jpeg", 0.88));
+      };
+      img.onerror = function(){ callback(e.target.result); };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   // PROFILE PHOTO (ADD & REPLACE VIA FILE PICKER)
   // ==========================================
 
@@ -818,13 +1047,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const dataUrl = e.target.result;
+      openCricYuvaImageCropper(file, function(dataUrl) {
         displayProfilePhoto(dataUrl);
         localStorage.setItem("cricYuvaProfilePhoto", dataUrl);
-      };
-      reader.readAsDataURL(file);
+        syncActiveProfileToRegisteredDirectory();
+      }, "Adjust Profile Photo", profilePhotoInput);
     });
   }
 
@@ -857,6 +1084,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (jerseySize) localStorage.setItem("cricYuvaJerseySize", jerseySize.value);
       if (pantSize) localStorage.setItem("cricYuvaPantSize", pantSize.value);
       if (dateOfBirth) localStorage.setItem("cricYuvaDateOfBirth", dateOfBirth.value);
+      syncActiveProfileToRegisteredDirectory();
 
       try {
         await CricYuvaCloud.request("/api/profile", { method: "PUT", body: JSON.stringify({
@@ -867,7 +1095,8 @@ document.addEventListener("DOMContentLoaded", function () {
           jerseyNumber: localStorage.getItem("cricYuvaJerseyNumber") || "",
           jerseySize: localStorage.getItem("cricYuvaJerseySize") || "",
           pantSize: localStorage.getItem("cricYuvaPantSize") || "",
-          dateOfBirth: localStorage.getItem("cricYuvaDateOfBirth") || ""
+          dateOfBirth: localStorage.getItem("cricYuvaDateOfBirth") || "",
+          photoUrl: localStorage.getItem("cricYuvaProfilePhoto") || ""
         }) });
       } catch (e) {}
 
@@ -2167,14 +2396,12 @@ document.addEventListener("DOMContentLoaded", function () {
     teamLogoFileInput.addEventListener("change", function (e) {
       const file = e.target.files && e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function (evt) {
-          tempTeamLogoDataUrl = evt.target.result;
+        openCricYuvaImageCropper(file, function(dataUrl) {
+          tempTeamLogoDataUrl = dataUrl;
           if (teamLogoModalPreview) {
             teamLogoModalPreview.innerHTML = `<img src="${tempTeamLogoDataUrl}" alt="Preview">`;
           }
-        };
-        reader.readAsDataURL(file);
+        }, "Adjust Team Logo", teamLogoFileInput);
       }
     });
   }
@@ -2402,14 +2629,12 @@ document.addEventListener("DOMContentLoaded", function () {
     playerPhotoFileInput.addEventListener("change", function (e) {
       const file = e.target.files && e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function (evt) {
-          tempPlayerPhotoDataUrl = evt.target.result;
+        openCricYuvaImageCropper(file, function(dataUrl) {
+          tempPlayerPhotoDataUrl = dataUrl;
           if (playerPhotoModalPreview) {
             playerPhotoModalPreview.innerHTML = `<img src="${tempPlayerPhotoDataUrl}" alt="Preview">`;
           }
-        };
-        reader.readAsDataURL(file);
+        }, "Adjust Player Photo", playerPhotoFileInput);
       }
     });
   }
@@ -10084,7 +10309,7 @@ function rotateStrike(innings) {
         <div class="tournament-card" data-tourney-id="${t.id}">
           <div class="t-card-top-row">
             <div class="t-card-logo-title">
-              <div class="t-card-logo-badge">${t.logo || "🏆"}</div>
+              <div class="t-card-logo-badge">${cyLogoMarkup(t.logo, "🏆")}</div>
               <div class="t-card-info">
                 <h3 class="t-card-name">${t.name}</h3>
                 <div class="t-card-tags">
@@ -10183,7 +10408,7 @@ function rotateStrike(innings) {
     const winnerTeamName = document.getElementById("tHeroWinnerName") || document.getElementById("tWinnerTeamName");
     const tabTeamsCount = document.getElementById("tTabTeamsCount");
 
-    if (logoEl) logoEl.textContent = tourney.logo || "🏆";
+    if (logoEl) cySetLogoElement(logoEl, tourney.logo, "🏆");
     if (nameEl) nameEl.textContent = tourney.name;
     if (formatEl) formatEl.textContent = tourney.format;
     if (statusEl) {
@@ -10294,7 +10519,7 @@ function rotateStrike(innings) {
     const oCompleted = document.getElementById("tOverviewCompletedMatches");
     const oUpcoming = document.getElementById("tOverviewUpcomingMatches");
 
-    if (oLogo) oLogo.textContent = tourney.logo || "🏆";
+    if (oLogo) cySetLogoElement(oLogo, tourney.logo, "🏆");
     if (oName) oName.textContent = tourney.name || "Tournament Overview";
     if (oFormat) oFormat.textContent = tourney.format || "League";
     if (oFormatLbl) oFormatLbl.textContent = tourney.format || "League";
@@ -13541,6 +13766,11 @@ function openEditTournamentModal(tourneyId) {
     chip.classList.toggle("active", chip.dataset.icon === (tourney.logo || "🏆"));
   });
 
+  const editLogoPreview = document.getElementById("editTourneyLogoPreview");
+  if (editLogoPreview) {
+    if (cyIsImageData(tourney.logo)) { editLogoPreview.style.display = "block"; editLogoPreview.innerHTML = `<img src="${escapeHtml(tourney.logo)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`; }
+    else { editLogoPreview.style.display = "none"; editLogoPreview.innerHTML = ""; }
+  }
   modal.style.display = "flex";
 }
 
@@ -13577,7 +13807,10 @@ document.querySelectorAll("#editTourneyLogoRow .icon-chip").forEach(chip => {
   });
 });
 
-// Edit Tournament Close
+// Edit tournament custom logo upload
+  ensureTournamentLogoUpload("editTourneyLogoFile", "editTourneyLogo", "Upload Tournament Logo", "editTourneyLogoPreview");
+
+  // Edit Tournament Close
 const editTourneyCloseBtn = document.getElementById("editTourneyCloseBtn");
 if (editTourneyCloseBtn) {
   editTourneyCloseBtn.addEventListener("click", () => {
@@ -13646,6 +13879,10 @@ if (btnTourneyEdit) {
     if (!modal) return;
 
     // Reset fields
+    const logoHidden = document.getElementById("inputTourneySelectedLogo");
+    if (logoHidden) logoHidden.value = "🏆";
+    const logoPreview = document.getElementById("inputTourneyLogoPreview");
+    if (logoPreview) { logoPreview.style.display = "none"; logoPreview.innerHTML = ""; }
     const nameInput = document.getElementById("inputTourneyName");
     const startDateInput = document.getElementById("inputTourneyStartDate");
     const endDateInput = document.getElementById("inputTourneyEndDate");
@@ -13946,6 +14183,33 @@ if (btnTourneyEdit) {
       if (hiddenLogo) hiddenLogo.value = chip.dataset.icon || "🏆";
     });
   });
+
+  // Tournament custom logo upload (create wizard)
+  function ensureTournamentLogoUpload(inputId, hiddenId, labelText, previewId) {
+    const hidden = document.getElementById(hiddenId);
+    if (!hidden) return null;
+    let input = document.getElementById(inputId);
+    if (input) return input;
+    const host = hidden.parentElement;
+    if (!host) return null;
+    const box = document.createElement("div");
+    box.style.cssText = "margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;";
+    box.innerHTML = `<input type="file" id="${inputId}" accept="image/*" style="display:none;"><button type="button" id="${inputId}Btn" style="border:1px solid #ff7a29;background:#1a1510;color:#ff9a4d;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer;"><i class="fa-solid fa-camera"></i> ${labelText}</button><span id="${previewId}" style="width:42px;height:42px;border-radius:10px;overflow:hidden;border:1px solid #38445c;display:none;background:#111827;"></span>`;
+    host.appendChild(box);
+    input=box.querySelector("#"+inputId);
+    const btn=box.querySelector("#"+inputId+"Btn");
+    btn.addEventListener("click",()=>input.click());
+    input.addEventListener("change",e=>{
+      const file=e.target.files&&e.target.files[0]; if(!file) return;
+      openCricYuvaImageCropper(file,dataUrl=>{
+        hidden.value=dataUrl;
+        document.querySelectorAll(".tourney-logo-selection-row .icon-chip").forEach(c=>c.classList.remove("active"));
+        const prev=document.getElementById(previewId); if(prev){prev.style.display="block"; prev.innerHTML=`<img src="${escapeHtml(dataUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;}
+      }, "Adjust Tournament Logo", input);
+    });
+    return input;
+  }
+  ensureTournamentLogoUpload("inputTourneyLogoFile", "inputTourneySelectedLogo", "Upload Tournament Logo", "inputTourneyLogoPreview");
 
   // Wizard Overs Pills & Custom Overs
   document.querySelectorAll(".t-overs-chip").forEach(chip => {
@@ -17835,7 +18099,12 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       players = localRegisteredPlayers(q);
       try {
         const data = await CricYuvaCloud.searchPlayers(q);
-        const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
+        const rawCloudPlayers = Array.isArray(data?.players) ? data.players : [];
+        // Never show legacy/dummy player rows. A real player must be linked to a registered user account.
+        const cloudPlayers = rawCloudPlayers.filter(p => {
+          const uid = String(p.userId || p.user_id || "").trim();
+          return !!uid;
+        });
         const merged = [...players, ...cloudPlayers];
         const seen = new Set();
         players = merged.filter(p => {
@@ -17868,17 +18137,28 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
         );
         const photo = p.photoUrl || p.photo_url || p.profile_photo || p.photo || "";
         const role = p.role || "All-Rounder";
+        const jerseyName = p.jerseyName || p.jersey_name || "";
+        const jerseyNumber = p.jerseyNumber || p.jersey_number || "";
+        const jerseySize = p.jerseySize || p.jersey_size || "";
+        const email = p.email || "";
+        const birthdate = p.birthdate || p.dateOfBirth || p.date_of_birth || "";
         const safeJson = encodeURIComponent(JSON.stringify(p));
-        return `<div style="background:#161922;border:1px solid #293249;border-radius:12px;padding:11px;display:flex;align-items:center;gap:10px;">
-          <div style="width:44px;height:44px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;flex:none;">
-            ${photo ? `<img src="${escapeHtml(photo)}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}
+        return `<div style="background:#161922;border:1px solid #293249;border-radius:14px;padding:12px;display:flex;align-items:flex-start;gap:11px;">
+          <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;font-size:16px;flex:none;border:2px solid rgba(255,122,0,.45);">
+            ${photo ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(p.name || "Player")}" style="width:100%;height:100%;object-fit:contain;object-position:center;background:#11151d;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}
           </div>
           <div style="flex:1;min-width:0;">
-            <b style="color:#fff;font-size:13px;display:block;">${escapeHtml(p.name || "Player")}</b>
-            <div style="font-size:10px;color:#60a5fa;margin-top:3px;font-weight:800;">Player ID: ${escapeHtml(pid || "Not assigned")}</div>
-            <div style="font-size:10px;color:#93a0b8;margin-top:2px;">Mobile: ${escapeHtml(mobile || "—")} • ${escapeHtml(role)}</div>
+            <b style="color:#fff;font-size:14px;display:block;">${escapeHtml(p.name || "Player")}</b>
+            <div style="font-size:10px;color:#60a5fa;margin-top:3px;font-weight:900;">PLAYER ID: ${escapeHtml(pid || "Not assigned")}</div>
+            <div style="font-size:10px;color:#cbd5e1;margin-top:3px;">📱 ${escapeHtml(mobile || "—")} • ${escapeHtml(role)}</div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;">
+              ${jerseyName ? `<span>Jersey: ${escapeHtml(jerseyName)}</span>` : ""}
+              ${jerseyNumber ? `<span>No: ${escapeHtml(jerseyNumber)}</span>` : ""}
+              ${jerseySize ? `<span>Size: ${escapeHtml(jerseySize)}</span>` : ""}
+            </div>
+            ${(email || birthdate) ? `<div style="font-size:9.5px;color:#64748b;margin-top:3px;">${email ? escapeHtml(email) : ""}${email && birthdate ? " • " : ""}${birthdate ? "DOB: " + escapeHtml(birthdate) : ""}</div>` : ""}
           </div>
-          <button type="button" class="btn-add-registered-player" data-player-json="${safeJson}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:8px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};">${already ? "✓ Added" : "+ ADD"}</button>
+          <button type="button" class="btn-add-registered-player" data-player-json="${safeJson}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:8px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};flex:none;">${already ? "✓ Added" : "+ ADD"}</button>
         </div>`;
       }).join("");
 
@@ -18228,9 +18508,10 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       }
       clearTimeout(teamSearchTimer);
       teamSearchTimer = setTimeout(() => {
-        if (val.trim().length >= 2) renderRegisteredTeamPlayerResults(val);
-        else renderTeamPlayerSearchResults(val);
-      }, 250);
+        // This modal is strictly for real registered Cric Yuva accounts.
+        // Never fall back to the old dummy/master-player directory here.
+        renderRegisteredTeamPlayerResults(val);
+      }, 180);
     });
   }
 
@@ -18238,7 +18519,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     btnSearchClearQuery.addEventListener("click", function() {
       inputSearchTeamPlayer.value = "";
       btnSearchClearQuery.style.display = "none";
-      renderTeamPlayerSearchResults("");
+      renderRegisteredTeamPlayerResults("");
     });
   }
 

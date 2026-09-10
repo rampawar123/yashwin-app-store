@@ -2792,7 +2792,9 @@ body {
 .player-photo-preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  background: #151824;
 }
 
 .logo-upload-hint {

@@ -793,14 +793,14 @@ app.get("/api/players/search", async (req, res) => {
     if (!q) {
       rows = await sql`
         SELECT * FROM players
-        WHERE is_active IS NOT FALSE
+        WHERE is_active IS NOT FALSE AND user_id IS NOT NULL
         ORDER BY created_at DESC
         LIMIT 50
       `;
     } else {
       rows = await sql`
         SELECT * FROM players
-        WHERE (is_active IS NOT FALSE) AND (
+        WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL AND (
           name ILIKE ${like} OR
           mobile ILIKE ${like} OR
           player_id ILIKE ${like} OR
