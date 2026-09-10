@@ -498,9 +498,21 @@ app.post("/api/auth/request-otp", otpLimiter, async (req, res) => {
     const now = Date.now();
     const expiresAt = now + 5 * 60 * 1000;
 
+    const codeHash = crypto.createHash("sha256").update(otp).digest("hex");
+
     await sql`
-      INSERT INTO otp_codes (mobile, code, expires_at, attempts, used, created_at)
-      VALUES (${cleanMobile}, ${otp}, ${expiresAt}, 0, FALSE, ${now})
+      UPDATE otp_codes
+      SET used = TRUE
+      WHERE mobile = ${cleanMobile}
+        AND purpose = ${purpose}
+        AND used = FALSE
+    `;
+
+    await sql`
+      INSERT INTO otp_codes
+        (mobile, code_hash, purpose, expires_at, attempts, used, created_at)
+      VALUES
+        (${cleanMobile}, ${codeHash}, ${purpose}, ${expiresAt}, 0, FALSE, ${now})
     `;
 
     // Delivery hook: configure OTP_WEBHOOK_URL for a real SMS/WhatsApp provider.
@@ -543,9 +555,10 @@ app.post("/api/auth/verify-otp", async (req, res) => {
     const now = Date.now();
 
     const otpRows = await sql`
-      SELECT id, code, expires_at, attempts, used
+      SELECT id, code_hash, purpose, expires_at, attempts, used
       FROM otp_codes
       WHERE mobile = ${cleanMobile}
+        AND purpose = ${purpose}
       ORDER BY created_at DESC
       LIMIT 1
     `;
@@ -568,7 +581,9 @@ app.post("/api/auth/verify-otp", async (req, res) => {
       return res.status(400).json({ ok: false, success: false, error: "Maximum verification attempts exceeded. Please request a new OTP." });
     }
 
-    if (otpRecord.code !== cleanCode) {
+    const submittedCodeHash = crypto.createHash("sha256").update(cleanCode).digest("hex");
+
+    if (otpRecord.code_hash !== submittedCodeHash) {
       await sql`UPDATE otp_codes SET attempts = attempts + 1 WHERE id = ${otpRecord.id}`;
       const remainingAttempts = 4 - otpRecord.attempts;
       return res.status(400).json({
