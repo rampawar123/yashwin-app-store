@@ -1119,14 +1119,14 @@ app.get("/api/teams/search", async (req, res) => {
     if (!q) {
       rows = await sql`
         SELECT * FROM teams
-        WHERE is_active IS NOT FALSE
+        WHERE is_active IS NOT FALSE AND user_id IS NOT NULL
         ORDER BY created_at DESC
         LIMIT 50
       `;
     } else {
       rows = await sql`
         SELECT * FROM teams
-        WHERE (is_active IS NOT FALSE) AND (
+        WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL AND (
           name ILIKE ${like} OR
           short_name ILIKE ${like} OR
           city ILIKE ${like} OR
@@ -1161,7 +1161,7 @@ app.get("/api/teams", async (req, res) => {
     if (!q) {
       rows = await sql`
         SELECT * FROM teams
-        WHERE is_active IS NOT FALSE
+        WHERE is_active IS NOT FALSE AND user_id IS NOT NULL
         ORDER BY created_at DESC
         LIMIT ${limit}
       `;
@@ -1169,7 +1169,7 @@ app.get("/api/teams", async (req, res) => {
       const like = "%" + q + "%";
       rows = await sql`
         SELECT * FROM teams
-        WHERE (is_active IS NOT FALSE) AND (
+        WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL AND (
           name ILIKE ${like} OR
           short_name ILIKE ${like} OR
           city ILIKE ${like} OR
@@ -1469,7 +1469,7 @@ app.get("/api/tournaments", async (req, res) => {
       if (formatFilter) {
         rows = await sql`
           SELECT * FROM tournaments
-          WHERE (is_active IS NOT FALSE)
+          WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL
             AND format ILIKE ${formatFilter}
             AND (
               name ILIKE ${like} OR
@@ -1483,7 +1483,7 @@ app.get("/api/tournaments", async (req, res) => {
       } else {
         rows = await sql`
           SELECT * FROM tournaments
-          WHERE (is_active IS NOT FALSE) AND (
+          WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL AND (
             name ILIKE ${like} OR
             short_name ILIKE ${like} OR
             city ILIKE ${like} OR
@@ -1520,7 +1520,7 @@ app.get("/api/tournaments/search", async (req, res) => {
 
     const rows = await sql`
       SELECT * FROM tournaments
-      WHERE (is_active IS NOT FALSE) AND (
+      WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL AND (
         name ILIKE ${like} OR
         short_name ILIKE ${like} OR
         city ILIKE ${like} OR

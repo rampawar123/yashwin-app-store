@@ -186,7 +186,33 @@ document.addEventListener("DOMContentLoaded", function () {
       type: "Registered User"
     }] : [];
 
-    const allUsers = [...users, ...activeFallback];
+    // Recover registered profiles saved in the current user's scoped storage.
+    // This is important when a cloud login created the account but an older build
+    // did not mirror the profile into the global browser registry.
+    const scopedProfiles = [];
+    try {
+      const keys = Object.keys(localStorage);
+      const uids = new Set();
+      keys.forEach(k => {
+        const m = k.match(/^CYU_(.+?)_cricYuvaProfileMobile$/);
+        if (m) uids.add(m[1]);
+      });
+      uids.forEach(uid => {
+        const get = key => localStorage.getItem(`CYU_${uid}_${key}`) || "";
+        const mobile = get("cricYuvaProfileMobile").replace(/\D/g, "");
+        const name = get("cricYuvaProfileName");
+        const pid = get("cricYuvaPlayerId") || (mobile ? `CY-${mobile}` : "");
+        if (mobile || pid || name) scopedProfiles.push({
+          id: pid || `CYU-${uid}`, playerId: pid || `CYU-${uid}`, userId: uid,
+          name, mobile, role: get("cricYuvaPlayingRole") || "All-Rounder",
+          jerseyNumber: get("cricYuvaJerseyNumber"), jerseyName: get("cricYuvaJerseyName") || name,
+          jerseySize: get("cricYuvaJerseySize"), email: get("cricYuvaProfileEmail"),
+          dateOfBirth: get("cricYuvaDateOfBirth"), photoUrl: get("cricYuvaProfilePhoto"),
+          photo: get("cricYuvaProfilePhoto"), type: "Registered User"
+        });
+      });
+    } catch (_) {}
+    const allUsers = [...users, ...scopedProfiles, ...activeFallback];
     const seen = new Set();
     return allUsers.filter(u => {
       const key = String(u?.playerId || u?.player_id || u?.userId || u?.mobile || u?.name || "").trim().toLowerCase();
@@ -205,12 +231,8 @@ document.addEventListener("DOMContentLoaded", function () {
       role: u.role || "All-Rounder",
       jerseyNumber: u.jerseyNumber || u.jersey || "",
       jerseyName: u.jerseyName || u.name || "",
-      jerseySize: u.jerseySize || u.jersey_size || "",
-      email: u.email || "",
-      dateOfBirth: u.dateOfBirth || u.birthdate || u.date_of_birth || "",
-      photoUrl: u.photoUrl || u.photo || u.profilePhoto || u.profile_photo || "",
-      photo: u.photoUrl || u.photo || u.profilePhoto || u.profile_photo || "",
-      avatar: u.photoUrl || u.photo || u.profilePhoto || u.profile_photo || "🏏",
+      photoUrl: u.photoUrl || u.photo || "",
+      avatar: u.photoUrl || u.photo || "🏏",
       basePrice: Number(u.basePrice) || 1.0,
       type: "Registered User"
     }));
@@ -264,108 +286,96 @@ document.addEventListener("DOMContentLoaded", function () {
   // IMPORTANT: registered user accounts are NOT deleted; only stale team/
   // tournament references created by the old demo system are cleaned.
   function cleanLegacyDummyTeamAndPlayers() {
+    const TEAM_KEY = "cricYuvaTeamData";
+    const MATCH_KEY = "cricYuvaActiveMatch";
+    const HISTORY_KEY = "cricYuvaMatchHistory";
+    const CLUBS_KEY = "cric_yuva_custom_clubs";
     const dummyTeamNames = new Set([
-      "mumbai yuva xi",
-      "mumbai yuva xi team",
-      "yuva xi",
-      "demo team",
-      "sample team",
-      "test team"
+      "mumbai yuva xi", "mumbai yuva xi team", "yuva xi", "demo team", "sample team", "test team",
+      "chennai super kings", "mumbai indians", "mi", "cs", "my"
     ]);
+    const dummyPlayerNames = new Set(["hussy", "demo player", "dummy player", "sample player", "test player"]);
     const isDummyTeam = (team) => {
       const name = String(team?.teamName || team?.name || "").trim().toLowerCase();
-      const id = String(team?.id || "").trim().toLowerCase();
-      return dummyTeamNames.has(name) || id.includes("demo_team") || id.includes("sample_team") || id.includes("mumbai_yuva_xi");
+      const id = String(team?.id || team?.teamId || team?.team_id || "").trim().toLowerCase();
+      return dummyTeamNames.has(name) || /^(demo|dummy|sample|test)[_-]/i.test(id) || id.includes("demo_team") || id.includes("sample_team") || id.includes("mumbai_yuva_xi");
     };
-    try {
-      // Never let the old unscoped legacy team resurrect on a new load.
-      localStorage.removeItem(TEAM_STORAGE_KEY);
-    } catch (e) {}
-
-
-    // Remove old/generated squad players. A squad player is kept only when it
-    // belongs to a registered Cric Yuva account (local registry or permanent
-    // server-style Player ID). This prevents old demo players from reappearing.
-    const isRegisteredOrPermanentPlayer = (p) => {
-      if (!p || typeof p !== "object") return false;
-      const pid = String(p.playerId || p.player_id || p.userId || p.user_id || p.id || "").trim();
+    const isDummyPlayer = (p) => {
+      if (!p || typeof p !== "object") return true;
+      const name = String(p.name || p.playerName || "").trim().toLowerCase();
+      const pid = String(p.playerId || p.player_id || p.userId || p.user_id || p.id || "").trim().toLowerCase();
       const mobile = String(p.mobile || "").replace(/\D/g, "");
-      const name = String(p.name || "").trim().toLowerCase();
-      if (/^(demo|dummy|sample|test)\b/.test(name)) return false;
-      if (/^(yuva player|player\s*\d+|player\s*one|player\s*two)/i.test(name)) return false;
-      try {
-        const users = window.CricYuvaStorage?.getAllRegisteredUsers?.() || [];
-        if (users.some(u => String(u?.playerId || "").trim() === pid || (mobile && String(u?.mobile || "").replace(/\D/g, "") === mobile))) return true;
-      } catch (_) {}
-      // Cloud-created permanent IDs are also real account IDs.
-      return /^(CY-|CYP-\d{4}-)/i.test(pid);
+      if (dummyPlayerNames.has(name)) return true;
+      if (/^(demo|dummy|sample|test)\b/i.test(name)) return true;
+      if (/^(yuva player|player\s*\d+|player\s*one|player\s*two)$/i.test(name)) return true;
+      if (/^(demo|dummy|sample|test)[_-]/i.test(pid)) return true;
+      // Old seeded player HUSSY had no registered account and is not a real account.
+      if (name === "hussy" && !mobile && !/^cy-/i.test(pid)) return true;
+      return false;
     };
-    const cleanPlayerArray = (arr) => Array.isArray(arr) ? arr.filter(isRegisteredOrPermanentPlayer) : arr;
+    const cleanPlayers = (arr) => Array.isArray(arr) ? arr.filter(p => !isDummyPlayer(p)) : [];
+    const cleanMatch = (m) => {
+      if (!m || typeof m !== "object") return false;
+      const a = String(m.teamA?.name || m.teamA || "").trim().toLowerCase();
+      const b = String(m.teamB?.name || m.teamB || "").trim().toLowerCase();
+      const id = String(m.matchId || m.id || "").trim().toLowerCase();
+      const title = String(m.title || m.matchTitle || "").trim().toLowerCase();
+      return dummyTeamNames.has(a) || dummyTeamNames.has(b) || id === "match-001" || id === "match-101" || /mumbai yuva xi|chennai super kings|demo match|sample match|test match/.test(title);
+    };
     try {
-      const scopedTeamRaw = getUserStorage(TEAM_STORAGE_KEY, null);
+      // Remove unscoped legacy team so it cannot resurrect old demo data.
+      localStorage.removeItem(TEAM_KEY);
+      const scopedTeamRaw = getUserStorage(TEAM_KEY, null);
       if (scopedTeamRaw) {
         const team = JSON.parse(scopedTeamRaw);
-        if (team && Array.isArray(team.players)) {
-          const before = team.players.length;
-          team.players = cleanPlayerArray(team.players);
-          if (team.players.length !== before) {
-            setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(team));
-            try { localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(team)); } catch (_) {}
-          }
+        if (isDummyTeam(team)) removeUserStorage(TEAM_KEY);
+        else if (team && Array.isArray(team.players)) {
+          team.players = cleanPlayers(team.players);
+          setUserStorage(TEAM_KEY, JSON.stringify(team));
         }
       }
     } catch (_) {}
-
     try {
-      const scopedTeamRaw = getUserStorage(TEAM_STORAGE_KEY, null);
-      if (scopedTeamRaw) {
-        const team = JSON.parse(scopedTeamRaw);
-        if (isDummyTeam(team)) removeUserStorage(TEAM_STORAGE_KEY);
-      }
-    } catch (e) {}
-
-    try {
-      const rawClubs = localStorage.getItem("cric_yuva_custom_clubs");
+      const rawClubs = localStorage.getItem(CLUBS_KEY);
       if (rawClubs) {
         const clubs = JSON.parse(rawClubs);
         if (Array.isArray(clubs)) {
-          const cleanClubs = clubs.filter(c => !isDummyTeam(c)).map(c => ({
-            ...c,
-            players: Array.isArray(c.players) ? c.players.filter(isRegisteredOrPermanentPlayer) : []
-          }));
-          if (JSON.stringify(cleanClubs) !== JSON.stringify(clubs)) localStorage.setItem("cric_yuva_custom_clubs", JSON.stringify(cleanClubs));
+          const clean = clubs.filter(c => !isDummyTeam(c)).map(c => ({ ...c, players: cleanPlayers(c.players) }));
+          localStorage.setItem(CLUBS_KEY, JSON.stringify(clean));
         }
       }
-    } catch (e) {}
-
-    // Remove stale dummy-team references from tournaments without deleting
-    // real tournaments or registered player accounts.
+    } catch (_) {}
     try {
       const rawT = getUserStorage(TOURNAMENT_STORAGE_KEY, null);
       if (rawT) {
         const list = JSON.parse(rawT);
         if (Array.isArray(list)) {
-          let changed = false;
-          list.forEach(t => {
-            if (!t || typeof t !== "object") return;
-            if (Array.isArray(t.teams)) {
-              const before = t.teams.length;
-              t.teams = t.teams.filter(tm => !isDummyTeam(tm));
-              if (before !== t.teams.length) changed = true;
-            }
-            if (t.auction && Array.isArray(t.auction.pool)) {
-              const before = t.auction.pool.length;
-              t.auction.pool = t.auction.pool.filter(p => !isDummyTeam(p) && !dummyTeamNames.has(String(p?.team || "").trim().toLowerCase()));
-              if (before !== t.auction.pool.length) changed = true;
-            }
+          const clean = list.filter(t => t && t.id && !/^tourney_(ypl|champions|knockout)_2026$/i.test(String(t.id)) && !/^(demo|dummy|sample|test)\b/i.test(String(t.name || "")));
+          clean.forEach(t => {
+            if (Array.isArray(t.teams)) t.teams = t.teams.filter(tm => !isDummyTeam(tm)).map(tm => ({ ...tm, players: cleanPlayers(tm.players) }));
+            if (t.auction?.pool && Array.isArray(t.auction.pool)) t.auction.pool = t.auction.pool.filter(p => !isDummyTeam(p) && !isDummyPlayer(p));
+            if (Array.isArray(t.fixtures)) t.fixtures = t.fixtures.filter(f => !cleanMatch({ ...f, matchId: f.matchId || f.id }));
           });
-          if (changed) setUserStorage(TOURNAMENT_STORAGE_KEY, JSON.stringify(list));
+          setUserStorage(TOURNAMENT_STORAGE_KEY, JSON.stringify(clean));
         }
       }
-    } catch (e) {}
+    } catch (_) {}
+    try {
+      const raw = getUserStorage(HISTORY_KEY, null);
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) setUserStorage(HISTORY_KEY, JSON.stringify(list.filter(m => !cleanMatch(m))));
+      }
+      const activeRaw = getUserStorage(MATCH_KEY, null);
+      if (activeRaw) {
+        const active = JSON.parse(activeRaw);
+        if (cleanMatch(active)) removeUserStorage(MATCH_KEY);
+      }
+      localStorage.removeItem(MATCH_KEY);
+      localStorage.removeItem("cric_yuva_active_live_stream");
+    } catch (_) {}
   }
-  // Runs once on every load so stale demo data cannot return from browser cache.
-  cleanLegacyDummyTeamAndPlayers();
+  // Cleanup is invoked again after all storage constants are initialized.
 
   // ==========================================
   // PROFILE DATA HELPERS & DRAWER SYNC
@@ -2691,33 +2701,22 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     render(players);
-
-    // If the entered value is an exact 10-digit mobile number and a registered
-    // account is found locally, fill the Add Squad Player form immediately.
-    // The user should not have to press a second hidden/search result button.
-    const qDigits = q.replace(/\D/g, "");
-    if (qDigits.length === 10) {
-      const exactLocal = players.find(p => String(p.mobile || "").replace(/\D/g, "") === qDigits);
-      if (exactLocal) {
-        fillRegisteredPlayerIntoSquadForm(exactLocal);
-        if (quickRegisteredResults) {
-          const pid = String(exactLocal.playerId || exactLocal.player_id || exactLocal.id || "");
-          const photo = exactLocal.photoUrl || exactLocal.photo || "";
-          quickRegisteredResults.innerHTML = `<div style="background:#101722;border:1px solid #2f8f5b;border-radius:12px;padding:10px;display:flex;align-items:center;gap:10px;">${photo ? `<img src="${escapeHtml(photo)}" alt="Player" style="width:46px;height:46px;border-radius:50%;object-fit:contain;background:#0b0f16;border:2px solid #ff7a00;">` : `<span style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#20283a;color:#60a5fa;font-weight:900;">${escapeHtml((exactLocal.name||"P").slice(0,2).toUpperCase())}</span>`}<span style="flex:1;min-width:0;"><b style="display:block;color:#fff;font-size:12px;">${escapeHtml(exactLocal.name || "Player")}</b><small style="display:block;color:#60a5fa;font-weight:800;">${escapeHtml(pid)}</small><small style="display:block;color:#4ade80;">✓ Registered profile loaded automatically</small></span></div>`;
-        }
-      }
+    // Exact mobile/Player-ID search should fill the squad form immediately,
+    // without requiring a second click on the result card.
+    const qNorm = q.replace(/\s+/g, "").toLowerCase();
+    if ((/^\d{10}$/.test(q.replace(/\D/g, "")) || /^cy[-_]?/i.test(q)) && players.length === 1) {
+      fillRegisteredPlayerIntoSquadForm(players[0]);
     }
 
     // Then merge cloud results in the background. Local results remain visible
     // if the backend is unavailable or slow.
     try {
       const data = await CricYuvaCloud.searchPlayers(q);
-      const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
-      const mergedPlayers = [...players, ...cloudPlayers];
-      render(mergedPlayers);
-      if (qDigits.length === 10) {
-        const exactCloud = mergedPlayers.find(p => String(p.mobile || "").replace(/\D/g, "") === qDigits);
-        if (exactCloud) fillRegisteredPlayerIntoSquadForm(exactCloud);
+      const cloudPlayers = Array.isArray(data?.players) ? data.players.filter(p => p && (p.userId || p.user_id || p.playerId || p.player_id)) : [];
+      const merged = [...players, ...cloudPlayers];
+      render(merged);
+      if ((/^\d{10}$/.test(q.replace(/\D/g, "")) || /^cy[-_]?/i.test(q)) && merged.length === 1) {
+        fillRegisteredPlayerIntoSquadForm(merged[0]);
       }
     } catch (e) {
       if (!isStaticApiError(e)) console.warn('Cloud registered-player search failed:', e);
@@ -6579,6 +6578,8 @@ function rotateStrike(innings) {
   // ==========================================
 
   const HISTORY_STORAGE_KEY = "cricYuvaMatchHistory";
+  // Final bootstrap cleanup: remove legacy demo team/player/match records after all storage keys exist.
+  cleanLegacyDummyTeamAndPlayers();
   let activeHistoryFilter = "all"; // 'all', 'won', 'lost', 'tied'
   let activeHistorySort = "newest"; // 'newest', 'oldest'
   let pendingDeleteMatchId = null;
@@ -16326,7 +16327,7 @@ if (btnTourneyEdit) {
     // Broadcast scorer update to Internet and local cache
     emitLiveUpdate: function(matchData) {
       if (!matchData) return;
-      const mId = matchData.matchId || matchData.id || "MATCH-001";
+      const mId = matchData.matchId || matchData.id || "";
       const payload = {
         ...matchData,
         matchId: mId,
@@ -16381,7 +16382,7 @@ if (btnTourneyEdit) {
     // Search matches from server backend
     searchServerMatches: async function(query) {
       try {
-        const res = await fetch(`/api/live/matches?search=${encodeURIComponent(query || "")}`);
+        const res = await fetch(`${CricYuvaCloud.base}/api/live/matches?search=${encodeURIComponent(query || "")}`);
         const data = await res.json();
         return data.matches || [];
       } catch (err) {
@@ -16938,7 +16939,7 @@ if (btnTourneyEdit) {
     const modal = document.getElementById("publicLiveScoreModal");
     if (!modal) return;
 
-    activePublicLiveModalMatchId = fixtureOrMatchId || "MATCH-001";
+    activePublicLiveModalMatchId = fixtureOrMatchId || null;
     modal.style.display = "flex";
 
     // 1. Initial render with local/server data
@@ -16961,7 +16962,7 @@ if (btnTourneyEdit) {
     if (!matchData && fixtureOrMatchId) {
       // Fetch from backend server first for true cross-device synchronization
       try {
-        const res = await fetch(`/api/live/match/${fixtureOrMatchId}`);
+        const res = await fetch(`${CricYuvaCloud.base}/api/live/match/${encodeURIComponent(fixtureOrMatchId)}`);
         const data = await res.json();
         if (data.success && data.match) {
           matchData = data.match;
@@ -17362,7 +17363,7 @@ if (btnTourneyEdit) {
     const active = getActiveMatch ? getActiveMatch() : null;
     if (active) {
       const actId = normalizeId(active.matchId || active.id || "match_active");
-      if (actId === q || q === "match-001" || q === "match-101" || q === "live" || q === "active") {
+      if (actId === q) {
         return active;
       }
     }
@@ -17523,7 +17524,7 @@ if (btnTourneyEdit) {
     const p = String(platform || "").toLowerCase();
     const effectiveMatchId = matchId ||
       (currentBroadcastSource && currentBroadcastSource.matchId) ||
-      (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) || "MATCH-001";
+      (typeof getActiveMatch === "function" && getActiveMatch()?.matchId) || "";
 
     if (!p.includes("yt") && !p.includes("youtube")) {
       let webUrl = p.includes("instagram") ? "https://www.instagram.com/" : "https://www.facebook.com/live/producer";
@@ -17670,9 +17671,9 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     if (!resolvedMatchId) {
       const activeM = typeof getActiveMatch === "function" ? getActiveMatch() : null;
       if (activeM) {
-        resolvedMatchId = activeM.matchId || activeM.id || "MATCH-001";
+        resolvedMatchId = activeM.matchId || activeM.id || "";
       } else {
-        resolvedMatchId = "MATCH-001";
+        resolvedMatchId = "";
       }
     }
 
@@ -17727,7 +17728,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
 
     const activeM = getActiveMatch ? getActiveMatch() : null;
     if (activeM) {
-      const mId = activeM.matchId || activeM.id || "MATCH-001";
+      const mId = activeM.matchId || activeM.id || "";
       const tA = activeM.teamA?.name || activeM.teamA || "Team Alpha";
       const tB = activeM.teamB?.name || activeM.teamB || "Team Beta";
       matchSelect.innerHTML += `<option value="${mId}">🔴 ACTIVE MATCH: ${tA} vs ${tB} [${mId}]</option>`;
@@ -17856,7 +17857,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     // 4. Try REST Server
     if (!matchData) {
       try {
-        const res = await fetch(`/api/live/match/${cleanId}`);
+        const res = await fetch(`${CricYuvaCloud.base}/api/live/match/${encodeURIComponent(cleanId)}`);
         const data = await res.json();
         if (data.success && data.match) {
           matchData = data.match;
@@ -18122,7 +18123,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
   const btnCopyBroadcastViewerLink = document.getElementById("btnCopyBroadcastViewerLink");
   if (btnCopyBroadcastViewerLink) {
     btnCopyBroadcastViewerLink.addEventListener("click", () => {
-      const mId = currentBroadcastSource?.matchId || "MATCH-001";
+      const mId = currentBroadcastSource?.matchId || "";
       const viewerUrl = `${window.location.origin}${window.location.pathname}?matchId=${mId}`;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(viewerUrl).then(() => {
@@ -18196,33 +18197,53 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
   const globalSearchModal = document.getElementById("globalSearchModal");
   const globalSearchInput = document.getElementById("globalSearchInput");
   const globalSearchResults = document.getElementById("globalSearchResults");
-  function renderGlobalSearch(query) {
+  async function renderGlobalSearch(query) {
     if (!globalSearchResults) return;
     const q = String(query || "").trim().toLowerCase();
+    if (!q) {
+      globalSearchResults.innerHTML = `<div class="global-search-empty">Type a player name, mobile number, Player ID, team or tournament, then press Search.</div>`;
+      return;
+    }
     const rows = [];
-    getTournamentsList().forEach(t => {
-      if (!q || t.name.toLowerCase().includes(q)) rows.push({ type: "Tournament", name: t.name, action: () => openTournamentDetails(t.id) });
+    const push = (type, name, sub, action) => { if (name) rows.push({ type, name, sub: sub || "", action }); };
+    const tournaments = getTournamentsList();
+    tournaments.forEach(t => {
+      if (String(t.name || "").toLowerCase().includes(q) || String(t.id || "").toLowerCase().includes(q)) push("Tournament", t.name, t.id, () => openTournamentDetails(t.id));
       (t.teams || []).forEach(tm => {
-        if (tm.name && (!q || tm.name.toLowerCase().includes(q))) rows.push({ type: "Team", name: tm.name, action: () => openTournamentDetails(t.id, "teams") });
+        const n = String(tm.name || tm.teamName || "");
+        if (n.toLowerCase().includes(q) || String(tm.id || tm.teamId || "").toLowerCase().includes(q)) push("Team", n, tm.teamId || tm.id || "", () => openTournamentDetails(t.id, "teams"));
         (tm.players || []).forEach(p => {
-          if (p.name && (!q || p.name.toLowerCase().includes(q) || String(p.id || "").toLowerCase().includes(q))) rows.push({ type: "Player", name: p.name, action: () => openPlayerProfileDetailModal(p.id || p.name) });
+          if (String(p.name || "").toLowerCase().includes(q) || String(p.playerId || p.id || "").toLowerCase().includes(q) || String(p.mobile || "").includes(q)) push("Player", p.name, p.playerId || p.id || p.mobile, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name));
         });
       });
     });
-    const team = getTeamData();
-    if (team) {
-      if (!q || team.teamName.toLowerCase().includes(q)) rows.push({ type: "My Team", name: team.teamName, action: () => showScreen("screen6") });
-      (team.players || []).forEach(p => { if (p.name && (!q || p.name.toLowerCase().includes(q) || String(p.id || "").toLowerCase().includes(q))) rows.push({ type: "Player", name: p.name, action: () => openPlayerProfileDetailModal(p.id || p.name) }); });
+    const myTeam = getTeamData();
+    if (myTeam && !isDummySearchTeam(myTeam)) {
+      if (String(myTeam.teamName || "").toLowerCase().includes(q) || String(myTeam.id || "").toLowerCase().includes(q)) push("My Team", myTeam.teamName, myTeam.id || "", () => showScreen("screen6"));
+      (myTeam.players || []).forEach(p => { if (String(p.name || "").toLowerCase().includes(q) || String(p.playerId || p.id || "").toLowerCase().includes(q) || String(p.mobile || "").includes(q)) push("Player", p.name, p.playerId || p.id || p.mobile, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name)); });
     }
+    localRegisteredPlayers(q).forEach(p => push("Registered Player", p.name, `${p.playerId || ""} • ${p.mobile || ""}`, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name)));
+    try {
+      const [pd, td, td2] = await Promise.allSettled([CricYuvaCloud.searchPlayers(q), CricYuvaCloud.request(`/api/teams/search?q=${encodeURIComponent(q)}`), CricYuvaCloud.request(`/api/tournaments/search?q=${encodeURIComponent(q)}`)]);
+      if (pd.status === "fulfilled") (pd.value.players || []).filter(p => p.userId || p.user_id).forEach(p => push("Registered Player", p.name, `${p.playerId || p.player_id || ""} • ${p.mobile || ""}`, () => openPlayerProfileDetailModal(p.playerId || p.player_id || p.id || p.name)));
+      if (td.status === "fulfilled") (td.value.teams || []).forEach(t => push("Team", t.name, t.teamId || t.team_id || "", () => showToast(`Team ${t.name} found. Open Tournament/Team to manage it.`)));
+      if (td2.status === "fulfilled") (td2.value.tournaments || []).forEach(t => push("Tournament", t.name, t.tournamentId || t.tournament_id || "", () => openTournamentDetails(t.tournamentId || t.tournament_id)));
+    } catch (_) {}
     const unique = []; const seen = new Set();
-    rows.forEach(r => { const k = `${r.type}:${r.name}`; if (!seen.has(k)) { seen.add(k); unique.push(r); } });
-    globalSearchResults.innerHTML = unique.slice(0, 30).map((r, i) => `<button type="button" class="global-search-result" data-i="${i}"><span>${escapeHtml(r.type)}</span><b>${escapeHtml(r.name)}</b></button>`).join("") || `<div class="global-search-empty">No real teams, players or tournaments found.</div>`;
-    globalSearchResults.querySelectorAll(".global-search-result").forEach((el, i) => el.addEventListener("click", () => { unique[i].action(); if (globalSearchModal) globalSearchModal.style.display = "none"; }));
+    rows.forEach(r => { const k = `${r.type}:${r.name}:${r.sub}`.toLowerCase(); if (!seen.has(k)) { seen.add(k); unique.push(r); } });
+    globalSearchResults.innerHTML = unique.slice(0, 30).map((r,i) => `<button type="button" class="global-search-result" data-i="${i}"><span>${escapeHtml(r.type)}</span><b>${escapeHtml(r.name)}</b>${r.sub ? `<small style="display:block;color:#8b99b5;margin-top:3px;">${escapeHtml(r.sub)}</small>` : ""}</button>`).join("") || `<div class="global-search-empty">No real registered players, teams or tournaments found.</div>`;
+    globalSearchResults.querySelectorAll(".global-search-result").forEach((el,i) => el.addEventListener("click", () => { unique[i].action(); if (globalSearchModal) globalSearchModal.style.display="none"; }));
   }
+  function isDummySearchTeam(team) { const n=String(team?.teamName||team?.name||"").trim().toLowerCase(); return ["mumbai yuva xi","demo team","sample team","test team"].includes(n); }
+  const globalSearchRunBtn = document.getElementById("globalSearchRunBtn");
   if (globalSearchBtn && globalSearchModal) {
     globalSearchBtn.addEventListener("click", () => { globalSearchModal.style.display = "flex"; if (globalSearchInput) { globalSearchInput.value = ""; renderGlobalSearch(""); globalSearchInput.focus(); } });
   }
-  if (globalSearchInput) globalSearchInput.addEventListener("input", () => renderGlobalSearch(globalSearchInput.value));
+  if (globalSearchRunBtn) globalSearchRunBtn.addEventListener("click", () => renderGlobalSearch(globalSearchInput?.value || ""));
+  if (globalSearchInput) {
+    globalSearchInput.addEventListener("input", () => { clearTimeout(window.__cyGlobalSearchTimer); window.__cyGlobalSearchTimer=setTimeout(() => renderGlobalSearch(globalSearchInput.value), 250); });
+    globalSearchInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); renderGlobalSearch(globalSearchInput.value); } });
+  }
   document.getElementById("globalSearchCloseBtn")?.addEventListener("click", () => { if (globalSearchModal) globalSearchModal.style.display = "none"; });
 
   document.getElementById("shareQrCloseBtn")?.addEventListener("click", () => { document.getElementById("cricYuvaShareQrModal").style.display = "none"; });
