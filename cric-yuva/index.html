@@ -3640,6 +3640,20 @@
  </div>
 
  <!-- ROLE DROPDOWN -->
+ <!-- REGISTERED PROFILE DETAILS (AUTO-FILLED) -->
+ <div id="registeredProfileAutoDetails" style="display:none;background:#101722;border:1px solid #293249;border-radius:12px;padding:10px;margin-bottom:10px;">
+   <div style="font-size:11px;color:#ff7a00;font-weight:900;margin-bottom:7px;"><i class="fa-solid fa-circle-check"></i> REGISTERED PROFILE — AUTO FILLED</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;color:#cbd5e1;">
+     <div>🆔 <b>Player ID:</b> <span id="autoPlayerId">—</span></div>
+     <div>📱 <b>Mobile:</b> <span id="autoPlayerMobile">—</span></div>
+     <div>👕 <b>Jersey:</b> <span id="autoPlayerJerseyName">—</span></div>
+     <div>🔢 <b>No:</b> <span id="autoPlayerJerseyNumber">—</span></div>
+     <div>📏 <b>Size:</b> <span id="autoPlayerJerseySize">—</span></div>
+     <div>✉️ <b>Email:</b> <span id="autoPlayerEmail">—</span></div>
+   </div>
+   <div style="font-size:10px;color:#94a3b8;margin-top:6px;">DOB: <span id="autoPlayerDob">—</span></div>
+ </div>
+
  <div class="form-group">
  <label for="selectPlayerRole" class="form-label">Playing Role <span class="req">*</span></label>
  <div class="modal-input-box">
@@ -4662,13 +4676,22 @@
 
      <form id="addTeamToTourneyForm" class="modal-form">
        <div class="form-group">
+         <label class="form-label">Search Team by Team ID or Team Name</label>
+         <div class="modal-input-box">
+           <i class="fa-solid fa-magnifying-glass text-orange"></i>
+           <input type="text" id="inputAddTourneyTeamSearch" placeholder="Enter Team ID or Team Name..." autocomplete="off">
+         </div>
+       </div>
+
+       <div class="form-group">
          <label class="form-label">Select Team to Add</label>
          <div class="modal-input-box">
            <i class="fa-solid fa-shield-halved text-orange"></i>
            <select id="selectAddTourneyTeam">
-             <!-- Dynamically populated with available clubs -->
+             <!-- Dynamically populated with available teams -->
            </select>
          </div>
+         <div style="font-size:10px;color:#7f8aa3;margin-top:6px;">Team ID + Team Name + complete saved squad will be added together.</div>
        </div>
 
        <button type="submit" class="btn-modal-submit" id="btnConfirmAddTeamToTourney">

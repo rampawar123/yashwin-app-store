@@ -173,11 +173,15 @@ document.addEventListener("DOMContentLoaded", function () {
       userId: activeUserId,
       name: activeName || "Player",
       mobile: activeMobile,
-      role: "All-Rounder",
-      jerseyNumber: "",
-      jerseyName: activeName || "Player",
-      photoUrl: "",
-      avatar: "🏏",
+      role: localStorage.getItem("cricYuvaPlayingRole") || "All-Rounder",
+      jerseyNumber: localStorage.getItem("cricYuvaJerseyNumber") || "",
+      jerseyName: localStorage.getItem("cricYuvaJerseyName") || activeName || "Player",
+      jerseySize: localStorage.getItem("cricYuvaJerseySize") || "",
+      email: localStorage.getItem("cricYuvaProfileEmail") || "",
+      dateOfBirth: localStorage.getItem("cricYuvaDateOfBirth") || "",
+      photoUrl: localStorage.getItem("cricYuvaProfilePhoto") || "",
+      photo: localStorage.getItem("cricYuvaProfilePhoto") || "",
+      avatar: localStorage.getItem("cricYuvaProfilePhoto") || "🏏",
       basePrice: 1.0,
       type: "Registered User"
     }] : [];
@@ -188,8 +192,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const key = String(u?.playerId || u?.player_id || u?.userId || u?.mobile || u?.name || "").trim().toLowerCase();
       if (!key || seen.has(key)) return false;
       seen.add(key);
-      const hay = [u.name, u.mobile, u.playerId, u.player_id, u.userId, u.jerseyName].map(v => String(v || "").toLowerCase());
-      return !q || hay.some(v => v.includes(q));
+      const hay = [u.name, u.mobile, u.playerId, u.player_id, u.userId, u.jerseyName, u.jerseyNumber].map(v => String(v || "").toLowerCase());
+      const qDigits = q.replace(/\D/g, "");
+      const mobileDigits = String(u.mobile || "").replace(/\D/g, "");
+      const mobileMatch = qDigits.length >= 3 && mobileDigits.includes(qDigits);
+      return !q || hay.some(v => v.includes(q)) || mobileMatch;
     }).map(u => ({
       id: u.playerId || u.player_id || u.userId || "",
       playerId: u.playerId || u.player_id || u.userId || "",
@@ -1001,6 +1008,36 @@ document.addEventListener("DOMContentLoaded", function () {
     reader.readAsDataURL(file);
   }
 
+  // Re-open an already-cropped image so the user can adjust the crop again.
+  // This is used for existing Profile Photo, Team Logo, Squad Player Photo and Tournament/Auction logo.
+  function openCricYuvaDataCropper(dataUrl, callback, title) {
+    if (!cyIsImageData(dataUrl)) return false;
+    ensureCricYuvaCropper();
+    const wrap=document.getElementById("cricYuvaCropModal");
+    const viewport=document.getElementById("cyCropViewport");
+    const zoom=document.getElementById("cyCropZoom");
+    const titleEl=document.getElementById("cyCropTitle");
+    titleEl.textContent=title||"Adjust Photo";
+    const source=new Image();
+    source.onload=()=>{
+      const viewW=viewport.clientWidth||400, viewH=viewport.clientHeight||400;
+      cyCropState={img:source,viewW,viewH,baseScale:Math.max(viewW/source.naturalWidth,viewH/source.naturalHeight),scale:1,x:0,y:0,callback,fileInput:null};
+      zoom.value=100;
+      requestAnimationFrame(()=>{
+        const st=cyCropState; if(!st)return;
+        st.baseScale=Math.max(st.viewW/st.img.naturalWidth,st.viewH/st.img.naturalHeight);
+        st.scale=st.baseScale;
+        st.x=(st.viewW-st.img.naturalWidth*st.scale)/2;
+        st.y=(st.viewH-st.img.naturalHeight*st.scale)/2;
+        const evt=new Event("input"); zoom.dispatchEvent(evt);
+        wrap.style.display="flex";
+      });
+    };
+    source.onerror=()=>showToast("This saved image could not be edited. Please choose a new photo/logo.");
+    source.src=dataUrl;
+    return true;
+  }
+
   function cyIsImageData(value) {
     return typeof value === "string" && /^data:image\//i.test(value);
   }
@@ -1054,7 +1091,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (profilePhoto && profilePhotoInput) {
     profilePhoto.addEventListener("click", function () {
-      profilePhotoInput.click();
+      const current = localStorage.getItem("cricYuvaProfilePhoto") || "";
+      if (cyIsImageData(current)) {
+        openCricYuvaDataCropper(current, function(dataUrl) {
+          displayProfilePhoto(dataUrl);
+          localStorage.setItem("cricYuvaProfilePhoto", dataUrl);
+          syncActiveProfileToRegisteredDirectory();
+        }, "Adjust Profile Photo");
+      } else profilePhotoInput.click();
     });
   }
 
@@ -2408,7 +2452,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Team Logo Picker Click
   if (teamLogoPickerBox && teamLogoFileInput) {
-    teamLogoPickerBox.addEventListener("click", () => teamLogoFileInput.click());
+    teamLogoPickerBox.addEventListener("click", (e) => {
+      // If a logo already exists, clicking it opens the same crop editor again.
+      // Clicking the upload hint (camera) always lets the user choose a new file.
+      if (e.target.closest && e.target.closest(".logo-upload-hint")) {
+        teamLogoFileInput.click();
+        return;
+      }
+      if (cyIsImageData(tempTeamLogoDataUrl)) {
+        openCricYuvaDataCropper(tempTeamLogoDataUrl, function(dataUrl) {
+          tempTeamLogoDataUrl = dataUrl;
+          if (teamLogoModalPreview) teamLogoModalPreview.innerHTML = `<img src="${escapeHtml(dataUrl)}" alt="Team Logo">`;
+        }, "Adjust Team Logo");
+      } else teamLogoFileInput.click();
+    });
     teamLogoFileInput.addEventListener("change", function (e) {
       const file = e.target.files && e.target.files[0];
       if (file) {
@@ -2503,6 +2560,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const checkIsViceCaptain = document.getElementById("checkIsViceCaptain");
   const editPlayerId = document.getElementById("editPlayerId");
   const playerModalTitle = document.getElementById("playerModalTitle");
+  let selectedRegisteredPlayerForSquad = null;
+
+  function fillRegisteredPlayerIntoSquadForm(p) {
+    if (!p) return;
+    selectedRegisteredPlayerForSquad = p;
+    const pid = String(p.playerId || p.player_id || p.id || "").trim();
+    const mobile = p.mobile || "";
+    const role = p.role || "All-Rounder";
+    const jerseyName = p.jerseyName || p.jersey_name || p.name || "";
+    const jerseyNumber = p.jerseyNumber || p.jersey_number || p.jersey || "";
+    const jerseySize = p.jerseySize || p.jersey_size || "";
+    const photo = p.photoUrl || p.photo_url || p.profile_photo || p.photo || "";
+    const email = p.email || "";
+    const dob = p.dateOfBirth || p.birthdate || p.date_of_birth || "";
+    if (inputPlayerName) inputPlayerName.value = p.name || "";
+    if (selectPlayerRole) selectPlayerRole.value = ["Batsman","Bowler","All-Rounder","Wicket Keeper"].includes(role) ? role : "All-Rounder";
+    if (inputPlayerJersey) inputPlayerJersey.value = jerseyNumber;
+    tempPlayerPhotoDataUrl = photo || "";
+    if (playerPhotoModalPreview) playerPhotoModalPreview.innerHTML = photo ? `<img src="${escapeHtml(photo)}" alt="Player Photo" style="width:100%;height:100%;object-fit:contain;object-position:center;">` : `<i class="fa-regular fa-user"></i>`;
+    const box = document.getElementById("registeredProfileAutoDetails");
+    if (box) box.style.display = "block";
+    const set = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=val || "—"; };
+    set("autoPlayerId", pid); set("autoPlayerMobile", mobile); set("autoPlayerJerseyName", jerseyName);
+    set("autoPlayerJerseyNumber", jerseyNumber); set("autoPlayerJerseySize", jerseySize); set("autoPlayerEmail", email); set("autoPlayerDob", dob);
+  }
 
   function openAddPlayerModal() {
     if (playerModalTitle) playerModalTitle.textContent = "Add Squad Player";
@@ -2513,6 +2595,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (checkIsCaptain) checkIsCaptain.checked = false;
     if (checkIsViceCaptain) checkIsViceCaptain.checked = false;
 
+    selectedRegisteredPlayerForSquad = null;
+    const autoDetails = document.getElementById("registeredProfileAutoDetails");
+    if (autoDetails) autoDetails.style.display = "none";
     tempPlayerPhotoDataUrl = "";
     if (playerPhotoModalPreview) {
       playerPhotoModalPreview.innerHTML = `<i class="fa-regular fa-user"></i>`;
@@ -2594,10 +2679,9 @@ document.addEventListener("DOMContentLoaded", function () {
       quickRegisteredResults.querySelectorAll('.quick-reg-player:not([disabled])').forEach(btn => btn.addEventListener('click', () => {
         try {
           const player = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
-          addRegisteredCloudPlayerToSquad(player);
-          if (playerModal) playerModal.style.display = 'none';
-          if (quickRegisteredSearch) quickRegisteredSearch.value = '';
-          if (quickRegisteredResults) quickRegisteredResults.innerHTML = '';
+          fillRegisteredPlayerIntoSquadForm(player);
+          if (quickRegisteredSearch) quickRegisteredSearch.value = `${player.mobile || player.playerId || player.name || ""}`;
+          if (quickRegisteredResults) quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#4ade80;padding:6px 2px;">✓ ${escapeHtml(player.name || "Player")} selected. Details filled from registered profile. Press SAVE PLAYER.</div>`;
         } catch (e) { showToast('Could not add registered player', true); }
       }));
     };
@@ -2641,7 +2725,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Player Photo Picker Click
   if (playerPhotoPickerBox && playerPhotoFileInput) {
-    playerPhotoPickerBox.addEventListener("click", () => playerPhotoFileInput.click());
+    playerPhotoPickerBox.addEventListener("click", (e) => {
+      if (e.target.closest && e.target.closest(".logo-upload-hint")) {
+        playerPhotoFileInput.click();
+        return;
+      }
+      if (cyIsImageData(tempPlayerPhotoDataUrl)) {
+        openCricYuvaDataCropper(tempPlayerPhotoDataUrl, function(dataUrl) {
+          tempPlayerPhotoDataUrl = dataUrl;
+          if (playerPhotoModalPreview) playerPhotoModalPreview.innerHTML = `<img src="${escapeHtml(dataUrl)}" alt="Player Photo">`;
+        }, "Adjust Player Photo");
+      } else playerPhotoFileInput.click();
+    });
     playerPhotoFileInput.addEventListener("change", function (e) {
       const file = e.target.files && e.target.files[0];
       if (file) {
@@ -2694,20 +2789,34 @@ document.addEventListener("DOMContentLoaded", function () {
           player.name = pName;
           player.role = pRole;
           player.jersey = pJersey;
+          if (selectedRegisteredPlayerForSquad) {
+            const reg = selectedRegisteredPlayerForSquad;
+            player.playerId = String(reg.playerId || reg.player_id || reg.id || player.playerId || "");
+            player.userId = reg.userId || reg.user_id || player.userId || null;
+            player.mobile = reg.mobile || player.mobile || "";
+            player.email = reg.email || player.email || "";
+            player.dateOfBirth = reg.dateOfBirth || reg.birthdate || reg.date_of_birth || player.dateOfBirth || "";
+            player.jerseyName = reg.jerseyName || reg.jersey_name || player.jerseyName || pName;
+            player.jerseySize = reg.jerseySize || reg.jersey_size || player.jerseySize || "";
+          }
           player.isCaptain = isCap;
           player.isViceCaptain = isVC;
           if (tempPlayerPhotoDataUrl) player.photo = tempPlayerPhotoDataUrl;
         }
       } else {
         // Add new player
+        const reg = selectedRegisteredPlayerForSquad;
         const newPlayer = {
-          id: "p_" + Date.now(),
-          name: pName,
-          role: pRole,
-          jersey: pJersey,
-          isCaptain: isCap,
-          isViceCaptain: isVC,
-          photo: tempPlayerPhotoDataUrl || ""
+          id: reg ? ("squad_" + String(reg.playerId || reg.player_id || reg.id || Date.now())) : ("p_" + Date.now()),
+          playerId: reg ? String(reg.playerId || reg.player_id || reg.id || "") : "",
+          userId: reg ? (reg.userId || reg.user_id || null) : null,
+          name: pName, mobile: reg?.mobile || "", email: reg?.email || "",
+          dateOfBirth: reg?.dateOfBirth || reg?.birthdate || reg?.date_of_birth || "",
+          role: pRole, jersey: pJersey,
+          jerseyName: reg?.jerseyName || reg?.jersey_name || pName,
+          jerseySize: reg?.jerseySize || reg?.jersey_size || "",
+          isCaptain: isCap, isViceCaptain: isVC,
+          photo: tempPlayerPhotoDataUrl || reg?.photoUrl || reg?.photo_url || reg?.profile_photo || reg?.photo || ""
         };
         team.players.push(newPlayer);
       }
@@ -13784,8 +13893,15 @@ function openEditTournamentModal(tourneyId) {
 
   const editLogoPreview = document.getElementById("editTourneyLogoPreview");
   if (editLogoPreview) {
-    if (cyIsImageData(tourney.logo)) { editLogoPreview.style.display = "block"; editLogoPreview.innerHTML = `<img src="${escapeHtml(tourney.logo)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`; }
-    else { editLogoPreview.style.display = "none"; editLogoPreview.innerHTML = ""; }
+    if (cyIsImageData(tourney.logo)) {
+      editLogoPreview.style.display = "block";
+      editLogoPreview.innerHTML = `<img src="${escapeHtml(tourney.logo)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+      editLogoPreview.title="Tap to adjust this tournament/auction logo again";
+      editLogoPreview.onclick=()=>openCricYuvaDataCropper(document.getElementById("editTourneyLogo")?.value || tourney.logo, cropped=>{
+        const hidden=document.getElementById("editTourneyLogo"); if(hidden) hidden.value=cropped;
+        editLogoPreview.innerHTML=`<img src="${escapeHtml(cropped)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+      }, "Adjust Tournament Logo");
+    } else { editLogoPreview.style.display = "none"; editLogoPreview.innerHTML = ""; editLogoPreview.onclick=null; }
   }
   modal.style.display = "flex";
 }
@@ -14220,7 +14336,15 @@ if (btnTourneyEdit) {
       openCricYuvaImageCropper(file,dataUrl=>{
         hidden.value=dataUrl;
         document.querySelectorAll(".tourney-logo-selection-row .icon-chip").forEach(c=>c.classList.remove("active"));
-        const prev=document.getElementById(previewId); if(prev){prev.style.display="block"; prev.innerHTML=`<img src="${escapeHtml(dataUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;}
+        const prev=document.getElementById(previewId); if(prev){
+          prev.style.display="block";
+          prev.innerHTML=`<img src="${escapeHtml(dataUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+          prev.title="Tap to adjust this logo again";
+          prev.onclick=()=>openCricYuvaDataCropper(hidden.value, cropped=>{
+            hidden.value=cropped;
+            prev.innerHTML=`<img src="${escapeHtml(cropped)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+          }, "Adjust Tournament Logo");
+        }
       }, "Adjust Tournament Logo", input);
     });
     return input;
@@ -15000,24 +15124,60 @@ if (btnTourneyEdit) {
   }
 
   // Add Team to Tournament Modal
+  // Teams can be found by Team ID or Team Name, and the complete saved squad
+  // (players, logo, captain/VC) is copied into the tournament.
+  let addTourneyTeamDirectory = [];
+  function getTournamentAddableTeams() {
+    const all = getAvailableClubsList();
+    const seen = new Set();
+    return all.filter(t => {
+      const id = String(t.id || "").trim();
+      const name = String(t.name || t.teamName || "").trim();
+      const key = (id || name).toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  function renderTournamentTeamChoices(query = "") {
+    const selectEl = document.getElementById("selectAddTourneyTeam");
+    if (!selectEl) return;
+    const tourney = getTournamentById(activeTournamentId);
+    const currentIds = new Set((tourney?.teams || []).map(t => String(t.id || "").toLowerCase()).filter(Boolean));
+    const currentNames = new Set((tourney?.teams || []).map(t => String(t.name || t.teamName || "").toLowerCase()).filter(Boolean));
+    const q = String(query || "").trim().toLowerCase();
+    const teams = getTournamentAddableTeams().filter(t => {
+      const id = String(t.id || "").toLowerCase();
+      const name = String(t.name || t.teamName || "").toLowerCase();
+      return !q || id.includes(q) || name.includes(q);
+    }).filter(t => {
+      const id = String(t.id || "").toLowerCase();
+      const name = String(t.name || t.teamName || "").toLowerCase();
+      return !currentIds.has(id) && !currentNames.has(name);
+    });
+    addTourneyTeamDirectory = teams;
+    if (!teams.length) {
+      selectEl.innerHTML = `<option value="">No matching team found</option>`;
+      return;
+    }
+    selectEl.innerHTML = teams.map((t, i) => {
+      const name = t.name || t.teamName || "Team";
+      const id = t.id || "Not assigned";
+      const players = Array.isArray(t.players) ? t.players.length : 0;
+      return `<option value="${i}">${escapeHtml(name)} • ID: ${escapeHtml(id)} • ${players} Players</option>`;
+    }).join("");
+  }
+  const addTourneyTeamSearch = document.getElementById("inputAddTourneyTeamSearch");
+  if (addTourneyTeamSearch) addTourneyTeamSearch.addEventListener("input", e => renderTournamentTeamChoices(e.target.value));
+
   const btnAddTeamToTourney = document.getElementById("btnAddTeamToTourney") || document.getElementById("btnAddTeamToTourneyBtn");
   if (btnAddTeamToTourney) {
     btnAddTeamToTourney.addEventListener("click", () => {
       const tourney = getTournamentById(activeTournamentId);
       if (!tourney) return;
 
-      const allClubs = getAvailableClubsList();
-      const currentNames = (tourney.teams || []).map(t => t.name);
-      const availableToAdd = allClubs.filter(c => !currentNames.includes(c.name));
-
-      const selectEl = document.getElementById("selectAddTourneyTeam");
-      if (selectEl) {
-        if (availableToAdd.length === 0) {
-          selectEl.innerHTML = `<option value="">All clubs already participating</option>`;
-        } else {
-          selectEl.innerHTML = availableToAdd.map(c => `<option value="${c.name}">${c.logo || '🏏'} ${c.name} (${c.city})</option>`).join("");
-        }
-      }
+      if (addTourneyTeamSearch) addTourneyTeamSearch.value = "";
+      renderTournamentTeamChoices("");
 
       const modal = document.getElementById("addTeamToTourneyModal");
       if (modal) modal.style.display = "flex";
@@ -15036,16 +15196,29 @@ if (btnTourneyEdit) {
   if (addTeamToTourneyForm) {
     addTeamToTourneyForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const selName = document.getElementById("selectAddTourneyTeam")?.value;
-      if (!selName) return;
+      const selIndex = document.getElementById("selectAddTourneyTeam")?.value;
+      if (selIndex === "" || selIndex == null) return;
 
       const tourney = getTournamentById(activeTournamentId);
       if (!tourney) return;
 
-      const allClubs = getAvailableClubsList();
-      const clubObj = allClubs.find(c => c.name === selName) || { id: `tm_${Date.now()}`, name: selName, logo: "🏏", playerCount: 11 };
+      const source = addTourneyTeamDirectory[Number(selIndex)];
+      if (!source) return showToast("Team not found. Please search again.", true);
+      const clubObj = JSON.parse(JSON.stringify({
+        ...source,
+        id: source.id || `tm_${Date.now()}`,
+        name: source.name || source.teamName,
+        teamName: source.teamName || source.name,
+        logo: source.logo || source.teamLogo || "🏏",
+        players: Array.isArray(source.players) ? source.players.map(p => ({...p})) : [],
+        playerCount: Array.isArray(source.players) ? source.players.length : 0,
+        captain: source.captain || source.captainName || "",
+        viceCaptain: source.viceCaptain || source.viceCaptainName || ""
+      }));
 
       if (!tourney.teams) tourney.teams = [];
+      const duplicate = tourney.teams.some(t => String(t.id || "").toLowerCase() === String(clubObj.id || "").toLowerCase() || String(t.name || t.teamName || "").toLowerCase() === String(clubObj.name || "").toLowerCase());
+      if (duplicate) return showToast(`${clubObj.name} is already in this tournament`, true);
       tourney.teams.push(clubObj);
 
       saveTournament(tourney);
@@ -18216,7 +18389,17 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     if (!pid) return showToast("Player ID missing", true);
     if (team.players.some(x => x.playerId === pid || x.id === pid || (x.name||"").toLowerCase() === (p.name||"").toLowerCase())) return showToast(`${p.name} is already in your squad!`);
     const xi = team.players.filter(x => x.inPlayingXI !== false).length;
-    team.players.push({ id: "squad_" + pid, playerId: pid, userId: p.userId || p.user_id || null, name: p.name, mobile: p.mobile || "", role: p.role || "All-Rounder", jersey: p.jerseyNumber || p.jersey_number || "", jerseyName: p.jerseyName || p.jersey_name || p.name || "", photo: p.photoUrl || p.photo_url || p.profile_photo || "", inPlayingXI: xi < 11, isCaptain:false, isViceCaptain:false, matches:0, runs:0, wickets:0 });
+    team.players.push({
+      id: "squad_" + pid, playerId: pid, userId: p.userId || p.user_id || null,
+      name: p.name || "Player", mobile: p.mobile || "", email: p.email || "",
+      dateOfBirth: p.dateOfBirth || p.birthdate || p.date_of_birth || "",
+      role: p.role || "All-Rounder",
+      jersey: p.jerseyNumber || p.jersey_number || p.jersey || "",
+      jerseyName: p.jerseyName || p.jersey_name || p.name || "",
+      jerseySize: p.jerseySize || p.jersey_size || "",
+      photo: p.photoUrl || p.photo_url || p.profile_photo || p.photo || "",
+      inPlayingXI: xi < 11, isCaptain:false, isViceCaptain:false, matches:0, runs:0, wickets:0
+    });
     saveTeamData(team); renderMyTeamPage();
     showToast(`${p.name} added to squad • ${pid}`);
     renderRegisteredTeamPlayerResults(document.getElementById("inputSearchTeamPlayer")?.value || "");
