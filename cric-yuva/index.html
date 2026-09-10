@@ -5713,8 +5713,9 @@
   <div class="modal-backdrop" id="globalSearchModal" style="display:none; z-index:100001;">
     <div class="team-modal-sheet" style="max-height:85vh;">
       <div class="sheet-header"><h3><i class="fa-solid fa-magnifying-glass text-orange"></i> Search Cric Yuva</h3><button type="button" class="sheet-close-btn" id="globalSearchCloseBtn"><i class="fa-solid fa-xmark"></i></button></div>
-      <div style="padding:12px 0;">
-        <input id="globalSearchInput" type="search" placeholder="Search player, team or tournament..." style="width:100%;box-sizing:border-box;background:#141414;border:1px solid #333;border-radius:10px;padding:12px 14px;color:#fff;outline:none;">
+      <div style="padding:12px 0;display:flex;gap:8px;align-items:stretch;">
+        <input id="globalSearchInput" type="search" placeholder="Search player, mobile, Player ID, team or tournament..." style="flex:1;min-width:0;box-sizing:border-box;background:#141414;border:1px solid #333;border-radius:10px;padding:12px 14px;color:#fff;outline:none;">
+        <button type="button" id="globalSearchRunBtn" style="border:0;border-radius:10px;background:#ff7a00;color:#111;font-weight:900;padding:0 16px;white-space:nowrap;cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
       </div>
       <div id="globalSearchResults" style="display:flex;flex-direction:column;gap:7px;max-height:55vh;overflow-y:auto;"></div>
     </div>

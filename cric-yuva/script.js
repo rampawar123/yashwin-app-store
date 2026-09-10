@@ -152,11 +152,89 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch(e) { console.warn("Could not sync active profile directory:", e); }
   }
 
+  function getAllLocalRegisteredProfiles() {
+    syncActiveProfileToRegisteredDirectory();
+    const out = [];
+    const push = (u) => {
+      if (!u || typeof u !== "object") return;
+      const mobile = String(u.mobile || u.phone || u.profileMobile || "").replace(/\D/g, "");
+      const playerId = String(u.playerId || u.player_id || u.id || "").trim();
+      const name = String(u.name || u.playerName || u.fullName || "").trim();
+      if (!mobile && !playerId && !name) return;
+      out.push({
+        ...u,
+        id: playerId || (mobile ? `CY-${mobile}` : ""),
+        playerId: playerId || (mobile ? `CY-${mobile}` : ""),
+        mobile,
+        name: name || "Player",
+        jerseyName: u.jerseyName || u.jersey_name || u.jersey || name || "",
+        jerseyNumber: u.jerseyNumber || u.jersey_number || u.number || "",
+        jerseySize: u.jerseySize || u.jersey_size || u.size || "",
+        role: u.role || u.playingRole || "All-Rounder",
+        email: u.email || u.profileEmail || "",
+        dateOfBirth: u.dateOfBirth || u.birthdate || u.date_of_birth || "",
+        photoUrl: u.photoUrl || u.photo_url || u.profilePhoto || u.profile_photo || u.photo || "",
+        photo: u.photoUrl || u.photo_url || u.profilePhoto || u.profile_photo || u.photo || "",
+        type: "Registered User"
+      });
+    };
+    try {
+      (window.CricYuvaStorage?.getAllRegisteredUsers?.() || []).forEach(push);
+    } catch (_) {}
+    // Scan every scoped profile, not just the active user. This makes a
+    // registered account discoverable by its real mobile/Player ID even when
+    // an older build did not keep the registry perfectly in sync.
+    try {
+      const keys = Object.keys(localStorage);
+      const uids = new Set();
+      keys.forEach(k => {
+        const m = k.match(/^CYU_(.+?)_cricYuvaProfile(?:Mobile|Name|Photo|Email|JerseyName|JerseyNumber|JerseySize|PlayingRole|DateOfBirth)$/);
+        if (m) uids.add(m[1]);
+      });
+      uids.forEach(uid => {
+        const get = (key) => localStorage.getItem(`CYU_${uid}_${key}`) || "";
+        push({
+          userId: uid,
+          playerId: get("cricYuvaPlayerId") || (get("cricYuvaProfileMobile") ? `CY-${get("cricYuvaProfileMobile").replace(/\D/g, "")}` : ""),
+          name: get("cricYuvaProfileName"),
+          mobile: get("cricYuvaProfileMobile") || get("cricYuvaMobile"),
+          email: get("cricYuvaProfileEmail"),
+          dateOfBirth: get("cricYuvaDateOfBirth"),
+          jerseyName: get("cricYuvaJerseyName"),
+          jerseyNumber: get("cricYuvaJerseyNumber"),
+          jerseySize: get("cricYuvaJerseySize"),
+          role: get("cricYuvaPlayingRole"),
+          photoUrl: get("cricYuvaProfilePhoto")
+        });
+      });
+    } catch (_) {}
+    // Unscoped current profile fallback used by GitHub Pages/local login.
+    push({
+      userId: localStorage.getItem("cricYuvaCloudUserId") || "",
+      playerId: localStorage.getItem("cricYuvaPlayerId") || "",
+      name: localStorage.getItem("cricYuvaProfileName") || "",
+      mobile: localStorage.getItem("cricYuvaProfileMobile") || localStorage.getItem("cricYuvaMobile") || "",
+      email: localStorage.getItem("cricYuvaProfileEmail") || "",
+      dateOfBirth: localStorage.getItem("cricYuvaDateOfBirth") || "",
+      jerseyName: localStorage.getItem("cricYuvaJerseyName") || "",
+      jerseyNumber: localStorage.getItem("cricYuvaJerseyNumber") || "",
+      jerseySize: localStorage.getItem("cricYuvaJerseySize") || "",
+      role: localStorage.getItem("cricYuvaPlayingRole") || "",
+      photoUrl: localStorage.getItem("cricYuvaProfilePhoto") || ""
+    });
+    const seen = new Set();
+    return out.filter(u => {
+      const key = String(u.playerId || u.mobile || u.userId || u.name).toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key); return true;
+    });
+  }
+
   function localRegisteredPlayers(query) {
     syncActiveProfileToRegisteredDirectory();
 
     const q = String(query || "").trim().toLowerCase();
-    const users = window.CricYuvaStorage?.getAllRegisteredUsers?.() || [];
+    const users = getAllLocalRegisteredProfiles();
 
     // The cloud account created by OTP/login is also copied into the local
     // registered-user directory.  Keep a direct fallback from the active
@@ -18197,6 +18275,15 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
   const globalSearchModal = document.getElementById("globalSearchModal");
   const globalSearchInput = document.getElementById("globalSearchInput");
   const globalSearchResults = document.getElementById("globalSearchResults");
+  function paintGlobalSearchRows(rows) {
+    if (!globalSearchResults) return [];
+    const unique = []; const seen = new Set();
+    rows.forEach(r => { const k = `${r.type}:${r.name}:${r.sub}`.toLowerCase(); if (!seen.has(k)) { seen.add(k); unique.push(r); } });
+    globalSearchResults.innerHTML = unique.slice(0, 30).map((r,i) => `<button type="button" class="global-search-result" data-i="${i}"><span>${escapeHtml(r.type)}</span><b>${escapeHtml(r.name)}</b>${r.sub ? `<small style="display:block;color:#8b99b5;margin-top:3px;">${escapeHtml(r.sub)}</small>` : ""}</button>`).join("") || `<div class="global-search-empty">No real registered players, teams or tournaments found.</div>`;
+    globalSearchResults.querySelectorAll(".global-search-result").forEach((el,i) => el.addEventListener("click", () => { unique[i].action(); if (globalSearchModal) globalSearchModal.style.display="none"; }));
+    return unique;
+  }
+
   async function renderGlobalSearch(query) {
     if (!globalSearchResults) return;
     const q = String(query || "").trim().toLowerCase();
@@ -18206,34 +18293,44 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     }
     const rows = [];
     const push = (type, name, sub, action) => { if (name) rows.push({ type, name, sub: sub || "", action }); };
+
+    // Local registered profiles are rendered immediately so the main search
+    // never waits for the cloud API.
+    getAllLocalRegisteredProfiles().filter(p => registeredPlayerMatchesQuery(p, q)).forEach(p =>
+      push("Registered Player", p.name, `${p.playerId || ""} • ${p.mobile || ""}`, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name))
+    );
+    paintGlobalSearchRows(rows);
+
     const tournaments = getTournamentsList();
     tournaments.forEach(t => {
+      if (isDummySearchTeam(t)) return;
       if (String(t.name || "").toLowerCase().includes(q) || String(t.id || "").toLowerCase().includes(q)) push("Tournament", t.name, t.id, () => openTournamentDetails(t.id));
       (t.teams || []).forEach(tm => {
         const n = String(tm.name || tm.teamName || "");
+        if (isDummySearchTeam(tm)) return;
         if (n.toLowerCase().includes(q) || String(tm.id || tm.teamId || "").toLowerCase().includes(q)) push("Team", n, tm.teamId || tm.id || "", () => openTournamentDetails(t.id, "teams"));
-        (tm.players || []).forEach(p => {
-          if (String(p.name || "").toLowerCase().includes(q) || String(p.playerId || p.id || "").toLowerCase().includes(q) || String(p.mobile || "").includes(q)) push("Player", p.name, p.playerId || p.id || p.mobile, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name));
-        });
       });
     });
     const myTeam = getTeamData();
     if (myTeam && !isDummySearchTeam(myTeam)) {
       if (String(myTeam.teamName || "").toLowerCase().includes(q) || String(myTeam.id || "").toLowerCase().includes(q)) push("My Team", myTeam.teamName, myTeam.id || "", () => showScreen("screen6"));
-      (myTeam.players || []).forEach(p => { if (String(p.name || "").toLowerCase().includes(q) || String(p.playerId || p.id || "").toLowerCase().includes(q) || String(p.mobile || "").includes(q)) push("Player", p.name, p.playerId || p.id || p.mobile, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name)); });
     }
-    localRegisteredPlayers(q).forEach(p => push("Registered Player", p.name, `${p.playerId || ""} • ${p.mobile || ""}`, () => openPlayerProfileDetailModal(p.playerId || p.id || p.name)));
+    // Repaint immediately with local team/tournament results too.
+    paintGlobalSearchRows(rows);
+
     try {
-      const [pd, td, td2] = await Promise.allSettled([CricYuvaCloud.searchPlayers(q), CricYuvaCloud.request(`/api/teams/search?q=${encodeURIComponent(q)}`), CricYuvaCloud.request(`/api/tournaments/search?q=${encodeURIComponent(q)}`)]);
-      if (pd.status === "fulfilled") (pd.value.players || []).filter(p => p.userId || p.user_id).forEach(p => push("Registered Player", p.name, `${p.playerId || p.player_id || ""} • ${p.mobile || ""}`, () => openPlayerProfileDetailModal(p.playerId || p.player_id || p.id || p.name)));
-      if (td.status === "fulfilled") (td.value.teams || []).forEach(t => push("Team", t.name, t.teamId || t.team_id || "", () => showToast(`Team ${t.name} found. Open Tournament/Team to manage it.`)));
+      const [pd, td, td2] = await Promise.allSettled([
+        CricYuvaCloud.searchPlayers(q),
+        CricYuvaCloud.request(`/api/teams/search?q=${encodeURIComponent(q)}`),
+        CricYuvaCloud.request(`/api/tournaments/search?q=${encodeURIComponent(q)}`)
+      ]);
+      if (pd.status === "fulfilled") (pd.value.players || []).filter(p => p && (p.userId || p.user_id || p.playerId || p.player_id)).forEach(p => push("Registered Player", p.name, `${p.playerId || p.player_id || ""} • ${p.mobile || ""}`, () => openPlayerProfileDetailModal(p.playerId || p.player_id || p.id || p.name)));
+      if (td.status === "fulfilled") (td.value.teams || []).filter(t => !isDummySearchTeam(t)).forEach(t => push("Team", t.name, t.teamId || t.team_id || "", () => showToast(`Team ${t.name} found. Open Tournament/Team to manage it.`)));
       if (td2.status === "fulfilled") (td2.value.tournaments || []).forEach(t => push("Tournament", t.name, t.tournamentId || t.tournament_id || "", () => openTournamentDetails(t.tournamentId || t.tournament_id)));
     } catch (_) {}
-    const unique = []; const seen = new Set();
-    rows.forEach(r => { const k = `${r.type}:${r.name}:${r.sub}`.toLowerCase(); if (!seen.has(k)) { seen.add(k); unique.push(r); } });
-    globalSearchResults.innerHTML = unique.slice(0, 30).map((r,i) => `<button type="button" class="global-search-result" data-i="${i}"><span>${escapeHtml(r.type)}</span><b>${escapeHtml(r.name)}</b>${r.sub ? `<small style="display:block;color:#8b99b5;margin-top:3px;">${escapeHtml(r.sub)}</small>` : ""}</button>`).join("") || `<div class="global-search-empty">No real registered players, teams or tournaments found.</div>`;
-    globalSearchResults.querySelectorAll(".global-search-result").forEach((el,i) => el.addEventListener("click", () => { unique[i].action(); if (globalSearchModal) globalSearchModal.style.display="none"; }));
+    paintGlobalSearchRows(rows);
   }
+
   function isDummySearchTeam(team) { const n=String(team?.teamName||team?.name||"").trim().toLowerCase(); return ["mumbai yuva xi","demo team","sample team","test team"].includes(n); }
   const globalSearchRunBtn = document.getElementById("globalSearchRunBtn");
   if (globalSearchBtn && globalSearchModal) {
@@ -18315,97 +18412,118 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
   // ==========================================
   let teamSearchTimer = null;
   let lastTeamCloudQuery = "";
+  let currentSearchRoleFilter = "all";
+
+  function registeredPlayerMatchesQuery(p, q) {
+    const raw = String(q || "").trim();
+    if (!raw) return true;
+    const lower = raw.toLowerCase();
+    const digits = raw.replace(/\D/g, "");
+    const mobile = String(p.mobile || "").replace(/\D/g, "");
+    const values = [p.name, p.playerId, p.player_id, p.id, p.userId, p.mobile, p.jerseyName, p.jerseyNumber]
+      .map(v => String(v || "").trim().toLowerCase());
+    return values.some(v => v && v.includes(lower)) || (digits.length >= 3 && mobile.includes(digits));
+  }
+
+  function renderRegisteredTeamPlayerCards(container, players, q) {
+    const activeFilter = String(currentSearchRoleFilter || "all").toLowerCase();
+    let list = (Array.isArray(players) ? players : []).filter(p => registeredPlayerMatchesQuery(p, q));
+    if (activeFilter && activeFilter !== "all") {
+      list = list.filter(p => String(p.role || "").toLowerCase() === activeFilter);
+    }
+    const unique = [];
+    const seen = new Set();
+    list.forEach(p => {
+      const pid = String(p.playerId || p.player_id || p.id || p.mobile || "").trim().toLowerCase();
+      if (!pid || seen.has(pid)) return;
+      seen.add(pid); unique.push(p);
+    });
+    if (!unique.length) {
+      container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">
+        No registered player found for <b>${escapeHtml(q)}</b>.<br>
+        <span style="font-size:10px;color:#667085;">The player must first create a Cric Yuva account.</span>
+      </div>`;
+      return;
+    }
+    const team = getTeamData() || {players:[]};
+    container.innerHTML = unique.slice(0, 30).map(p => {
+      const pid = String(p.playerId || p.player_id || p.id || "");
+      const mobile = String(p.mobile || "");
+      const already = (team.players || []).some(x =>
+        String(x.playerId || x.id || "") === pid ||
+        (mobile && String(x.mobile || "") === mobile)
+      );
+      const photo = p.photoUrl || p.photo_url || p.profile_photo || p.profilePhoto || p.photo || "";
+      const role = p.role || "All-Rounder";
+      const jerseyName = p.jerseyName || p.jersey_name || p.name || "";
+      const jerseyNumber = p.jerseyNumber || p.jersey_number || p.jersey || "";
+      const jerseySize = p.jerseySize || p.jersey_size || "";
+      const email = p.email || "";
+      const birthdate = p.birthdate || p.dateOfBirth || p.date_of_birth || "";
+      const safeJson = encodeURIComponent(JSON.stringify(p));
+      return `<div style="background:#161922;border:1px solid #293249;border-radius:14px;padding:12px;display:flex;align-items:flex-start;gap:11px;">
+        <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;font-size:16px;flex:none;border:2px solid rgba(255,122,0,.45);">
+          ${photo ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(p.name || "Player")}" style="width:100%;height:100%;object-fit:cover;object-position:center;background:#11151d;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <b style="color:#fff;font-size:14px;display:block;">${escapeHtml(p.name || "Player")}</b>
+          <div style="font-size:10px;color:#60a5fa;margin-top:3px;font-weight:900;">PLAYER ID: ${escapeHtml(pid || "Not assigned")}</div>
+          <div style="font-size:10px;color:#cbd5e1;margin-top:3px;">📱 ${escapeHtml(mobile || "—")} • ${escapeHtml(role)}</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;">
+            ${jerseyName ? `<span>Jersey: ${escapeHtml(jerseyName)}</span>` : ""}
+            ${jerseyNumber ? `<span>No: ${escapeHtml(jerseyNumber)}</span>` : ""}
+            ${jerseySize ? `<span>Size: ${escapeHtml(jerseySize)}</span>` : ""}
+          </div>
+          ${(email || birthdate) ? `<div style="font-size:9.5px;color:#64748b;margin-top:3px;">${email ? escapeHtml(email) : ""}${email && birthdate ? " • " : ""}${birthdate ? "DOB: " + escapeHtml(birthdate) : ""}</div>` : ""}
+        </div>
+        <button type="button" class="btn-add-registered-player" data-player-json="${safeJson}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:8px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};flex:none;">${already ? "✓ Added" : "+ ADD"}</button>
+      </div>`;
+    }).join("");
+    container.querySelectorAll(".btn-add-registered-player:not([disabled])").forEach(btn => btn.addEventListener("click", () => {
+      try {
+        const player = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
+        addRegisteredCloudPlayerToSquad(player);
+      } catch(e) { showToast("Could not add player", true); }
+    }));
+  }
+
   async function renderRegisteredTeamPlayerResults(query) {
     const container = document.getElementById("teamPlayerSearchResultsList");
     if (!container) return;
     const q = String(query || "").trim();
     if (q.length < 1) {
-      container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">
-        Search a <b>real registered user</b> by Player Name, Mobile Number or Player ID.<br>
-        <span style="font-size:10px;color:#667085;">Example: Chetan • 9840721983 • CY-9840721983</span>
-      </div>`;
+      container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">Search a <b>real registered user</b> by Player Name, Mobile Number or Player ID.<br><span style="font-size:10px;color:#667085;">Example: Chetan • 9840721983 • CY-9840721983</span></div>`;
       return;
     }
-    container.innerHTML = `<div style="text-align:center;padding:25px;color:#8892a8;font-size:12px;"><i class="fa-solid fa-spinner fa-spin"></i> Searching registered players...</div>`;
+
+    // IMPORTANT: render local registered profiles FIRST. Never block the UI on
+    // Render/GitHub API latency. Exact mobile/Player-ID searches auto-fill/add.
+    let local = [];
+    try { local = localRegisteredPlayers(q); } catch (_) { local = []; }
+    renderRegisteredTeamPlayerCards(container, local, q);
+    const exact = local.filter(p => registeredPlayerMatchesQuery(p, q));
+    const qDigits = q.replace(/\D/g, "");
+    if ((qDigits.length === 10 || /^cy[-_]?/i.test(q)) && exact.length === 1) {
+      // Keep the result visible and make the same real profile available to the Add Player form.
+      try { fillRegisteredPlayerIntoSquadForm(exact[0]); } catch (_) {}
+    }
+
+    // Cloud search is an enhancement, not the primary source. Merge it after
+    // local results so the user never gets stuck on "Unable to search".
     try {
-      let players = [];
-      // Always check the browser registry first. This is essential on GitHub Pages,
-      // where the API POST/search endpoint may not exist.
-      players = localRegisteredPlayers(q);
-      try {
-        const data = await CricYuvaCloud.searchPlayers(q);
-        const rawCloudPlayers = Array.isArray(data?.players) ? data.players : [];
-        // Never show legacy/dummy player rows. A real player must be linked to a registered user account.
-        const cloudPlayers = rawCloudPlayers.filter(p => {
-          const uid = String(p.userId || p.user_id || "").trim();
-          return !!uid;
-        });
-        const merged = [...players, ...cloudPlayers];
-        const seen = new Set();
-        players = merged.filter(p => {
-          const key = String(p.playerId || p.player_id || p.id || p.mobile || p.name || '').toLowerCase();
-          if (!key || seen.has(key)) return false;
-          seen.add(key); return true;
-        });
-      } catch (e) {
-        // Static GitHub Pages / unavailable API: local registered-user search remains active.
-        if (!isStaticApiError(e)) console.warn("Cloud player search failed:", e);
+      const data = await CricYuvaCloud.searchPlayers(q);
+      const cloud = Array.isArray(data?.players) ? data.players.filter(p => p && (p.userId || p.user_id || p.playerId || p.player_id)) : [];
+      const merged = [...local, ...cloud];
+      window._cricYuvaCloudPlayers = merged;
+      renderRegisteredTeamPlayerCards(container, merged, q);
+      const exactMerged = merged.filter(p => registeredPlayerMatchesQuery(p, q));
+      if ((qDigits.length === 10 || /^cy[-_]?/i.test(q)) && exactMerged.length === 1) {
+        try { fillRegisteredPlayerIntoSquadForm(exactMerged[0]); } catch (_) {}
       }
-
-      window._cricYuvaCloudPlayers = players;
-      if (!players.length) {
-        container.innerHTML = `<div style="text-align:center;padding:35px 15px;color:#8892a8;font-size:12px;">
-          No registered player found for <b>${escapeHtml(q)}</b>.<br>
-          <span style="font-size:10px;color:#667085;">The player must first create a Cric Yuva account.</span>
-        </div>`;
-        return;
-      }
-
-      const team = getTeamData() || {players:[]};
-      container.innerHTML = players.map(p => {
-        const pid = String(p.playerId || p.player_id || p.id || "");
-        const mobile = String(p.mobile || "");
-        const already = (team.players || []).some(x =>
-          String(x.playerId || x.id || "") === pid ||
-          (mobile && String(x.mobile || "") === mobile) ||
-          String(x.name || "").toLowerCase() === String(p.name || "").toLowerCase()
-        );
-        const photo = p.photoUrl || p.photo_url || p.profile_photo || p.photo || "";
-        const role = p.role || "All-Rounder";
-        const jerseyName = p.jerseyName || p.jersey_name || "";
-        const jerseyNumber = p.jerseyNumber || p.jersey_number || "";
-        const jerseySize = p.jerseySize || p.jersey_size || "";
-        const email = p.email || "";
-        const birthdate = p.birthdate || p.dateOfBirth || p.date_of_birth || "";
-        const safeJson = encodeURIComponent(JSON.stringify(p));
-        return `<div style="background:#161922;border:1px solid #293249;border-radius:14px;padding:12px;display:flex;align-items:flex-start;gap:11px;">
-          <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;font-size:16px;flex:none;border:2px solid rgba(255,122,0,.45);">
-            ${photo ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(p.name || "Player")}" style="width:100%;height:100%;object-fit:contain;object-position:center;background:#11151d;">` : escapeHtml((p.name||"P").slice(0,2).toUpperCase())}
-          </div>
-          <div style="flex:1;min-width:0;">
-            <b style="color:#fff;font-size:14px;display:block;">${escapeHtml(p.name || "Player")}</b>
-            <div style="font-size:10px;color:#60a5fa;margin-top:3px;font-weight:900;">PLAYER ID: ${escapeHtml(pid || "Not assigned")}</div>
-            <div style="font-size:10px;color:#cbd5e1;margin-top:3px;">📱 ${escapeHtml(mobile || "—")} • ${escapeHtml(role)}</div>
-            <div style="font-size:10px;color:#94a3b8;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;">
-              ${jerseyName ? `<span>Jersey: ${escapeHtml(jerseyName)}</span>` : ""}
-              ${jerseyNumber ? `<span>No: ${escapeHtml(jerseyNumber)}</span>` : ""}
-              ${jerseySize ? `<span>Size: ${escapeHtml(jerseySize)}</span>` : ""}
-            </div>
-            ${(email || birthdate) ? `<div style="font-size:9.5px;color:#64748b;margin-top:3px;">${email ? escapeHtml(email) : ""}${email && birthdate ? " • " : ""}${birthdate ? "DOB: " + escapeHtml(birthdate) : ""}</div>` : ""}
-          </div>
-          <button type="button" class="btn-add-registered-player" data-player-json="${safeJson}" ${already ? "disabled" : ""} style="border:none;border-radius:8px;padding:8px 10px;font-weight:800;font-size:11px;background:${already ? "#30333c" : "#ff7a00"};color:${already ? "#888" : "#111"};flex:none;">${already ? "✓ Added" : "+ ADD"}</button>
-        </div>`;
-      }).join("");
-
-      container.querySelectorAll(".btn-add-registered-player:not([disabled])").forEach(btn => btn.addEventListener("click", () => {
-        try {
-          const player = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
-          addRegisteredCloudPlayerToSquad(player);
-        } catch(e) { showToast("Could not add player", true); }
-      }));
     } catch (e) {
-      console.error("Registered player search failed:", e);
-      container.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444;font-size:12px;">Unable to search players right now.</div>`;
+      if (!local.length) {
+        container.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444;font-size:12px;">No local profile found. The registered account could not be reached from the cloud right now.</div>`;
+      }
     }
   }
 
@@ -18516,7 +18634,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     team.players.push(newPlayer);
     saveTeamData(team);
     renderMyTeamPage();
-    renderTeamPlayerSearchResults(document.getElementById("inputSearchTeamPlayer")?.value || "");
+    renderRegisteredTeamPlayerResults(document.getElementById("inputSearchTeamPlayer")?.value || "");
     showToast(`Added ${newPlayer.name} to squad! (${newPlayer.inPlayingXI ? 'Playing XI' : 'Bench'})`);
   }
 
@@ -18586,7 +18704,27 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       }
     }
 
-    // 4. Search in calculated player stats
+    // 4. Search the real registered-account directory. This is the source of
+    // truth for a player's profile/photo when the search came from mobile/ID.
+    if (!player) {
+      const reg = getAllLocalRegisteredProfiles().find(p =>
+        String(p.playerId || p.id || "").toLowerCase() === queryLower ||
+        String(p.mobile || "").replace(/\D/g, "") === query.replace(/\D/g, "") ||
+        String(p.name || "").toLowerCase() === queryLower
+      );
+      if (reg) {
+        player = {
+          ...reg,
+          id: reg.playerId || reg.id || query,
+          playerId: reg.playerId || reg.id || query,
+          jersey: reg.jerseyNumber || reg.jersey_number || "",
+          photo: reg.photoUrl || reg.photo || "",
+          team: "Registered Player"
+        };
+      }
+    }
+
+    // 5. Search in calculated player stats
     let calculatedStat = null;
     if (typeof calculateAllPlayerStats === "function") {
       const allStats = calculateAllPlayerStats("all", "all");
@@ -18667,15 +18805,17 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       mWickets = calculatedStat.wickets !== undefined ? calculatedStat.wickets : (player.wickets || 0);
       mEcon = calculatedStat.economy || player.econ || "0.00";
     } else {
-      mMatches = player.matches || 12;
-      mRuns = player.runs !== undefined ? player.runs : (player.role === "Batsman" ? 385 : (player.role === "All-Rounder" ? 210 : 45));
-      mHs = player.hs || (player.role === "Batsman" ? "82*" : "38*");
-      mSr = player.sr || (player.role === "Batsman" ? "138.4" : "124.0");
-      mAvg = player.avg || (player.role === "Batsman" ? "38.5" : "24.0");
-      m50s = player.fifties !== undefined ? player.fifties : (player.role === "Batsman" ? 3 : 1);
-      m100s = player.hundreds !== undefined ? player.hundreds : (player.role === "Batsman" ? 1 : 0);
-      mWickets = player.wickets !== undefined ? player.wickets : (player.role === "Bowler" ? 18 : (player.role === "All-Rounder" ? 9 : 1));
-      mEcon = player.econ || (player.role === "Bowler" ? "6.85" : "7.50");
+      // Registered profile with no match history: show real profile data and
+      // zero statistics rather than inventing demo career numbers.
+      mMatches = Number(player.matches || 0);
+      mRuns = Number(player.runs || 0);
+      mHs = player.hs || "0";
+      mSr = player.sr || "0.00";
+      mAvg = player.avg || "0.00";
+      m50s = Number(player.fifties || 0);
+      m100s = Number(player.hundreds || 0);
+      mWickets = Number(player.wickets || 0);
+      mEcon = player.econ || "0.00";
     }
 
     const statMatches = document.getElementById("statDetailMatches");
@@ -18774,7 +18914,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       document.querySelectorAll("#teamPlayerSearchModal [data-search-filter]").forEach(c => c.classList.remove("active"));
       this.classList.add("active");
       currentSearchRoleFilter = this.getAttribute("data-search-filter") || "all";
-      renderTeamPlayerSearchResults(inputSearchTeamPlayer ? inputSearchTeamPlayer.value : "");
+      renderRegisteredTeamPlayerResults(inputSearchTeamPlayer ? inputSearchTeamPlayer.value : "");
     });
   });
 
