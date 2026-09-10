@@ -827,10 +827,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // LOGIN BUTTON -> DIRECT TO MAIN HOME PAGE (SCREEN 5)
   // ==========================================
 
-  // ==========================================
-  // LOGIN BUTTON -> CENTRAL/SUPABASE ONLY
-  // ==========================================
-
   const loginButton = document.getElementById("loginButton");
   if (loginButton) {
     loginButton.addEventListener("click", async function () {
@@ -848,56 +844,71 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       try {
-        const cloud = await CricYuvaCloud.login({
-          mobile: mob,
-          password: pwd
-        });
-
+        const cloud = await CricYuvaCloud.login({ mobile: mob, password: pwd });
         if (cloud && cloud.user) {
-          localStorage.setItem(
-            "cricYuvaCloudUserId",
-            cloud.user.userId || cloud.user.id || ""
-          );
-
-          if (cloud.token) {
-            localStorage.setItem("cricYuvaCloudToken", cloud.token);
-          }
-
+          localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
+          if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
           localStorage.setItem("cricYuvaLoggedIn", "true");
           localStorage.setItem("cricYuvaMobile", mob);
           localStorage.setItem("cricYuvaProfileMobile", mob);
-
-          if (cloud.user.name) {
-            localStorage.setItem(
-              "cricYuvaProfileName",
-              cloud.user.name
-            );
-          }
-
-          if (cloud.user.playerId) {
-            localStorage.setItem(
-              "cricYuvaPlayerId",
-              cloud.user.playerId
-            );
-          }
-
+          if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
+          if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
           loadProfileData();
           syncActiveProfileToRegisteredDirectory();
-
-          showScreen(
-            isProfileCompleted() ? "screen5" : "screen4"
-          );
-
+          showScreen(isProfileCompleted() ? "screen5" : "screen4");
           hydrateCloudData().finally(() => processPendingInvite());
           return;
         }
+      } catch (e) { /* use local account when server is unavailable */ }
 
-        alert("Invalid mobile number or password.");
-      } catch (e) {
-        alert(e.message || "Login failed. Please try again.");
+      if (window.CricYuvaStorage) {
+        const auth = window.CricYuvaStorage.authenticateUser(mob, pwd);
+        if (auth.success) {
+          localStorage.setItem("cricYuvaLoggedIn", "true");
+          localStorage.setItem("cricYuvaMobile", mob);
+          localStorage.setItem("cricYuvaProfileMobile", mob);
+          if (auth.user?.playerId) localStorage.setItem("cricYuvaPlayerId", auth.user.playerId);
+          if (auth.user?.name) localStorage.setItem("cricYuvaProfileName", auth.user.name);
+          loadProfileData();
+          syncActiveProfileToRegisteredDirectory();
+          if (isProfileCompleted()) {
+            showScreen("screen5");
+          } else {
+            showScreen("screen4");
+          }
+          hydrateCloudData().finally(() => processPendingInvite());
+          return;
+        } else {
+          alert(auth.error || "Invalid mobile number or password!");
+          return;
+        }
+      }
+
+      const savedMobile = localStorage.getItem("cricYuvaMobile");
+      const savedPassword = localStorage.getItem("cricYuvaPassword");
+
+      if (!savedMobile || !savedPassword) {
+        alert("Please create a new account first.");
+        return;
+      }
+
+      if (mob === savedMobile && pwd === savedPassword) {
+        localStorage.setItem("cricYuvaLoggedIn", "true");
+        localStorage.setItem("cricYuvaMobile", mob);
+        localStorage.setItem("cricYuvaProfileMobile", mob);
+        loadProfileData();
+        syncActiveProfileToRegisteredDirectory();
+        if (isProfileCompleted()) {
+          showScreen("screen5");
+        } else {
+          showScreen("screen4");
+        }
+      } else {
+        alert("Invalid mobile number or password!");
       }
     });
   }
+
 
   // ==========================================
   // LOGOUT (ONLY WAY TO CLEAR SESSION)

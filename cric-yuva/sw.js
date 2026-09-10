@@ -1,4 +1,4 @@
-const CACHE = "cric-yuva-v5-player-youtube-fix";
+const CACHE = "cric-yuva-v6-registered-player-search-fix";
 const SHELL = ["./", "./index.html", "./style.css", "./script.js", "./storage.js", "./server-config.js", "./manifest.webmanifest", "./cric-yuva-logo.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));

@@ -343,22 +343,8 @@ app.post("/api/auth/register", async (req, res) => {
     const passwordHash = hashPassword(password);
     const now = Date.now();
 
-    // Check the Player Master by mobile as well as the User account.
-    // This prevents an orphan/legacy player from receiving a second Player ID.
-    const existingPlayer = await sql`
-      SELECT player_id, user_id
-      FROM players
-      WHERE mobile = ${cleanMobile}
-      ORDER BY created_at ASC
-      LIMIT 1
-    `;
-    if (existingPlayer.length > 0 && existingPlayer[0].user_id) {
-      return res.status(409).json({
-        ok: false, success: false,
-        error: "An account with this mobile number already exists. Please log in."
-      });
-    }
-
+    // Check if player record already exists for this mobile
+    const existingPlayer = await sql`SELECT player_id FROM players WHERE mobile = ${cleanMobile} LIMIT 1`;
     let playerId;
     if (existingPlayer.length > 0 && existingPlayer[0].player_id) {
       playerId = existingPlayer[0].player_id;
@@ -498,21 +484,9 @@ app.post("/api/auth/request-otp", otpLimiter, async (req, res) => {
     const now = Date.now();
     const expiresAt = now + 5 * 60 * 1000;
 
-    const codeHash = crypto.createHash("sha256").update(otp).digest("hex");
-
     await sql`
-      UPDATE otp_codes
-      SET used = TRUE
-      WHERE mobile = ${cleanMobile}
-        AND purpose = ${purpose}
-        AND used = FALSE
-    `;
-
-    await sql`
-      INSERT INTO otp_codes
-        (mobile, code_hash, purpose, expires_at, attempts, used, created_at)
-      VALUES
-        (${cleanMobile}, ${codeHash}, ${purpose}, ${expiresAt}, 0, FALSE, ${now})
+      INSERT INTO otp_codes (mobile, code, expires_at, attempts, used, created_at)
+      VALUES (${cleanMobile}, ${otp}, ${expiresAt}, 0, FALSE, ${now})
     `;
 
     // Delivery hook: configure OTP_WEBHOOK_URL for a real SMS/WhatsApp provider.
@@ -555,10 +529,9 @@ app.post("/api/auth/verify-otp", async (req, res) => {
     const now = Date.now();
 
     const otpRows = await sql`
-      SELECT id, code_hash, purpose, expires_at, attempts, used
+      SELECT id, code, expires_at, attempts, used
       FROM otp_codes
       WHERE mobile = ${cleanMobile}
-        AND purpose = ${purpose}
       ORDER BY created_at DESC
       LIMIT 1
     `;
@@ -581,9 +554,7 @@ app.post("/api/auth/verify-otp", async (req, res) => {
       return res.status(400).json({ ok: false, success: false, error: "Maximum verification attempts exceeded. Please request a new OTP." });
     }
 
-    const submittedCodeHash = crypto.createHash("sha256").update(cleanCode).digest("hex");
-
-    if (otpRecord.code_hash !== submittedCodeHash) {
+    if (otpRecord.code !== cleanCode) {
       await sql`UPDATE otp_codes SET attempts = attempts + 1 WHERE id = ${otpRecord.id}`;
       const remainingAttempts = 4 - otpRecord.attempts;
       return res.status(400).json({
@@ -611,47 +582,13 @@ app.post("/api/auth/verify-otp", async (req, res) => {
       const cleanPassword = String(password || "");
       if (!cleanName) return res.status(400).json({ ok:false, success:false, error:"Player name is required" });
       if (cleanPassword.length < 4) return res.status(400).json({ ok:false, success:false, error:"Password must be at least 4 characters" });
-      // Reuse an existing player record for this mobile number, if present.
-      // This preserves a previously-created permanent Player ID when an older
-      // player record exists without a linked user account.
-      const existingPlayerRows = await sql`
-        SELECT player_id, user_id, name, mobile
-        FROM players
-        WHERE mobile = ${cleanMobile}
-        ORDER BY created_at ASC
-        LIMIT 1
-      `;
-
-      if (existingPlayerRows.length > 0 && existingPlayerRows[0].user_id) {
-        return res.status(409).json({
-          ok:false, success:false,
-          error:"An account with this mobile number already exists. Please log in."
-        });
-      }
-
       const userId = "USR-" + Date.now() + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
       const passwordHash = hashPassword(cleanPassword);
-      const playerId = existingPlayerRows.length > 0 && existingPlayerRows[0].player_id
-        ? existingPlayerRows[0].player_id
-        : await generatePermanentPlayerId(sql);
-
+      const playerId = await generatePermanentPlayerId(sql);
       await sql`INSERT INTO users (user_id, mobile, name, password_hash, player_id, created_at) VALUES (${userId}, ${cleanMobile}, ${cleanName}, ${passwordHash}, ${playerId}, ${now})`;
       const profile = { name: cleanName, mobile: cleanMobile, playerId, role:"All-Rounder", jerseyNumber:7 };
       await sql`INSERT INTO profiles (user_id, data_json, updated_at) VALUES (${userId}, ${JSON.stringify(profile)}::jsonb, ${now})`;
-
-      if (existingPlayerRows.length > 0) {
-        await sql`
-          UPDATE players
-          SET user_id = ${userId}, name = ${cleanName}, mobile = ${cleanMobile},
-              role = COALESCE(role, 'All-Rounder'),
-              jersey_number = COALESCE(jersey_number, 7),
-              data_json = data_json || ${JSON.stringify(profile)}::jsonb,
-              updated_at = ${now}
-          WHERE player_id = ${playerId}
-        `;
-      } else {
-        await sql`INSERT INTO players (player_id,user_id,name,mobile,role,jersey_number,data_json,created_at,updated_at) VALUES (${playerId},${userId},${cleanName},${cleanMobile},'All-Rounder',7,${JSON.stringify(profile)}::jsonb,${now},${now})`;
-      }
+      await sql`INSERT INTO players (player_id,user_id,name,mobile,role,jersey_number,data_json,created_at,updated_at) VALUES (${playerId},${userId},${cleanName},${cleanMobile},'All-Rounder',7,${JSON.stringify(profile)}::jsonb,${now},${now})`;
       user = { user_id:userId, mobile:cleanMobile, name:cleanName, player_id:playerId };
     } else {
       if (userRows.length === 0) return res.status(404).json({ ok:false, success:false, error:"No account found with this mobile number. Please create an account first." });
@@ -861,31 +798,81 @@ app.get("/api/players/search", async (req, res) => {
     const q = String(req.query.q || req.query.query || "").trim();
     const like = "%" + q + "%";
 
+    // Registered-account search is authoritative.  Some older databases may
+    // contain a users row before the corresponding players row was created,
+    // or a legacy player row whose user_id is NULL.  Join through users and
+    // synthesize the player fields from the account/profile JSON so a newly
+    // registered user is never invisible to Squad Search.
     let rows;
     if (!q) {
       rows = await sql`
-        SELECT * FROM players
-        WHERE is_active IS NOT FALSE AND user_id IS NOT NULL
-        ORDER BY created_at DESC
-        LIMIT 50
+        SELECT
+          p.*,
+          u.user_id AS linked_user_id,
+          u.name AS user_name,
+          u.mobile AS user_mobile,
+          u.player_id AS user_player_id,
+          COALESCE(p.name, u.name) AS search_name,
+          COALESCE(p.mobile, u.mobile) AS search_mobile,
+          COALESCE(p.player_id, u.player_id) AS search_player_id
+        FROM users u
+        LEFT JOIN players p
+          ON p.player_id = u.player_id OR (p.user_id = u.user_id)
+        WHERE u.player_id IS NOT NULL
+        ORDER BY u.created_at DESC
+        LIMIT 100
       `;
     } else {
       rows = await sql`
-        SELECT * FROM players
-        WHERE (is_active IS NOT FALSE) AND user_id IS NOT NULL AND (
-          name ILIKE ${like} OR
-          mobile ILIKE ${like} OR
-          player_id ILIKE ${like} OR
-          jersey_name ILIKE ${like} OR
-          role ILIKE ${like} OR
-          email ILIKE ${like}
-        )
-        ORDER BY created_at DESC
-        LIMIT 50
+        SELECT
+          p.*,
+          u.user_id AS linked_user_id,
+          u.name AS user_name,
+          u.mobile AS user_mobile,
+          u.player_id AS user_player_id,
+          COALESCE(p.name, u.name) AS search_name,
+          COALESCE(p.mobile, u.mobile) AS search_mobile,
+          COALESCE(p.player_id, u.player_id) AS search_player_id
+        FROM users u
+        LEFT JOIN players p
+          ON p.player_id = u.player_id OR (p.user_id = u.user_id)
+        WHERE u.player_id IS NOT NULL
+          AND (
+            COALESCE(p.name, u.name) ILIKE ${like} OR
+            COALESCE(p.mobile, u.mobile) ILIKE ${like} OR
+            COALESCE(p.player_id, u.player_id) ILIKE ${like} OR
+            COALESCE(p.jersey_name, '') ILIKE ${like} OR
+            COALESCE(p.role, '') ILIKE ${like} OR
+            COALESCE(p.email, '') ILIKE ${like}
+          )
+        ORDER BY u.created_at DESC
+        LIMIT 100
       `;
     }
 
-    const players = rows.map(r => ({ ...r, playerId: r.player_id }));
+    const seen = new Set();
+    const players = rows.map(r => {
+      const playerId = String(r.player_id || r.search_player_id || r.user_player_id || '').trim();
+      if (!playerId || seen.has(playerId)) return null;
+      seen.add(playerId);
+      let profile = {};
+      try { profile = (r.data_json && typeof r.data_json === 'object') ? r.data_json : JSON.parse(r.data_json || '{}'); } catch (_) {}
+      return {
+        ...r,
+        id: playerId,
+        playerId,
+        userId: r.user_id || r.linked_user_id || null,
+        name: r.name || r.user_name || profile.name || 'Player',
+        mobile: r.mobile || r.user_mobile || profile.mobile || '',
+        email: r.email || profile.email || '',
+        role: r.role || profile.role || 'All-Rounder',
+        jerseyName: r.jersey_name || profile.jerseyName || '',
+        jerseyNumber: r.jersey_number ?? profile.jerseyNumber ?? '',
+        jerseySize: r.jersey_size || profile.jerseySize || '',
+        birthdate: r.birthdate || r.date_of_birth || profile.birthdate || profile.dateOfBirth || '',
+        photoUrl: r.photo_url || r.profile_photo || profile.photoUrl || profile.photo || ''
+      };
+    }).filter(Boolean);
     res.json({ ok: true, success: true, count: players.length, players });
   } catch (err) {
     res.status(500).json({ ok: false, error: "Search failed: " + err.message });
