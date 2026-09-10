@@ -832,153 +832,170 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
   let cyCropState = null;
 
+  // ==========================================
+  // UNIVERSAL CUSTOM PHOTO / LOGO CROPPER
+  // The selected image is rendered on a canvas so it is always visible
+  // on mobile. User can drag and zoom, then save exactly the visible area.
+  // Used by Profile Photo, Team Logo, Squad Player Photo and Tournament Logo.
+  // ==========================================
   function ensureCricYuvaCropper() {
     if (document.getElementById("cricYuvaCropModal")) return;
     const wrap = document.createElement("div");
     wrap.id = "cricYuvaCropModal";
-    wrap.style.cssText = "position:fixed;inset:0;z-index:99999;display:none;background:rgba(0,0,0,.82);align-items:center;justify-content:center;padding:14px;box-sizing:border-box;";
+    wrap.style.cssText = "position:fixed;inset:0;z-index:999999;display:none;background:rgba(0,0,0,.86);align-items:center;justify-content:center;padding:12px;box-sizing:border-box;";
     wrap.innerHTML = `
-      <div style="width:min(94vw,520px);max-height:94vh;overflow:auto;background:#121722;border:1px solid #34405a;border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.55);padding:16px;box-sizing:border-box;color:#fff;">
+      <div style="width:min(94vw,540px);max-height:95vh;overflow:auto;background:#121722;border:1px solid #34405a;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.7);padding:16px;box-sizing:border-box;color:#fff;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
-          <div><div id="cyCropTitle" style="font-size:18px;font-weight:900;">Adjust Photo</div><div style="font-size:11px;color:#94a3b8;margin-top:3px;">Drag photo • Zoom • Keep the part you want</div></div>
-          <button type="button" id="cyCropCancelTop" style="width:36px;height:36px;border-radius:50%;border:1px solid #3a465f;background:#1a2030;color:#fff;font-size:20px;">×</button>
+          <div>
+            <div id="cyCropTitle" style="font-size:20px;font-weight:900;">Adjust Photo</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">Drag photo • Zoom • Keep exactly the part you want</div>
+          </div>
+          <button type="button" id="cyCropCancelTop" style="width:40px;height:40px;border-radius:50%;border:1px solid #3a465f;background:#1a2030;color:#fff;font-size:24px;">×</button>
         </div>
-        <div id="cyCropViewport" style="position:relative;width:min(82vw,420px);height:min(82vw,420px);max-width:420px;max-height:420px;margin:0 auto;background:#070a10;border:2px solid #ff7a00;border-radius:14px;overflow:hidden;touch-action:none;">
-          <img id="cyCropImage" alt="Crop preview" draggable="false" style="position:absolute;max-width:none;user-select:none;-webkit-user-drag:none;cursor:grab;transform-origin:top left;">
-          <div style="position:absolute;inset:0;pointer-events:none;border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 0 0 9999px rgba(0,0,0,.06);"></div>
-          <div style="position:absolute;left:25%;top:25%;width:50%;height:50%;border:1px dashed rgba(255,255,255,.65);border-radius:10px;pointer-events:none;"></div>
+        <div id="cyCropViewport" style="position:relative;width:min(86vw,440px);height:min(86vw,440px);max-width:440px;max-height:440px;margin:0 auto;background:#05070b;border:2px solid #ff7a00;border-radius:14px;overflow:hidden;touch-action:none;">
+          <canvas id="cyCropCanvas" style="display:block;width:100%;height:100%;touch-action:none;"></canvas>
+          <div style="position:absolute;inset:0;pointer-events:none;border:1px solid rgba(255,255,255,.28);border-radius:12px;"></div>
         </div>
+        <div id="cyCropHint" style="text-align:center;color:#aab4c8;font-size:12px;margin-top:9px;">Move the photo and zoom until it looks right.</div>
         <div style="margin:14px 4px 4px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:#aab4c8;margin-bottom:6px;"><span>Zoom</span><span id="cyCropZoomValue">100%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#aab4c8;margin-bottom:7px;"><span>Zoom</span><span id="cyCropZoomValue">100%</span></div>
           <input id="cyCropZoom" type="range" min="50" max="300" value="100" step="1" style="width:100%;accent-color:#ff7a00;">
         </div>
         <div style="display:flex;gap:8px;margin-top:14px;">
-          <button type="button" id="cyCropReset" style="flex:1;padding:12px;border-radius:10px;border:1px solid #39445b;background:#1a2030;color:#fff;font-weight:800;">↺ Reset</button>
-          <button type="button" id="cyCropCancel" style="flex:1;padding:12px;border-radius:10px;border:1px solid #39445b;background:#1a2030;color:#fff;font-weight:800;">Cancel</button>
-          <button type="button" id="cyCropApply" style="flex:1.4;padding:12px;border-radius:10px;border:0;background:linear-gradient(135deg,#ff7a00,#ff4d00);color:#fff;font-weight:900;">✓ Use This Crop</button>
+          <button type="button" id="cyCropReset" style="flex:1;padding:13px;border-radius:11px;border:1px solid #39445b;background:#1a2030;color:#fff;font-weight:800;">↺ Reset</button>
+          <button type="button" id="cyCropCancel" style="flex:1;padding:13px;border-radius:11px;border:1px solid #39445b;background:#1a2030;color:#fff;font-weight:800;">Cancel</button>
+          <button type="button" id="cyCropApply" style="flex:1.5;padding:13px;border-radius:11px;border:0;background:linear-gradient(135deg,#ff7a00,#ff4d00);color:#fff;font-weight:900;">✓ Use This Crop</button>
         </div>
       </div>`;
     document.body.appendChild(wrap);
 
-    const img = document.getElementById("cyCropImage");
+    const canvas = document.getElementById("cyCropCanvas");
     const viewport = document.getElementById("cyCropViewport");
     const zoom = document.getElementById("cyCropZoom");
     const zoomValue = document.getElementById("cyCropZoomValue");
+    const ctx = canvas.getContext("2d", {alpha:false});
 
-    function closeCrop(cancelled) {
-      wrap.style.display = "none";
-      if (cancelled && cyCropState && cyCropState.fileInput) cyCropState.fileInput.value = "";
-      cyCropState = null;
-      img.removeAttribute("src");
+    function renderCrop() {
+      const st = cyCropState;
+      if (!st || !st.img || !st.img.naturalWidth) return;
+      const cssW = viewport.clientWidth, cssH = viewport.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (canvas.width !== Math.round(cssW*dpr) || canvas.height !== Math.round(cssH*dpr)) {
+        canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+      }
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.fillStyle="#05070b"; ctx.fillRect(0,0,cssW,cssH);
+      ctx.drawImage(st.img, st.x, st.y, st.img.naturalWidth*st.scale, st.img.naturalHeight*st.scale);
+      zoomValue.textContent=Math.round(Number(zoom.value))+"%";
     }
 
-    function applyZoom() {
-      if (!cyCropState || !cyCropState.img) return;
-      const st = cyCropState;
-      const z = Number(zoom.value) / 100;
-      const scale = st.baseScale * z;
-      const oldScale = st.scale || scale;
-      const cx = st.viewW / 2, cy = st.viewH / 2;
-      // Keep the point under the viewport center stable while zooming.
-      const relX = (cx - st.x) / oldScale;
-      const relY = (cy - st.y) / oldScale;
-      st.scale = scale;
-      st.x = cx - relX * scale;
-      st.y = cy - relY * scale;
-      st.x = Math.min(0, Math.max(st.viewW - st.img.naturalWidth * scale, st.x));
-      st.y = Math.min(0, Math.max(st.viewH - st.img.naturalHeight * scale, st.y));
-      img.style.width = (st.img.naturalWidth * scale) + "px";
-      img.style.height = (st.img.naturalHeight * scale) + "px";
-      img.style.left = st.x + "px";
-      img.style.top = st.y + "px";
-      zoomValue.textContent = Math.round(Number(zoom.value)) + "%";
+    function clampPosition() {
+      const st=cyCropState; if(!st) return;
+      const w=st.img.naturalWidth*st.scale, h=st.img.naturalHeight*st.scale;
+      // Always keep the image covering the complete crop area.
+      st.x=Math.min(0,Math.max(st.viewW-w,st.x));
+      st.y=Math.min(0,Math.max(st.viewH-h,st.y));
+    }
+
+    function setZoom(value, keepCenter=true) {
+      const st=cyCropState; if(!st) return;
+      const next=st.baseScale*(Number(value)/100);
+      const old=st.scale || next;
+      const cx=st.viewW/2, cy=st.viewH/2;
+      if(keepCenter){
+        const px=(cx-st.x)/old, py=(cy-st.y)/old;
+        st.x=cx-px*next; st.y=cy-py*next;
+      }
+      st.scale=next; clampPosition(); renderCrop();
+    }
+
+    function closeCrop(cancelled) {
+      wrap.style.display="none";
+      if(cancelled && cyCropState && cyCropState.fileInput) cyCropState.fileInput.value="";
+      cyCropState=null;
     }
 
     function resetCrop() {
-      if (!cyCropState || !cyCropState.img) return;
-      const st = cyCropState;
-      zoom.value = 100;
-      st.baseScale = Math.max(st.viewW / st.img.naturalWidth, st.viewH / st.img.naturalHeight);
-      st.scale = st.baseScale;
-      st.x = (st.viewW - st.img.naturalWidth * st.scale) / 2;
-      st.y = (st.viewH - st.img.naturalHeight * st.scale) / 2;
-      applyZoom();
+      const st=cyCropState; if(!st) return;
+      zoom.value=100;
+      st.baseScale=Math.max(st.viewW/st.img.naturalWidth,st.viewH/st.img.naturalHeight);
+      st.scale=st.baseScale;
+      st.x=(st.viewW-st.img.naturalWidth*st.scale)/2;
+      st.y=(st.viewH-st.img.naturalHeight*st.scale)/2;
+      renderCrop();
     }
 
-    zoom.addEventListener("input", applyZoom);
-    document.getElementById("cyCropReset").addEventListener("click", resetCrop);
-    document.getElementById("cyCropCancel").addEventListener("click", () => closeCrop(true));
-    document.getElementById("cyCropCancelTop").addEventListener("click", () => closeCrop(true));
-    wrap.addEventListener("click", e => { if (e.target === wrap) closeCrop(true); });
+    zoom.addEventListener("input",()=>setZoom(zoom.value));
+    document.getElementById("cyCropReset").addEventListener("click",resetCrop);
+    document.getElementById("cyCropCancel").addEventListener("click",()=>closeCrop(true));
+    document.getElementById("cyCropCancelTop").addEventListener("click",()=>closeCrop(true));
+    wrap.addEventListener("click",e=>{if(e.target===wrap)closeCrop(true);});
 
-    let dragging = false, lastX = 0, lastY = 0;
-    const startDrag = e => { if (!cyCropState) return; dragging = true; lastX = e.clientX ?? e.touches?.[0]?.clientX ?? 0; lastY = e.clientY ?? e.touches?.[0]?.clientY ?? 0; img.style.cursor = "grabbing"; };
-    const moveDrag = e => {
-      if (!dragging || !cyCropState) return;
-      const x = e.clientX ?? e.touches?.[0]?.clientX ?? lastX;
-      const y = e.clientY ?? e.touches?.[0]?.clientY ?? lastY;
-      const dx = x-lastX, dy = y-lastY; lastX=x; lastY=y;
-      const st = cyCropState;
-      st.x = Math.min(0, Math.max(st.viewW - st.img.naturalWidth*st.scale, st.x+dx));
-      st.y = Math.min(0, Math.max(st.viewH - st.img.naturalHeight*st.scale, st.y+dy));
-      img.style.left = st.x+"px"; img.style.top = st.y+"px";
-      if (e.cancelable) e.preventDefault();
-    };
-    const endDrag = () => { dragging=false; img.style.cursor="grab"; };
-    viewport.addEventListener("pointerdown", startDrag);
-    window.addEventListener("pointermove", moveDrag, {passive:false});
-    window.addEventListener("pointerup", endDrag);
+    let dragging=false,lastX=0,lastY=0;
+    viewport.addEventListener("pointerdown",e=>{
+      if(!cyCropState)return;
+      dragging=true; lastX=e.clientX; lastY=e.clientY;
+      try{viewport.setPointerCapture(e.pointerId);}catch(_){ }
+      e.preventDefault();
+    });
+    viewport.addEventListener("pointermove",e=>{
+      if(!dragging||!cyCropState)return;
+      const st=cyCropState;
+      st.x += e.clientX-lastX; st.y += e.clientY-lastY;
+      lastX=e.clientX; lastY=e.clientY;
+      clampPosition(); renderCrop(); e.preventDefault();
+    });
+    const stopDrag=()=>{dragging=false;};
+    viewport.addEventListener("pointerup",stopDrag);
+    viewport.addEventListener("pointercancel",stopDrag);
 
-    document.getElementById("cyCropApply").addEventListener("click", () => {
-      if (!cyCropState || !cyCropState.img) return;
-      const st = cyCropState;
-      const outSize = 640;
-      const canvas = document.createElement("canvas"); canvas.width=outSize; canvas.height=outSize;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#101522"; ctx.fillRect(0,0,outSize,outSize);
-      const sourceX = Math.max(0, (0-st.x)/st.scale);
-      const sourceY = Math.max(0, (0-st.y)/st.scale);
-      const sourceW = Math.min(st.img.naturalWidth-sourceX, st.viewW/st.scale);
-      const sourceH = Math.min(st.img.naturalHeight-sourceY, st.viewH/st.scale);
-      ctx.drawImage(st.img, sourceX, sourceY, sourceW, sourceH, 0, 0, outSize, outSize);
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-      const cb = st.callback; const input = st.fileInput;
-      wrap.style.display="none"; cyCropState=null; img.removeAttribute("src");
-      if (input) input.value="";
-      if (typeof cb === "function") cb(dataUrl);
+    document.getElementById("cyCropApply").addEventListener("click",()=>{
+      const st=cyCropState; if(!st||!st.img)return;
+      const outSize=640, out=document.createElement("canvas"); out.width=outSize; out.height=outSize;
+      const octx=out.getContext("2d"); octx.fillStyle="#101522"; octx.fillRect(0,0,outSize,outSize);
+      // Crop exactly what is visible in the orange viewport.
+      const sx=Math.max(0,(0-st.x)/st.scale);
+      const sy=Math.max(0,(0-st.y)/st.scale);
+      const sw=Math.min(st.img.naturalWidth-sx,st.viewW/st.scale);
+      const sh=Math.min(st.img.naturalHeight-sy,st.viewH/st.scale);
+      if(sw>0&&sh>0) octx.drawImage(st.img,sx,sy,sw,sh,0,0,outSize,outSize);
+      const dataUrl=out.toDataURL("image/jpeg",0.92);
+      const cb=st.callback, input=st.fileInput;
+      wrap.style.display="none"; cyCropState=null;
+      if(input) input.value="";
+      if(typeof cb==="function")cb(dataUrl);
     });
   }
 
   function openCricYuvaImageCropper(file, callback, title, fileInput) {
-    if (!file || !/^image\//i.test(file.type || "")) return;
+    if(!file || !/^image\//i.test(file.type||"")) return;
     ensureCricYuvaCropper();
     const wrap=document.getElementById("cricYuvaCropModal");
-    const img=document.getElementById("cyCropImage");
+    const canvas=document.getElementById("cyCropCanvas");
     const viewport=document.getElementById("cyCropViewport");
     const zoom=document.getElementById("cyCropZoom");
     const titleEl=document.getElementById("cyCropTitle");
-    titleEl.textContent=title || "Adjust Photo";
+    titleEl.textContent=title||"Adjust Photo";
     const reader=new FileReader();
+    reader.onerror=()=>{ if(fileInput) fileInput.value=""; alert("Photo could not be opened. Please choose another image."); };
     reader.onload=e=>{
       const source=new Image();
       source.onload=()=>{
-        const viewW=viewport.clientWidth, viewH=viewport.clientHeight;
+        const viewW=viewport.clientWidth||400, viewH=viewport.clientHeight||400;
         cyCropState={img:source,viewW,viewH,baseScale:Math.max(viewW/source.naturalWidth,viewH/source.naturalHeight),scale:1,x:0,y:0,callback,fileInput};
-        img.src=e.target.result;
         zoom.value=100;
         requestAnimationFrame(()=>{
-          const st=cyCropState;
+          const st=cyCropState; if(!st)return;
           st.baseScale=Math.max(st.viewW/st.img.naturalWidth,st.viewH/st.img.naturalHeight);
           st.scale=st.baseScale;
           st.x=(st.viewW-st.img.naturalWidth*st.scale)/2;
           st.y=(st.viewH-st.img.naturalHeight*st.scale)/2;
-          img.style.width=(st.img.naturalWidth*st.scale)+"px"; img.style.height=(st.img.naturalHeight*st.scale)+"px";
-          img.style.left=st.x+"px"; img.style.top=st.y+"px";
-          document.getElementById("cyCropZoomValue").textContent="100%";
+          // Force the canvas to render immediately before showing the modal.
+          const evt=new Event("input"); zoom.dispatchEvent(evt);
           wrap.style.display="flex";
         });
       };
-      source.onerror=()=>{ callback(e.target.result); };
+      source.onerror=()=>{alert("This image format could not be opened. Please choose a JPG or PNG.");if(fileInput)fileInput.value="";};
       source.src=e.target.result;
     };
     reader.readAsDataURL(file);
@@ -997,7 +1014,6 @@ document.addEventListener("DOMContentLoaded", function () {
     el.innerHTML = cyLogoMarkup(value, fallback);
   }
 
-  // ==========================================
   function readAndFitProfilePhoto(file, callback) {
 
     if (!file || !/^image\//i.test(file.type || "")) return;
