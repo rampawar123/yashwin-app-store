@@ -864,6 +864,30 @@ document.addEventListener("DOMContentLoaded", function () {
       if (window.CricYuvaStorage) {
         const auth = window.CricYuvaStorage.authenticateUser(mob, pwd);
         if (auth.success) {
+          // Older Cric Yuva installs stored accounts only in browser storage.
+          // When the cloud login says the account does not exist, migrate that
+          // verified local account to the central server using the same mobile/password.
+          try {
+            const migrate = await CricYuvaCloud.request("/api/auth/migrate-local", {
+              method: "POST",
+              body: JSON.stringify({
+                name: auth.user?.name || localStorage.getItem("cricYuvaProfileName") || "Cric Yuva Player",
+                mobile: mob,
+                password: pwd
+              })
+            });
+            if (migrate && migrate.user) {
+              localStorage.setItem("cricYuvaCloudUserId", migrate.user.userId || "");
+              if (migrate.token) localStorage.setItem("cricYuvaCloudToken", migrate.token);
+              if (migrate.user.playerId) localStorage.setItem("cricYuvaPlayerId", migrate.user.playerId);
+              if (migrate.user.name) localStorage.setItem("cricYuvaProfileName", migrate.user.name);
+              localStorage.setItem("cricYuvaMobile", mob);
+              localStorage.setItem("cricYuvaProfileMobile", mob);
+            }
+          } catch (migrationError) {
+            console.warn("Central account migration unavailable:", migrationError?.message || migrationError);
+          }
+
           localStorage.setItem("cricYuvaLoggedIn", "true");
           localStorage.setItem("cricYuvaMobile", mob);
           localStorage.setItem("cricYuvaProfileMobile", mob);
