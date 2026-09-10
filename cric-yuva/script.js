@@ -205,8 +205,12 @@ document.addEventListener("DOMContentLoaded", function () {
       role: u.role || "All-Rounder",
       jerseyNumber: u.jerseyNumber || u.jersey || "",
       jerseyName: u.jerseyName || u.name || "",
-      photoUrl: u.photoUrl || u.photo || "",
-      avatar: u.photoUrl || u.photo || "🏏",
+      jerseySize: u.jerseySize || u.jersey_size || "",
+      email: u.email || "",
+      dateOfBirth: u.dateOfBirth || u.birthdate || u.date_of_birth || "",
+      photoUrl: u.photoUrl || u.photo || u.profilePhoto || u.profile_photo || "",
+      photo: u.photoUrl || u.photo || u.profilePhoto || u.profile_photo || "",
+      avatar: u.photoUrl || u.photo || u.profilePhoto || u.profile_photo || "🏏",
       basePrice: Number(u.basePrice) || 1.0,
       type: "Registered User"
     }));
@@ -2688,12 +2692,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     render(players);
 
+    // If the entered value is an exact 10-digit mobile number and a registered
+    // account is found locally, fill the Add Squad Player form immediately.
+    // The user should not have to press a second hidden/search result button.
+    const qDigits = q.replace(/\D/g, "");
+    if (qDigits.length === 10) {
+      const exactLocal = players.find(p => String(p.mobile || "").replace(/\D/g, "") === qDigits);
+      if (exactLocal) {
+        fillRegisteredPlayerIntoSquadForm(exactLocal);
+        if (quickRegisteredResults) {
+          const pid = String(exactLocal.playerId || exactLocal.player_id || exactLocal.id || "");
+          const photo = exactLocal.photoUrl || exactLocal.photo || "";
+          quickRegisteredResults.innerHTML = `<div style="background:#101722;border:1px solid #2f8f5b;border-radius:12px;padding:10px;display:flex;align-items:center;gap:10px;">${photo ? `<img src="${escapeHtml(photo)}" alt="Player" style="width:46px;height:46px;border-radius:50%;object-fit:contain;background:#0b0f16;border:2px solid #ff7a00;">` : `<span style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#20283a;color:#60a5fa;font-weight:900;">${escapeHtml((exactLocal.name||"P").slice(0,2).toUpperCase())}</span>`}<span style="flex:1;min-width:0;"><b style="display:block;color:#fff;font-size:12px;">${escapeHtml(exactLocal.name || "Player")}</b><small style="display:block;color:#60a5fa;font-weight:800;">${escapeHtml(pid)}</small><small style="display:block;color:#4ade80;">✓ Registered profile loaded automatically</small></span></div>`;
+        }
+      }
+    }
+
     // Then merge cloud results in the background. Local results remain visible
     // if the backend is unavailable or slow.
     try {
       const data = await CricYuvaCloud.searchPlayers(q);
       const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
-      render([...players, ...cloudPlayers]);
+      const mergedPlayers = [...players, ...cloudPlayers];
+      render(mergedPlayers);
+      if (qDigits.length === 10) {
+        const exactCloud = mergedPlayers.find(p => String(p.mobile || "").replace(/\D/g, "") === qDigits);
+        if (exactCloud) fillRegisteredPlayerIntoSquadForm(exactCloud);
+      }
     } catch (e) {
       if (!isStaticApiError(e)) console.warn('Cloud registered-player search failed:', e);
     }
