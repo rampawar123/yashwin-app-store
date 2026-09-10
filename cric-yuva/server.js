@@ -727,6 +727,12 @@ app.put("/api/profile", requireAuth, async (req, res) => {
     const existingProfile = currentProfileRows[0]?.data_json || {};
 
     const updatedName = body.name ? String(body.name).trim() : currentUser.name;
+    const updatedMobile = body.mobile ? String(body.mobile).trim() : currentUser.mobile;
+    if (body.mobile && !/^\d{10,15}$/.test(updatedMobile)) return res.status(400).json({ok:false,success:false,error:"Valid mobile number required"});
+    if (updatedMobile !== currentUser.mobile) {
+      const mobileTaken = await sql`SELECT user_id FROM users WHERE mobile=${updatedMobile} AND user_id<>${userId} LIMIT 1`;
+      if (mobileTaken.length) return res.status(409).json({ok:false,success:false,error:"Mobile number already belongs to another account"});
+    }
     const updatedProfile = {
       ...existingProfile,
       ...body,
@@ -735,8 +741,8 @@ app.put("/api/profile", requireAuth, async (req, res) => {
       player_id: currentUser.player_id
     };
 
-    if (body.name) {
-      await sql`UPDATE users SET name = ${updatedName} WHERE user_id = ${userId}`;
+    if (body.name || body.mobile) {
+      await sql`UPDATE users SET name = ${updatedName}, mobile = ${updatedMobile} WHERE user_id = ${userId}`;
     }
 
     await sql`
@@ -759,8 +765,11 @@ app.put("/api/profile", requireAuth, async (req, res) => {
           batting_style = COALESCE(${body.battingStyle || null}, batting_style),
           bowling_style = COALESCE(${body.bowlingStyle || null}, bowling_style),
           email = COALESCE(${body.email || null}, email),
+          birthdate = COALESCE(${body.birthdate || body.dateOfBirth || null}, birthdate),
           date_of_birth = COALESCE(${body.birthdate || body.dateOfBirth || null}, date_of_birth),
+          photo_url = COALESCE(${body.photoUrl || body.profilePhoto || null}, photo_url),
           profile_photo = COALESCE(${body.photoUrl || body.profilePhoto || null}, profile_photo),
+          mobile = ${updatedMobile},
           data_json = data_json || ${JSON.stringify(updatedProfile)}::jsonb,
           updated_at = ${now}
         WHERE player_id = ${currentUser.player_id}
@@ -1244,20 +1253,28 @@ app.post("/api/teams", requireAuth, async (req, res) => {
       return res.status(400).json({ ok: false, success: false, error: "Team name is required" });
     }
 
-    // Duplicate team_id / client tampering protection
-    const clientProvidedId = t.teamId || t.team_id || body.teamId;
-    if (clientProvidedId) {
-      const existingCheck = await sql`SELECT team_id FROM teams WHERE team_id = ${String(clientProvidedId).trim()} LIMIT 1`;
-      if (existingCheck.length > 0) {
-        return res.status(409).json({
-          ok: false,
-          success: false,
-          error: "Conflict: Team ID already exists in database"
-        });
+    // A local client may already know its server Team ID. In that case update
+    // the same owned team instead of creating a second team or returning 409.
+    // A different user's Team ID is never accepted.
+    const clientProvidedId = String(t.teamId || t.team_id || body.teamId || "").trim();
+    const existingById = clientProvidedId
+      ? await sql`SELECT * FROM teams WHERE team_id = ${clientProvidedId} LIMIT 1`
+      : [];
+    if (existingById.length > 0) {
+      if (existingById[0].user_id && existingById[0].user_id !== req.user.userId) {
+        return res.status(403).json({ ok:false, success:false, error:"Forbidden: Team belongs to another user" });
       }
+      const now = Date.now();
+      const shortName = t.shortName ? String(t.shortName).trim() : (t.short_name ? String(t.short_name).trim() : existingById[0].short_name);
+      const captainId = t.captainId ? String(t.captainId).trim() : (t.captain_id ? String(t.captain_id).trim() : existingById[0].captain_id);
+      const city = t.city !== undefined ? t.city : existingById[0].city;
+      const logoUrl = t.logoUrl !== undefined ? t.logoUrl : (t.logo_url !== undefined ? t.logo_url : existingById[0].logo_url);
+      const merged = { ...(existingById[0].data_json || {}), ...t, teamId: clientProvidedId, team_id: clientProvidedId, userId:req.user.userId };
+      const updated = await sql`UPDATE teams SET name=${rawName},short_name=${shortName},captain_id=${captainId},city=${city},logo_url=${logoUrl},data_json=${JSON.stringify(merged)}::jsonb,updated_at=${now} WHERE team_id=${clientProvidedId} RETURNING *`;
+      return res.json({ok:true,success:true,message:"Team synchronized successfully",teamId:clientProvidedId,team_id:clientProvidedId,team:{...updated[0],teamId:clientProvidedId,shortName:updated[0].short_name,captainId:updated[0].captain_id,logoUrl:updated[0].logo_url}});
     }
 
-    // Always generate permanent Team ID SERVER-SIDE
+    // Generate the permanent Team ID only for a genuinely new team.
     const permanentTeamId = await generatePermanentTeamId(sql);
     const now = Date.now();
 
@@ -1783,7 +1800,7 @@ app.delete("/api/tournaments/:tournamentId", requireAuth, async (req, res) => {
   }
 });
 
-// Tournament Teams Relationship Endpoints (Phase 7 Requirement 16)
+// Team roster relationship endpoints: the registered Player Master is the source of truth.\napp.get("/api/teams/:teamId/players", requireAuth, async (req,res)=>{\n  try {\n    const sql=await getDatabase();\n    const teamId=String(req.params.teamId||"").trim();\n    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;\n    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});\n    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});\n    const rows=await sql`SELECT tp.*,p.player_id,p.user_id,p.name,p.mobile,p.jersey_name,p.jersey_number,p.jersey_size,p.role,p.email,p.birthdate,p.photo_url FROM team_players tp JOIN players p ON p.player_id=tp.player_id WHERE tp.team_id=${teamId} AND p.is_active IS NOT FALSE ORDER BY tp.playing_xi DESC,tp.jersey_number NULLS LAST,p.name`;\n    res.json({ok:true,success:true,count:rows.length,players:rows});\n  } catch(e){res.status(500).json({ok:false,error:e.message});}\n});\n\napp.post("/api/teams/:teamId/players", requireAuth, async (req,res)=>{\n  try {\n    const sql=await getDatabase();\n    const teamId=String(req.params.teamId||"").trim();\n    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;\n    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});\n    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});\n    const playerId=String(req.body?.playerId||req.body?.player_id||"").trim();\n    if(!playerId) return res.status(400).json({ok:false,error:"playerId is required"});\n    const player=await sql`SELECT * FROM players WHERE player_id=${playerId} AND is_active IS NOT FALSE LIMIT 1`;\n    if(!player.length) return res.status(404).json({ok:false,error:"Registered player not found"});\n    const now=nowMs();\n    const r=await sql`INSERT INTO team_players(team_id,player_id,is_captain,is_vice_captain,playing_xi,jersey_number,created_at,updated_at) VALUES(${teamId},${playerId},${!!req.body?.isCaptain},${!!req.body?.isViceCaptain},${req.body?.playingXi!==false},${req.body?.jerseyNumber!=null?Number(req.body.jerseyNumber):player[0].jersey_number||null},${now},${now}) ON CONFLICT(team_id,player_id) DO UPDATE SET is_captain=EXCLUDED.is_captain,is_vice_captain=EXCLUDED.is_vice_captain,playing_xi=EXCLUDED.playing_xi,jersey_number=EXCLUDED.jersey_number,updated_at=EXCLUDED.updated_at RETURNING *`;\n    res.json({ok:true,success:true,message:"Player added to team",player:{...player[0],playerId,teamId,teamPlayer:r[0]}});\n  } catch(e){res.status(500).json({ok:false,error:e.message});}\n});\n\napp.delete("/api/teams/:teamId/players/:playerId", requireAuth, async (req,res)=>{\n  try {\n    const sql=await getDatabase();\n    const teamId=String(req.params.teamId||"").trim(), playerId=String(req.params.playerId||"").trim();\n    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;\n    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});\n    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});\n    await sql`DELETE FROM team_players WHERE team_id=${teamId} AND player_id=${playerId}`;\n    res.json({ok:true,success:true,message:"Player removed from team",teamId,playerId});\n  } catch(e){res.status(500).json({ok:false,error:e.message});}\n});\n\n// Tournament Teams Relationship Endpoints (Phase 7 Requirement 16)
 app.get("/api/tournaments/:tournamentId/teams", async (req, res) => {
   try {
     const sql = await getDatabase();
@@ -2190,6 +2207,23 @@ app.get("/api/matches", async(req,res)=>{try{const sql=await getDatabase();const
 app.get("/api/matches/:matchId", async(req,res)=>{try{const sql=await getDatabase();const r=await sql`SELECT * FROM matches WHERE match_id=${req.params.matchId} LIMIT 1`;if(!r.length)return res.status(404).json({ok:false,error:"Match not found"});const xi=await sql`SELECT mp.*,p.name,p.jersey_name,p.jersey_number FROM match_players mp LEFT JOIN players p ON p.player_id=mp.player_id WHERE mp.match_id=${req.params.matchId} ORDER BY mp.team_id,mp.position_no`;res.json({ok:true,success:true,match:r[0],playingXI:xi});}catch(e){res.status(500).json({ok:false,error:e.message});}});
 app.post("/api/matches", requireAuth, async(req,res)=>{try{const sql=await getDatabase();const b=req.body||{};const matchId=makeDomainId("CYM");const t= b.tournamentId||null; if(t){const tr=await sql`SELECT tournament_id FROM tournaments WHERE tournament_id=${t}`;if(!tr.length)return res.status(400).json({ok:false,error:"Tournament not found"});}const r=await sql`INSERT INTO matches(match_id,user_id,tournament_id,team_a_id,team_b_id,status,venue,scheduled_at,data_json,created_at,updated_at) VALUES(${matchId},${req.user.userId},${t},${b.teamAId||null},${b.teamBId||null},${b.status||'scheduled'},${b.venue||null},${b.scheduledAt||null},${JSON.stringify(b)}::jsonb,${nowMs()},${nowMs()}) RETURNING *`;await audit(sql,req,"MATCH_CREATE","MATCH",matchId);res.status(201).json({ok:true,success:true,match:r[0]});}catch(e){res.status(500).json({ok:false,error:e.message});}});
 app.put("/api/matches/:matchId", requireAuth, async(req,res)=>{try{const sql=await getDatabase();const b=req.body||{};const r=await sql`SELECT * FROM matches WHERE match_id=${req.params.matchId} LIMIT 1`;if(!ownerOr404(r[0],req,res))return;const payload={...(r[0].data_json||{}),...b};const out=await sql`UPDATE matches SET status=COALESCE(${b.status||null},status),venue=COALESCE(${b.venue||null},venue),scheduled_at=COALESCE(${b.scheduledAt||null},scheduled_at),winner_team_id=COALESCE(${b.winnerTeamId||null},winner_team_id),data_json=${JSON.stringify(payload)}::jsonb,updated_at=${nowMs()} WHERE match_id=${req.params.matchId} RETURNING *`;res.json({ok:true,success:true,match:out[0]});}catch(e){res.status(500).json({ok:false,error:e.message});}});
+app.post("/api/matches/sync-state", requireAuth, async(req,res)=>{
+  try {
+    const sql=await getDatabase(); const b=req.body||{};
+    const clientMatchId=String(b.clientMatchId||b.matchId||"").trim();
+    if(!clientMatchId) return res.status(400).json({ok:false,error:"clientMatchId is required"});
+    const existing=await sql`SELECT * FROM matches WHERE user_id=${req.user.userId} AND data_json->>'clientMatchId'=${clientMatchId} LIMIT 1`;
+    const payload={...(b.state||{}),clientMatchId};
+    let out;
+    if(existing.length){
+      out=await sql`UPDATE matches SET status=${String(b.status||existing[0].status||'scheduled').toLowerCase()},venue=${b.venue||existing[0].venue||null},scheduled_at=${b.scheduledAt||existing[0].scheduled_at||null},data_json=${JSON.stringify(payload)}::jsonb,updated_at=${nowMs()} WHERE match_id=${existing[0].match_id} RETURNING *`;
+    } else {
+      const matchId=makeDomainId('CYM');
+      out=await sql`INSERT INTO matches(match_id,user_id,tournament_id,team_a_id,team_b_id,status,venue,scheduled_at,data_json,created_at,updated_at) VALUES(${matchId},${req.user.userId},${b.tournamentId||null},${b.teamAId||null},${b.teamBId||null},${String(b.status||'live').toLowerCase()},${b.venue||null},${b.scheduledAt||null},${JSON.stringify(payload)}::jsonb,${nowMs()},${nowMs()}) RETURNING *`;
+    }
+    res.json({ok:true,success:true,matchId:out[0].match_id,clientMatchId,match:out[0]});
+  } catch(e){res.status(500).json({ok:false,error:e.message});}
+});
 app.delete("/api/matches/:matchId", requireAuth, async(req,res)=>{try{const sql=await getDatabase();const r=await sql`SELECT * FROM matches WHERE match_id=${req.params.matchId} LIMIT 1`;if(!ownerOr404(r[0],req,res))return;await sql`DELETE FROM matches WHERE match_id=${req.params.matchId}`;await audit(sql,req,"MATCH_DELETE","MATCH",req.params.matchId);res.json({ok:true,success:true});}catch(e){res.status(500).json({ok:false,error:e.message});}});
 app.post("/api/matches/:matchId/playing-xi", requireAuth, async (req, res) => {
   try {

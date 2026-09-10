@@ -89,6 +89,20 @@ CREATE TABLE IF NOT EXISTS teams (
   created_at BIGINT NOT NULL,
   updated_at BIGINT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS team_players (
+  id SERIAL PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+  player_id TEXT NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+  is_captain BOOLEAN DEFAULT FALSE,
+  is_vice_captain BOOLEAN DEFAULT FALSE,
+  playing_xi BOOLEAN DEFAULT TRUE,
+  jersey_number INTEGER,
+  created_at BIGINT NOT NULL,
+  updated_at BIGINT NOT NULL,
+  UNIQUE(team_id, player_id)
+);
+CREATE INDEX IF NOT EXISTS idx_team_players_team ON team_players(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_players_player ON team_players(player_id);
 
 CREATE TABLE IF NOT EXISTS tournaments (
   tournament_id TEXT PRIMARY KEY,
@@ -353,6 +367,9 @@ async function getDatabase() {
       "CREATE INDEX IF NOT EXISTS idx_teams_user_id ON teams(user_id);",
       "CREATE INDEX IF NOT EXISTS idx_teams_name ON teams(name);",
       "CREATE INDEX IF NOT EXISTS idx_teams_short_name ON teams(short_name);",
+      "CREATE TABLE IF NOT EXISTS team_players (id SERIAL PRIMARY KEY, team_id TEXT NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE, player_id TEXT NOT NULL REFERENCES players(player_id) ON DELETE CASCADE, is_captain BOOLEAN DEFAULT FALSE, is_vice_captain BOOLEAN DEFAULT FALSE, playing_xi BOOLEAN DEFAULT TRUE, jersey_number INTEGER, created_at BIGINT NOT NULL, updated_at BIGINT NOT NULL, UNIQUE(team_id, player_id));",
+      "CREATE INDEX IF NOT EXISTS idx_team_players_team ON team_players(team_id);",
+      "CREATE INDEX IF NOT EXISTS idx_team_players_player ON team_players(player_id);",
       "ALTER TABLE tournaments ADD COLUMN IF NOT EXISTS user_id TEXT REFERENCES users(user_id) ON DELETE SET NULL;",
       "ALTER TABLE tournaments ADD COLUMN IF NOT EXISTS short_name TEXT;",
       "ALTER TABLE tournaments ADD COLUMN IF NOT EXISTS logo_url TEXT;",
@@ -383,48 +400,15 @@ async function getDatabase() {
       }
     }
 
-    // Seed default teams/matches/tournaments if empty
+    // No demo teams/tournaments/live matches are seeded. Production data must
+    // originate from authenticated users and the central database.
+    // Clean only the exact legacy demo records created by earlier Cric Yuva builds.
     try {
-      const matchCount = await sql`SELECT COUNT(*) as count FROM live_matches`;
-      if (parseInt(matchCount[0].count, 10) === 0) {
-        const now = Date.now();
-        await sql`
-          INSERT INTO live_matches (match_id, title, status, data_json, created_at, updated_at)
-          VALUES
-            ('MATCH-001', 'Yuva Cup Finals 2026', 'live', '{"battingTeam":"India Yuva","bowlingTeam":"Global XI","scoreA":"185/3","oversA":"18.2"}'::jsonb, ${now}, ${now}),
-            ('MATCH-002', 'City Derby Championship', 'upcoming', '{"battingTeam":"Delhi Daredevils","bowlingTeam":"Mumbai Masters"}'::jsonb, ${now}, ${now})
-        `;
-      }
-
-      const teamCount = await sql`SELECT COUNT(*) as count FROM teams`;
-      if (parseInt(teamCount[0].count, 10) === 0) {
-        const now = Date.now();
-        await sql`
-          INSERT INTO teams (team_id, name, short_name, city, data_json, created_at, updated_at)
-          VALUES
-            ('CYT-2026-1001-INDYUVA', 'India Yuva', 'IY', 'Mumbai', '{"name":"India Yuva","shortName":"IY","city":"Mumbai"}'::jsonb, ${now}, ${now}),
-            ('CYT-2026-1002-GLOBXI', 'Global XI', 'GXI', 'London', '{"name":"Global XI","shortName":"GXI","city":"London"}'::jsonb, ${now}, ${now})
-          ON CONFLICT (team_id) DO NOTHING
-        `;
-      }
-
-      const tournCount = await sql`SELECT COUNT(*) as count FROM tournaments`;
-      if (parseInt(tournCount[0].count, 10) === 0) {
-        const now = Date.now();
-        await sql`
-          INSERT INTO tournaments (
-            tournament_id, name, short_name, logo_url, city, start_date, end_date,
-            format, status, is_active, data_json, created_at, updated_at
-          ) VALUES (
-            'CYTR-2026-1001-YUVACUP', 'Yuva Cup Championship 2026', 'YCC', 'https://example.com/ycc.png',
-            'Mumbai', '2026-03-01', '2026-03-15', 'T20', 'upcoming', TRUE,
-            '{"name":"Yuva Cup Championship 2026","shortName":"YCC","format":"T20","city":"Mumbai","startDate":"2026-03-01","endDate":"2026-03-15"}'::jsonb,
-            ${now}, ${now}
-          )
-          ON CONFLICT (tournament_id) DO NOTHING
-        `;
-      }
-    } catch (e) {}
+      await sql`DELETE FROM tournament_teams WHERE team_id IN ('CYT-2026-1001-INDYUVA','CYT-2026-1002-GLOBXI')`;
+      await sql`DELETE FROM teams WHERE team_id IN ('CYT-2026-1001-INDYUVA','CYT-2026-1002-GLOBXI') AND user_id IS NULL`;
+      await sql`DELETE FROM tournaments WHERE tournament_id='CYTR-2026-1001-YUVACUP' AND user_id IS NULL`;
+      await sql`DELETE FROM live_matches WHERE match_id IN ('MATCH-001','MATCH-002')`;
+    } catch (_) {}
 
     try {
       await sql`INSERT INTO plans(plan_id,name,amount_paise,duration_days,active,data_json) VALUES('FREE_TRIAL','Cric Yuva Free Trial',0,180,TRUE,'{"type":"trial"}'::jsonb) ON CONFLICT(plan_id) DO NOTHING`;

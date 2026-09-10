@@ -2219,6 +2219,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Save Team Data to localStorage (User-isolated)
+  async function syncTeamPlayersToCloud(teamData) {
+    try {
+      if (!window.CricYuvaCloud || !teamData?.teamId || !Array.isArray(teamData.players)) return;
+      const roster = teamData.players.filter(p => p && String(p.playerId || p.player_id || p.id || "").trim());
+      for (const p of roster) {
+        const pid = String(p.playerId || p.player_id || p.id || "").trim();
+        // Only permanent registered Player IDs are allowed into the server roster.
+        if (!/^CYP-\d{4}-/i.test(pid)) continue;
+        await window.CricYuvaCloud.request(`/api/teams/${encodeURIComponent(teamData.teamId)}/players`, {
+          method: "POST", body: JSON.stringify({
+            playerId: pid,
+            isCaptain: !!p.isCaptain,
+            isViceCaptain: !!p.isViceCaptain,
+            playingXi: p.inPlayingXI !== false,
+            jerseyNumber: p.jerseyNumber ?? p.jersey ?? null
+          })
+        });
+      }
+    } catch (e) {
+      console.warn("Team roster cloud sync failed:", e);
+    }
+  }
+
   function saveTeamData(teamData) {
     try {
       if (!teamData || !String(teamData.teamName || "").trim()) return false;
@@ -2227,17 +2250,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const serialized = JSON.stringify(teamData);
       const scopedSaved = setUserStorage(TEAM_STORAGE_KEY, serialized);
-
-      // Keep a legacy copy for Phase-13 GitHub Pages compatibility. The
-      // user-scoped key remains the primary source of truth.
       try { localStorage.setItem(TEAM_STORAGE_KEY, serialized); } catch (e) {}
 
       if (teamData && window.CricYuvaCloud) {
         window.CricYuvaCloud.request("/api/teams", { method: "POST", body: JSON.stringify({
-          id: teamData.id, name: teamData.teamName, logo: teamData.teamLogo || teamData.logo || "",
-          players: teamData.players, captainName: teamData.captainName || "",
+          teamId: teamData.teamId || "",
+          name: teamData.teamName,
+          logoUrl: teamData.teamLogo || teamData.logo || "",
+          city: teamData.city || "",
+          captainName: teamData.captainName || "",
           viceCaptainName: teamData.viceCaptainName || ""
-        }) }).catch(() => {});
+        }) }).then(async result => {
+          const cloudTeamId = result?.teamId || result?.team_id || result?.team?.teamId || result?.team?.team_id;
+          if (!cloudTeamId) return;
+          teamData.teamId = String(cloudTeamId);
+          // Preserve the server-generated permanent Team ID locally so later
+          // saves update the same record instead of creating/conflicting.
+          const latest = JSON.stringify(teamData);
+          setUserStorage(TEAM_STORAGE_KEY, latest);
+          try { localStorage.setItem(TEAM_STORAGE_KEY, latest); } catch (_) {}
+          await syncTeamPlayersToCloud(teamData);
+        }).catch(e => console.warn("Team cloud sync failed:", e));
       }
       return !!scopedSaved || !!localStorage.getItem(TEAM_STORAGE_KEY);
     } catch (e) {
@@ -2292,6 +2325,35 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     if (!Array.isArray(team.players)) team.players = [];
+
+    // On reload/new device, hydrate the squad from the central Team Master once.
+    // LocalStorage remains the fast UI cache; the server roster is authoritative.
+    if (team.teamId && !team._cloudRosterHydrated && window.CricYuvaCloud && localStorage.getItem("cricYuvaCloudToken")) {
+      team._cloudRosterHydrated = true;
+      window.CricYuvaCloud.request(`/api/teams/${encodeURIComponent(team.teamId)}/players`).then(data => {
+        const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
+        const byId = new Map(team.players.map(p => [String(p.playerId || p.player_id || p.id || ""), p]));
+        cloudPlayers.forEach(cp => {
+          const pid = String(cp.playerId || cp.player_id || "").trim();
+          if (!pid) return;
+          const existing = byId.get(pid) || {};
+          byId.set(pid, {
+            ...existing, id: existing.id || `squad_${pid}`, playerId: pid, userId: cp.user_id || existing.userId || null,
+            name: cp.name || existing.name || "Player", mobile: cp.mobile || existing.mobile || "",
+            email: cp.email || existing.email || "", role: cp.role || existing.role || "All-Rounder",
+            jersey: cp.jersey_number ?? existing.jersey ?? "", jerseyName: cp.jersey_name || existing.jerseyName || cp.name || "Player",
+            jerseySize: cp.jersey_size || existing.jerseySize || "", photo: cp.photo_url || existing.photo || "",
+            isCaptain: !!cp.is_captain, isViceCaptain: !!cp.is_vice_captain, inPlayingXI: cp.playing_xi !== false
+          });
+        });
+        team.players = [...byId.values()];
+        setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(team));
+        try { localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(team)); } catch (_) {}
+        renderMyTeamPage(filter);
+      }).catch(e => {
+        if (!isStaticApiError(e)) console.warn("Team roster hydrate failed:", e);
+      });
+    }
 
     if (noTeamContainer) noTeamContainer.style.display = "none";
     if (activeTeamContainer) activeTeamContainer.style.display = "flex";
@@ -3818,7 +3880,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // START MATCH (FINAL LAUNCH)
   if (btnFinalStartMatch) {
-    btnFinalStartMatch.addEventListener("click", function () {
+    btnFinalStartMatch.addEventListener("click", async function () {
       const teamAName = getResolvedTeamName("teamA");
       const teamBName = getResolvedTeamName("teamB");
       const matchTitle = inputMatchTitle.value.trim() || "T20 Match";
@@ -3855,10 +3917,12 @@ document.addEventListener("DOMContentLoaded", function () {
         time: time,
         teamA: {
           name: teamAName,
+          teamId: (getTeamData()?.teamId || getTeamData()?.id || null),
           playingXi: selectedPlayingXiTeamA
         },
         teamB: {
           name: teamBName,
+          teamId: null,
           playingXi: selectedPlayingXiTeamB
         },
         toss: {
@@ -3945,6 +4009,34 @@ document.addEventListener("DOMContentLoaded", function () {
     return null;
   }
 
+  async function syncActiveMatchStateToCloud(match) {
+    try {
+      if (!match || !window.CricYuvaCloud || !localStorage.getItem("cricYuvaCloudToken")) return;
+      const teamA = match.teamA || {}; const teamB = match.teamB || {};
+      const state = JSON.parse(JSON.stringify(match));
+      const result = await window.CricYuvaCloud.request("/api/matches/sync-state", {
+        method: "POST",
+        body: JSON.stringify({
+          clientMatchId: match.matchId,
+          tournamentId: match.tourneyId || null,
+          teamAId: teamA.teamId || teamA.id || null,
+          teamBId: teamB.teamId || teamB.id || null,
+          status: String(match.status || "LIVE").toLowerCase(),
+          venue: match.ground || null,
+          scheduledAt: match.date && match.time ? `${match.date}T${match.time}` : null,
+          state
+        })
+      });
+      if (result?.matchId && !match.serverMatchId) {
+        match.serverMatchId = result.matchId;
+        setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
+      }
+    } catch (e) {
+      // Cloud persistence is best-effort; local scoring must never stop because the API is offline.
+      if (!isStaticApiError(e)) console.warn("Match cloud sync failed:", e);
+    }
+  }
+
   function saveActiveMatchState(match) {
     if (!match) return;
     try {
@@ -3953,6 +4045,7 @@ document.addEventListener("DOMContentLoaded", function () {
         PublicLiveScoreService.emitLiveUpdate(match);
       }
       updateHomeLiveScoreboard(match);
+      syncActiveMatchStateToCloud(match);
     } catch (e) {
       console.error("Error saving active match:", e);
     }
@@ -18607,7 +18700,8 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       photo: p.photoUrl || p.photo_url || p.profile_photo || p.photo || "",
       inPlayingXI: xi < 11, isCaptain:false, isViceCaptain:false, matches:0, runs:0, wickets:0
     });
-    saveTeamData(team); renderMyTeamPage();
+    saveTeamData(team);
+    renderMyTeamPage();
     showToast(`${p.name} added to squad • ${pid}`);
     renderRegisteredTeamPlayerResults(document.getElementById("inputSearchTeamPlayer")?.value || "");
   }
