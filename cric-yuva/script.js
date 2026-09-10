@@ -304,13 +304,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }).map(u => ({
       id: u.playerId || u.player_id || u.userId || "",
       playerId: u.playerId || u.player_id || u.userId || "",
-      userId: u.userId || "",
-      name: u.name || "Player", mobile: u.mobile || "",
-      role: u.role || "All-Rounder",
-      jerseyNumber: u.jerseyNumber || u.jersey || "",
-      jerseyName: u.jerseyName || u.name || "",
-      photoUrl: u.photoUrl || u.photo || "",
-      avatar: u.photoUrl || u.photo || "🏏",
+      userId: u.userId || u.user_id || "",
+      name: u.name || u.playerName || "Player",
+      mobile: u.mobile || u.phone || "",
+      role: u.role || u.playingRole || "All-Rounder",
+      jerseyNumber: u.jerseyNumber || u.jersey_number || u.jersey || u.number || "",
+      jerseyName: u.jerseyName || u.jersey_name || u.name || "",
+      jerseySize: u.jerseySize || u.jersey_size || u.size || "",
+      email: u.email || u.profileEmail || "",
+      dateOfBirth: u.dateOfBirth || u.birthdate || u.date_of_birth || "",
+      photoUrl: u.photoUrl || u.photo_url || u.profilePhoto || u.profile_photo || u.photo || "",
+      photo: u.photoUrl || u.photo_url || u.profilePhoto || u.profile_photo || u.photo || "",
+      avatar: u.photoUrl || u.photo_url || u.profilePhoto || u.profile_photo || u.photo || "🏏",
       basePrice: Number(u.basePrice) || 1.0,
       type: "Registered User"
     }));
@@ -844,9 +849,12 @@ document.addEventListener("DOMContentLoaded", function () {
           localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
           if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
           localStorage.setItem("cricYuvaLoggedIn", "true");
+          localStorage.setItem("cricYuvaMobile", mob);
+          localStorage.setItem("cricYuvaProfileMobile", mob);
           if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
           if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
           loadProfileData();
+          syncActiveProfileToRegisteredDirectory();
           showScreen(isProfileCompleted() ? "screen5" : "screen4");
           hydrateCloudData().finally(() => processPendingInvite());
           return;
@@ -857,7 +865,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const auth = window.CricYuvaStorage.authenticateUser(mob, pwd);
         if (auth.success) {
           localStorage.setItem("cricYuvaLoggedIn", "true");
+          localStorage.setItem("cricYuvaMobile", mob);
+          localStorage.setItem("cricYuvaProfileMobile", mob);
+          if (auth.user?.playerId) localStorage.setItem("cricYuvaPlayerId", auth.user.playerId);
+          if (auth.user?.name) localStorage.setItem("cricYuvaProfileName", auth.user.name);
           loadProfileData();
+          syncActiveProfileToRegisteredDirectory();
           if (isProfileCompleted()) {
             showScreen("screen5");
           } else {
@@ -881,7 +894,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (mob === savedMobile && pwd === savedPassword) {
         localStorage.setItem("cricYuvaLoggedIn", "true");
+        localStorage.setItem("cricYuvaMobile", mob);
+        localStorage.setItem("cricYuvaProfileMobile", mob);
         loadProfileData();
+        syncActiveProfileToRegisteredDirectory();
         if (isProfileCompleted()) {
           showScreen("screen5");
         } else {
@@ -2681,6 +2697,8 @@ document.addEventListener("DOMContentLoaded", function () {
   function openAddPlayerModal() {
     if (playerModalTitle) playerModalTitle.textContent = "Add Squad Player";
     if (editPlayerId) editPlayerId.value = "";
+    const manualFields = document.getElementById("manualSquadPlayerFields");
+    if (manualFields) manualFields.style.display = "none";
     if (inputPlayerName) inputPlayerName.value = "";
     if (selectPlayerRole) selectPlayerRole.value = "Batsman";
     if (inputPlayerJersey) inputPlayerJersey.value = "";
@@ -2705,6 +2723,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!player) return;
 
     if (playerModalTitle) playerModalTitle.textContent = "Edit Squad Player";
+    const manualFields = document.getElementById("manualSquadPlayerFields");
+    if (manualFields) manualFields.style.display = "block";
     if (editPlayerId) editPlayerId.value = player.id;
     if (inputPlayerName) inputPlayerName.value = player.name || "";
     if (selectPlayerRole) selectPlayerRole.value = player.role || "Batsman";
@@ -2735,69 +2755,92 @@ document.addEventListener("DOMContentLoaded", function () {
   async function renderQuickRegisteredPlayers(query) {
     if (!quickRegisteredResults) return;
     const q = String(query || "").trim();
-    if (q.length < 1) {
-      quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#667085;padding:4px 2px;">Type a name, mobile number or Player ID to find a registered Cric Yuva user.</div>`;
+    if (!q) {
+      quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#667085;padding:6px 2px;">Mobile number, Player Name या Player ID डालें.</div>`;
       return;
     }
 
-    // IMPORTANT: show locally registered accounts immediately. Do not wait for
-    // the remote API, otherwise GitHub Pages/slow Render leaves the modal stuck
-    // on "Searching..." even when the player is already registered on this phone.
+    // Search the local registered directory first. This is instant and also
+    // works on GitHub Pages when the account was created on this device.
     let players = [];
     try { players = localRegisteredPlayers(q); } catch (_) { players = []; }
 
-    const render = (list) => {
+    const render = (inputList) => {
       const seen = new Set();
-      list = list.filter(p => {
-        const key = String(p.playerId || p.player_id || p.id || p.mobile || p.name || '').toLowerCase();
+      const list = (Array.isArray(inputList) ? inputList : []).filter(p => {
+        const key = String(p.playerId || p.player_id || p.userId || p.user_id || p.mobile || p.name || '').trim().toLowerCase();
         if (!key || seen.has(key)) return false;
         seen.add(key); return true;
       });
+
       if (!list.length) {
-        quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#94a3b8;padding:8px;text-align:center;">No registered user found. The player must create an account first.</div>`;
+        quickRegisteredResults.innerHTML = `<div style="background:#151a24;border:1px solid #293249;border-radius:12px;padding:14px;text-align:center;color:#94a3b8;font-size:11px;">
+          <b style="color:#fff;display:block;margin-bottom:5px;">No registered player found</b>
+          Name, Mobile या Player ID सही डालें. Player का Cric Yuva account पहले registered होना चाहिए.
+        </div>`;
         return;
       }
+
       const team = getTeamData() || {players:[]};
       quickRegisteredResults.innerHTML = list.slice(0, 20).map(p => {
-        const pid = String(p.playerId || p.player_id || p.id || '');
-        const mobile = String(p.mobile || '');
-        const already = (team.players || []).some(x => String(x.playerId || x.id || '') === pid || (mobile && String(x.mobile || '') === mobile));
-        return `<button type="button" class="quick-reg-player" data-player-json="${encodeURIComponent(JSON.stringify(p))}" ${already?'disabled':''} style="width:100%;text-align:left;background:#151a24;border:1px solid #2a3449;border-radius:9px;padding:8px 9px;color:#fff;display:flex;align-items:center;gap:8px;cursor:${already?'default':'pointer'};opacity:${already?'.55':'1'};">
-          <span style="width:32px;height:32px;border-radius:50%;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:800;font-size:10px;">${escapeHtml((p.name||'P').slice(0,2).toUpperCase())}</span>
-          <span style="flex:1;min-width:0;"><b style="font-size:11px;display:block;">${escapeHtml(p.name||'Player')}</b><small style="color:#60a5fa;">${escapeHtml(pid)}</small><small style="color:#94a3b8;"> • ${escapeHtml(mobile||'No mobile')}</small></span>
-          <span style="font-size:10px;font-weight:800;color:${already?'#94a3b8':'#ff7a00'};">${already?'ADDED':'+ ADD'}</span>
-        </button>`;
+        const pid = String(p.playerId || p.player_id || p.id || '').trim();
+        const mobile = String(p.mobile || p.phone || '').trim();
+        const role = String(p.role || p.playingRole || 'All-Rounder');
+        const jerseyName = String(p.jerseyName || p.jersey_name || p.jersey || p.name || '');
+        const jerseyNumber = String(p.jerseyNumber || p.jersey_number || p.jerseyNo || p.number || '');
+        const jerseySize = String(p.jerseySize || p.jersey_size || p.size || '');
+        const email = String(p.email || p.profileEmail || '');
+        const dob = String(p.dateOfBirth || p.birthdate || p.date_of_birth || '');
+        const photo = String(p.photoUrl || p.photo_url || p.profilePhoto || p.profile_photo || p.photo || '');
+        const already = (team.players || []).some(x =>
+          (pid && String(x.playerId || x.id || '') === pid) ||
+          (mobile && String(x.mobile || '').replace(/\D/g,'') === mobile.replace(/\D/g,''))
+        );
+        const safeJson = encodeURIComponent(JSON.stringify(p));
+        return `<div class="quick-reg-detail-card" style="background:#151a24;border:1px solid #33405a;border-radius:14px;padding:12px;margin-bottom:7px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="width:58px;height:58px;border-radius:50%;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-weight:900;font-size:16px;flex:none;border:2px solid rgba(255,122,0,.5);">
+              ${photo ? `<img src="${escapeHtml(photo)}" alt="Player Photo" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((p.name || 'P').slice(0,2).toUpperCase())}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <b style="font-size:15px;color:#fff;">${escapeHtml(p.name || 'Player')}</b>
+                <span style="font-size:9px;font-weight:900;color:#4ade80;">✓ REGISTERED</span>
+              </div>
+              <div style="font-size:10px;color:#60a5fa;font-weight:900;margin-top:3px;">🆔 ${escapeHtml(pid || '—')}</div>
+              <div style="font-size:10px;color:#cbd5e1;margin-top:4px;">📱 ${escapeHtml(mobile || '—')} &nbsp; • &nbsp; ${escapeHtml(role)}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:9.5px;color:#94a3b8;margin-top:5px;">
+                <span>👕 Jersey: ${escapeHtml(jerseyName || '—')}</span><span>🔢 No: ${escapeHtml(jerseyNumber || '—')}</span>
+                <span>📏 Size: ${escapeHtml(jerseySize || '—')}</span><span>✉️ ${escapeHtml(email || '—')}</span>
+              </div>
+              <div style="font-size:9.5px;color:#94a3b8;margin-top:3px;">🎂 DOB: ${escapeHtml(dob || '—')}</div>
+            </div>
+          </div>
+          <button type="button" class="quick-reg-add-btn" data-player-json="${safeJson}" ${already ? 'disabled' : ''} style="width:100%;margin-top:10px;border:0;border-radius:9px;padding:10px;font-weight:900;font-size:12px;background:${already ? '#30333c' : '#ff7a00'};color:${already ? '#888' : '#111'};">${already ? '✓ ALREADY IN SQUAD' : '+ ADD THIS PLAYER TO SQUAD'}</button>
+        </div>`;
       }).join('');
-      quickRegisteredResults.querySelectorAll('.quick-reg-player:not([disabled])').forEach(btn => btn.addEventListener('click', () => {
+
+      quickRegisteredResults.querySelectorAll('.quick-reg-add-btn:not([disabled])').forEach(btn => btn.addEventListener('click', () => {
         try {
           const player = JSON.parse(decodeURIComponent(btn.dataset.playerJson));
-          fillRegisteredPlayerIntoSquadForm(player);
-          if (quickRegisteredSearch) quickRegisteredSearch.value = `${player.mobile || player.playerId || player.name || ""}`;
-          if (quickRegisteredResults) quickRegisteredResults.innerHTML = `<div style="font-size:10px;color:#4ade80;padding:6px 2px;">✓ ${escapeHtml(player.name || "Player")} selected. Details filled from registered profile. Press SAVE PLAYER.</div>`;
+          addRegisteredCloudPlayerToSquad(player);
+          if (playerModal) playerModal.style.display = 'none';
         } catch (e) { showToast('Could not add registered player', true); }
       }));
     };
 
     render(players);
-    // Exact mobile/Player-ID search should fill the squad form immediately,
-    // without requiring a second click on the result card.
-    const qNorm = q.replace(/\s+/g, "").toLowerCase();
-    if ((/^\d{10}$/.test(q.replace(/\D/g, "")) || /^cy[-_]?/i.test(q)) && players.length === 1) {
-      fillRegisteredPlayerIntoSquadForm(players[0]);
-    }
 
-    // Then merge cloud results in the background. Local results remain visible
-    // if the backend is unavailable or slow.
+    // Cloud is merged in the background so registered players on another
+    // device can also be found. Exact mobile/ID search does not wait for it.
     try {
       const data = await CricYuvaCloud.searchPlayers(q);
-      const cloudPlayers = Array.isArray(data?.players) ? data.players.filter(p => p && (p.userId || p.user_id || p.playerId || p.player_id)) : [];
-      const merged = [...players, ...cloudPlayers];
-      render(merged);
-      if ((/^\d{10}$/.test(q.replace(/\D/g, "")) || /^cy[-_]?/i.test(q)) && merged.length === 1) {
-        fillRegisteredPlayerIntoSquadForm(merged[0]);
-      }
+      const cloudPlayers = Array.isArray(data?.players)
+        ? data.players.filter(p => p && (p.userId || p.user_id || p.playerId || p.player_id))
+        : [];
+      render([...players, ...cloudPlayers]);
     } catch (e) {
-      if (!isStaticApiError(e)) console.warn('Cloud registered-player search failed:', e);
+      if (!players.length && !isStaticApiError(e)) console.warn('Cloud registered-player search failed:', e);
     }
   }
 
