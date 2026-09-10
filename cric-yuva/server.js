@@ -343,8 +343,22 @@ app.post("/api/auth/register", async (req, res) => {
     const passwordHash = hashPassword(password);
     const now = Date.now();
 
-    // Check if player record already exists for this mobile
-    const existingPlayer = await sql`SELECT player_id FROM players WHERE mobile = ${cleanMobile} LIMIT 1`;
+    // Check the Player Master by mobile as well as the User account.
+    // This prevents an orphan/legacy player from receiving a second Player ID.
+    const existingPlayer = await sql`
+      SELECT player_id, user_id
+      FROM players
+      WHERE mobile = ${cleanMobile}
+      ORDER BY created_at ASC
+      LIMIT 1
+    `;
+    if (existingPlayer.length > 0 && existingPlayer[0].user_id) {
+      return res.status(409).json({
+        ok: false, success: false,
+        error: "An account with this mobile number already exists. Please log in."
+      });
+    }
+
     let playerId;
     if (existingPlayer.length > 0 && existingPlayer[0].player_id) {
       playerId = existingPlayer[0].player_id;
@@ -582,13 +596,47 @@ app.post("/api/auth/verify-otp", async (req, res) => {
       const cleanPassword = String(password || "");
       if (!cleanName) return res.status(400).json({ ok:false, success:false, error:"Player name is required" });
       if (cleanPassword.length < 4) return res.status(400).json({ ok:false, success:false, error:"Password must be at least 4 characters" });
+      // Reuse an existing player record for this mobile number, if present.
+      // This preserves a previously-created permanent Player ID when an older
+      // player record exists without a linked user account.
+      const existingPlayerRows = await sql`
+        SELECT player_id, user_id, name, mobile
+        FROM players
+        WHERE mobile = ${cleanMobile}
+        ORDER BY created_at ASC
+        LIMIT 1
+      `;
+
+      if (existingPlayerRows.length > 0 && existingPlayerRows[0].user_id) {
+        return res.status(409).json({
+          ok:false, success:false,
+          error:"An account with this mobile number already exists. Please log in."
+        });
+      }
+
       const userId = "USR-" + Date.now() + "-" + crypto.randomBytes(4).toString("hex").toUpperCase();
       const passwordHash = hashPassword(cleanPassword);
-      const playerId = await generatePermanentPlayerId(sql);
+      const playerId = existingPlayerRows.length > 0 && existingPlayerRows[0].player_id
+        ? existingPlayerRows[0].player_id
+        : await generatePermanentPlayerId(sql);
+
       await sql`INSERT INTO users (user_id, mobile, name, password_hash, player_id, created_at) VALUES (${userId}, ${cleanMobile}, ${cleanName}, ${passwordHash}, ${playerId}, ${now})`;
       const profile = { name: cleanName, mobile: cleanMobile, playerId, role:"All-Rounder", jerseyNumber:7 };
       await sql`INSERT INTO profiles (user_id, data_json, updated_at) VALUES (${userId}, ${JSON.stringify(profile)}::jsonb, ${now})`;
-      await sql`INSERT INTO players (player_id,user_id,name,mobile,role,jersey_number,data_json,created_at,updated_at) VALUES (${playerId},${userId},${cleanName},${cleanMobile},'All-Rounder',7,${JSON.stringify(profile)}::jsonb,${now},${now})`;
+
+      if (existingPlayerRows.length > 0) {
+        await sql`
+          UPDATE players
+          SET user_id = ${userId}, name = ${cleanName}, mobile = ${cleanMobile},
+              role = COALESCE(role, 'All-Rounder'),
+              jersey_number = COALESCE(jersey_number, 7),
+              data_json = data_json || ${JSON.stringify(profile)}::jsonb,
+              updated_at = ${now}
+          WHERE player_id = ${playerId}
+        `;
+      } else {
+        await sql`INSERT INTO players (player_id,user_id,name,mobile,role,jersey_number,data_json,created_at,updated_at) VALUES (${playerId},${userId},${cleanName},${cleanMobile},'All-Rounder',7,${JSON.stringify(profile)}::jsonb,${now},${now})`;
+      }
       user = { user_id:userId, mobile:cleanMobile, name:cleanName, player_id:playerId };
     } else {
       if (userRows.length === 0) return res.status(404).json({ ok:false, success:false, error:"No account found with this mobile number. Please create an account first." });

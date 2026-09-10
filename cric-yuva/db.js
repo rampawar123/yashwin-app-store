@@ -74,6 +74,11 @@ CREATE TABLE IF NOT EXISTS players (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_players_player_id_unique ON players(player_id);
 CREATE INDEX IF NOT EXISTS idx_players_user_id ON players(user_id);
 CREATE INDEX IF NOT EXISTS idx_players_mobile ON players(mobile);
+-- One mobile number must map to only one player.
+-- Existing duplicate legacy rows must be resolved before this index can be created.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_players_mobile_unique
+ON players(mobile)
+WHERE mobile IS NOT NULL AND mobile <> '';
 CREATE INDEX IF NOT EXISTS idx_players_name ON players(name);
 
 CREATE TABLE IF NOT EXISTS teams (
