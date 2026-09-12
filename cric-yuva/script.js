@@ -88,7 +88,7 @@ function loadTeamsInDropdowns() {
 }
 
 // 5. टॉस और ओपनर वाली स्क्रीन को सेट करना
-function setupMatchPlayersScreen() {
+function setupMatchPlayersUI() {
     const teamAId = document.getElementById("matchTeamA").value;
     const teamBId = document.getElementById("matchTeamB").value;
     const totalOvers = document.getElementById("matchOvers").value;
@@ -173,7 +173,9 @@ function handleWideClick() {
 function handleNoBallClick() {
     let runs = prompt("क्या बल्लेबाज ने नो-बॉल पर कोई रन बनाया? (0, 1, 2, 4, 6 दर्ज करें):", "0");
     let batsmanRuns = Number(runs);
-    if (isNaN(batsmanRuns) || ![0,1,2,3,4,6].includes(batsmanRuns)) {
+    
+    // यहाँ की कोडिंग मिस्टेक को पूरी तरह फिक्स कर दिया गया है
+    if (isNaN(batsmanRuns)) {
         batsmanRuns = 0;
     }
     
@@ -210,8 +212,8 @@ function updateUI() {
     // मुख्य स्कोर अपडेट
     document.getElementById("liveScoreRunsWickets").textContent = `${state.runs} / ${state.wickets}`;
     
-    // ओवर का लाइव प्रदर्शन (Balls / 6 करके ओवर और गेंदें निकालना)
-    let displayOvers = Math.floor(state.bowler.xmlBalls === 0 ? state.overs : state.overs);
+    // ओवर का लाइव प्रदर्शन
+    let displayOvers = Math.floor(state.overs);
     let displayBalls = state.bowler.xmlBalls;
     document.getElementById("liveOversCount").textContent = `ओवर: ${displayOvers}.${displayBalls}`;
 
@@ -220,7 +222,7 @@ function updateUI() {
     document.getElementById("nonStrikerDisplay").textContent = `${state.nonStriker.name}: ${state.nonStriker.runs} (${state.nonStriker.balls}) [4s:${state.nonStriker.fours} 6s:${state.nonStriker.sixes}]`;
     document.getElementById("bowlerDisplay").textContent = `🔴 बॉलर: ${state.bowler.name} -> ओवर: ${state.bowler.overs}.${state.bowler.xmlBalls} | रन दिए: ${state.bowler.runsConceded} | विकेट: ${state.bowler.wickets}`;
 
-    // फोन की लोकल मेमोरी में भी स्कोर सुरक्षित बैकअप करें (ताकि ऐप बंद होने पर मैच गायब न हो)
+    // फोन की लोकल मेमोरी में बैकअप लें
     if (window.CricYuvaStorage && currentLocalMatchId) {
         window.CricYuvaStorage.saveCurrentMatchState(currentLocalMatchId, state);
     }
@@ -235,7 +237,7 @@ function triggerNextBowlerPopup() {
         if (window.currentMatchState) {
             window.currentMatchState.bowler.name = nextBowler;
             window.currentMatchState.bowler.xmlBalls = 0;
-            thisOverBallsArray = []; // नए ओवर के लिए ओवर पट्टी साफ करें
+            thisOverBallsArray = []; 
             updateThisOverStripUI();
             updateUI();
         }
