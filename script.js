@@ -1,445 +1,273 @@
-const STORE_VERSION = "1.0.0";
+// ==========================================
+// क्रिक युवा (Cric Yuva) - मुख्य ऐप कंट्रोलर
+// फ़ाइल का नाम: script.js (Professional Engine)
+// ==========================================
 
-const defaultApps = [];
+let thisOverBallsArray = [];
 
-function $(id) {
-  return document.getElementById(id);
+// ऐप शुरू होते ही ड्रॉपडाउन लोड करना
+document.addEventListener("DOMContentLoaded", function() {
+    loadTeamsInDropdowns();
+    showScreen('dashboardScreen'); 
+});
+
+// 1. स्क्रीन बदलने का फंक्शन
+function showScreen(screenId) {
+    const screens = document.querySelectorAll('.app-screen');
+    screens.forEach(screen => screen.classList.add('hidden'));
+    
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.remove('hidden');
+    }
 }
 
-function toggleMenu() {
-  const menu = $("menu");
+// 2. यूआई से नया खिलाड़ी रजिस्टर करना
+function registerPlayerUI() {
+    const name = document.getElementById("regPlayerName").value.trim();
+    const bat = document.getElementById("regBattingStyle").value;
+    const bowl = document.getElementById("regBowlingStyle").value;
 
-  if (!menu) return;
+    if (!name) {
+        alert("कृपया खिलाड़ी का नाम दर्ज करें!");
+        return;
+    }
 
-  menu.style.display =
-    menu.style.display === "block" ? "none" : "block";
+    if (window.CricYuvaStorage) {
+        window.CricYuvaStorage.savePlayerOffline(name, bat, bowl);
+        alert(`खिलाड़ी "${name}" सफलतापूर्वक रजिस्टर हो गया है!`);
+        document.getElementById("regPlayerName").value = "";
+        showScreen('dashboardScreen');
+    }
 }
 
-function closeMenu() {
-  const menu = $("menu");
-  if (menu) menu.style.display = "none";
+// 3. यूआई से नई टीम बनाना
+function createTeamUI() {
+    const teamName = document.getElementById("newTeamName").value.trim();
+
+    if (!teamName) {
+        alert("कृपया टीम का नाम दर्ज करें!");
+        return;
+    }
+
+    if (window.CricYuvaStorage) {
+        window.CricYuvaStorage.saveTeamOffline(teamName);
+        alert(`टीम "${teamName}" सफलतापूर्वक बन गई है!`);
+        document.getElementById("newTeamName").value = "";
+        loadTeamsInDropdowns(); 
+        showScreen('dashboardScreen');
+    }
 }
 
-function goHome() {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+// 4. मैच सेटअप स्क्रीन पर टीमों की लिस्ट लोड करना
+function loadTeamsInDropdowns() {
+    if (!window.CricYuvaStorage) {
+        console.log("स्टोरेज इंजन अभी लोड हो रहा है...");
+        return;
+    }
+    
+    const teams = window.CricYuvaStorage.getOfflineTeams() || [];
+    const teamASelect = document.getElementById("matchTeamA");
+    const teamBSelect = document.getElementById("matchTeamB");
 
-  closeMenu();
+    if (teamASelect && teamBSelect) {
+        teamASelect.innerHTML = '<option value="">-- टीम चुनें --</option>';
+        teamBSelect.innerHTML = '<option value="">-- टीम चुनें --</option>';
+
+        teams.forEach(team => {
+            const optionA = document.createElement("option");
+            optionA.value = team.id;
+            optionA.textContent = team.teamName;
+            teamASelect.appendChild(optionA);
+
+            const optionB = document.createElement("option");
+            optionB.value = team.id;
+            optionB.textContent = team.teamName;
+            teamBSelect.appendChild(optionB);
+        });
+    }
 }
 
-function showAbout() {
-  alert(
-    "YASHWIN APP STORE\n\n" +
-    "Discover, Download and Enjoy Apps.\n\n" +
-    "Store Version: " + STORE_VERSION
-  );
+// 5. टॉस और ओपनर वाली स्क्रीन को सेट करना
+function setupMatchPlayersUI() {
+    const teamAId = document.getElementById("matchTeamA").value;
+    const teamBId = document.getElementById("matchTeamB").value;
+    const totalOvers = document.getElementById("matchOvers").value;
+    const ballType = document.getElementById("matchBallType").value;
 
-  closeMenu();
+    if (!teamAId || !teamBId) {
+        alert("कृपया दोनों टीमों का चयन करें!");
+        return;
+    }
+    if (teamAId === teamBId) {
+        alert("दोनों टीमें अलग-अलग होनी चाहिए!");
+        return;
+    }
+
+    if (window.CricYuvaStorage) {
+        const teams = window.CricYuvaStorage.getOfflineTeams();
+        const teamA = teams.find(t => t.id === teamAId);
+        const teamB = teams.find(t => t.id === teamBId);
+
+        const tossSelect = document.getElementById("tossWinnerSelect");
+        tossSelect.innerHTML = "";
+        
+        const optA = document.createElement("option");
+        optA.value = teamA.teamName;
+        optA.textContent = teamA.teamName;
+        tossSelect.appendChild(optA);
+
+        const optB = document.createElement("option");
+        optB.value = teamB.teamName;
+        optB.textContent = teamB.teamName;
+        tossSelect.appendChild(optB);
+
+        document.getElementById("displayTeamA").textContent = teamA.teamName;
+        document.getElementById("displayTeamB").textContent = teamB.teamName;
+
+        window.tempMatchConfig = {
+            teamAName: teamA.teamName,
+            teamBName: teamB.teamName,
+            maxOvers: totalOvers,
+            ballType: ballType
+        };
+
+        showScreen('tossAndPlayersScreen');
+    }
 }
 
-function showUpdates() {
-  const updateBox = $("updateBox");
+// 6. मैच स्कोरिंग पैड शुरू करना
+function startLiveScoringPad() {
+    const striker = document.getElementById("strikerNameInput").value.trim();
+    const nonStriker = document.getElementById("nonStrikerNameInput").value.trim();
+    const bowler = document.getElementById("bowlerNameInput").value.trim();
 
-  if (updateBox) {
-    updateBox.style.display = "block";
+    if (!striker || !nonStriker || !bowler) {
+        alert("कृपया सभी ओपनिंग खिलाड़ियों के नाम दर्ज करें!");
+        return;
+    }
 
-    updateBox.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
+    if (window.startProfessionalMatch && window.tempMatchConfig) {
+        const fullConfig = {
+            ...window.tempMatchConfig,
+            tossWinner: document.getElementById("tossWinnerSelect").value,
+            tossDecision: document.getElementById("tossDecisionSelect").value,
+            strikerName: striker,
+            nonStrikerName: nonStriker,
+            bowlerName: bowler
+        };
+
+        window.startProfessionalMatch(fullConfig);
+        thisOverBallsArray = [];
+        document.getElementById("thisOverBalls").textContent = "";
+        showScreen('liveScoringPadScreen');
+    }
+}
+
+// 7. प्रोफेशनल गेंद रिकॉर्ड सबमिट करना (दिशा के साथ)
+function submitProfessionalBall(ballType, runs, isWicket, wicketType) {
+    if (!window.registerBallRecord) return;
+
+    const direction = document.getElementById("ballDirectionSelect").value;
+
+    window.registerBallRecord({
+        type: ballType,
+        runs: runs,
+        direction: direction,
+        isWicket: isWicket,
+        wicketType: wicketType || ""
     });
-  }
-
-  closeMenu();
 }
 
-function checkStoreUpdate() {
-  const savedVersion =
-    localStorage.getItem("yashwin_store_version");
+// 8. यूआई बटन्स हैंडल्स (0,1,2,3,4,6)
+function handleRunClickUI(run) {
+    submitProfessionalBall("Normal", run, false);
+    thisOverBallsArray.push(run);
+    updateThisOverStripUI();
+}
 
-  if (savedVersion !== STORE_VERSION) {
-    const updateBox = $("updateBox");
+function handleWideClickUI() {
+    submitProfessionalBall("Wide", 0, false);
+    thisOverBallsArray.push("WD");
+    updateThisOverStripUI();
+}
 
-    if (updateBox) {
-      updateBox.style.display = "block";
+function handleNoBallClickUI() {
+    let runs = prompt("नो-बॉल पर बल्लेबाज ने कितने रन बनाए? (0,1,2,4,6):", "0");
+    let batsmanRuns = Number(runs) || 0;
+    submitProfessionalBall("NoBall", batsmanRuns, false);
+    thisOverBallsArray.push("NB");
+    updateThisOverStripUI();
+}
+
+function handleWicketClickUI() {
+    let type = prompt("आउट का प्रकार दर्ज करें (Bowled, Caught, Run Out, LBW):", "Bowled");
+    if (!type) type = "Bowled";
+    submitProfessionalBall("Normal", 0, true, type);
+    thisOverBallsArray.push("W");
+    updateThisOverStripUI();
+}
+
+function updateThisOverStripUI() {
+    document.getElementById("thisOverBalls").textContent = thisOverBallsArray.join(" ");
+}
+
+// 9. स्क्रीन डेटा लाइव अपडेट करना
+function updateUI() {
+    if (!window.currentMatchState) return;
+    const state = window.currentMatchState;
+
+    document.getElementById("liveScoreRunsWickets").textContent = `${state.runs} / ${state.wickets}`;
+    document.getElementById("liveOversCount").textContent = `ओवर: ${state.overs}.${state.ballsInCurrentOver}`;
+
+    document.getElementById("strikerDisplay").textContent = `* ${state.striker.name}: ${state.striker.runs} (${state.striker.balls}) [4s:${state.striker.fours} 6s:${state.striker.sixes}]`;
+    document.getElementById("nonStrikerDisplay").textContent = `${state.nonStriker.name}: ${state.nonStriker.runs} (${state.nonStriker.balls}) [4s:${state.nonStriker.fours} 6s:${state.nonStriker.sixes}]`;
+    document.getElementById("bowlerDisplay").textContent = `🔴 बॉलर: ${state.currentBowler.name} -> ओवर: ${state.currentBowler.overs}.${state.currentBowler.ballsInOver} | रन: ${state.currentBowler.runsConceded} | विकेट: ${state.currentBowler.wickets}`;
+
+    const targetTag = document.getElementById("targetDisplay");
+    if (state.currentInnings === 2 && state.targetRuns) {
+        targetTag.textContent = `लक्ष्य: ${state.targetRuns}`;
+        targetTag.classList.remove("hidden");
+    } else {
+        targetTag.classList.add("hidden");
     }
-  }
 }
 
-function updateStore() {
-  localStorage.setItem(
-    "yashwin_store_version",
-    STORE_VERSION
-  );
-
-  const updateBox = $("updateBox");
-
-  if (updateBox) {
-    updateBox.style.display = "none";
-  }
-
-  alert(
-    "YASHWIN APP STORE updated successfully.\n\n" +
-    "Version " + STORE_VERSION
-  );
+// 10. ओवर बदलने पर नया बॉलर पॉप-अप
+function triggerNextBowlerPopup() {
+    setTimeout(() => {
+        let nextBowler = prompt("ओवर पूरा हुआ! अगले बॉलर का नाम दर्ज करें:", "नया बॉलर");
+        if (!nextBowler) nextBowler = "नया बॉलर";
+        
+        if (window.currentMatchState) {
+            if (!window.currentMatchState.bowlersScorecard[nextBowler]) {
+                window.currentMatchState.bowlersScorecard[nextBowler] = { name: nextBowler, overs: 0, ballsInOver: 0, runsConceded: 0, wickets: 0, maidens: 0 };
+            }
+            window.currentMatchState.currentBowler = window.currentMatchState.bowlersScorecard[nextBowler];
+            thisOverBallsArray = [];
+            updateThisOverStripUI();
+            updateUI();
+        }
+    }, 300);
 }
 
-function closeUpdate() {
-  const updateBox = $("updateBox");
-
-  if (updateBox) {
-    updateBox.style.display = "none";
-  }
+// 11. विकेट गिरने पर नया बल्लेबाज पॉप-अप
+function triggerNextBatsmanPopup() {
+    setTimeout(() => {
+        let nextBatsman = prompt("बल्लेबाज आउट! नए बल्लेबाज का नाम दर्ज करें:", "नया बल्लेबाज");
+        if (!nextBatsman) nextBatsman = "नया बल्लेबाज";
+        
+        if (window.currentMatchState) {
+            if (!window.currentMatchState.batsmenScorecard[nextBatsman]) {
+                window.currentMatchState.batsmenScorecard[nextBatsman] = { name: nextBatsman, runs: 0, balls: 0, fours: 0, sixes: 0, outStatus: "Not Out" };
+            }
+            window.currentMatchState.striker = window.currentMatchState.batsmenScorecard[nextBatsman];
+            updateUI();
+        }
+    }, 300);
 }
 
-function getApps() {
-  try {
-    const saved =
-      localStorage.getItem("yashwin_apps");
-
-    if (!saved) {
-      return [...defaultApps];
-    }
-
-    const apps = JSON.parse(saved);
-
-    return Array.isArray(apps) ? apps : [];
-  } catch (error) {
-    console.error(
-      "Unable to load apps:",
-      error
-    );
-
-    return [];
-  }
-}
-
-function saveApps(apps) {
-  localStorage.setItem(
-    "yashwin_apps",
-    JSON.stringify(apps)
-  );
-}
-
-function searchApps() {
-  const searchBox = $("searchBox");
-
-  if (!searchBox) return;
-
-  const text =
-    searchBox.value.trim().toLowerCase();
-
-  const cards =
-    document.querySelectorAll(".app-card");
-
-  let visible = 0;
-
-  cards.forEach(card => {
-    const name =
-      (card.dataset.name || "").toLowerCase();
-
-    const description =
-      (card.dataset.description || "").toLowerCase();
-
-    const match =
-      text === "" ||
-      name.includes(text) ||
-      description.includes(text);
-
-    card.style.display =
-      match ? "block" : "none";
-
-    if (match) {
-      visible++;
-    }
-  });
-
-  const emptySearch = $("emptySearch");
-
-  if (emptySearch) {
-    emptySearch.style.display =
-      text !== "" && visible === 0
-        ? "block"
-        : "none";
-  }
-}
-
-function openAddApp() {
-  const modal = $("addModal");
-
-  if (modal) {
-    modal.style.display = "block";
-  }
-
-  closeMenu();
-}
-
-function closeAddApp() {
-  const modal = $("addModal");
-
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
-
-function clearAppForm() {
-  const fields = [
-    "appName",
-    "appVersion",
-    "appLogo",
-    "appOpen",
-    "appDownload",
-    "appDescription"
-  ];
-
-  fields.forEach(id => {
-    const field = $(id);
-
-    if (field) {
-      field.value = "";
-    }
-  });
-}
-
-function saveApp() {
-  const name =
-    $("appName")?.value.trim();
-
-  const version =
-    $("appVersion")?.value.trim() || "1.0.0";
-
-  const logo =
-    $("appLogo")?.value.trim();
-
-  const open =
-    $("appOpen")?.value.trim();
-
-  const download =
-    $("appDownload")?.value.trim();
-
-  const description =
-    $("appDescription")?.value.trim() ||
-    "New app from YASHWIN APP STORE.";
-
-  if (!name) {
-    alert("Please enter the App Name.");
-    return;
-  }
-
-  const app = {
-    id: Date.now().toString(),
-
-    name: name,
-
-    version: version,
-
-    logo: logo,
-
-    open: open,
-
-    download: download,
-
-    description: description
-  };
-
-  const apps = getApps();
-
-  apps.push(app);
-
-  saveApps(apps);
-
-  clearAppForm();
-
-  closeAddApp();
-
-  renderApps();
-
-  alert(
-    name +
-    " has been added to YASHWIN APP STORE."
-  );
-}
-
-function deleteApp(id) {
-  const confirmed =
-    confirm(
-      "Remove this app from YASHWIN APP STORE?"
-    );
-
-  if (!confirmed) return;
-
-  const apps =
-    getApps().filter(
-      app => app.id !== id
-    );
-
-  saveApps(apps);
-
-  renderApps();
-}
-
-function createAppCard(app) {
-  const card =
-    document.createElement("div");
-
-  card.className = "app-card";
-
-  card.dataset.name =
-    app.name || "";
-
-  card.dataset.description =
-    app.description || "";
-
-  const logo =
-    app.logo ||
-    "icon-192.png";
-
-  const openLink =
-    app.open || "#";
-
-  const downloadLink =
-    app.download || "#";
-
-  card.innerHTML = `
-    <div class="app-logo">
-      <img
-        src="${escapeHTML(logo)}"
-        alt="${escapeHTML(app.name || "App")}"
-        onerror="this.src='icon-192.png'"
-        style="
-          width:100%;
-          height:100%;
-          object-fit:cover;
-          border-radius:22px;
-        "
-      >
-    </div>
-
-    <h2>
-      ${escapeHTML(app.name || "Unnamed App")}
-    </h2>
-
-    <div class="version">
-      Version ${escapeHTML(app.version || "1.0.0")}
-    </div>
-
-    <p class="description">
-      ${escapeHTML(
-        app.description ||
-        "New app from YASHWIN APP STORE."
-      )}
-    </p>
-
-    <div class="buttons">
-
-      <a
-        class="btn btn-open"
-        href="${escapeHTML(openLink)}"
-      >
-        ▶️ OPEN APP
-      </a>
-
-      <a
-        class="btn btn-download"
-        href="${escapeHTML(downloadLink)}"
-        download
-      >
-        ⬇️ DOWNLOAD APK
-      </a>
-
-      <a
-        class="btn btn-install"
-        href="${escapeHTML(downloadLink)}"
-      >
-        📲 INSTALL
-      </a>
-
-      <button
-        class="btn"
-        style="
-          background:#333;
-          color:#ff9800;
-          border:1px solid #555;
-        "
-        onclick="deleteApp('${escapeHTML(app.id || "")}')"
-      >
-        🗑️ REMOVE APP
-      </button>
-
-    </div>
-  `;
-
-  return card;
-}
-
-function renderApps() {
-  const container =
-    $("appsContainer");
-
-  if (!container) return;
-
-  const oldCards =
-    container.querySelectorAll(".app-card");
-
-  oldCards.forEach(card => {
-    card.remove();
-  });
-
-  const apps = getApps();
-
-  const emptyBox =
-    $("emptyBox");
-
-  if (apps.length === 0) {
-    if (emptyBox) {
-      emptyBox.style.display = "block";
-    }
-
-    return;
-  }
-
-  if (emptyBox) {
-    emptyBox.style.display = "none";
-  }
-
-  apps.forEach(app => {
-    const card =
-      createAppCard(app);
-
-    container.appendChild(card);
-  });
-
-  searchApps();
-}
-
-function escapeHTML(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-window.addEventListener(
-  "click",
-  function(event) {
-    const modal = $("addModal");
-
-    if (
-      modal &&
-      event.target === modal
-    ) {
-      closeAddApp();
-    }
-  }
-);
-
-window.addEventListener(
-  "load",
-  function() {
-    renderApps();
-    checkStoreUpdate();
-  }
-);
+// 12. इनिंग्स चेंज होने पर अलर्ट
+function triggerInningsChangeUI() {
+    alert(`पहली इनिंग्स समाप्त! दूसरी टीम को जीत के लिए ${window.currentMatchState.targetRuns} रन चाहिए।`);
+    
