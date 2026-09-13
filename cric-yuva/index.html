@@ -3,38 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>क्रिक युवा (Cric Yuva) - 100% ऑफलाइन क्रिकेट स्कोरिंग</title>
-    <!-- आपकी सुंदर डिज़ाइन वाली CSS फ़ाइल -->
+    <title>क्रिक युवा (Cric Yuva) - प्रोफेशनल ऑफलाइन क्रिकेट स्कोरिंग</title>
     <link rel="stylesheet" href="style.css">
-    <!-- PWA मैनिफेस्ट फ़ाइल ताकि ऐप बिना इंटरनेट के फोन में इंस्टॉल हो सके -->
     <link rel="manifest" href="manifest.webmanifest">
 </head>
 <body>
 
-    <!-- मुख्य ऐप कंटेनर -->
     <div id="appContainer">
         
-        <!-- 📸 ऐप का मुख्य लोगो और हेडर -->
+        <!-- 📸 ऐप हेडर -->
         <header class="app-header">
             <img src="cric-yuva-logo.png" alt="Cric Yuva Logo" class="app-logo">
-            <h1>क्रिक युवा - CricHeroes Offline</h1>
+            <h1>क्रिक युवा - Professional CricHeroes</h1>
         </header>
 
-        <!-- 🔔 ऑफ़लाइन/ऑनलाइन स्टेटस बार -->
+        <!-- 🔔 स्टेटस बार -->
         <div id="networkStatusBar" class="status-bar offline">
-            📶 स्थिति: 100% ऑफलाइन मोड (सुरक्षित)
+            📶 स्थिति: 100% ऑफलाइन प्रोफेशनल इंजन सक्रिय
         </div>
 
         <!-- ========================================== -->
-        <!-- 🏠 स्क्रीन 1: मुख्य डैशबोर्ड (Dashboard View) -->
+        <!-- 🏠 स्क्रीन 1: मुख्य डैशボード (Dashboard) -->
         <!-- ========================================== -->
         <div id="dashboardScreen" class="app-screen">
             <div class="dashboard-banner">
-                <h2>लोकल क्रिकेट को बनाएं इंटरनेशनल!</h2>
+                <h2>CricHeroes जैसा लाइव और सटीक स्कोरकार्ड!</h2>
             </div>
             <div class="menu-grid">
                 <button class="menu-btn" onclick="showScreen('playerRegScreen')">👤 खिलाड़ी रजिस्टर करें</button>
-                <button class="menu-btn" onclick="showScreen('teamCreateScreen')">🏏 नई टीम बनाएं</button>
+                <button class="menu-btn" onclick="showScreen('teamCreateScreen')">Horiz 🏏 नई टीम बनाएं</button>
                 <button class="menu-btn active-match-btn" onclick="showScreen('matchSetupScreen')">🔥 नया मैच शुरू करें</button>
             </div>
         </div>
@@ -46,23 +43,20 @@
             <button class="back-btn" onclick="showScreen('dashboardScreen')">⬅️ वापस होम</button>
             <h2>नया खिलाड़ी जोड़ें</h2>
             <div class="form-group">
-                <input type="text" id="regPlayerName" placeholder="खिलाड़ी का पूरा नाम दर्ज करें">
-                
+                <input type="text" id="regPlayerName" placeholder="खिलाड़ी का पूरा नाम">
                 <label>बैटिंग स्टाइल:</label>
                 <select id="regBattingStyle">
                     <option value="Right-hand">Right-hand Batsman</option>
                     <option value="Left-hand">Left-hand Batsman</option>
                 </select>
-
                 <label>बॉलिंग स्टाइल:</label>
                 <select id="regBowlingStyle">
-                    <option value="None">None (सिर्फ बल्लेबाज)</option>
+                    <option value="None">None</option>
                     <option value="Right-arm fast">Right-arm Fast</option>
                     <option value="Right-arm spin">Right-arm Spin</option>
                     <option value="Left-arm fast">Left-arm Fast</option>
                     <option value="Left-arm spin">Left-arm Spin</option>
                 </select>
-
                 <button class="action-btn" onclick="registerPlayerUI()">खिलाड़ी ऑफलाइन सेव करें</button>
             </div>
         </div>
@@ -74,92 +68,70 @@
             <button class="back-btn" onclick="showScreen('dashboardScreen')">⬅️ वापस होम</button>
             <h2>नई टीम का गठन</h2>
             <div class="form-group">
-                <input type="text" id="newTeamName" placeholder="टीम का नाम दर्ज करें (उदा. दिल्ली रॉयल्स)">
+                <input type="text" id="newTeamName" placeholder="टीम का नाम दर्ज करें">
                 <button class="action-btn" onclick="createTeamUI()">टीम ऑफलाइन सेव करें</button>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- ⚙️ स्क्रीन 4: मैच सेटअप (Match Setup & Search) -->
+        <!-- ⚙️ स्क्रीन 4: मैच सेटअप (Match Setup) -->
         <!-- ========================================== -->
         <div id="matchSetupScreen" class="app-screen hidden">
             <button class="back-btn" onclick="showScreen('dashboardScreen')">⬅️ वापस होम</button>
             <h2>मैच प्री-सेटअप (Pre-Match)</h2>
-            
             <div class="form-group">
-                <label>टीम A (बैटिंग/बॉलिंग टीम):</label>
+                <label>टीम A:</label>
                 <select id="matchTeamA" class="team-dropdown"><option value="">-- टीम चुनें --</option></select>
-
-                <label>टीम B (विपक्षी टीम):</label>
+                <label>टीम B:</label>
                 <select id="matchTeamB" class="team-dropdown"><option value="">-- टीम चुनें --</option></select>
-
                 <label>कुल ओवरों की संख्या:</label>
                 <input type="number" id="matchOvers" value="5" min="1" max="90">
-
                 <label>गेंद का प्रकार:</label>
                 <select id="matchBallType">
-                    <option value="Tennis">Tennis Ball (टेनिस)</option>
-                    <option value="Leather">Leather Ball (लेदर)</option>
+                    <option value="Tennis">Tennis Ball</option>
+                    <option value="Leather">Leather Ball</option>
                 </select>
-
-                <button class="action-btn match-start-trigger" onclick="setupMatchPlayersUI()">खिलाड़ी और टॉस के लिए आगे बढ़ें ➡️</button>
-
+                <button class="action-btn" onclick="setupMatchPlayersUI()">खिलाड़ी और टॉस के लिए आगे बढ़ें ➡️</button>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- 🪙 स्क्रीन 5: टॉस और ओपनर्स चयन (Toss & Openers) -->
+        <!-- 🪙 स्क्रीन 5: टॉस और ओपनर्स चयन (Toss & Squad) -->
         <!-- ========================================== -->
         <div id="tossAndPlayersScreen" class="app-screen hidden">
-            <h2>टॉस और ओपनिंग खिलाड़ी</h2>
-            
-            <!-- टॉस का फैसला -->
+            <h2>टॉस और प्लेइंग खिलाड़ी</h2>
             <div class="toss-box">
-                <h3>🪙 सिक्के का उछाल (Toss)</h3>
+                <h3>🪙 टॉस का निर्णय</h3>
                 <label>टॉस किसने जीता?</label>
                 <select id="tossWinnerSelect"></select>
-                
-                <label>टॉस जीतकर क्या फैसला किया?</label>
+                <label>फैसला क्या है?</label>
                 <select id="tossDecisionSelect">
-                    <option value="Bat">बैटिंग (Batting)</option>
-                    <option value="Bowl">बॉलिंग (Bowling)</option>
+                    <option value="Bat">बैटिंग (Bat)</option>
+                    <option value="Bowl">बॉलिंग (Bowl)</option>
                 </select>
             </div>
-
-            <!-- ओपनर्स का चयन -->
             <div class="openers-box">
-                <h3>🏏 ओपनिंग बल्लेबाज और बॉलर चुनें</h3>
-                <label>स्ट्राइकर बल्लेबाज (Striker):</label>
+                <h3>🏏 ओपनिंग खिलाड़ी चुनें</h3>
                 <input type="text" id="strikerNameInput" placeholder="स्ट्राइकर का नाम">
-
-                <label>नॉन-स्ट्राइकर बल्लेबाज (Non-Striker):</label>
                 <input type="text" id="nonStrikerNameInput" placeholder="नॉन-स्ट्राइकर का नाम">
-
-                <label>पहला ओवर फेंकने वाला बॉलर:</label>
-                <input type="text" id="bowlerNameInput" placeholder="बॉलर का नाम">
+                <input type="text" id="bowlerNameInput" placeholder="पहले ओवर के बॉलर का नाम">
             </div>
-
-            <button class="action-btn live-pad-trigger" onclick="startLiveScoringPad()">लाइव मैच स्कोरिंग शुरू करें 🔴</button>
+            <button class="action-btn" onclick="startLiveScoringPad()">लाइव मैच स्कोरिंग शुरू करें 🔴</button>
         </div>
 
         <!-- ========================================== -->
-        <!-- 🔴 स्क्रीन 6: लाइव स्कोरिंग पैड (Main Scoring Pad) -->
+        <!-- 🔴 स्क्रीन 6: लाइव स्कोरिंग पैड (Main Pad) -->
         <!-- ========================================== -->
         <div id="liveScoringPadScreen" class="app-screen hidden">
-            <!-- लाइव स्कोरबोर्ड हेडर -->
             <div class="live-scoreboard-header">
                 <div class="teams-versus-display">
                     <span id="displayTeamA">टीम A</span> vs <span id="displayTeamB">टीम B</span>
+                    <div id="targetDisplay" class="target-text hidden">लक्ष्य: 0</div>
                 </div>
-                <div class="main-score-digits">
-                    <span id="liveScoreRunsWickets">0 / 0</span>
-                </div>
-                <div class="main-overs-digits">
-                    <span id="liveOversCount">ओवर: 0.0</span>
-                </div>
+                <div class="main-score-digits"><span id="liveScoreRunsWickets">0 / 0</span></div>
+                <div class="main-overs-digits"><span id="liveOversCount">ओवर: 0.0</span></div>
             </div>
 
-            <!-- लाइव बल्लेबाजों और बॉलर के आंकड़े -->
             <div class="live-stats-table">
                 <div class="batsmen-stats">
                     <p id="strikerDisplay" class="active-striker">*बल्लेबाज 1: 0 (0)</p>
@@ -170,32 +142,47 @@
                 </div>
             </div>
 
-            <!-- इस ओवर की गेंदों की हिस्ट्री (Ball-by-ball strip) -->
-            <div class="this-over-strip">
-                <p>यह ओवर: <span id="thisOverBalls"></span></p>
+            <!-- वेगन व्हील / गेंद की दिशा का पॉप-अप चयन (CricHeroes की तरह) -->
+            <div id="directionSelectorBox" class="direction-box">
+                <label>🎯 गेंद किस दिशा में गई? </label>
+                <select id="ballDirectionSelect">
+                    <option value="Straight">Straight (सामने)</option>
+                    <option value="Cover">Cover (ऑफ साइड)</option>
+                    <option value="Point">Point</option>
+                    <option value="Third Man">Third Man</option>
+                    <option value="Fine Leg">Fine Leg</option>
+                    <option value="Square Leg">Square Leg</option>
+                    <option value="Mid Wicket">Mid Wicket (ऑन साइड)</option>
+                    <option value="Long On">Long On</option>
+                </select>
             </div>
 
-            <!-- 🔢 मुख्य स्कोरिंग बटन्स ग्रिड (CricHeroes की तरह) -->
+            <div class="this-over-strip"><p>यह ओवर: <span id="thisOverBalls"></span></p></div>
+
             <div class="scoring-buttons-grid">
-                <button class="score-btn run-btn" onclick="handleRunClick(0)">0</button>
-                <button class="score-btn run-btn" onclick="handleRunClick(1)">1</button>
-                <button class="score-btn run-btn" onclick="handleRunClick(2)">2</button>
-                <button class="score-btn run-btn" onclick="handleRunClick(3)">3</button>
-                <button class="score-btn boundary-btn" onclick="handleRunClick(4)">4</button>
-                <button class="score-btn boundary-btn" onclick="handleRunClick(6)">6</button>
-                
-                <button class="score-btn extra-btn" onclick="handleWideClick()">WD</button>
-                <button class="score-btn extra-btn" onclick="handleNoBallClick()">NB</button>
-                <button class="score-btn wicket-btn" onclick="handleWicketClick()">WICKET</button>
+                <button class="score-btn run-btn" onclick="handleRunClickUI(0)">0</button>
+                <button class="score-btn run-btn" onclick="handleRunClickUI(1)">1</button>
+                <button class="score-btn run-btn" onclick="handleRunClickUI(2)">2</button>
+                <button class="score-btn run-btn" onclick="handleRunClickUI(3)">3</button>
+                <button class="score-btn boundary-btn" onclick="handleRunClickUI(4)">4</button>
+                <button class="score-btn boundary-btn" onclick="handleRunClickUI(6)">6</button>
+                <button class="score-btn extra-btn" onclick="handleWideClickUI()">WD</button>
+                <button class="score-btn extra-btn" onclick="handleNoBallClickUI()">NB</button>
+                <button class="score-btn wicket-btn" onclick="handleWicketClickUI()">WICKET</button>
             </div>
         </div>
 
-    </div>
-
-    <!-- ऐप को कंट्रोल करने वाले स्क्रिप्ट्स (क्रम बहुत ज़रूरी है) -->
-    <script src="db.js"></script>
-    <script src="storage.js"></script>
-    <script src="phase-engine.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+        <!-- ========================================== -->
+        <!-- 🏆 स्क्रीन 7: फुल मैच स्कोरकार्ड और परिणाम (Final Scorecard) -->
+        <!-- ========================================== -->
+        <div id="finalScorecardScreen" class="app-screen hidden">
+            <h2 style="color:var(--primary-green); text-align:center;">🏆 मैच समाप्त 🏆</h2>
+            <div id="matchWinnerResult" class="winner-banner">विजेता टीम का नाम</div>
+            
+            <div class="final-board">
+                <h3>🏏 बैटिंग स्कोरकार्ड</h3>
+                <div id="finalBatsmenContainer" class="scorecard-list-view"></div>
+                
+                <h3 style="margin-top:15px;">🔴 बॉलिंग स्कोरकार्ड</h3>
+                <div id="finalBowlersContainer" class="scorecard-list-view"></div>
+            </div>
