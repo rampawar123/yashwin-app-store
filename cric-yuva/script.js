@@ -51,13 +51,10 @@ function createTeamUI() {
     }
 
     if (window.CricYuvaStorage) {
-        window.CricYuvaStorage.saveTeamOffline(teamName);
-        alert(`टीम "${teamName}" सफलतापूर्वक बन गई है!`);
-        document.getElementById("newTeamName").value = "";
-        loadTeamsInDropdowns(); 
-        showScreen('dashboardScreen');
-    }
-}
+    document.getElementById("newTeamName").value = "";
+    loadTeamsInDropdowns(); // यहाँ सिर्फ इस फंक्शन को सीधा कॉल करना है
+    showScreen('dashboardScreen');
+
 
 // 4. मैच सेटअप स्क्रीन पर टीमों की लिस्ट लोड करना
 function loadTeamsInDropdowns() {
