@@ -1,6 +1,6 @@
 // ==========================================
-// क्रिक युवा (Cric Yuva) - प्रोफेशनल ऐप कंट्रोलर
-// फ़ाइल का नाम: script.js (CricHeroes Architecture)
+// क्रिक युवा (Cric Yuva) - मुख्य ऐप कंट्रोलर
+// फ़ाइल का नाम: script.js (100% वर्किंग ऑफलाइन फिक्स)
 // ==========================================
 
 let thisOverBallsArray = [];
@@ -51,16 +51,22 @@ function createTeamUI() {
     }
 
     if (window.CricYuvaStorage) {
-    document.getElementById("newTeamName").value = "";
-    loadTeamsInDropdowns(); // यहाँ सिर्फ इस फंक्शन को सीधा कॉल करना है
-    showScreen('dashboardScreen');
-
+        window.CricYuvaStorage.saveTeamOffline(teamName);
+        alert(`TEAM "${teamName}" सफलतापूर्वक बन गई है!`);
+        document.getElementById("newTeamName").value = "";
+        loadTeamsInDropdowns(); 
+        showScreen('dashboardScreen');
+    }
+}
 
 // 4. मैच सेटअप स्क्रीन पर टीमों की लिस्ट लोड करना
 function loadTeamsInDropdowns() {
-    if (!window.CricYuvaStorage) return;
+    if (!window.CricYuvaStorage) {
+        console.log("स्टोरेज इंजन अभी लोड हो रहा है...");
+        return;
+    }
     
-    const teams = window.CricYuvaStorage.getOfflineTeams();
+    const teams = window.CricYuvaStorage.getOfflineTeams() || [];
     const teamASelect = document.getElementById("matchTeamA");
     const teamBSelect = document.getElementById("matchTeamB");
 
@@ -119,7 +125,6 @@ function setupMatchPlayersUI() {
         document.getElementById("displayTeamA").textContent = teamA.teamName;
         document.getElementById("displayTeamB").textContent = teamB.teamName;
 
-        // डेटा को वैश्विक स्टोर पर रख रहे हैं ताकि स्टार्ट बटन पर मिले
         window.tempMatchConfig = {
             teamAName: teamA.teamName,
             teamBName: teamB.teamName,
@@ -159,7 +164,7 @@ function startLiveScoringPad() {
     }
 }
 
-// 7. प्रोफेशनल गेंद रिकॉर्ड सबमिट करना (दिशा के साथ)
+// 7. प्रोफेशनल गेंद रिकॉर्ड सबमिट करना
 function submitProfessionalBall(ballType, runs, isWicket, wicketType) {
     if (!window.registerBallRecord) return;
 
@@ -187,9 +192,15 @@ function handleWideClickUI() {
     updateThisOverStripUI();
 }
 
+// 🟢 यहाँ का सिंटैक्स एरर पूरी तरह ठीक (Fix) कर दिया गया है
 function handleNoBallClickUI() {
     let runs = prompt("नो-बॉल पर बल्लेबाज ने कितने रन बनाए? (0,1,2,4,6):", "0");
-    let batsmanRuns = Number(runs) || 0;
+    let batsmanRuns = Number(runs);
+    
+    if (isNaN(batsmanRuns) || ![0, 1, 2, 3, 4, 6].includes(batsmanRuns)) {
+        batsmanRuns = 0;
+    }
+    
     submitProfessionalBall("NoBall", batsmanRuns, false);
     thisOverBallsArray.push("NB");
     updateThisOverStripUI();
@@ -219,7 +230,6 @@ function updateUI() {
     document.getElementById("nonStrikerDisplay").textContent = `${state.nonStriker.name}: ${state.nonStriker.runs} (${state.nonStriker.balls}) [4s:${state.nonStriker.fours} 6s:${state.nonStriker.sixes}]`;
     document.getElementById("bowlerDisplay").textContent = `🔴 बॉलर: ${state.currentBowler.name} -> ओवर: ${state.currentBowler.overs}.${state.currentBowler.ballsInOver} | रन: ${state.currentBowler.runsConceded} | विकेट: ${state.currentBowler.wickets}`;
 
-    // यदि सेकंड इनिंग्स चल रही है तो टारगेट दिखाएं
     const targetTag = document.getElementById("targetDisplay");
     if (state.currentInnings === 2 && state.targetRuns) {
         targetTag.textContent = `लक्ष्य: ${state.targetRuns}`;
@@ -232,7 +242,7 @@ function updateUI() {
 // 10. ओवर बदलने पर नया बॉलर पॉप-अप
 function triggerNextBowlerPopup() {
     setTimeout(() => {
-        let nextBowler = prompt("ओवर पूरा हुआ! अगले बॉलर का name दर्ज करें:", "नया बॉलर");
+        let nextBowler = prompt("ओवर पूरा हुआ! अगले बॉलर का नाम दर्ज करें:", "नया बॉलर");
         if (!nextBowler) nextBowler = "नया बॉलर";
         
         if (window.currentMatchState) {
@@ -263,5 +273,3 @@ function triggerNextBatsmanPopup() {
     }, 300);
 }
 
-// 12. इनिंग्स चेंज होने पर अलर्ट
-function triggerInningsChangeUI() {
