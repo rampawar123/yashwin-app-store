@@ -1,15 +1,17 @@
 {
-  "name": "Cric Yuva",
-  "short_name": "Cric Yuva",
-  "description": "Cricket scoring, teams, tournaments, live score and player community.",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0b0b0b",
-  "theme_color": "#ff5a00",
+  "short_name": "क्रिक युवा",
+  "name": "क्रिक युवा - Professional CricHeroes Offline",
   "icons": [
-    { "src": "cric-yuva-logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "cric-yuva-logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ]
+    {
+      "src": "cric-yuva-logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#019247",
+  "theme_color": "#019247",
+  "display": "standalone",
+  "orientation": "portrait"
 }
