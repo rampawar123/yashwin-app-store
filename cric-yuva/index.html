@@ -23,14 +23,14 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- 🏠 स्क्रीन 1: मुख्य डैशबोर्ड (Dashboard View) -->
+        <!-- 🏠 स्क्रीन 1: मुख्य डैशबोर्ड (Dashboard) -->
         <!-- ========================================== -->
         <div id="dashboardScreen" class="app-screen">
             <div class="dashboard-banner">
                 <h2>CricHeroes जैसा लाइव और सटीक स्कोरकार्ड!</h2>
             </div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="showScreen('playerRegScreen')">👤 खिलाड़ी register करें</button>
+                <button class="menu-btn" onclick="showScreen('playerRegScreen')">👤 खिलाड़ी रजिस्टर करें</button>
                 <button class="menu-btn" onclick="showScreen('teamCreateScreen')">🏏 नई टीम बनाएं</button>
                 <button class="menu-btn active-match-btn" onclick="showScreen('matchSetupScreen')">🔥 नया मैच शुरू करें</button>
             </div>
@@ -82,7 +82,7 @@
             <div class="form-group">
                 <label>टीम A:</label>
                 <select id="matchTeamA" class="team-dropdown"><option value="">-- टीम चुनें --</option></select>
-                <label>टीम B:</label>
+                <label>TEAM B:</label>
                 <select id="matchTeamB" class="team-dropdown"><option value="">-- टीम चुनें --</option></select>
                 <label>कुल ओवरों की संख्या:</label>
                 <input type="number" id="matchOvers" value="5" min="1" max="90">
@@ -142,7 +142,6 @@
                 </div>
             </div>
 
-            <!-- वेगन व्हील / गेंद की दिशा का पॉप-अप चयन (CricHeroes की तरह) -->
             <div id="directionSelectorBox" class="direction-box">
                 <label>🎯 गेंद किस दिशा में गई? </label>
                 <select id="ballDirectionSelect">
@@ -186,3 +185,8 @@
                 <h3 style="margin-top:15px;">🔴 बॉलिंग स्कोरकार्ड</h3>
                 <div id="finalBowlersContainer" class="scorecard-list-view"></div>
             </div>
+            <button class="action-btn" onclick="location.reload()">नया मैच सेटअप करें 🔄</button>
+        </div>
+
+    </div>
+
