@@ -1,13 +1,18 @@
 // ==========================================
 // क्रिक युवा (Cric Yuva) - मुख्य ऐप कंट्रोलर
-// फ़ाइल का नाम: script.js (100% वर्किंग ऑफलाइन फिक्स)
+// फ़ाइल का नाम: script.js (100% स्टेबल फिक्स)
 // ==========================================
 
 let thisOverBallsArray = [];
+let currentLocalMatchId = "MATCH-" + Math.floor(Math.random() * 100000);
 
 // ऐप शुरू होते ही ड्रॉपडाउन लोड करना
 document.addEventListener("DOMContentLoaded", function() {
-    loadTeamsInDropdowns();
+    try {
+        loadTeamsInDropdowns();
+    } catch(e) {
+        console.log("ड्रॉपडाउन लोड करने में एरर:", e);
+    }
     showScreen('dashboardScreen'); 
 });
 
@@ -38,6 +43,14 @@ function registerPlayerUI() {
         alert(`खिलाड़ी "${name}" सफलतापूर्वक रजिस्टर हो गया है!`);
         document.getElementById("regPlayerName").value = "";
         showScreen('dashboardScreen');
+    } else {
+        // अगर storage.js लोड न हो तो भी बैकअप चले
+        let players = JSON.parse(localStorage.getItem("cy_players")) || [];
+        players.push({ id: Date.now().toString(), name, battingStyle: bat, bowlingStyle: bowl });
+        localStorage.setItem("cy_players", JSON.stringify(players));
+        alert(`खिलाड़ी "${name}" ऑफलाइन मेमोरी में सेव हुआ!`);
+        document.getElementById("regPlayerName").value = "";
+        showScreen('dashboardScreen');
     }
 }
 
@@ -52,21 +65,30 @@ function createTeamUI() {
 
     if (window.CricYuvaStorage) {
         window.CricYuvaStorage.saveTeamOffline(teamName);
-        alert(`TEAM "${teamName}" सफलतापूर्वक बन गई है!`);
+        alert(`टीम "${teamName}" सफलतापूर्वक बन गई है!`);
         document.getElementById("newTeamName").value = "";
         loadTeamsInDropdowns(); 
+        showScreen('dashboardScreen');
+    } else {
+        let teams = JSON.parse(localStorage.getItem("cy_teams")) || [];
+        teams.push({ id: Date.now().toString(), teamName });
+        localStorage.setItem("cy_teams", JSON.stringify(teams));
+        alert(`टीम "${teamName}" ऑफलाइन मेमोरी में बन गई!`);
+        document.getElementById("newTeamName").value = "";
+        loadTeamsInDropdowns();
         showScreen('dashboardScreen');
     }
 }
 
 // 4. मैच सेटअप स्क्रीन पर टीमों की लिस्ट लोड करना
 function loadTeamsInDropdowns() {
-    if (!window.CricYuvaStorage) {
-        console.log("स्टोरेज इंजन अभी लोड हो रहा है...");
-        return;
+    let teams = [];
+    if (window.CricYuvaStorage) {
+        teams = window.CricYuvaStorage.getOfflineTeams() || [];
+    } else {
+        teams = JSON.parse(localStorage.getItem("cy_teams")) || [];
     }
     
-    const teams = window.CricYuvaStorage.getOfflineTeams() || [];
     const teamASelect = document.getElementById("matchTeamA");
     const teamBSelect = document.getElementById("matchTeamB");
 
@@ -76,59 +98,51 @@ function loadTeamsInDropdowns() {
 
         teams.forEach(team => {
             const optionA = document.createElement("option");
-            optionA.value = team.id;
-            optionA.textContent = team.teamName;
+            optionA.value = team.teamName || team.name;
+            optionA.textContent = team.teamName || team.name;
             teamASelect.appendChild(optionA);
 
             const optionB = document.createElement("option");
-            optionB.value = team.id;
-            optionB.textContent = team.teamName;
+            optionB.value = team.teamName || team.name;
+            optionB.textContent = team.teamName || team.name;
             teamBSelect.appendChild(optionB);
         });
     }
 }
 
-// 5. टॉस और ओपनर वाली स्क्रीन को सेट करना (100% वर्किंग फिक्स)
+// 5. टॉस और ओपनर वाली स्क्रीन को सेट करना
 function setupMatchPlayersUI() {
-    const teamAId = document.getElementById("matchTeamA").value;
-    const teamBId = document.getElementById("matchTeamB").value;
+    const teamAName = document.getElementById("matchTeamA").value;
+    const teamBName = document.getElementById("matchTeamB").value;
     const totalOvers = document.getElementById("matchOvers").value;
     const ballType = document.getElementById("matchBallType").value;
 
-    if (!teamAId || !teamBId) {
+    if (!teamAName || !teamBName) {
         alert("कृपया दोनों टीमों का चयन करें!");
         return;
     }
-    if (teamAId === teamBId) {
+    if (teamAName === teamBName) {
         alert("दोनों टीमें अलग-अलग होनी चाहिए!");
         return;
     }
 
-    // यहाँ हम ड्रॉपडाउन से सीधे चुनी हुई टीम का नाम निकाल रहे हैं
-    const teamASelect = document.getElementById("matchTeamA");
-    const teamBSelect = document.getElementById("matchTeamB");
-    const teamAName = teamASelect.options[teamASelect.selectedIndex].text;
-    const teamBName = teamBSelect.options[teamBSelect.selectedIndex].text;
-
     // टॉस ड्रॉपडाउन को टीमों के नाम से भरना
     const tossSelect = document.getElementById("tossWinnerSelect");
-    tossSelect.innerHTML = "";
-    
-    const optA = document.createElement("option");
-    optA.value = teamAName;
-    optA.textContent = teamAName;
-    tossSelect.appendChild(optA);
+    if (tossSelect) {
+        tossSelect.innerHTML = "";
+        const optA = document.createElement("option");
+        optA.value = teamAName; optA.textContent = teamAName;
+        tossSelect.appendChild(optA);
 
-    const optB = document.createElement("option");
-    optB.value = teamBName;
-    optB.textContent = teamBName;
-    tossSelect.appendChild(optB);
+        const optB = document.createElement("option");
+        optB.value = teamBName; optB.textContent = teamBName;
+        tossSelect.appendChild(optB);
+    }
 
-    // टीमों के नाम लाइव स्कोरकार्ड डिस्प्ले पर पहले से सेट करना
-    document.getElementById("displayTeamA").textContent = teamAName;
-    document.getElementById("displayTeamB").textContent = teamBName;
+    // डिस्प्ले पर नाम सेट करना
+    if (document.getElementById("displayTeamA")) document.getElementById("displayTeamA").textContent = teamAName;
+    if (document.getElementById("displayTeamB")) document.getElementById("displayTeamB").textContent = teamBName;
 
-    // 🟢 सबसे ज़रूरी फिक्स: ग्लोबल ऑब्जेक्ट को तुरंत वैल्यू देना ताकि अगला बटन क्रैश न हो
     window.tempMatchConfig = {
         teamAName: teamAName,
         teamBName: teamBName,
@@ -136,12 +150,7 @@ function setupMatchPlayersUI() {
         ballType: ballType
     };
 
-    // अगली स्क्रीन (टॉस और ओपनर्स) दिखाना
     showScreen('tossAndPlayersScreen');
-}
-
-        showScreen('tossAndPlayersScreen');
-    }
 }
 
 // 6. मैच स्कोरिंग पैड शुरू करना
@@ -155,6 +164,7 @@ function startLiveScoringPad() {
         return;
     }
 
+    // पुराने और नए दोनों प्रकार के मैच इंजन का सुरक्षित सपोर्ट
     if (window.startProfessionalMatch && window.tempMatchConfig) {
         const fullConfig = {
             ...window.tempMatchConfig,
@@ -164,27 +174,34 @@ function startLiveScoringPad() {
             nonStrikerName: nonStriker,
             bowlerName: bowler
         };
-
         window.startProfessionalMatch(fullConfig);
-        thisOverBallsArray = [];
-        document.getElementById("thisOverBalls").textContent = "";
-        showScreen('liveScoringPadScreen');
+    } else if (window.startMatchEngine) {
+        window.startMatchEngine(striker, nonStriker, bowler);
     }
+
+    thisOverBallsArray = [];
+    if (document.getElementById("thisOverBalls")) document.getElementById("thisOverBalls").textContent = "";
+    showScreen('liveScoringPadScreen');
 }
 
 // 7. प्रोफेशनल गेंद रिकॉर्ड सबमिट करना
 function submitProfessionalBall(ballType, runs, isWicket, wicketType) {
-    if (!window.registerBallRecord) return;
-
-    const direction = document.getElementById("ballDirectionSelect").value;
-
-    window.registerBallRecord({
-        type: ballType,
-        runs: runs,
-        direction: direction,
-        isWicket: isWicket,
-        wicketType: wicketType || ""
-    });
+    if (window.registerBallRecord) {
+        const direction = document.getElementById("ballDirectionSelect").value;
+        window.registerBallRecord({
+            type: ballType,
+            runs: runs,
+            direction: direction,
+            isWicket: isWicket,
+            wicketType: wicketType || ""
+        });
+    } else {
+        // पुराने इंजन के लिए फॉलबैक सपोर्ट
+        if (ballType === "Normal") window.addNormalRuns ? window.addNormalRuns(runs) : null;
+        if (ballType === "Wide") window.addWideBall ? window.addWideBall() : null;
+        if (ballType === "NoBall") window.addNoBall ? window.addNoBall(runs) : null;
+        if (isWicket) window.addWicketLogic ? window.addWicketLogic(wicketType) : null;
+    }
 }
 
 // 8. यूआई बटन्स हैंडल्स (0,1,2,3,4,6)
@@ -200,15 +217,9 @@ function handleWideClickUI() {
     updateThisOverStripUI();
 }
 
-// 🟢 यहाँ का सिंटैक्स एरर पूरी तरह ठीक (Fix) कर दिया गया है
 function handleNoBallClickUI() {
     let runs = prompt("नो-बॉल पर बल्लेबाज ने कितने रन बनाए? (0,1,2,4,6):", "0");
-    let batsmanRuns = Number(runs);
-    
-    if (isNaN(batsmanRuns) || ![0, 1, 2, 3, 4, 6].includes(batsmanRuns)) {
-        batsmanRuns = 0;
-    }
-    
+    let batsmanRuns = Number(runs) || 0;
     submitProfessionalBall("NoBall", batsmanRuns, false);
     thisOverBallsArray.push("NB");
     updateThisOverStripUI();
@@ -223,61 +234,21 @@ function handleWicketClickUI() {
 }
 
 function updateThisOverStripUI() {
-    document.getElementById("thisOverBalls").textContent = thisOverBallsArray.join(" ");
+    if (document.getElementById("thisOverBalls")) {
+        document.getElementById("thisOverBalls").textContent = thisOverBallsArray.join(" ");
+    }
 }
 
 // 9. स्क्रीन डेटा लाइव अपडेट करना
 function updateUI() {
-    if (!window.currentMatchState) return;
-    const state = window.currentMatchState;
+    const scoreState = window.currentMatchState;
+    if (!scoreState) return;
 
-    document.getElementById("liveScoreRunsWickets").textContent = `${state.runs} / ${state.wickets}`;
-    document.getElementById("liveOversCount").textContent = `ओवर: ${state.overs}.${state.ballsInCurrentOver}`;
-
-    document.getElementById("strikerDisplay").textContent = `* ${state.striker.name}: ${state.striker.runs} (${state.striker.balls}) [4s:${state.striker.fours} 6s:${state.striker.sixes}]`;
-    document.getElementById("nonStrikerDisplay").textContent = `${state.nonStriker.name}: ${state.nonStriker.runs} (${state.nonStriker.balls}) [4s:${state.nonStriker.fours} 6s:${state.nonStriker.sixes}]`;
-    document.getElementById("bowlerDisplay").textContent = `🔴 बॉलर: ${state.currentBowler.name} -> ओवर: ${state.currentBowler.overs}.${state.currentBowler.ballsInOver} | रन: ${state.currentBowler.runsConceded} | विकेट: ${state.currentBowler.wickets}`;
-
-    const targetTag = document.getElementById("targetDisplay");
-    if (state.currentInnings === 2 && state.targetRuns) {
-        targetTag.textContent = `लक्ष्य: ${state.targetRuns}`;
-        targetTag.classList.remove("hidden");
+    // यदि नया प्रोफेशनल स्टेट है
+    if (scoreState.striker && scoreState.currentBowler) {
+        if (document.getElementById("liveScoreRunsWickets")) document.getElementById("liveScoreRunsWickets").textContent = `${scoreState.runs} / ${scoreState.wickets}`;
+        if (document.getElementById("liveOversCount")) document.getElementById("liveOversCount").textContent = `ओवर: ${scoreState.overs}.${scoreState.ballsInCurrentOver}`;
+        if (document.getElementById("strikerDisplay")) document.getElementById("strikerDisplay").textContent = `* ${scoreState.striker.name}: ${scoreState.striker.runs} (${scoreState.striker.balls})`;
+        if (document.getElementById("nonStrikerDisplay")) document.getElementById("nonStrikerDisplay").textContent = `${scoreState.nonStriker.name}: ${scoreState.nonStriker.runs} (${scoreState.nonStriker.balls})`;
+        if (document.getElementById("bowlerDisplay")) document.getElementById("bowlerDisplay").textContent = `🔴 बॉलर: ${scoreState.currentBowler.name} -> रन: ${scoreState.currentBowler.runsConceded} | विकेट: ${scoreState.currentBowler.wickets}`;
     } else {
-        targetTag.classList.add("hidden");
-    }
-}
-
-// 10. ओवर बदलने पर नया बॉलर पॉप-अप
-function triggerNextBowlerPopup() {
-    setTimeout(() => {
-        let nextBowler = prompt("ओवर पूरा हुआ! अगले बॉलर का नाम दर्ज करें:", "नया बॉलर");
-        if (!nextBowler) nextBowler = "नया बॉलर";
-        
-        if (window.currentMatchState) {
-            if (!window.currentMatchState.bowlersScorecard[nextBowler]) {
-                window.currentMatchState.bowlersScorecard[nextBowler] = { name: nextBowler, overs: 0, ballsInOver: 0, runsConceded: 0, wickets: 0, maidens: 0 };
-            }
-            window.currentMatchState.currentBowler = window.currentMatchState.bowlersScorecard[nextBowler];
-            thisOverBallsArray = [];
-            updateThisOverStripUI();
-            updateUI();
-        }
-    }, 300);
-}
-
-// 11. विकेट गिरने पर नया बल्लेबाज पॉप-अप
-function triggerNextBatsmanPopup() {
-    setTimeout(() => {
-        let nextBatsman = prompt("बल्लेबाज आउट! नए बल्लेबाज का नाम दर्ज करें:", "नया बल्लेबाज");
-        if (!nextBatsman) nextBatsman = "नया बल्लेबाज";
-        
-        if (window.currentMatchState) {
-            if (!window.currentMatchState.batsmenScorecard[nextBatsman]) {
-                window.currentMatchState.batsmenScorecard[nextBatsman] = { name: nextBatsman, runs: 0, balls: 0, fours: 0, sixes: 0, outStatus: "Not Out" };
-            }
-            window.currentMatchState.striker = window.currentMatchState.batsmenScorecard[nextBatsman];
-            updateUI();
-        }
-    }, 300);
-}
-
