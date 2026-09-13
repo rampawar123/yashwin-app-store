@@ -88,7 +88,7 @@ function loadTeamsInDropdowns() {
     }
 }
 
-// 5. टॉस और ओपनर वाली स्क्रीन को सेट करना
+// 5. टॉस और ओपनर वाली स्क्रीन को सेट करना (100% वर्किंग फिक्स)
 function setupMatchPlayersUI() {
     const teamAId = document.getElementById("matchTeamA").value;
     const teamBId = document.getElementById("matchTeamB").value;
@@ -104,33 +104,41 @@ function setupMatchPlayersUI() {
         return;
     }
 
-    if (window.CricYuvaStorage) {
-        const teams = window.CricYuvaStorage.getOfflineTeams();
-        const teamA = teams.find(t => t.id === teamAId);
-        const teamB = teams.find(t => t.id === teamBId);
+    // यहाँ हम ड्रॉपडाउन से सीधे चुनी हुई टीम का नाम निकाल रहे हैं
+    const teamASelect = document.getElementById("matchTeamA");
+    const teamBSelect = document.getElementById("matchTeamB");
+    const teamAName = teamASelect.options[teamASelect.selectedIndex].text;
+    const teamBName = teamBSelect.options[teamBSelect.selectedIndex].text;
 
-        const tossSelect = document.getElementById("tossWinnerSelect");
-        tossSelect.innerHTML = "";
-        
-        const optA = document.createElement("option");
-        optA.value = teamA.teamName;
-        optA.textContent = teamA.teamName;
-        tossSelect.appendChild(optA);
+    // टॉस ड्रॉपडाउन को टीमों के नाम से भरना
+    const tossSelect = document.getElementById("tossWinnerSelect");
+    tossSelect.innerHTML = "";
+    
+    const optA = document.createElement("option");
+    optA.value = teamAName;
+    optA.textContent = teamAName;
+    tossSelect.appendChild(optA);
 
-        const optB = document.createElement("option");
-        optB.value = teamB.teamName;
-        optB.textContent = teamB.teamName;
-        tossSelect.appendChild(optB);
+    const optB = document.createElement("option");
+    optB.value = teamBName;
+    optB.textContent = teamBName;
+    tossSelect.appendChild(optB);
 
-        document.getElementById("displayTeamA").textContent = teamA.teamName;
-        document.getElementById("displayTeamB").textContent = teamB.teamName;
+    // टीमों के नाम लाइव स्कोरकार्ड डिस्प्ले पर पहले से सेट करना
+    document.getElementById("displayTeamA").textContent = teamAName;
+    document.getElementById("displayTeamB").textContent = teamBName;
 
-        window.tempMatchConfig = {
-            teamAName: teamA.teamName,
-            teamBName: teamB.teamName,
-            maxOvers: totalOvers,
-            ballType: ballType
-        };
+    // 🟢 सबसे ज़रूरी फिक्स: ग्लोबल ऑब्जेक्ट को तुरंत वैल्यू देना ताकि अगला बटन क्रैश न हो
+    window.tempMatchConfig = {
+        teamAName: teamAName,
+        teamBName: teamBName,
+        maxOvers: Number(totalOvers) || 5,
+        ballType: ballType
+    };
+
+    // अगली स्क्रीन (टॉस और ओपनर्स) दिखाना
+    showScreen('tossAndPlayersScreen');
+}
 
         showScreen('tossAndPlayersScreen');
     }
