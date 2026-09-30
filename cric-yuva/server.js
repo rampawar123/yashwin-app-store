@@ -1,5 +1,6 @@
 "use strict";
 
+const path = require("path");
 const express = require("express");
 const http = require("http");
 const crypto = require("crypto");
@@ -12,11 +13,20 @@ const { getDatabase } = require("./db");
 const app = express();
 const server = http.createServer(app);
 
+app.use((req, res, next) => {
+  if (req.url.startsWith("/cric-yuva/api/")) {
+    req.url = req.url.replace(/^\/cric-yuva/, "");
+  }
+  next();
+});
+
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-app.use(express.static(__dirname, { index: "index.html", maxAge: "1h" }));
+const rootDir = path.resolve(__dirname, "..");
+app.use(express.static(rootDir, { index: "index.html", maxAge: "1h" }));
+app.use("/cric-yuva", express.static(__dirname, { index: "index.html", maxAge: "1h" }));
 
 // Store active WebSocket connections for live matches
 const matchWsClients = new Map();
