@@ -15,38 +15,73 @@ jobs:
 
     steps:
 
+      # --------------------------------------------------
+      # 1. CHECKOUT
+      # --------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
+
+      # --------------------------------------------------
+      # 2. NODE.JS
+      # --------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
+
+      # --------------------------------------------------
+      # 3. JAVA 17
+      # --------------------------------------------------
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      
+
+
+      # --------------------------------------------------
+      # 4. ANDROID SDK
+      # --------------------------------------------------
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools'
 
+
+      # --------------------------------------------------
+      # 5. ANDROID SDK PACKAGES
+      # --------------------------------------------------
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+
+      # --------------------------------------------------
+      # 6. INSTALL BUBBLEWRAP
+      # --------------------------------------------------
       - name: Install Bubblewrap
         run: |
           npm install -g @bubblewrap/cli
 
+          echo "Bubblewrap version:"
+          bubblewrap --version
+
+
+      # --------------------------------------------------
+      # 7. CREATE SIGNING KEY
+      # --------------------------------------------------
       - name: Create CRIC YUVA signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+
         run: |
           rm -f cric-yuva.keystore
 
@@ -62,12 +97,18 @@ jobs:
             -validity 10000 \
             -dname "CN=CRIC YUVA, OU=YASHWIN, O=YASHWIN, L=Maharashtra, ST=Maharashtra, C=IN"
 
+
+      # --------------------------------------------------
+      # 8. CREATE TWA PROJECT
+      # --------------------------------------------------
       - name: Create CRIC YUVA TWA project
         run: |
           rm -rf twa-cric-yuva
+
           mkdir -p twa-cric-yuva
 
-          cp cric-yuva.keystore twa-cric-yuva/cric-yuva.keystore
+          cp cric-yuva.keystore \
+            twa-cric-yuva/cric-yuva.keystore
 
           cat > twa-cric-yuva/twa-manifest.json <<'EOF'
           {
@@ -75,49 +116,76 @@ jobs:
             "host": "rampawar123.github.io",
             "name": "CRIC YUVA",
             "launcherName": "CRIC YUVA",
+
             "display": "standalone",
+
             "themeColor": "#f98000",
+
             "navigationColor": "#101010",
             "navigationColorDark": "#101010",
+
             "navigationDividerColor": "#101010",
             "navigationDividerColorDark": "#101010",
+
             "backgroundColor": "#101010",
+
             "enableNotifications": true,
+
             "startUrl": "/yashwin-app-store/cric-yuva/",
+
             "iconUrl": "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/cric-yuva/cric-yuva-logo.png",
+
             "maskableIconUrl": "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/cric-yuva/cric-yuva-logo.png",
+
             "splashScreenFadeOutDuration": 300,
+
             "signingKey": {
               "path": "cric-yuva.keystore",
               "alias": "cricyuva"
             },
-            "appVersionName": "1.0",
+
+            "appVersion": "1.0",
             "appVersionCode": 1
           }
           EOF
 
+
+      # --------------------------------------------------
+      # 9. PREPARE BUBBLEWRAP
+      # --------------------------------------------------
       - name: Prepare Bubblewrap project
         run: |
           cd twa-cric-yuva
 
           mkdir -p ~/.bubblewrap
 
-          cat > ~/.bubblewrap/config.json <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
-          }
-          EOF
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME"
 
-          bubblewrap update \
+          # Configure Java and Android SDK paths
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
 
-            --manifest=twa-manifest.json \
-            --androidSdkPath="$ANDROID_HOME" \
-            --skipVersionUpgrade
+          echo "Running Bubblewrap doctor..."
 
           bubblewrap doctor
 
+          echo "Generating Android project..."
+
+          bubblewrap update \
+            --manifest=twa-manifest.json \
+            --skipVersionUpgrade
+
+
+      # --------------------------------------------------
+      # 10. BUILD APK
+      # --------------------------------------------------
       - name: Build CRIC YUVA APK
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+
         run: |
           cd twa-cric-yuva
 
@@ -125,16 +193,26 @@ jobs:
             --skipPwaValidation \
             --skipSigning
 
+
+      # --------------------------------------------------
+      # 11. FIND APK
+      # --------------------------------------------------
       - name: Find generated APK
         id: find_apk
         run: |
           echo "Searching for generated APK..."
 
-          APK_PATH=$(find twa-cric-yuva -type f -name "*.apk" | head -n 1)
+          APK_PATH=$(find twa-cric-yuva \
+            -type f \
+            -name "*.apk" \
+            | head -n 1)
 
           if [ -z "$APK_PATH" ]; then
             echo "ERROR: APK was not generated."
+
+            echo "Generated files:"
             find twa-cric-yuva -type f | sort
+
             exit 1
           fi
 
@@ -143,10 +221,15 @@ jobs:
 
           echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
 
+
+      # --------------------------------------------------
+      # 12. SIGN APK
+      # --------------------------------------------------
       - name: Sign CRIC YUVA APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+
         run: |
           mkdir -p output
 
@@ -160,12 +243,20 @@ jobs:
             --out output/CRIC-YUVA.apk \
             "$APK"
 
+
+      # --------------------------------------------------
+      # 13. VERIFY APK
+      # --------------------------------------------------
       - name: Verify CRIC YUVA APK
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
             --verbose \
             output/CRIC-YUVA.apk
 
+
+      # --------------------------------------------------
+      # 14. UPLOAD APK AS GITHUB ARTIFACT
+      # --------------------------------------------------
       - name: Upload CRIC YUVA APK
         uses: actions/upload-artifact@v4
         with:
@@ -173,6 +264,10 @@ jobs:
           path: output/CRIC-YUVA.apk
           if-no-files-found: error
 
+
+      # --------------------------------------------------
+      # 15. SAVE APK TO REPOSITORY
+      # --------------------------------------------------
       - name: Upload APK to repository
         run: |
           cp output/CRIC-YUVA.apk CRIC-YUVA.apk
@@ -182,6 +277,8 @@ jobs:
 
           git add CRIC-YUVA.apk
 
-          git commit -m "Update CRIC YUVA APK" || echo "No changes to commit"
+          git commit \
+            -m "Update CRIC YUVA APK" \
+            || echo "No changes to commit"
 
           git push
