@@ -2259,7 +2259,8 @@ document.addEventListener("DOMContentLoaded", function () {
           logoUrl: teamData.teamLogo || teamData.logo || "",
           city: teamData.city || "",
           captainName: teamData.captainName || "",
-          viceCaptainName: teamData.viceCaptainName || ""
+          viceCaptainName: teamData.viceCaptainName || "",
+          players: Array.isArray(teamData.players) ? teamData.players : []
         }) }).then(async result => {
           const cloudTeamId = result?.teamId || result?.team_id || result?.team?.teamId || result?.team?.team_id;
           if (!cloudTeamId) return;
@@ -2330,6 +2331,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // LocalStorage remains the fast UI cache; the server roster is authoritative.
     if (team.teamId && !team._cloudRosterHydrated && window.CricYuvaCloud && localStorage.getItem("cricYuvaCloudToken")) {
       team._cloudRosterHydrated = true;
+      // First hydrate manual/name-only players stored inside the team's data_json.
+      window.CricYuvaCloud.request(`/api/teams/${encodeURIComponent(team.teamId)}`).then(teamResp => {
+        const cloudTeam = teamResp?.team || {};
+        const savedPlayers = Array.isArray(cloudTeam?.data_json?.players)
+          ? cloudTeam.data_json.players
+          : (Array.isArray(cloudTeam?.players) ? cloudTeam.players : []);
+        if (savedPlayers.length) {
+          const byKey = new Map((team.players || []).map(p => [String(p.id || p.playerId || p.name || "").toLowerCase(), p]));
+          savedPlayers.forEach(cp => {
+            const key = String(cp.id || cp.playerId || cp.name || "").toLowerCase();
+            if (!key) return;
+            byKey.set(key, { ...byKey.get(key), ...cp });
+          });
+          team.players = [...byKey.values()];
+          setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(team));
+          try { localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(team)); } catch (_) {}
+        }
+      }).catch(e => { if (!isStaticApiError(e)) console.warn("Team data hydrate failed:", e); });
       window.CricYuvaCloud.request(`/api/teams/${encodeURIComponent(team.teamId)}/players`).then(data => {
         const cloudPlayers = Array.isArray(data?.players) ? data.players : [];
         const byId = new Map(team.players.map(p => [String(p.playerId || p.player_id || p.id || ""), p]));
@@ -2463,6 +2482,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   <div class="player-name-row">
                     <strong>${player.name}</strong>
                     ${player.jersey ? `<span class="player-jersey-badge">#${player.jersey}</span>` : ""}
+                  </div>
+                  <div style="font-size:10px;color:#8c93a4;margin-top:3px;">
+                    ${player.city ? `📍 ${escapeHtml(player.city)}` : ""}
+                    ${player.mobile ? ` ${player.city ? ' • ' : ''}📱 ${escapeHtml(player.mobile)}` : ""}
+                    ${player.jerseySize ? ` • 👕 ${escapeHtml(player.jerseySize)}` : ""}
                   </div>
                   <div class="player-role-tags">
                     ${player.isCaptain ? '<span class="role-badge captain-tag">👑 Captain</span>' : ""}
@@ -2610,6 +2634,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (btnCreateTeamOpen) btnCreateTeamOpen.addEventListener("click", () => openTeamModal(false));
+  const btnCreateAnotherTeam = document.getElementById("btnCreateAnotherTeam");
+  if (btnCreateAnotherTeam) btnCreateAnotherTeam.addEventListener("click", () => {
+    // The current app supports one active My Team profile. This opens the
+    // same create flow with a clean form, without touching the existing squad
+    // until the user explicitly saves.
+    openTeamModal(false);
+  });
   if (btnEditTeamOpen) btnEditTeamOpen.addEventListener("click", () => openTeamModal(true));
   if (teamTopActionBtn) teamTopActionBtn.addEventListener("click", () => openTeamModal(true));
 
@@ -2724,6 +2755,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const playerPhotoPickerBox = document.getElementById("playerPhotoPickerBox");
   const playerPhotoModalPreview = document.getElementById("playerPhotoModalPreview");
   const inputPlayerName = document.getElementById("inputPlayerName");
+  const inputPlayerMobile = document.getElementById("inputPlayerMobile");
+  const inputPlayerEmail = document.getElementById("inputPlayerEmail");
+  const inputPlayerJerseyName = document.getElementById("inputPlayerJerseyName");
+  const inputPlayerJerseySize = document.getElementById("inputPlayerJerseySize");
+  const inputPlayerDob = document.getElementById("inputPlayerDob");
+  const inputPlayerCity = document.getElementById("inputPlayerCity");
+  const inputPlayerBattingStyle = document.getElementById("inputPlayerBattingStyle");
+  const inputPlayerBowlingStyle = document.getElementById("inputPlayerBowlingStyle");
   const selectPlayerRole = document.getElementById("selectPlayerRole");
   const inputPlayerJersey = document.getElementById("inputPlayerJersey");
   const checkIsCaptain = document.getElementById("checkIsCaptain");
@@ -2760,8 +2799,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (playerModalTitle) playerModalTitle.textContent = "Add Squad Player";
     if (editPlayerId) editPlayerId.value = "";
     const manualFields = document.getElementById("manualSquadPlayerFields");
-    if (manualFields) manualFields.style.display = "none";
+    if (manualFields) manualFields.style.display = "block";
     if (inputPlayerName) inputPlayerName.value = "";
+    if (inputPlayerMobile) inputPlayerMobile.value = "";
+    if (inputPlayerEmail) inputPlayerEmail.value = "";
+    if (inputPlayerJerseyName) inputPlayerJerseyName.value = "";
+    if (inputPlayerJerseySize) inputPlayerJerseySize.value = "";
+    if (inputPlayerDob) inputPlayerDob.value = "";
+    if (inputPlayerCity) inputPlayerCity.value = "";
+    if (inputPlayerBattingStyle) inputPlayerBattingStyle.value = "";
+    if (inputPlayerBowlingStyle) inputPlayerBowlingStyle.value = "";
     if (selectPlayerRole) selectPlayerRole.value = "Batsman";
     if (inputPlayerJersey) inputPlayerJersey.value = "";
     if (checkIsCaptain) checkIsCaptain.checked = false;
@@ -2789,6 +2836,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (manualFields) manualFields.style.display = "block";
     if (editPlayerId) editPlayerId.value = player.id;
     if (inputPlayerName) inputPlayerName.value = player.name || "";
+    if (inputPlayerMobile) inputPlayerMobile.value = player.mobile || "";
+    if (inputPlayerEmail) inputPlayerEmail.value = player.email || "";
+    if (inputPlayerJerseyName) inputPlayerJerseyName.value = player.jerseyName || player.name || "";
+    if (inputPlayerJerseySize) inputPlayerJerseySize.value = player.jerseySize || "";
+    if (inputPlayerDob) inputPlayerDob.value = player.dateOfBirth || player.birthdate || "";
+    if (inputPlayerCity) inputPlayerCity.value = player.city || "";
+    if (inputPlayerBattingStyle) inputPlayerBattingStyle.value = player.battingStyle || "";
+    if (inputPlayerBowlingStyle) inputPlayerBowlingStyle.value = player.bowlingStyle || "";
     if (selectPlayerRole) selectPlayerRole.value = player.role || "Batsman";
     if (inputPlayerJersey) inputPlayerJersey.value = player.jersey || "";
     if (checkIsCaptain) checkIsCaptain.checked = !!player.isCaptain;
@@ -2962,6 +3017,14 @@ document.addEventListener("DOMContentLoaded", function () {
     playerForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const pName = inputPlayerName.value.trim();
+      const pMobile = inputPlayerMobile ? inputPlayerMobile.value.trim() : "";
+      const pEmail = inputPlayerEmail ? inputPlayerEmail.value.trim() : "";
+      const pJerseyName = inputPlayerJerseyName ? inputPlayerJerseyName.value.trim() : pName;
+      const pJerseySize = inputPlayerJerseySize ? inputPlayerJerseySize.value.trim() : "";
+      const pDob = inputPlayerDob ? inputPlayerDob.value.trim() : "";
+      const pCity = inputPlayerCity ? inputPlayerCity.value.trim() : "";
+      const pBattingStyle = inputPlayerBattingStyle ? inputPlayerBattingStyle.value.trim() : "";
+      const pBowlingStyle = inputPlayerBowlingStyle ? inputPlayerBowlingStyle.value.trim() : "";
       const pRole = selectPlayerRole.value;
       const pJersey = inputPlayerJersey.value.trim();
       const isCap = checkIsCaptain.checked;
@@ -2996,34 +3059,42 @@ document.addEventListener("DOMContentLoaded", function () {
           player.name = pName;
           player.role = pRole;
           player.jersey = pJersey;
-          if (selectedRegisteredPlayerForSquad) {
-            const reg = selectedRegisteredPlayerForSquad;
-            player.playerId = String(reg.playerId || reg.player_id || reg.id || player.playerId || "");
-            player.userId = reg.userId || reg.user_id || player.userId || null;
-            player.mobile = reg.mobile || player.mobile || "";
-            player.email = reg.email || player.email || "";
-            player.dateOfBirth = reg.dateOfBirth || reg.birthdate || reg.date_of_birth || player.dateOfBirth || "";
-            player.jerseyName = reg.jerseyName || reg.jersey_name || player.jerseyName || pName;
-            player.jerseySize = reg.jerseySize || reg.jersey_size || player.jerseySize || "";
-          }
+          player.mobile = pMobile;
+          player.email = pEmail;
+          player.dateOfBirth = pDob;
+          player.city = pCity;
+          player.jerseyName = pJerseyName || pName;
+          player.jerseySize = pJerseySize;
+          player.battingStyle = pBattingStyle;
+          player.bowlingStyle = pBowlingStyle;
+          // Manual team players do not receive a registered Player ID.
+          delete player.playerId;
+          delete player.userId;
           player.isCaptain = isCap;
           player.isViceCaptain = isVC;
           if (tempPlayerPhotoDataUrl) player.photo = tempPlayerPhotoDataUrl;
         }
       } else {
         // Add new player
-        const reg = selectedRegisteredPlayerForSquad;
         const newPlayer = {
-          id: reg ? ("squad_" + String(reg.playerId || reg.player_id || reg.id || Date.now())) : ("p_" + Date.now()),
-          playerId: reg ? String(reg.playerId || reg.player_id || reg.id || "") : "",
-          userId: reg ? (reg.userId || reg.user_id || null) : null,
-          name: pName, mobile: reg?.mobile || "", email: reg?.email || "",
-          dateOfBirth: reg?.dateOfBirth || reg?.birthdate || reg?.date_of_birth || "",
-          role: pRole, jersey: pJersey,
-          jerseyName: reg?.jerseyName || reg?.jersey_name || pName,
-          jerseySize: reg?.jerseySize || reg?.jersey_size || "",
-          isCaptain: isCap, isViceCaptain: isVC,
-          photo: tempPlayerPhotoDataUrl || reg?.photoUrl || reg?.photo_url || reg?.profile_photo || reg?.photo || ""
+          // Internal local key used only for editing/removing the squad card.
+          // It is NOT a Cric Yuva Player ID and is never shown as an ID.
+          id: "local_player_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+          name: pName,
+          mobile: pMobile,
+          email: pEmail,
+          dateOfBirth: pDob,
+          city: pCity,
+          role: pRole,
+          jersey: pJersey,
+          jerseyName: pJerseyName || pName,
+          jerseySize: pJerseySize,
+          battingStyle: pBattingStyle,
+          bowlingStyle: pBowlingStyle,
+          isCaptain: isCap,
+          isViceCaptain: isVC,
+          inPlayingXI: true,
+          photo: tempPlayerPhotoDataUrl || ""
         };
         team.players.push(newPlayer);
       }
@@ -3093,8 +3164,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputGroundName = document.getElementById("inputGroundName");
   const inputMatchDate = document.getElementById("inputMatchDate");
   const inputMatchTime = document.getElementById("inputMatchTime");
-  const scoreModeRadios = document.querySelectorAll('input[name="scoreModeRadio"]');
-  const liveScoreModeTag = document.getElementById("liveScoreModeTag");
   const oversChips = document.querySelectorAll(".overs-chip");
 
   const btnGoToStep2 = document.getElementById("btnGoToStep2");
@@ -3880,21 +3949,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function getSelectedScoreMode() {
-    const el = document.querySelector('input[name="scoreModeRadio"]:checked');
-    return el?.value === "online" ? "online" : "offline";
-  }
-
-  function isOnlineScoreMode(match) {
-    return String(match?.scoreMode || "offline").toLowerCase() === "online";
-  }
-
-  function updateScoreModeBadge(match) {
-    if (!liveScoreModeTag) return;
-    const online = isOnlineScoreMode(match);
-    liveScoreModeTag.textContent = online ? "☁️ ONLINE LIVE SCORE" : "📱 OFFLINE SCORE";
-  }
-
   // START MATCH (FINAL LAUNCH)
   if (btnFinalStartMatch) {
     btnFinalStartMatch.addEventListener("click", async function () {
@@ -3925,8 +3979,6 @@ document.addEventListener("DOMContentLoaded", function () {
         matchId: "match_" + Date.now(),
         title: matchTitle,
         type: matchType,
-        scoreMode: getSelectedScoreMode(),
-        syncStatus: getSelectedScoreMode() === "online" ? "PENDING" : "LOCAL_ONLY",
         tournament: tournament,
         fixtureId: window.activeLinkedFixtureId || null,
         tourneyId: window.activeLinkedTourneyId || null,
@@ -4028,37 +4080,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return null;
   }
 
-  const MATCH_SYNC_QUEUE_KEY = "cricYuvaMatchSyncQueue";
-
-  function readMatchSyncQueue() {
-    try {
-      const raw = getUserStorage(MATCH_SYNC_QUEUE_KEY, "[]");
-      const q = JSON.parse(raw || "[]");
-      return Array.isArray(q) ? q : [];
-    } catch (_) { return []; }
-  }
-
-  function writeMatchSyncQueue(queue) {
-    try { setUserStorage(MATCH_SYNC_QUEUE_KEY, JSON.stringify(queue || [])); } catch (_) {}
-  }
-
-  function queueMatchForSync(match) {
-    if (!match || !isOnlineScoreMode(match)) return;
-    const queue = readMatchSyncQueue();
-    const item = { clientMatchId: match.matchId, state: JSON.parse(JSON.stringify(match)), queuedAt: Date.now() };
-    const idx = queue.findIndex(x => x.clientMatchId === match.matchId);
-    if (idx >= 0) queue[idx] = item; else queue.push(item);
-    writeMatchSyncQueue(queue.slice(-20));
-  }
-
   async function syncActiveMatchStateToCloud(match) {
-    if (!match || !isOnlineScoreMode(match)) return false;
-    if (!window.CricYuvaCloud || !localStorage.getItem("cricYuvaCloudToken")) {
-      match.syncStatus = "PENDING_LOGIN";
-      queueMatchForSync(match);
-      return false;
-    }
     try {
+      if (!match || !window.CricYuvaCloud || !localStorage.getItem("cricYuvaCloudToken")) return;
       const teamA = match.teamA || {}; const teamB = match.teamB || {};
       const state = JSON.parse(JSON.stringify(match));
       const result = await window.CricYuvaCloud.request("/api/matches/sync-state", {
@@ -4074,44 +4098,25 @@ document.addEventListener("DOMContentLoaded", function () {
           state
         })
       });
-      match.serverMatchId = result?.matchId || match.serverMatchId || null;
-      match.syncStatus = "SYNCED";
-      writeMatchSyncQueue(readMatchSyncQueue().filter(x => x.clientMatchId !== match.matchId));
-      setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
-      return true;
+      if (result?.matchId && !match.serverMatchId) {
+        match.serverMatchId = result.matchId;
+        setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
+      }
     } catch (e) {
-      match.syncStatus = "PENDING";
-      queueMatchForSync(match);
-      if (!isStaticApiError(e)) console.warn("Match cloud sync pending:", e);
-      return false;
+      // Cloud persistence is best-effort; local scoring must never stop because the API is offline.
+      if (!isStaticApiError(e)) console.warn("Match cloud sync failed:", e);
     }
   }
-
-  async function syncPendingMatches() {
-    if (!navigator.onLine) return;
-    const queue = readMatchSyncQueue();
-    for (const item of queue.slice()) {
-      const m = item?.state;
-      if (!m || !isOnlineScoreMode(m)) continue;
-      await syncActiveMatchStateToCloud(m);
-    }
-  }
-
-  window.addEventListener("online", syncPendingMatches);
-  setTimeout(syncPendingMatches, 1500);
 
   function saveActiveMatchState(match) {
     if (!match) return;
     try {
       setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
-      updateScoreModeBadge(match);
-      updateHomeLiveScoreboard(match);
-      if (isOnlineScoreMode(match)) {
-        if (typeof PublicLiveScoreService !== "undefined" && PublicLiveScoreService.emitLiveUpdate) {
-          try { PublicLiveScoreService.emitLiveUpdate(match); } catch (_) {}
-        }
-        syncActiveMatchStateToCloud(match);
+      if (typeof PublicLiveScoreService !== "undefined" && PublicLiveScoreService.emitLiveUpdate) {
+        PublicLiveScoreService.emitLiveUpdate(match);
       }
+      updateHomeLiveScoreboard(match);
+      syncActiveMatchStateToCloud(match);
     } catch (e) {
       console.error("Error saving active match:", e);
     }
@@ -4287,7 +4292,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function renderLiveScoringPage(match) {
-    updateScoreModeBadge(match);
     if (!match) match = getActiveMatch();
     if (!match) return;
 
@@ -19258,7 +19262,6 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
   window.openBroadcastCenterModal = openBroadcastCenterModal;
   window.openPlayerProfileDetailModal = openPlayerProfileDetailModal;
   window.PublicLiveScoreService = PublicLiveScoreService;
-  window.CricYuvaSyncPendingMatches = syncPendingMatches;
   window.RealtimeLiveService = RealtimeLiveService;
   window.VideoBroadcastManager = VideoBroadcastManager;
   window.VideoViewerManager = VideoViewerManager;

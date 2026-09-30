@@ -787,7 +787,10 @@
  </div>
 
  <!-- TEAM FOOTER ACTIONS -->
- <div class="team-footer-actions">
+ <div class="team-footer-actions" style="display:flex;gap:8px;flex-wrap:wrap;">
+ <button type="button" class="btn-create-team-primary" id="btnCreateAnotherTeam" style="flex:1;min-width:160px;">
+ <i class="fa-solid fa-plus"></i> CREATE / ADD TEAM
+ </button>
  <button type="button" class="btn-reset-team" id="btnResetTeam">
  <i class="fa-solid fa-rotate-right"></i> Reset Squad
  </button>
@@ -980,24 +983,6 @@
  <input type="time" id="inputMatchTime" required>
  </div>
  </div>
- </div>
-
- <!-- SCORE MODE: OFFLINE / ONLINE -->
- <div class="form-group-field">
-  <label class="form-label-styled">Score Mode <span class="req">*</span></label>
-  <div class="pill-toggle-group" id="scoreModeGroup">
-   <label class="pill-toggle-label">
-    <input type="radio" name="scoreModeRadio" value="offline" checked>
-    <span class="pill-toggle-btn"><i class="fa-solid fa-mobile-screen-button"></i> Offline Score</span>
-   </label>
-   <label class="pill-toggle-label">
-    <input type="radio" name="scoreModeRadio" value="online">
-    <span class="pill-toggle-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Online Live Score</span>
-   </label>
-  </div>
-  <div style="font-size:11px;color:#777;margin-top:7px;line-height:1.5;">
-   Offline saves the complete score on this device. Online saves locally first and syncs live to the Cric Yuva server when internet/login is available.
-  </div>
  </div>
 
  <!-- ACTION BUTTON TO GO TO STEP 2 -->
@@ -1264,7 +1249,6 @@
  <div class="live-match-hero-card">
  <div class="hero-card-top">
  <span class="tournament-tag" id="liveScoreTournamentTag">🏆 Cric Yuva Championship</span>
-              <span class="tournament-tag" id="liveScoreModeTag" style="margin-left:6px;">📱 OFFLINE SCORE</span>
  <span class="match-venue-tag" id="liveScoreVenueTag"><i class="fa-solid fa-location-dot"></i> No live ground</span>
  </div>
 
@@ -3623,17 +3607,10 @@
 
  <form id="playerForm" class="modal-form">
 
- <!-- REGISTERED ACCOUNT SEARCH -->
- <div id="registeredPlayerQuickSearch" style="background:#0f131c;border:1px solid #293249;border-radius:12px;padding:12px;margin-bottom:12px;">
-   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
-     <div style="color:#ff7a00;font-weight:800;font-size:13px;"><i class="fa-solid fa-user-check"></i> ADD REGISTERED PLAYER</div>
-     <span style="font-size:10px;color:#7f8aa3;">Name • Mobile • Player ID</span>
-   </div>
-   <div style="position:relative;">
-     <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:12px;color:#64748b;"></i>
-     <input type="text" id="inputQuickRegisteredPlayerSearch" placeholder="Search real user by name, mobile or ID..." style="width:100%;box-sizing:border-box;background:#090c12;border:1px solid #30394e;color:#fff;padding:10px 12px 10px 36px;border-radius:9px;outline:none;font-size:12px;">
-   </div>
-   <div id="quickRegisteredPlayerResults" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:180px;overflow:auto;"></div>
+ <!-- MANUAL PLAYER PROFILE -->
+ <div style="background:#0f131c;border:1px solid #293249;border-radius:12px;padding:12px;margin-bottom:12px;">
+   <div style="color:#ff7a00;font-weight:900;font-size:13px;"><i class="fa-solid fa-user-plus"></i> ADD PLAYER TO TEAM</div>
+   <div style="font-size:10.5px;color:#94a3b8;margin-top:4px;line-height:1.45;">Player ko sirf naam aur profile details se team me add karein. Registered Player ID ki zarurat nahi hai.</div>
  </div>
  
  <div id="manualSquadPlayerFields">
@@ -3660,19 +3637,15 @@
  </div>
  </div>
 
- <!-- ROLE DROPDOWN -->
- <!-- REGISTERED PROFILE DETAILS (AUTO-FILLED) -->
- <div id="registeredProfileAutoDetails" style="display:none;background:#101722;border:1px solid #293249;border-radius:12px;padding:10px;margin-bottom:10px;">
-   <div style="font-size:11px;color:#ff7a00;font-weight:900;margin-bottom:7px;"><i class="fa-solid fa-circle-check"></i> REGISTERED PROFILE — AUTO FILLED</div>
-   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;color:#cbd5e1;">
-     <div>🆔 <b>Player ID:</b> <span id="autoPlayerId">—</span></div>
-     <div>📱 <b>Mobile:</b> <span id="autoPlayerMobile">—</span></div>
-     <div>👕 <b>Jersey:</b> <span id="autoPlayerJerseyName">—</span></div>
-     <div>🔢 <b>No:</b> <span id="autoPlayerJerseyNumber">—</span></div>
-     <div>📏 <b>Size:</b> <span id="autoPlayerJerseySize">—</span></div>
-     <div>✉️ <b>Email:</b> <span id="autoPlayerEmail">—</span></div>
-   </div>
-   <div style="font-size:10px;color:#94a3b8;margin-top:6px;">DOB: <span id="autoPlayerDob">—</span></div>
+ <!-- PLAYER PROFILE DETAILS -->
+ <div class="form-group">
+ <label for="inputPlayerMobile" class="form-label">Mobile Number (Optional)</label>
+ <div class="modal-input-box"><i class="fa-solid fa-mobile-screen-button"></i><input type="tel" id="inputPlayerMobile" placeholder="10-digit mobile"></div>
+ </div>
+
+ <div class="form-group">
+ <label for="inputPlayerEmail" class="form-label">Email (Optional)</label>
+ <div class="modal-input-box"><i class="fa-solid fa-envelope"></i><input type="email" id="inputPlayerEmail" placeholder="player@email.com"></div>
  </div>
 
  <div class="form-group">
@@ -3695,6 +3668,39 @@
  <i class="fa-solid fa-shirt"></i>
  <input type="number" id="inputPlayerJersey" placeholder="e.g. 18, 45, 7" min="0" max="999">
  </div>
+ </div>
+
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+   <div class="form-group">
+    <label for="inputPlayerJerseyName" class="form-label">Jersey Name</label>
+    <div class="modal-input-box"><i class="fa-solid fa-shirt"></i><input type="text" id="inputPlayerJerseyName" placeholder="Name on jersey"></div>
+   </div>
+   <div class="form-group">
+    <label for="inputPlayerJerseySize" class="form-label">Jersey Size</label>
+    <div class="modal-input-box"><i class="fa-solid fa-ruler"></i><select id="inputPlayerJerseySize"><option value="">Select</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>XXXL</option></select></div>
+   </div>
+ </div>
+
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+   <div class="form-group">
+    <label for="inputPlayerDob" class="form-label">Date of Birth</label>
+    <div class="modal-input-box"><i class="fa-solid fa-calendar"></i><input type="date" id="inputPlayerDob"></div>
+   </div>
+   <div class="form-group">
+    <label for="inputPlayerCity" class="form-label">City / Village</label>
+    <div class="modal-input-box"><i class="fa-solid fa-location-dot"></i><input type="text" id="inputPlayerCity" placeholder="City / Village"></div>
+   </div>
+ </div>
+
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+   <div class="form-group">
+    <label for="inputPlayerBattingStyle" class="form-label">Batting Style</label>
+    <div class="modal-input-box"><i class="fa-solid fa-baseball-bat-ball"></i><select id="inputPlayerBattingStyle"><option value="">Select</option><option>Right Hand</option><option>Left Hand</option></select></div>
+   </div>
+   <div class="form-group">
+    <label for="inputPlayerBowlingStyle" class="form-label">Bowling Style</label>
+    <div class="modal-input-box"><i class="fa-solid fa-bowling-ball"></i><select id="inputPlayerBowlingStyle"><option value="">Select</option><option>Right-arm Fast</option><option>Left-arm Fast</option><option>Right-arm Medium</option><option>Left-arm Medium</option><option>Right-arm Spin</option><option>Left-arm Spin</option></select></div>
+   </div>
  </div>
 
  <!-- DESIGNATIONS (C / VC) -->
