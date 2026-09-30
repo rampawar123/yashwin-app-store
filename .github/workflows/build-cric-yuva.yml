@@ -59,8 +59,8 @@ jobs:
 
           sdkmanager \
             "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
+            "platforms;android-36" \
+            "build-tools;36.1.0"
 
 
       # --------------------------------------------------
@@ -68,14 +68,39 @@ jobs:
       # --------------------------------------------------
       - name: Install Bubblewrap
         run: |
-          npm install -g @bubblewrap/cli
+          npm install -g @bubblewrap/cli@1.25.0
 
 
       # --------------------------------------------------
-      # 7. CONFIGURE BUBBLEWRAP BEFORE FIRST RUN
+      # 7. CONFIGURE BUBBLEWRAP
       # --------------------------------------------------
       - name: Configure Bubblewrap
         run: |
+          set -e
+
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+
+          echo "Checking Android SDK command-line tools..."
+
+          test -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+
+          mkdir -p "$ANDROID_HOME/tools"
+
+          ln -sfn \
+            "$ANDROID_HOME/cmdline-tools/latest/bin" \
+            "$ANDROID_HOME/bin"
+
+          ln -sfn \
+            "$ANDROID_HOME/cmdline-tools/latest/bin" \
+            "$ANDROID_HOME/tools/bin"
+
+          echo "Checking Build Tools..."
+
+          test -d "$ANDROID_HOME/build-tools/36.1.0"
+          test -f "$ANDROID_HOME/build-tools/36.1.0/apksigner"
+          test -f "$ANDROID_HOME/build-tools/36.1.0/zipalign"
+
           mkdir -p ~/.bubblewrap
 
           cat > ~/.bubblewrap/config.json <<EOF
@@ -88,6 +113,11 @@ jobs:
           echo "Bubblewrap configuration:"
           cat ~/.bubblewrap/config.json
 
+          echo "SDK compatibility layout:"
+          ls -la "$ANDROID_HOME" | head -40
+          ls -la "$ANDROID_HOME/bin"
+          ls -la "$ANDROID_HOME/tools/bin"
+
 
       # --------------------------------------------------
       # 8. CREATE SIGNING KEY
@@ -98,6 +128,8 @@ jobs:
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
 
         run: |
+          set -e
+
           rm -f cric-yuva.keystore
 
           keytool -genkeypair \
@@ -118,8 +150,9 @@ jobs:
       # --------------------------------------------------
       - name: Create CRIC YUVA TWA project
         run: |
-          rm -rf twa-cric-yuva
+          set -e
 
+          rm -rf twa-cric-yuva
           mkdir -p twa-cric-yuva
 
           cp cric-yuva.keystore \
@@ -129,61 +162,62 @@ jobs:
           {
             "packageId": "com.yashwin.cricyuva",
             "host": "rampawar123.github.io",
-
             "name": "CRIC YUVA",
             "launcherName": "CRIC YUVA",
-
             "display": "standalone",
-
             "themeColor": "#f98000",
-
             "navigationColor": "#101010",
             "navigationColorDark": "#101010",
-
             "navigationDividerColor": "#101010",
             "navigationDividerColorDark": "#101010",
-
             "backgroundColor": "#101010",
-
             "enableNotifications": true,
-
             "startUrl": "/yashwin-app-store/cric-yuva/",
-
             "iconUrl": "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/cric-yuva/cric-yuva-logo.png",
-
             "maskableIconUrl": "https://raw.githubusercontent.com/rampawar123/yashwin-app-store/main/cric-yuva/cric-yuva-logo.png",
-
             "splashScreenFadeOutDuration": 300,
-
             "signingKey": {
               "path": "cric-yuva.keystore",
               "alias": "cricyuva"
             },
-
             "appVersion": "1.0",
             "appVersionCode": 1
           }
           EOF
+
+          echo "TWA manifest:"
+          cat twa-manifest.json
 
 
       # --------------------------------------------------
       # 10. PREPARE BUBBLEWRAP PROJECT
       # --------------------------------------------------
       - name: Prepare Bubblewrap project
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+
         run: |
+          set -e
+
           cd twa-cric-yuva
 
-          echo "Checking Java..."
+          echo "Java:"
           java -version
 
-          echo "Checking Android SDK..."
+          echo "Android SDK:"
           echo "$ANDROID_HOME"
+
+          echo "Checking Bubblewrap prerequisites..."
+
+          test -d "$ANDROID_HOME/build-tools/36.1.0"
+          test -f "$ANDROID_HOME/bin/sdkmanager"
 
           echo "Running Bubblewrap doctor..."
 
           bubblewrap doctor
 
-          echo "Updating Bubblewrap project..."
+          echo "Generating Android project from twa-manifest.json..."
 
           bubblewrap update \
             --manifest=twa-manifest.json \
@@ -194,7 +228,13 @@ jobs:
       # 11. BUILD CRIC YUVA APK
       # --------------------------------------------------
       - name: Build CRIC YUVA APK
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+
         run: |
+          set -e
+
           cd twa-cric-yuva
 
           bubblewrap build \
@@ -208,6 +248,8 @@ jobs:
       - name: Find generated APK
         id: find_apk
         run: |
+          set -e
+
           echo "Searching for generated APK..."
 
           APK_PATH=$(find twa-cric-yuva \
@@ -239,11 +281,13 @@ jobs:
           KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
 
         run: |
+          set -e
+
           mkdir -p output
 
           APK="${{ steps.find_apk.outputs.apk_path }}"
 
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign \
+          "$ANDROID_HOME/build-tools/36.1.0/apksigner" sign \
             --ks twa-cric-yuva/cric-yuva.keystore \
             --ks-key-alias cricyuva \
             --ks-pass env:KEYSTORE_PASSWORD \
@@ -257,13 +301,15 @@ jobs:
       # --------------------------------------------------
       - name: Verify CRIC YUVA APK
         run: |
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
+          set -e
+
+          "$ANDROID_HOME/build-tools/36.1.0/apksigner" verify \
             --verbose \
             output/CRIC-YUVA.apk
 
 
       # --------------------------------------------------
-      # 15. UPLOAD APK AS ARTIFACT
+      # 15. UPLOAD APK AS GITHUB ARTIFACT
       # --------------------------------------------------
       - name: Upload CRIC YUVA APK
         uses: actions/upload-artifact@v4
@@ -278,6 +324,8 @@ jobs:
       # --------------------------------------------------
       - name: Upload APK to repository
         run: |
+          set -e
+
           cp output/CRIC-YUVA.apk CRIC-YUVA.apk
 
           git config user.name "github-actions[bot]"
