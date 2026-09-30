@@ -1860,7 +1860,86 @@ app.delete("/api/tournaments/:tournamentId", requireAuth, async (req, res) => {
   }
 });
 
-// Team roster relationship endpoints: the registered Player Master is the source of truth.\napp.get("/api/teams/:teamId/players", requireAuth, async (req,res)=>{\n  try {\n    const sql=await getDatabase();\n    const teamId=String(req.params.teamId||"").trim();\n    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;\n    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});\n    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});\n    const rows=await sql`SELECT tp.*,p.player_id,p.user_id,p.name,p.mobile,p.jersey_name,p.jersey_number,p.jersey_size,p.role,p.email,p.birthdate,p.photo_url FROM team_players tp JOIN players p ON p.player_id=tp.player_id WHERE tp.team_id=${teamId} AND p.is_active IS NOT FALSE ORDER BY tp.playing_xi DESC,tp.jersey_number NULLS LAST,p.name`;\n    res.json({ok:true,success:true,count:rows.length,players:rows});\n  } catch(e){res.status(500).json({ok:false,error:e.message});}\n});\n\napp.post("/api/teams/:teamId/players", requireAuth, async (req,res)=>{\n  try {\n    const sql=await getDatabase();\n    const teamId=String(req.params.teamId||"").trim();\n    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;\n    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});\n    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});\n    const playerId=String(req.body?.playerId||req.body?.player_id||"").trim();\n    if(!playerId) return res.status(400).json({ok:false,error:"playerId is required"});\n    const player=await sql`SELECT * FROM players WHERE player_id=${playerId} AND is_active IS NOT FALSE LIMIT 1`;\n    if(!player.length) return res.status(404).json({ok:false,error:"Registered player not found"});\n    const now=nowMs();\n    const r=await sql`INSERT INTO team_players(team_id,player_id,is_captain,is_vice_captain,playing_xi,jersey_number,created_at,updated_at) VALUES(${teamId},${playerId},${!!req.body?.isCaptain},${!!req.body?.isViceCaptain},${req.body?.playingXi!==false},${req.body?.jerseyNumber!=null?Number(req.body.jerseyNumber):player[0].jersey_number||null},${now},${now}) ON CONFLICT(team_id,player_id) DO UPDATE SET is_captain=EXCLUDED.is_captain,is_vice_captain=EXCLUDED.is_vice_captain,playing_xi=EXCLUDED.playing_xi,jersey_number=EXCLUDED.jersey_number,updated_at=EXCLUDED.updated_at RETURNING *`;\n    res.json({ok:true,success:true,message:"Player added to team",player:{...player[0],playerId,teamId,teamPlayer:r[0]}});\n  } catch(e){res.status(500).json({ok:false,error:e.message});}\n});\n\napp.delete("/api/teams/:teamId/players/:playerId", requireAuth, async (req,res)=>{\n  try {\n    const sql=await getDatabase();\n    const teamId=String(req.params.teamId||"").trim(), playerId=String(req.params.playerId||"").trim();\n    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;\n    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});\n    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});\n    await sql`DELETE FROM team_players WHERE team_id=${teamId} AND player_id=${playerId}`;\n    res.json({ok:true,success:true,message:"Player removed from team",teamId,playerId});\n  } catch(e){res.status(500).json({ok:false,error:e.message});}\n});\n\n// Tournament Teams Relationship Endpoints (Phase 7 Requirement 16)
+// Team roster relationship endpoints. Player IDs are internal database keys;
+// the client can add players by name/profile without entering an ID.
+app.get("/api/teams/:teamId/players", requireAuth, async (req,res)=>{
+  try {
+    const sql=await getDatabase();
+    const teamId=String(req.params.teamId||"").trim();
+    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;
+    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});
+    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});
+    const rows=await sql`SELECT tp.*,p.player_id,p.user_id,p.name,p.mobile,p.jersey_name,p.jersey_number,p.jersey_size,p.role,p.email,p.birthdate,p.photo_url FROM team_players tp JOIN players p ON p.player_id=tp.player_id WHERE tp.team_id=${teamId} AND p.is_active IS NOT FALSE ORDER BY tp.playing_xi DESC,tp.jersey_number NULLS LAST,p.name`;
+    res.json({ok:true,success:true,count:rows.length,players:rows});
+  } catch(e){res.status(500).json({ok:false,error:e.message});}
+});
+
+app.post("/api/teams/:teamId/players", requireAuth, async (req,res)=>{
+  try {
+    const sql=await getDatabase();
+    const teamId=String(req.params.teamId||"").trim();
+    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;
+    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});
+    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});
+
+    let playerId=String(req.body?.playerId||req.body?.player_id||"").trim();
+    let playerRow=null;
+    if(playerId){
+      const player=await sql`SELECT * FROM players WHERE player_id=${playerId} AND is_active IS NOT FALSE LIMIT 1`;
+      if(!player.length) return res.status(404).json({ok:false,error:"Player not found"});
+      playerRow=player[0];
+    } else {
+      const profile=req.body?.player && typeof req.body.player === "object" ? req.body.player : req.body;
+      const name=String(profile?.name||profile?.playerName||"").trim();
+      if(!name) return res.status(400).json({ok:false,error:"Player name is required"});
+      const mobileRaw=String(profile?.mobile||profile?.phone||"").replace(/\D/g,"");
+      if(mobileRaw && !/^\d{10,15}$/.test(mobileRaw)) return res.status(400).json({ok:false,error:"Mobile number must be 10-15 digits"});
+      const mobile=mobileRaw || null;
+      const userId=String(profile?.userId||profile?.user_id||"").trim() || null;
+      const role=String(profile?.role||"All-Rounder").trim() || "All-Rounder";
+      const jerseyNumber=(profile?.jerseyNumber!==undefined && profile?.jerseyNumber!==null && String(profile.jerseyNumber).trim()!=="" && !isNaN(parseInt(profile.jerseyNumber,10))) ? parseInt(profile.jerseyNumber,10) : null;
+      const jerseyName=String(profile?.jerseyName||name).trim() || name;
+      const jerseySize=String(profile?.jerseySize||"").trim() || null;
+      const email=String(profile?.email||"").trim() || null;
+      const birthdate=String(profile?.birthdate||profile?.dateOfBirth||profile?.date_of_birth||"").trim() || null;
+      const photoUrl=String(profile?.photoUrl||profile?.photo_url||profile?.photo||"").trim() || null;
+      if(userId){
+        const byUser=await sql`SELECT * FROM players WHERE user_id=${userId} AND lower(name)=lower(${name}) AND is_active IS NOT FALSE ORDER BY created_at DESC LIMIT 1`;
+        if(byUser.length) playerRow=byUser[0];
+      }
+      if(!playerRow && mobile){
+        const byMobile=await sql`SELECT * FROM players WHERE mobile=${mobile} AND is_active IS NOT FALSE ORDER BY created_at DESC LIMIT 1`;
+        if(byMobile.length) playerRow=byMobile[0];
+      }
+      if(!playerRow){
+        playerId=await generatePermanentPlayerId(sql);
+        const now=nowMs();
+        const dataJson={playerId,player_id:playerId,userId,name,mobile,jerseyName,jerseyNumber,jerseySize,role,email,birthdate,photoUrl};
+        await sql`INSERT INTO players(player_id,user_id,name,mobile,jersey_name,jersey_number,jersey_size,role,email,birthdate,date_of_birth,photo_url,profile_photo,is_active,data_json,created_at,updated_at) VALUES(${playerId},${userId},${name},${mobile},${jerseyName},${jerseyNumber},${jerseySize},${role},${email},${birthdate},${birthdate},${photoUrl},${photoUrl},TRUE,${JSON.stringify(dataJson)}::jsonb,${now},${now})`;
+        const created=await sql`SELECT * FROM players WHERE player_id=${playerId} LIMIT 1`;
+        playerRow=created[0];
+      } else playerId=String(playerRow.player_id);
+    }
+    const now=nowMs();
+    const jerseyNumber=req.body?.jerseyNumber!=null && String(req.body.jerseyNumber).trim()!=="" && !isNaN(Number(req.body.jerseyNumber)) ? Number(req.body.jerseyNumber) : (playerRow.jersey_number ?? null);
+    const r=await sql`INSERT INTO team_players(team_id,player_id,is_captain,is_vice_captain,playing_xi,jersey_number,created_at,updated_at) VALUES(${teamId},${playerId},${!!req.body?.isCaptain},${!!req.body?.isViceCaptain},${req.body?.playingXi!==false},${jerseyNumber},${now},${now}) ON CONFLICT(team_id,player_id) DO UPDATE SET is_captain=EXCLUDED.is_captain,is_vice_captain=EXCLUDED.is_vice_captain,playing_xi=EXCLUDED.playing_xi,jersey_number=EXCLUDED.jersey_number,updated_at=EXCLUDED.updated_at RETURNING *`;
+    res.json({ok:true,success:true,message:"Player added to team",player:{...playerRow,playerId,teamId,teamPlayer:r[0]}});
+  } catch(e){console.error("Add team player error:",e.message);res.status(500).json({ok:false,error:e.message});}
+});
+
+app.delete("/api/teams/:teamId/players/:playerId", requireAuth, async (req,res)=>{
+  try {
+    const sql=await getDatabase();
+    const teamId=String(req.params.teamId||"").trim(), playerId=String(req.params.playerId||"").trim();
+    const team=await sql`SELECT * FROM teams WHERE team_id=${teamId} LIMIT 1`;
+    if(!team.length) return res.status(404).json({ok:false,error:"Team not found"});
+    if(team[0].user_id && team[0].user_id!==req.user.userId && req.user.role!=="admin") return res.status(403).json({ok:false,error:"Forbidden"});
+    await sql`DELETE FROM team_players WHERE team_id=${teamId} AND player_id=${playerId}`;
+    res.json({ok:true,success:true,message:"Player removed from team",teamId,playerId});
+  } catch(e){res.status(500).json({ok:false,error:e.message});}
+});
+
+// Tournament Teams Relationship Endpoints (Phase 7 Requirement 16)
 app.get("/api/tournaments/:tournamentId/teams", async (req, res) => {
   try {
     const sql = await getDatabase();
