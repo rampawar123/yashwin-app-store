@@ -3093,6 +3093,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputGroundName = document.getElementById("inputGroundName");
   const inputMatchDate = document.getElementById("inputMatchDate");
   const inputMatchTime = document.getElementById("inputMatchTime");
+  const scoreModeRadios = document.querySelectorAll('input[name="scoreModeRadio"]');
+  const liveScoreModeTag = document.getElementById("liveScoreModeTag");
   const oversChips = document.querySelectorAll(".overs-chip");
 
   const btnGoToStep2 = document.getElementById("btnGoToStep2");
@@ -3878,6 +3880,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function getSelectedScoreMode() {
+    const el = document.querySelector('input[name="scoreModeRadio"]:checked');
+    return el?.value === "online" ? "online" : "offline";
+  }
+
+  function isOnlineScoreMode(match) {
+    return String(match?.scoreMode || "offline").toLowerCase() === "online";
+  }
+
+  function updateScoreModeBadge(match) {
+    if (!liveScoreModeTag) return;
+    const online = isOnlineScoreMode(match);
+    liveScoreModeTag.textContent = online ? "☁️ ONLINE LIVE SCORE" : "📱 OFFLINE SCORE";
+  }
+
   // START MATCH (FINAL LAUNCH)
   if (btnFinalStartMatch) {
     btnFinalStartMatch.addEventListener("click", async function () {
@@ -3908,6 +3925,8 @@ document.addEventListener("DOMContentLoaded", function () {
         matchId: "match_" + Date.now(),
         title: matchTitle,
         type: matchType,
+        scoreMode: getSelectedScoreMode(),
+        syncStatus: getSelectedScoreMode() === "online" ? "PENDING" : "LOCAL_ONLY",
         tournament: tournament,
         fixtureId: window.activeLinkedFixtureId || null,
         tourneyId: window.activeLinkedTourneyId || null,
@@ -4009,9 +4028,37 @@ document.addEventListener("DOMContentLoaded", function () {
     return null;
   }
 
-  async function syncActiveMatchStateToCloud(match) {
+  const MATCH_SYNC_QUEUE_KEY = "cricYuvaMatchSyncQueue";
+
+  function readMatchSyncQueue() {
     try {
-      if (!match || !window.CricYuvaCloud || !localStorage.getItem("cricYuvaCloudToken")) return;
+      const raw = getUserStorage(MATCH_SYNC_QUEUE_KEY, "[]");
+      const q = JSON.parse(raw || "[]");
+      return Array.isArray(q) ? q : [];
+    } catch (_) { return []; }
+  }
+
+  function writeMatchSyncQueue(queue) {
+    try { setUserStorage(MATCH_SYNC_QUEUE_KEY, JSON.stringify(queue || [])); } catch (_) {}
+  }
+
+  function queueMatchForSync(match) {
+    if (!match || !isOnlineScoreMode(match)) return;
+    const queue = readMatchSyncQueue();
+    const item = { clientMatchId: match.matchId, state: JSON.parse(JSON.stringify(match)), queuedAt: Date.now() };
+    const idx = queue.findIndex(x => x.clientMatchId === match.matchId);
+    if (idx >= 0) queue[idx] = item; else queue.push(item);
+    writeMatchSyncQueue(queue.slice(-20));
+  }
+
+  async function syncActiveMatchStateToCloud(match) {
+    if (!match || !isOnlineScoreMode(match)) return false;
+    if (!window.CricYuvaCloud || !localStorage.getItem("cricYuvaCloudToken")) {
+      match.syncStatus = "PENDING_LOGIN";
+      queueMatchForSync(match);
+      return false;
+    }
+    try {
       const teamA = match.teamA || {}; const teamB = match.teamB || {};
       const state = JSON.parse(JSON.stringify(match));
       const result = await window.CricYuvaCloud.request("/api/matches/sync-state", {
@@ -4027,25 +4074,44 @@ document.addEventListener("DOMContentLoaded", function () {
           state
         })
       });
-      if (result?.matchId && !match.serverMatchId) {
-        match.serverMatchId = result.matchId;
-        setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
-      }
+      match.serverMatchId = result?.matchId || match.serverMatchId || null;
+      match.syncStatus = "SYNCED";
+      writeMatchSyncQueue(readMatchSyncQueue().filter(x => x.clientMatchId !== match.matchId));
+      setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
+      return true;
     } catch (e) {
-      // Cloud persistence is best-effort; local scoring must never stop because the API is offline.
-      if (!isStaticApiError(e)) console.warn("Match cloud sync failed:", e);
+      match.syncStatus = "PENDING";
+      queueMatchForSync(match);
+      if (!isStaticApiError(e)) console.warn("Match cloud sync pending:", e);
+      return false;
     }
   }
+
+  async function syncPendingMatches() {
+    if (!navigator.onLine) return;
+    const queue = readMatchSyncQueue();
+    for (const item of queue.slice()) {
+      const m = item?.state;
+      if (!m || !isOnlineScoreMode(m)) continue;
+      await syncActiveMatchStateToCloud(m);
+    }
+  }
+
+  window.addEventListener("online", syncPendingMatches);
+  setTimeout(syncPendingMatches, 1500);
 
   function saveActiveMatchState(match) {
     if (!match) return;
     try {
       setUserStorage(MATCH_STORAGE_KEY, JSON.stringify(match));
-      if (typeof PublicLiveScoreService !== "undefined" && PublicLiveScoreService.emitLiveUpdate) {
-        PublicLiveScoreService.emitLiveUpdate(match);
-      }
+      updateScoreModeBadge(match);
       updateHomeLiveScoreboard(match);
-      syncActiveMatchStateToCloud(match);
+      if (isOnlineScoreMode(match)) {
+        if (typeof PublicLiveScoreService !== "undefined" && PublicLiveScoreService.emitLiveUpdate) {
+          try { PublicLiveScoreService.emitLiveUpdate(match); } catch (_) {}
+        }
+        syncActiveMatchStateToCloud(match);
+      }
     } catch (e) {
       console.error("Error saving active match:", e);
     }
@@ -4221,6 +4287,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function renderLiveScoringPage(match) {
+    updateScoreModeBadge(match);
     if (!match) match = getActiveMatch();
     if (!match) return;
 
@@ -19191,6 +19258,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
   window.openBroadcastCenterModal = openBroadcastCenterModal;
   window.openPlayerProfileDetailModal = openPlayerProfileDetailModal;
   window.PublicLiveScoreService = PublicLiveScoreService;
+  window.CricYuvaSyncPendingMatches = syncPendingMatches;
   window.RealtimeLiveService = RealtimeLiveService;
   window.VideoBroadcastManager = VideoBroadcastManager;
   window.VideoViewerManager = VideoViewerManager;

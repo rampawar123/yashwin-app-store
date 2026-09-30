@@ -982,6 +982,24 @@
  </div>
  </div>
 
+ <!-- SCORE MODE: OFFLINE / ONLINE -->
+ <div class="form-group-field">
+  <label class="form-label-styled">Score Mode <span class="req">*</span></label>
+  <div class="pill-toggle-group" id="scoreModeGroup">
+   <label class="pill-toggle-label">
+    <input type="radio" name="scoreModeRadio" value="offline" checked>
+    <span class="pill-toggle-btn"><i class="fa-solid fa-mobile-screen-button"></i> Offline Score</span>
+   </label>
+   <label class="pill-toggle-label">
+    <input type="radio" name="scoreModeRadio" value="online">
+    <span class="pill-toggle-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Online Live Score</span>
+   </label>
+  </div>
+  <div style="font-size:11px;color:#777;margin-top:7px;line-height:1.5;">
+   Offline saves the complete score on this device. Online saves locally first and syncs live to the Cric Yuva server when internet/login is available.
+  </div>
+ </div>
+
  <!-- ACTION BUTTON TO GO TO STEP 2 -->
  <div class="wizard-action-footer">
  <button type="button" class="btn-wizard-next" id="btnGoToStep2">
@@ -1246,6 +1264,7 @@
  <div class="live-match-hero-card">
  <div class="hero-card-top">
  <span class="tournament-tag" id="liveScoreTournamentTag">🏆 Cric Yuva Championship</span>
+              <span class="tournament-tag" id="liveScoreModeTag" style="margin-left:6px;">📱 OFFLINE SCORE</span>
  <span class="match-venue-tag" id="liveScoreVenueTag"><i class="fa-solid fa-location-dot"></i> No live ground</span>
  </div>
 
