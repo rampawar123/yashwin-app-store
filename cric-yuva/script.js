@@ -2350,10 +2350,68 @@ document.addEventListener("DOMContentLoaded", function () {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
+  // ------------------------------------------
+  // MULTI-TEAM CATALOG / TEAM SWITCHER
+  // ------------------------------------------
+  function getAllLocalTeams() {
+    const out = [];
+    const seen = new Set();
+    const add = (team) => {
+      if (!team || !String(team.teamName || team.name || '').trim()) return;
+      const name = String(team.teamName || team.name).trim();
+      const id = String(team.teamId || team.team_id || team.id || '').trim();
+      const key = (id || name).toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ ...team, name, teamName:name, id:id || null, teamId:String(team.teamId || team.team_id || id || '').trim() || null, players:Array.isArray(team.players) ? team.players : [] });
+    };
+    try { getCustomClubsList().forEach(add); } catch (_) {}
+    try { const current = getTeamData(); if (current) add(current); } catch (_) {}
+    return out;
+  }
+
+  function renderMyTeamsList() {
+    const container = document.getElementById('myTeamsList');
+    if (!container) return;
+    const teams = getAllLocalTeams();
+    const active = getTeamData();
+    const activeId = String(active?.teamId || active?.team_id || active?.id || '').trim();
+    if (!teams.length) {
+      container.innerHTML = '<div style="font-size:11px;color:#64748b;padding:8px 2px;">No teams yet. Tap CREATE TEAM to make your first team.</div>';
+      return;
+    }
+    container.innerHTML = teams.map(t => {
+      const id = String(t.teamId || t.id || t.name);
+      const isActive = activeId && String(t.teamId || t.id || '').trim() === activeId;
+      const players = Array.isArray(t.players) ? t.players.length : 0;
+      const initials = getInitials(t.name);
+      const logo = t.teamLogo || t.logoUrl || t.logo || '';
+      return `<button type="button" class="my-team-switch-card" data-team-switch-id="${escapeHtml(id)}" style="min-width:175px;text-align:left;background:${isActive ? 'rgba(255,122,0,.12)' : '#151b28'};border:1px solid ${isActive ? '#ff7a00' : '#293249'};border-radius:12px;padding:10px;color:#fff;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <div style="width:38px;height:38px;border-radius:10px;overflow:hidden;background:#20283a;display:flex;align-items:center;justify-content:center;font-weight:900;color:#ff9b45;flex:none;">${logo ? `<img src="${escapeHtml(logo)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml(initials)}</div>
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(t.name)}</div>
+            <div style="font-size:9.5px;color:#94a3b8;margin-top:2px;">${players} player${players === 1 ? '' : 's'}${isActive ? ' • ACTIVE' : ''}</div>
+          </div>
+        </div>
+      </button>`;
+    }).join('');
+    container.querySelectorAll('[data-team-switch-id]').forEach(btn => btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-team-switch-id') || '';
+      const team = teams.find(t => String(t.teamId || t.id || t.name) === String(id));
+      const activeIdToSave = String(team?.teamId || team?.id || '').trim();
+      if (!activeIdToSave) return;
+      try { localStorage.setItem('cricYuvaActiveTeamId', activeIdToSave); } catch (_) {}
+      renderMyTeamPage('all');
+      showToast(`${team.name} selected`);
+    }));
+  }
+
   // Render My Team Screen
   function renderMyTeamPage(filter = currentRoleFilter) {
     currentRoleFilter = filter;
     let team = getTeamData();
+    renderMyTeamsList();
 
     const noTeamContainer = document.getElementById("noTeamContainer");
     const activeTeamContainer = document.getElementById("activeTeamContainer");
@@ -2611,6 +2669,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const teamModalCloseBtn = document.getElementById("teamModalCloseBtn");
   const teamForm = document.getElementById("teamForm");
   const btnCreateTeamOpen = document.getElementById("btnCreateTeamOpen");
+  const btnCreateAnotherTeam = document.getElementById("btnCreateAnotherTeam");
   const btnEditTeamOpen = document.getElementById("btnEditTeamOpen");
   const teamTopActionBtn = document.getElementById("teamTopActionBtn");
   const teamLogoFileInput = document.getElementById("teamLogoFileInput");
@@ -2620,15 +2679,22 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputCaptainName = document.getElementById("inputCaptainName");
   const inputViceCaptainName = document.getElementById("inputViceCaptainName");
   const teamModalTitle = document.getElementById("teamModalTitle");
+  let pendingTeamModalRecord = null;
 
   function openTeamModal(isEdit = false) {
     const existingTeam = getTeamData();
+    // Creating a team must always create a NEW team record. Never reuse the
+    // currently active team's id/roster, otherwise the second team overwrites
+    // the first one.
     const team = isEdit ? (existingTeam || initDefaultTeam()) : {
+      id: `team_local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      teamId: null,
       teamName: "", teamLogo: "",
       captainName: localStorage.getItem("cricYuvaProfileName") || "",
       viceCaptainName: "", players: []
     };
 
+    pendingTeamModalRecord = team;
     if (teamModalTitle) {
       teamModalTitle.textContent = isEdit ? "Edit Team Details" : "Create Team";
     }
@@ -2650,6 +2716,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (btnCreateTeamOpen) btnCreateTeamOpen.addEventListener("click", () => openTeamModal(false));
+  if (btnCreateAnotherTeam) btnCreateAnotherTeam.addEventListener("click", () => openTeamModal(false));
   if (btnEditTeamOpen) btnEditTeamOpen.addEventListener("click", () => openTeamModal(true));
   if (teamTopActionBtn) teamTopActionBtn.addEventListener("click", () => openTeamModal(true));
 
@@ -2702,9 +2769,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      let team = getTeamData();
-      if (!team) {
-        team = initDefaultTeam();
+      let team = pendingTeamModalRecord || getTeamData();
+      if (!team) team = initDefaultTeam();
+
+      // Do not allow two local teams with the same name. Editing the current
+      // team is allowed to keep its own name.
+      const duplicate = getAllLocalTeams().find(t =>
+        String(t.name || t.teamName || '').trim().toLowerCase() === name.toLowerCase() &&
+        String(t.teamId || t.id || '') !== String(team.teamId || team.id || '')
+      );
+      if (duplicate) {
+        alert(`A team named "${name}" already exists. Please choose a different team name.`);
+        return;
       }
 
       team.teamName = name;
@@ -2751,7 +2827,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // match setup is opened online.
       try { await ensureTeamCloudSaved(team); } catch (_) {}
       if (teamModal) teamModal.style.display = "none";
+      pendingTeamModalRecord = null;
+      try { localStorage.setItem("cricYuvaActiveTeamId", String(team.teamId || team.id)); } catch (_) {}
       renderMyTeamPage(currentRoleFilter);
+      renderMyTeamsList();
       alert("Team details saved successfully!");
     });
   }
@@ -2764,6 +2843,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const playerModalCloseBtn = document.getElementById("playerModalCloseBtn");
   const playerForm = document.getElementById("playerForm");
   const btnAddPlayerOpen = document.getElementById("btnAddPlayerOpen");
+  const btnSavePlayerAndAddAnother = document.getElementById("btnSavePlayerAndAddAnother");
   const playerPhotoFileInput = document.getElementById("playerPhotoFileInput");
   const playerPhotoPickerBox = document.getElementById("playerPhotoPickerBox");
   const playerPhotoModalPreview = document.getElementById("playerPhotoModalPreview");
@@ -2804,7 +2884,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (playerModalTitle) playerModalTitle.textContent = "Add Squad Player";
     if (editPlayerId) editPlayerId.value = "";
     const manualFields = document.getElementById("manualSquadPlayerFields");
-    if (manualFields) manualFields.style.display = "none";
+    // Add Player is a direct name/profile flow. The registered-account search
+    // remains available through the separate Search Player button.
+    if (manualFields) manualFields.style.display = "block";
+    const quickSearchBox = document.getElementById("registeredPlayerQuickSearch");
+    if (quickSearchBox) quickSearchBox.style.display = "none";
     if (inputPlayerName) inputPlayerName.value = "";
     if (selectPlayerRole) selectPlayerRole.value = "Batsman";
     if (inputPlayerJersey) inputPlayerJersey.value = "";
@@ -3001,6 +3085,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  let saveAndAddAnotherRequested = false;
+  if (btnSavePlayerAndAddAnother) {
+    btnSavePlayerAndAddAnother.addEventListener("click", () => {
+      saveAndAddAnotherRequested = true;
+      if (playerForm && typeof playerForm.requestSubmit === "function") playerForm.requestSubmit();
+    });
+  }
+
   // Player Form Submit
   if (playerForm) {
     playerForm.addEventListener("submit", async function (e) {
@@ -3020,6 +3112,17 @@ document.addEventListener("DOMContentLoaded", function () {
       let team = getTeamData();
       if (!team) team = initDefaultTeam();
       if (!team.players) team.players = [];
+
+      // Prevent accidental duplicate players in the same team while allowing
+      // the same player to belong to different teams.
+      if (!targetId) {
+        const duplicatePlayer = team.players.find(p => String(p.name || '').trim().toLowerCase() === pName.toLowerCase());
+        if (duplicatePlayer) {
+          saveAndAddAnotherRequested = false;
+          alert(`${pName} is already in this team.`);
+          return;
+        }
+      }
 
       // If new player is designated Captain, remove captaincy from others
       if (isCap) {
@@ -3105,7 +3208,24 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch (cloudError) {
         if (!isStaticApiError(cloudError)) console.warn("Player cloud save failed:", cloudError);
       }
-      alert(`${pName} saved to squad!`);
+      const keepOpen = saveAndAddAnotherRequested && !targetId;
+      saveAndAddAnotherRequested = false;
+      if (keepOpen) {
+        if (inputPlayerName) inputPlayerName.value = "";
+        if (selectPlayerRole) selectPlayerRole.value = "Batsman";
+        if (inputPlayerJersey) inputPlayerJersey.value = "";
+        if (checkIsCaptain) checkIsCaptain.checked = false;
+        if (checkIsViceCaptain) checkIsViceCaptain.checked = false;
+        selectedRegisteredPlayerForSquad = null;
+        tempPlayerPhotoDataUrl = "";
+        if (playerPhotoModalPreview) playerPhotoModalPreview.innerHTML = `<i class="fa-regular fa-user"></i>`;
+        if (playerModalTitle) playerModalTitle.textContent = "Add Another Squad Player";
+        if (playerModal) playerModal.style.display = "flex";
+        if (inputPlayerName) inputPlayerName.focus();
+        showToast(`${pName} added. Add the next player.`);
+      } else {
+        alert(`${pName} saved to squad!`);
+      }
     });
   }
 

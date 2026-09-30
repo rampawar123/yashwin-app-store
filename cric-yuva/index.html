@@ -699,6 +699,20 @@
  <!-- MAIN SCROLLABLE CONTENT FOR TEAM -->
  <div class="team-scroll-content">
 
+ <!-- MULTI-TEAM MANAGER -->
+ <div class="multi-team-manager" id="multiTeamManager" style="background:#101722;border:1px solid #263149;border-radius:14px;padding:12px;margin-bottom:12px;">
+   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
+     <div>
+       <div style="font-size:11px;font-weight:900;color:#ff7a00;letter-spacing:.5px;text-transform:uppercase;"><i class="fa-solid fa-users"></i> MY TEAMS</div>
+       <div style="font-size:10px;color:#94a3b8;margin-top:3px;">Create and manage multiple teams. Each team has its own player squad.</div>
+     </div>
+     <button type="button" id="btnCreateAnotherTeam" style="border:1px solid #ff7a00;background:rgba(255,122,0,.12);color:#ff9b45;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:900;white-space:nowrap;cursor:pointer;">
+       <i class="fa-solid fa-plus"></i> CREATE TEAM
+     </button>
+   </div>
+   <div id="myTeamsList" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;"></div>
+ </div>
+
  <!-- EMPTY STATE: IF NO TEAM CREATED -->
  <div class="no-team-container" id="noTeamContainer" style="display:none;">
  <div class="no-team-card">
@@ -770,6 +784,9 @@
  <i class="fa-solid fa-user-plus"></i> Add Player
  </button>
  </div>
+ </div>
+ <div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(255,122,0,.08);border:1px solid rgba(255,122,0,.22);color:#cbd5e1;font-size:10.5px;line-height:1.45;">
+   <i class="fa-solid fa-circle-info" style="color:#ff9b45;"></i> Add as many players as you need. Each player is saved inside the currently selected team.
  </div>
 
  <div class="roles-pills-scroll">
@@ -3698,9 +3715,14 @@
  <!-- Hidden field for editing existing player ID -->
  <input type="hidden" id="editPlayerId" value="">
 
- <button type="submit" class="btn-modal-submit" id="btnSavePlayer">
- <i class="fa-solid fa-user-check"></i> SAVE PLAYER
- </button>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+   <button type="submit" class="btn-modal-submit" id="btnSavePlayer">
+    <i class="fa-solid fa-user-check"></i> SAVE PLAYER
+   </button>
+   <button type="button" class="btn-modal-submit" id="btnSavePlayerAndAddAnother" style="background:#1e293b;border:1px solid #334155;color:#fff;">
+    <i class="fa-solid fa-user-plus"></i> SAVE & ADD ANOTHER
+   </button>
+ </div>
 
  </form>
  </div>
@@ -4892,7 +4914,7 @@
        </div>
 
        <div class="form-group" style="background:#181818; padding:10px 12px; border-radius:8px; border:1px solid #282828; color:#aaa; font-size:12px;">
-         <i class="fa-solid fa-shield-halved text-orange"></i> Team starts clean. Add only real registered players to the squad.
+         <i class="fa-solid fa-shield-halved text-orange"></i> Team starts clean. Add multiple players directly to this team by name/profile. Player ID is handled internally.
        </div>
 
        <button type="submit" class="btn-modal-submit" id="btnSubmitCreateClub">
