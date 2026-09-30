@@ -55,6 +55,8 @@ jobs:
       # --------------------------------------------------
       - name: Install Android SDK packages
         run: |
+          set -e
+
           yes | sdkmanager --licenses || true
 
           sdkmanager \
@@ -68,6 +70,8 @@ jobs:
       # --------------------------------------------------
       - name: Install Bubblewrap
         run: |
+          set -e
+
           npm install -g @bubblewrap/cli@1.25.0
 
 
@@ -185,8 +189,13 @@ jobs:
           }
           EOF
 
-          echo "TWA manifest:"
-          cat twa-manifest.json
+          echo "TWA manifest created successfully."
+
+          echo "Checking manifest file..."
+
+          test -f twa-cric-yuva/twa-manifest.json
+
+          cat twa-cric-yuva/twa-manifest.json
 
 
       # --------------------------------------------------
@@ -212,6 +221,8 @@ jobs:
 
           test -d "$ANDROID_HOME/build-tools/36.1.0"
           test -f "$ANDROID_HOME/bin/sdkmanager"
+
+          test -f twa-manifest.json
 
           echo "Running Bubblewrap doctor..."
 
