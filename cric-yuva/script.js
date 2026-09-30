@@ -3290,6 +3290,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const oversChips = document.querySelectorAll(".overs-chip");
 
   const btnGoToStep2 = document.getElementById("btnGoToStep2");
+  const btnManageMatchTeamAPlayers = document.getElementById("btnManageMatchTeamAPlayers");
+  const btnManageMatchTeamBPlayers = document.getElementById("btnManageMatchTeamBPlayers");
   const btnBackToStep1 = document.getElementById("btnBackToStep1");
   const btnGoToStep3 = document.getElementById("btnGoToStep3");
   const btnBackToStep2 = document.getElementById("btnBackToStep2");
@@ -3493,6 +3495,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Load all saved teams first. Team A and Team B now use real team IDs,
     // so the Playing XI step always reads the roster belonging to that team.
     await refreshMatchTeamSelectors();
+    updateMatchTeamPlayerManagerButtons();
     const teamData = getTeamData() || initDefaultTeam();
     const myTeamName = teamData.teamName || "";
     if (selectTeamA && selectTeamA.options[0]) {
@@ -3600,6 +3603,74 @@ document.addEventListener("DOMContentLoaded", function () {
     showScreen("screen7");
   }
 
+  // ---------------------------------------------------------------------------
+  // TEAM -> PLAYER MANAGER SHORTCUTS
+  // ---------------------------------------------------------------------------
+  // Start Match must never be the only place where players are added. Players
+  // belong to a saved Team Master roster. These buttons take the user directly
+  // to that team's My Team page. If a user typed a custom team name, we first
+  // turn it into a real saved team so its players can be stored and reused.
+  function updateMatchTeamPlayerManagerButtons() {
+    const update = (btn, side) => {
+      if (!btn) return;
+      const record = getSelectedMatchTeam(side);
+      const name = getResolvedTeamName(side) || (side === "teamA" ? "Team A" : "Team B");
+      const count = Array.isArray(record?.players) ? record.players.length : 0;
+      const label = side === "teamA" ? "TEAM A PLAYERS" : "TEAM B PLAYERS";
+      btn.innerHTML = `<i class="fa-solid fa-users-gear"></i> ${escapeHtml(label)} <span style="font-size:9px;opacity:.8;">(${count})</span>`;
+      btn.title = `Open ${name} team page and add/manage players`;
+    };
+    update(btnManageMatchTeamAPlayers, "teamA");
+    update(btnManageMatchTeamBPlayers, "teamB");
+  }
+
+  async function openTeamPlayerManagerForMatch(side) {
+    const select = side === "teamA" ? selectTeamA : selectTeamB;
+    const input = side === "teamA" ? inputCustomTeamA : inputCustomTeamB;
+    let record = getSelectedMatchTeam(side);
+    let name = getResolvedTeamName(side);
+
+    if (!name) {
+      alert(`Please select or enter ${side === "teamA" ? "Team A" : "Team B"} first.`);
+      return;
+    }
+
+    // If the user typed a custom team, save it as a normal team before opening
+    // the manager. This makes the later Playing XI roster persistent.
+    if (!record || !record.teamId) {
+      const existing = getMatchTeamCatalog().find(t => String(t.name || "").trim().toLowerCase() === name.trim().toLowerCase());
+      if (existing && (existing.teamId || existing.id)) {
+        record = existing;
+      } else {
+        record = {
+          id: `team_local_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          teamId: null, teamName: name.trim(), name: name.trim(), teamLogo: "",
+          captainName: "", viceCaptainName: "", players: []
+        };
+        saveCustomClub(record);
+        try { await ensureTeamCloudSaved(record); } catch (_) {}
+      }
+    }
+
+    const activeId = String(record.teamId || record.id || "").trim();
+    if (!activeId) {
+      alert("Team could not be saved. Please create the team from My Team first.");
+      return;
+    }
+    try { localStorage.setItem("cricYuvaActiveTeamId", activeId); } catch (_) {}
+    showScreen("screen6");
+    renderMyTeamPage("all");
+    renderMyTeamsList();
+    showToast(`${name} opened. Tap + Add Player to build the squad.`);
+  }
+
+  if (btnManageMatchTeamAPlayers) {
+    btnManageMatchTeamAPlayers.addEventListener("click", () => openTeamPlayerManagerForMatch("teamA"));
+  }
+  if (btnManageMatchTeamBPlayers) {
+    btnManageMatchTeamBPlayers.addEventListener("click", () => openTeamPlayerManagerForMatch("teamB"));
+  }
+
   // Team Selection Change Listeners
   if (selectTeamA) {
     selectTeamA.addEventListener("change", function () {
@@ -3608,6 +3679,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         inputCustomTeamA.style.display = "none";
       }
+      updateMatchTeamPlayerManagerButtons();
     });
   }
 
@@ -3618,8 +3690,12 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         inputCustomTeamB.style.display = "none";
       }
+      updateMatchTeamPlayerManagerButtons();
     });
   }
+
+  if (inputCustomTeamA) inputCustomTeamA.addEventListener("input", updateMatchTeamPlayerManagerButtons);
+  if (inputCustomTeamB) inputCustomTeamB.addEventListener("input", updateMatchTeamPlayerManagerButtons);
 
   // Tournament Selection Change
   if (selectTournament) {
@@ -3799,6 +3875,27 @@ document.addEventListener("DOMContentLoaded", function () {
     if (badgeCountTeamA) badgeCountTeamA.textContent = `${selectedPlayingXiTeamA.length} Selected`;
     if (badgeCountTeamB) badgeCountTeamB.textContent = `${selectedPlayingXiTeamB.length} Selected`;
     if (trayCountDisplay) trayCountDisplay.textContent = selectedList.length;
+
+    if (squadList.length === 0) {
+      const sideLabel = isTeamA ? "Team A" : "Team B";
+      playingXiListContainer.innerHTML = `
+        <div style="background:#151b28;border:1px solid #33405a;border-radius:14px;padding:20px 14px;text-align:center;margin:4px 0 8px;">
+          <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,122,0,.12);border:1px solid rgba(255,122,0,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;color:#ff9b45;font-size:22px;">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div style="font-size:14px;font-weight:900;color:#fff;">No players saved for ${escapeHtml(teamName || sideLabel)}</div>
+          <div style="font-size:11px;color:#94a3b8;line-height:1.5;margin:6px 0 13px;">
+            Add players inside the team first. Your saved squad will automatically appear here for Playing XI.
+          </div>
+          <button type="button" class="btn-open-team-manager-from-xi" data-side="${isTeamA ? "teamA" : "teamB"}" style="background:#ff7a00;color:#111;border:0;border-radius:9px;padding:9px 14px;font-weight:900;font-size:11px;cursor:pointer;">
+            <i class="fa-solid fa-users-gear"></i> OPEN ${sideLabel.toUpperCase()} & ADD PLAYERS
+          </button>
+        </div>`;
+      const openBtn = playingXiListContainer.querySelector(".btn-open-team-manager-from-xi");
+      if (openBtn) openBtn.addEventListener("click", () => openTeamPlayerManagerForMatch(isTeamA ? "teamA" : "teamB"));
+      renderSelectedTrayChips();
+      return;
+    }
 
     squadList.forEach(player => {
       const isSelected = selectedList.some(p => p.id === player.id || p.name === player.name);
