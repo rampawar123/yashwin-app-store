@@ -2254,7 +2254,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }).then(result => {
           const cloud = result?.player || result?.playerRecord || null;
           const pid = result?.playerId || result?.player_id || cloud?.playerId || cloud?.player_id;
-          if (pid) p.playerId = String(pid);
+          if (pid) {
+            p.playerId = String(pid);
+            p.player_id = String(pid);
+          }
         });
       }
       setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(teamData));
@@ -2275,7 +2278,13 @@ document.addEventListener("DOMContentLoaded", function () {
           captainName: teamData.captainName || "", viceCaptainName: teamData.viceCaptainName || ""
         })
       });
-      const teamId = result?.teamId || result?.team_id || result?.team?.teamId || result?.team?.team_id;
+      const teamId =
+        result?.teamId ||
+        result?.team_id ||
+        result?.team?.teamId ||
+        result?.team?.team_id ||
+        result?.team?.id ||
+        result?.id;
       if (teamId) {
         teamData.teamId = String(teamId);
         setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(teamData));
@@ -2306,12 +2315,41 @@ document.addEventListener("DOMContentLoaded", function () {
       // avoids a race where saving a player immediately after team creation
       // could create the same team twice. Existing cloud teams are updated
       // normally here.
-      if (teamData && teamData.teamId && window.CricYuvaCloud) {
-        window.CricYuvaCloud.request("/api/teams", { method: "POST", body: JSON.stringify({
-          teamId: teamData.teamId, name: teamData.teamName,
-          logoUrl: teamData.teamLogo || teamData.logo || "", city: teamData.city || "",
-          captainName: teamData.captainName || "", viceCaptainName: teamData.viceCaptainName || ""
-        }) }).then(() => syncTeamPlayersToCloud(teamData)).catch(e => { if (!isStaticApiError(e)) console.warn("Team cloud sync failed:", e); });
+      if (teamData && window.CricYuvaCloud && localStorage.getItem("cricYuvaCloudToken")) {
+        window.CricYuvaCloud.request("/api/teams", {
+          method: "POST",
+          body: JSON.stringify({
+            teamId: teamData.teamId || "",
+            name: teamData.teamName,
+            logoUrl: teamData.teamLogo || teamData.logo || "",
+            city: teamData.city || "",
+            captainName: teamData.captainName || "",
+            viceCaptainName: teamData.viceCaptainName || ""
+          })
+        }).then(result => {
+          const cloudTeam = result?.team || result?.data?.team || {};
+          const cloudTeamId =
+            result?.teamId ||
+            result?.team_id ||
+            cloudTeam?.teamId ||
+            cloudTeam?.team_id ||
+            cloudTeam?.id ||
+            result?.id;
+
+          if (cloudTeamId && String(teamData.teamId || "") !== String(cloudTeamId)) {
+            teamData.teamId = String(cloudTeamId);
+            setUserStorage(TEAM_STORAGE_KEY, JSON.stringify(teamData));
+            try {
+              localStorage.setItem(TEAM_STORAGE_KEY, JSON.stringify(teamData));
+            } catch (_) {}
+          }
+
+          return syncTeamPlayersToCloud(teamData);
+        }).catch(e => {
+          if (!isStaticApiError(e)) {
+            console.warn("Team cloud sync failed:", e);
+          }
+        });
       }
       return !!scopedSaved || !!localStorage.getItem(TEAM_STORAGE_KEY);
     } catch (e) {
