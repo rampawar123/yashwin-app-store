@@ -1,18 +1,49 @@
-const CACHE = "cric-yuva-v6-registered-player-search-fix";
-const SHELL = ["./", "./index.html", "./style.css", "./script.js", "./storage.js", "./server-config.js", "./manifest.webmanifest", "./cric-yuva-logo.png"];
-self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
+// ==========================================
+// क्रिक युवा (Cric Yuva) - सर्विस वर्कर फिक्स
+// फ़ाइल का नाम: sw.js (Cache Clear Engine)
+// ==========================================
+
+const CACHE_NAME = 'cric-yuva-v2'; // नया वर्जन ताकि पुराना अटका कोड हट जाए
+const ASSETS = [
+    './',
+    './index.html',
+    './style.css',
+    './script.js',
+    './phase-engine.js',
+    './storage.js',
+    './db.js',
+    './cric-yuva-logo.png',
+    './manifest.webmanifest'
+];
+
+// इंस्टॉल इवेंट - नए एसेट्स को स्टोर करना
+self.addEventListener('install', (e) => {
+    e.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(ASSETS);
+        }).then(() => self.skipWaiting()) // तुरंत नया कोड लागू करें
+    );
 });
-self.addEventListener("activate", event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+
+// एक्टिवेट इवेंट - पुराने अटके हुए कैशे को पूरी तरह डिलीट करना
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keys) => {
+            return Promise.all(
+                keys.map((key) => {
+                    if (key !== CACHE_NAME) {
+                        console.log("पुराना खराब कैशे हटाया जा रहा है:", key);
+                        return caches.delete(key);
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
+    );
 });
-self.addEventListener("fetch", event => {
-  const url = new URL(event.request.url);
-  if (url.pathname.includes("/api/") || url.pathname.includes("/ws/")) return;
-  if (event.request.method !== "GET") return;
-  event.respondWith(fetch(event.request).then(response => {
-    const copy = response.clone();
-    caches.open(CACHE).then(cache => cache.put(event.request, copy)).catch(() => {});
-    return response;
-  }).catch(() => caches.match(event.request).then(r => r || caches.match("./index.html"))));
+
+// फेच इवेंट - ऑफलाइन सपोर्ट के लिए
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        fetch(e.request).catch(() => caches.match(e.request))
+    );
 });
