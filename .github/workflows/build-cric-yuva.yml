@@ -109,11 +109,13 @@ jobs:
           }
           EOF
 
-          bubblewrap doctor
-
           bubblewrap update \
+
             --manifest=twa-manifest.json \
+            --androidSdkPath="$ANDROID_HOME" \
             --skipVersionUpgrade
+
+          bubblewrap doctor
 
       - name: Build CRIC YUVA APK
         run: |
