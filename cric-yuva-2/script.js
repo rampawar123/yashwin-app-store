@@ -3101,21 +3101,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // SAVE PLAYER — reliable mobile submit
+  const btnSavePlayer = document.getElementById("btnSavePlayer");
+
+  if (btnSavePlayer && playerForm) {
+    btnSavePlayer.addEventListener("click", function (e) {
+      e.preventDefault();
+      playerForm.dispatchEvent(new Event("submit", {
+        bubbles: true,
+        cancelable: true
+      }));
+    });
+  }
+
   // SAVE & ADD MORE PLAYER
   const btnSaveAndAddMorePlayer = document.getElementById("btnSaveAndAddMorePlayer");
 
-  if (btnSaveAndAddMorePlayer) {
-    btnSaveAndAddMorePlayer.addEventListener("click", function () {
+  if (btnSaveAndAddMorePlayer && playerForm) {
+    btnSaveAndAddMorePlayer.addEventListener("click", function (e) {
+      e.preventDefault();
       this.dataset.clicked = "true";
-
-      if (playerForm && typeof playerForm.requestSubmit === "function") {
-        playerForm.requestSubmit();
-      } else if (playerForm) {
-        playerForm.dispatchEvent(new Event("submit", {
-          bubbles: true,
-          cancelable: true
-        }));
-      }
+      playerForm.dispatchEvent(new Event("submit", {
+        bubbles: true,
+        cancelable: true
+      }));
     });
   }
 
