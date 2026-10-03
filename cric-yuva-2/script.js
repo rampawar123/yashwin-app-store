@@ -3645,6 +3645,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (existingIndex > -1) {
       selectedList.splice(existingIndex, 1);
     } else {
+      // Maximum 15 players in Playing XI
+      if (selectedList.length >= 15) {
+        alert("Maximum 15 players can be selected for Playing XI.");
+        return;
+      }
+
       // Prevent duplicate
       if (!selectedList.some(p => p.id === player.id || p.name === player.name)) {
         selectedList.push(player);
@@ -3703,9 +3709,9 @@ document.addEventListener("DOMContentLoaded", function () {
     btnSelectAllSquad.addEventListener("click", function () {
       const isTeamA = activeSquadTab === "teamA";
       if (isTeamA) {
-        selectedPlayingXiTeamA = [...teamASquadList];
+        selectedPlayingXiTeamA = teamASquadList.slice(0, 15);
       } else {
-        selectedPlayingXiTeamB = [...teamBSquadList];
+        selectedPlayingXiTeamB = teamBSquadList.slice(0, 15);
       }
       renderPlayingXiList();
     });
@@ -3782,10 +3788,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Auto-select all by default if not previously chosen
       if (selectedPlayingXiTeamA.length === 0) {
-        selectedPlayingXiTeamA = [...teamASquadList];
+        selectedPlayingXiTeamA = teamASquadList.slice(0, 15);
       }
       if (selectedPlayingXiTeamB.length === 0) {
-        selectedPlayingXiTeamB = [...teamBSquadList];
+        selectedPlayingXiTeamB = teamBSquadList.slice(0, 15);
       }
 
       if (tabTeamANameDisplay) tabTeamANameDisplay.textContent = teamAName;
@@ -3813,12 +3819,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const teamAName = getResolvedTeamName("teamA");
       const teamBName = getResolvedTeamName("teamB");
 
-      if (selectedPlayingXiTeamA.length < 2) {
-        alert(`Please select at least 2 playing players for ${teamAName} (11 recommended).`);
+      if (selectedPlayingXiTeamA.length < 2 || selectedPlayingXiTeamA.length > 15) {
+        alert(`Please select 2 to 15 playing players for ${teamAName}.`);
         return;
       }
-      if (selectedPlayingXiTeamB.length < 2) {
-        alert(`Please select at least 2 playing players for ${teamBName} (11 recommended).`);
+      if (selectedPlayingXiTeamB.length < 2 || selectedPlayingXiTeamB.length > 15) {
+        alert(`Please select 2 to 15 playing players for ${teamBName}.`);
         return;
       }
 
