@@ -3128,6 +3128,153 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+
+  // =========================================================
+  // HARD FIX: PLAYER SAVE BUTTONS
+  // Direct button -> save, independent of form submit behavior
+  // =========================================================
+
+  function __forcePlayerSaveFromButton(addMore) {
+    const pName = (inputPlayerName?.value || "").trim();
+    const pRole = selectPlayerRole?.value || "Batsman";
+    const pJersey = (inputPlayerJersey?.value || "").trim();
+    const pBatStyle = document.getElementById("selectPlayerBattingStyle")?.value || "";
+    const pBowlStyle = document.getElementById("selectPlayerBowlingStyle")?.value || "";
+    const isCap = !!checkIsCaptain?.checked;
+    const isVC = !!checkIsViceCaptain?.checked;
+    const targetId = editPlayerId?.value || "";
+
+    if (!pName) {
+      alert("Please enter the player's name.");
+      inputPlayerName?.focus();
+      return;
+    }
+
+    let team = getTeamData();
+
+    if (!team || !String(team.teamName || "").trim()) {
+      alert("Please create and save a team first.");
+      return;
+    }
+
+    if (!Array.isArray(team.players)) {
+      team.players = [];
+    }
+
+    if (isCap) {
+      team.players.forEach(p => {
+        if (p) p.isCaptain = false;
+      });
+      team.captainName = pName;
+    }
+
+    if (isVC) {
+      team.players.forEach(p => {
+        if (p) p.isViceCaptain = false;
+      });
+      team.viceCaptainName = pName;
+    }
+
+    if (targetId) {
+      const player = team.players.find(
+        p => String(p.id) === String(targetId)
+      );
+
+      if (!player) {
+        alert("Player could not be found.");
+        return;
+      }
+
+      player.name = pName;
+      player.role = pRole;
+      player.jersey = pJersey;
+      player.batStyle = pBatStyle;
+      player.bowlStyle = pBowlStyle;
+      player.isCaptain = isCap;
+      player.isViceCaptain = isVC;
+
+      if (tempPlayerPhotoDataUrl) {
+        player.photo = tempPlayerPhotoDataUrl;
+      }
+    } else {
+      team.players.push({
+        id: "p_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+        name: pName,
+        role: pRole,
+        jersey: pJersey,
+        batStyle: pBatStyle,
+        bowlStyle: pBowlStyle,
+        isCaptain: isCap,
+        isViceCaptain: isVC,
+        photo: tempPlayerPhotoDataUrl || ""
+      });
+    }
+
+    const saved = saveTeamData(team);
+
+    if (!saved) {
+      alert("Player could not be saved. Please check the team name.");
+      return;
+    }
+
+    // Re-render immediately from saved local data.
+    renderMyTeamPage(currentRoleFilter);
+
+    if (addMore && !targetId) {
+      if (inputPlayerName) inputPlayerName.value = "";
+      if (inputPlayerJersey) inputPlayerJersey.value = "";
+
+      const bat = document.getElementById("selectPlayerBattingStyle");
+      const bowl = document.getElementById("selectPlayerBowlingStyle");
+
+      if (bat) bat.selectedIndex = 0;
+      if (bowl) bowl.selectedIndex = 0;
+
+      if (checkIsCaptain) checkIsCaptain.checked = false;
+      if (checkIsViceCaptain) checkIsViceCaptain.checked = false;
+      if (editPlayerId) editPlayerId.value = "";
+
+      tempPlayerPhotoDataUrl = "";
+
+      if (playerPhotoModalPreview) {
+        playerPhotoModalPreview.innerHTML =
+          '<i class="fa-regular fa-user"></i>';
+      }
+
+      if (playerPhotoFileInput) {
+        playerPhotoFileInput.value = "";
+      }
+
+      if (playerModal) {
+        playerModal.style.display = "flex";
+      }
+
+      alert(pName + " saved. Add the next player.");
+      return;
+    }
+
+    if (playerModal) {
+      playerModal.style.display = "none";
+    }
+
+    alert(pName + " saved to squad!");
+  }
+
+  // Capture button click BEFORE the old form handlers.
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest &&
+      e.target.closest("#btnSavePlayer, #btnSaveAndAddMorePlayer");
+
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    __forcePlayerSaveFromButton(
+      btn.id === "btnSaveAndAddMorePlayer"
+    );
+  }, true);
+
   // Reset Team Button
   const btnResetTeam = document.getElementById("btnResetTeam");
   if (btnResetTeam) {
