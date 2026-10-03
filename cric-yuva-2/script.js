@@ -2923,6 +2923,27 @@ document.addEventListener("DOMContentLoaded", function () {
   const checkIsViceCaptain = document.getElementById("checkIsViceCaptain");
   const editPlayerId = document.getElementById("editPlayerId");
   const playerModalTitle = document.getElementById("playerModalTitle");
+
+  // ADD PLAYER button
+  if (btnAddPlayerOpen) {
+    btnAddPlayerOpen.addEventListener("click", function () {
+      if (!playerModal) return;
+
+      if (playerModalTitle) playerModalTitle.textContent = "Add Squad Player";
+      if (playerForm) playerForm.reset();
+      if (editPlayerId) editPlayerId.value = "";
+      tempPlayerPhotoDataUrl = "";
+
+      if (playerPhotoModalPreview) {
+        playerPhotoModalPreview.innerHTML = '<i class="fa-regular fa-user"></i>';
+      }
+      if (playerPhotoFileInput) {
+        playerPhotoFileInput.value = "";
+      }
+
+      playerModal.style.display = "flex";
+    });
+  }
   if (playerModalCloseBtn && playerModal) {
     playerModalCloseBtn.addEventListener("click", () => playerModal.style.display = "none");
     playerModal.addEventListener("click", (e) => {
