@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
+  <title>YASHWIN AI Trading Assistant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">Y</div>
+        <div>
+          <h1>YASHWIN AI</h1>
+          <span>TRADING ASSISTANT</span>
+        </div>
+      </div>
+
+      <nav>
+        <button class="nav-item active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+        <button class="nav-item" data-page="scanner">◈ <span>Market Scanner</span></button>
+        <button class="nav-item" data-page="analysis">✦ <span>AI Analysis</span></button>
+        <button class="nav-item" data-page="strategy">⚙ <span>Strategy</span></button>
+        <button class="nav-item" data-page="paper">▣ <span>Paper Trading</span></button>
+        <button class="nav-item" data-page="positions">◫ <span>Positions</span></button>
+        <button class="nav-item" data-page="orders">☷ <span>Orders</span></button>
+        <button class="nav-item" data-page="risk">⚠ <span>Risk Controls</span></button>
+        <button class="nav-item" data-page="history">◴ <span>Trade History</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="mode-box">
+          <span class="dot"></span>
+          <div>
+            <small>TRADING MODE</small>
+            <strong>PAPER TRADING</strong>
+          </div>
+        </div>
+
+        <button class="emergency" id="emergencyBtn">
+          ⛔ Emergency Stop
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">AI-powered market monitoring</p>
+        </div>
+
+        <div class="top-actions">
+          <div class="market-status">
+            <span class="dot"></span>
+            Market Simulation
+          </div>
+          <div class="avatar">Y</div>
+        </div>
+      </header>
+
+      <section class="content">
+
+        <div class="hero">
+          <div>
+            <span class="eyebrow">YASHWIN AI ENGINE</span>
+            <h3>Market Intelligence Dashboard</h3>
+            <p>
+              Analyse market conditions, test strategies and manage risk
+              before any live trading is enabled.
+            </p>
+          </div>
+
+          <div class="hero-badge">
+            <span>MODE</span>
+            <strong>PAPER</strong>
+          </div>
+        </div>
+
+        <div class="cards">
+
+          <div class="card index-card">
+            <div class="card-top">
+              <span>NIFTY 50</span>
+              <span class="positive">+0.00%</span>
+            </div>
+            <strong id="niftyValue">25,000.00</strong>
+            <small>Simulation</small>
+          </div>
+
+          <div class="card index-card">
+            <div class="card-top">
+              <span>BANK NIFTY</span>
+              <span class="positive">+0.00%</span>
+            </div>
+            <strong id="bankValue">55,000.00</strong>
+            <small>Simulation</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span>AI SIGNAL</span>
+              <span class="signal neutral" id="signal">NEUTRAL</span>
+            </div>
+            <strong id="confidence">--%</strong>
+            <small>Confidence score</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span>PAPER P&L</span>
+              <span>Today</span>
+            </div>
+            <strong id="pnl">₹0.00</strong>
+            <small>Virtual trading account</small>
+          </div>
+
+        </div>
+
+        <div class="grid">
+
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <div>
+                <h3>Market Overview</h3>
+                <p>Simulated NIFTY movement</p>
+              </div>
+
+              <select id="timeframe">
+                <option>5 Min</option>
+                <option>15 Min</option>
+                <option>1 Hour</option>
+                <option>1 Day</option>
+              </select>
+            </div>
+
+            <div class="chart">
+              <div class="chart-line"></div>
+              <div class="chart-grid"></div>
+              <span class="chart-label l1">25,200</span>
+              <span class="chart-label l2">25,100</span>
+              <span class="chart-label l3">25,000</span>
+              <span class="chart-label l4">24,900</span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>AI Market View</h3>
+                <p>Current simulated assessment</p>
+              </div>
+              <span class="ai-icon">✦</span>
+            </div>
+
+            <div class="ai-view">
+              <div class="big-signal" id="bigSignal">NEUTRAL</div>
+
+              <div class="meter">
+                <div class="meter-fill" id="meterFill"></div>
+              </div>
+
+              <div class="signal-details">
+                <div>
+                  <span>Trend</span>
+                  <strong id="trend">Sideways</strong>
+                </div>
+                <div>
+                  <span>Risk</span>
+                  <strong id="riskLevel">Moderate</strong>
+                </div>
+              </div>
+
+              <p class="analysis-text" id="analysisText">
+                Waiting for market data and strategy confirmation.
+              </p>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="grid bottom-grid">
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Risk Controls</h3>
+                <p>Current safety limits</p>
+              </div>
+              <span class="safe">PROTECTED</span>
+            </div>
+
+            <div class="risk-list">
+              <div><span>Max loss / trade</span><strong>₹500</strong></div>
+              <div><span>Max daily loss</span><strong>₹1,000</strong></div>
+              <div><span>Max trades / day</span><strong>3</strong></div>
+              <div><span>Averaging</span><strong>OFF</strong></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>System Status</h3>
+                <p>Development environment</p>
+              </div>
+            </div>
+
+            <div class="status-list">
+              <div><span><i class="status-dot"></i> Web UI</span><strong>ONLINE</strong></div>
+              <div><span><i class="status-dot"></i> Risk Engine</span><strong>READY</strong></div>
+              <div><span><i class="status-dot"></i> Paper Engine</span><strong>READY</strong></div>
+              <div><span><i class="status-dot off"></i> Angel One</span><strong>NOT CONNECTED</strong></div>
+            </div>
+          </section>
+
+        </div>
+
+        <footer>
+          <span>YASHWIN AI Trading Assistant</span>
+          <span>Phase 1 • Paper Trading Only</span>
+        </footer>
+
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
