@@ -1,0 +1,10 @@
+.env
+*.log
+__pycache__/
+.venv/
+node_modules/
+dist/
+build/
+*.db
+*.sqlite
+*.sqlite3
