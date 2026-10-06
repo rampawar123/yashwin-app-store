@@ -110,3 +110,26 @@ function simulateMarket() {
 updateDashboard();
 
 setInterval(simulateMarket, 4000);
+
+/* Mobile navigation */
+document.querySelectorAll(".mobile-nav-item").forEach(button => {
+  button.addEventListener("click", () => {
+
+    document.querySelectorAll(".mobile-nav-item")
+      .forEach(item => item.classList.remove("active"));
+
+    button.classList.add("active");
+
+    const page = button.dataset.page;
+    const info = pageTitles[page];
+
+    if (info) {
+      document.getElementById("pageTitle").textContent = info[0];
+      document.getElementById("pageSubtitle").textContent = info[1];
+
+      if (page !== "dashboard") {
+        showToast(info[0] + " module selected");
+      }
+    }
+  });
+});
