@@ -12491,3 +12491,76 @@ body {
 .notif-item{position:relative;padding-right:42px;}
 .notif-delete-btn{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:1px solid #3a2222;background:#211515;color:#f87171;border-radius:8px;cursor:pointer;}
 .notif-delete-btn:hover{background:#351818;}
+
+/* CRIC YUVA branding - Version 19.0.0 */
+.home-logo-img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.home-brand-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+}
+
+.home-brand-name {
+  font-size: 25px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.home-brand-version {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.home-brand-build {
+  margin-top: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #9aa3b5;
+  white-space: nowrap;
+}
+
+.home-brand-build strong {
+  color: var(--orange);
+  font-weight: 900;
+}
+
+.build-by-text {
+  margin: 5px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d7dbe3;
+}
+
+.build-by-text strong {
+  color: var(--orange);
+  font-weight: 900;
+}
+
+@media (max-width: 600px) {
+  .home-logo-img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .home-brand-name {
+    font-size: 20px;
+  }
+
+  .home-brand-version {
+    font-size: 9px;
+  }
+
+  .home-brand-build {
+    font-size: 8px;
+  }
+}
