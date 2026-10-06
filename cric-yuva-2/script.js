@@ -335,7 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const urlEl = document.getElementById("shareQrUrl");
     const canvas = document.getElementById("shareQrCanvas");
     if (!modal || !urlEl) return;
-    if (titleEl) titleEl.textContent = title || "Share Cric Yuva 2";
+    if (titleEl) titleEl.textContent = title || "Share Cric Yuva";
     urlEl.value = url;
     if (canvas && window.QRCode && typeof window.QRCode.toCanvas === "function") {
       window.QRCode.toCanvas(canvas, url, { width: 220, margin: 2 }, () => {});
@@ -343,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.display = "flex";
   }
 
-  function shareCurrentUrl(url, title = "Cric Yuva 2") {
+  function shareCurrentUrl(url, title = "Cric Yuva") {
     if (navigator.share) { navigator.share({ title, url }).catch(() => {}); }
     else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => showToast("Link copied!"));
     else prompt("Share link:", url);
@@ -520,7 +520,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Sync Drawer Header Info
     const drawerUserName = document.getElementById("drawerUserName");
     if (drawerUserName) {
-      drawerUserName.textContent = savedName.trim() ? savedName : "Cric Yuva 2 Player";
+      drawerUserName.textContent = savedName.trim() ? savedName : "Cric Yuva Player";
     }
 
     const drawerUserMobile = document.getElementById("drawerUserMobile");
@@ -742,10 +742,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (registerOtpRow) registerOtpRow.style.display = "flex";
         if (requestRegisterOtpButton) requestRegisterOtpButton.style.display = "flex";
         if (registerOtp) registerOtp.focus();
-        alert("API server is not connected. TEST OTP: " + devOtp + "\n\nFor real SMS OTP, deploy/connect the Cric Yuva 2 API server.");
+        alert("API server is not connected. TEST OTP: " + devOtp + "\n\nFor real SMS OTP, deploy/connect the Cric Yuva API server.");
         return;
       }
-      alert(e.message || "OTP service is unavailable. Please start the Cric Yuva 2 API server.");
+      alert(e.message || "OTP service is unavailable. Please start the Cric Yuva API server.");
     }
   }
 
@@ -1530,7 +1530,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnQuickScoringGuide = document.getElementById("btnQuickScoringGuide");
   if (btnQuickScoringGuide) {
     btnQuickScoringGuide.addEventListener("click", function () {
-      showToast("Opening Cric Yuva 2 Official Rulebook & Scoring Guide...");
+      showToast("Opening Cric Yuva Official Rulebook & Scoring Guide...");
     });
   }
 
@@ -1662,7 +1662,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const defaults = [
         {
           id: "notif_welcome",
-          title: "Welcome to Cric Yuva 2!",
+          title: "Welcome to Cric Yuva!",
           message: "Experience professional cricket scoring, auction tournaments & live broadcast studio.",
           time: "Just now",
           type: "welcome",
@@ -2074,7 +2074,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isStaticApiError(e)) throw e;
         verifyLocalOtp(mob, code, "login");
         const localUser = window.CricYuvaStorage?.getAllRegisteredUsers?.().find(u => u && u.mobile === mob);
-        if (!localUser) throw new Error("No Cric Yuva 2 player is registered with this mobile number.");
+        if (!localUser) throw new Error("No Cric Yuva player is registered with this mobile number.");
         cloud = { user: localUser, token: "local-" + mob };
       }
       localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
@@ -2157,7 +2157,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (window.NotificationService && window.NotificationService.addNotification) {
         window.NotificationService.addNotification({
           title: "Password Updated",
-          message: "Your Cric Yuva 2 account password has been reset successfully.",
+          message: "Your Cric Yuva account password has been reset successfully.",
           type: "profile"
         });
       }
@@ -2713,7 +2713,7 @@ document.addEventListener("DOMContentLoaded", function () {
         team.viceCaptainName = "Not Assigned";
       }
       const playerSaveOk = saveTeamData(team);
-      console.log("[CRIC YUVA 2] Player save result:", playerSaveOk, "team:", team);
+      console.log("[CRIC YUVA] Player save result:", playerSaveOk, "team:", team);
       renderMyTeamPage(currentRoleFilter);
     }
   }
@@ -4092,7 +4092,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const time = inputMatchTime.value;
       const matchType = document.querySelector('input[name="matchTypeRadio"]:checked')?.value || "Tournament Match";
       let tournament = selectTournament.value;
-      if (tournament === "Custom") tournament = inputCustomTournament.value.trim() || "Cric Yuva 2 Series";
+      if (tournament === "Custom") tournament = inputCustomTournament.value.trim() || "Cric Yuva Series";
 
       const isWinnerTeamA = tossWinnerTeamA && tossWinnerTeamA.checked;
       const tossWinnerName = isWinnerTeamA ? teamAName : teamBName;
@@ -4336,7 +4336,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Scorecard Fallback Container
     const scTag = document.querySelector("#liveScorecardContainer .tournament-tag");
     if (scTag) {
-      scTag.textContent = `${(match.tournament || 'CRIC YUVA 2 PREMIER CUP').toUpperCase()} • ${match.status === 'COMPLETED' ? 'RESULT' : (isLive ? 'LIVE' : 'UPCOMING')}`;
+      scTag.textContent = `${(match.tournament || 'CRIC YUVA PREMIER CUP').toUpperCase()} • ${match.status === 'COMPLETED' ? 'RESULT' : (isLive ? 'LIVE' : 'UPCOMING')}`;
     }
     const venueText = document.querySelector("#liveScorecardContainer .venue-text");
     if (venueText) {
@@ -4789,7 +4789,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let html = `
       <div class="scorecard-header-card">
         <div class="scorecard-meta-top">
-          <span class="scorecard-tourney-badge"><i class="fa-solid fa-trophy"></i> ${match.tournament || "Cric Yuva 2 Match"}</span>
+          <span class="scorecard-tourney-badge"><i class="fa-solid fa-trophy"></i> ${match.tournament || "Cric Yuva Match"}</span>
           <span class="scorecard-venue-badge"><i class="fa-solid fa-location-dot"></i> ${match.ground || "Ground"}</span>
         </div>
         <div class="scorecard-match-title">
@@ -5610,7 +5610,7 @@ function rotateStrike(innings) {
     const bannerText = document.getElementById("finalResultBannerText");
     const venueDate = document.getElementById("finalMatchVenueDate");
 
-    if (tourneyBadge) tourneyBadge.textContent = match.tournament || "Cric Yuva 2 Match";
+    if (tourneyBadge) tourneyBadge.textContent = match.tournament || "Cric Yuva Match";
     if (headerTitle) headerTitle.innerHTML = `<i class="fa-solid fa-trophy text-orange"></i> Match Concluded`;
     if (bannerText) bannerText.textContent = resultText || match.result || "Match Completed";
     if (venueDate) venueDate.textContent = `${match.ground} • ${match.overs} Overs Match`;
@@ -5875,7 +5875,7 @@ function rotateStrike(innings) {
       if (!match) return;
       const inn1 = match.innings1 ? `${match.innings1.battingTeam}: ${match.innings1.totalRuns}/${match.innings1.wickets} (${match.innings1.overs}.${match.innings1.balls} ov)` : "";
       const inn2 = match.innings2 ? `${match.innings2.battingTeam}: ${match.innings2.totalRuns}/${match.innings2.wickets} (${match.innings2.overs}.${match.innings2.balls} ov)` : "";
-      const shareText = `🏏 CRIC YUVA 2 MATCH RESULT 🏏\n${match.title} (${match.tournament})\n${match.teamA.name} vs ${match.teamB.name}\n\n📊 SCORES:\n${inn1}\n${inn2}\n\n🏆 RESULT: ${match.result}\n📍 Venue: ${match.ground}\n\nScored live on Cric Yuva 2 App!`;
+      const shareText = `🏏 CRIC YUVA MATCH RESULT 🏏\n${match.title} (${match.tournament})\n${match.teamA.name} vs ${match.teamB.name}\n\n📊 SCORES:\n${inn1}\n${inn2}\n\n🏆 RESULT: ${match.result}\n📍 Venue: ${match.ground}\n\nScored live on Cric Yuva App!`;
 
       if (navigator.share) {
         navigator.share({
@@ -7161,7 +7161,7 @@ function rotateStrike(innings) {
       card.className = "history-match-card";
       card.dataset.matchId = match.matchId || `match_${idx}`;
 
-      const tourneyName = match.tournament || "Cric Yuva 2 Match";
+      const tourneyName = match.tournament || "Cric Yuva Match";
       const dateText = match.matchDate || match.date || "Completed";
       const teamAName = match.teamA?.name || "Team A";
       const teamBName = match.teamB?.name || "Team B";
@@ -7257,7 +7257,7 @@ function rotateStrike(innings) {
     const teamACard = document.getElementById("historyTeamACard");
     const teamBCard = document.getElementById("historyTeamBCard");
 
-    if (tourneyBadge) tourneyBadge.textContent = match.tournament || "Cric Yuva 2 Match";
+    if (tourneyBadge) tourneyBadge.textContent = match.tournament || "Cric Yuva Match";
     if (dateTop) dateTop.textContent = match.matchDate || match.date || "Completed Match";
     if (resultText) resultText.textContent = match.result || "Match Finished";
     if (venueOvers) venueOvers.textContent = `${match.ground || "Ground"} • ${match.overs || 20} Overs Match`;
@@ -7527,9 +7527,9 @@ function rotateStrike(innings) {
     const btnShare = document.getElementById("btnHistoryShareMatch");
     if (btnShare) {
       btnShare.onclick = () => {
-        const shareText = `🏏 Cric Yuva 2 Match Result:\n${match.teamA?.name} vs ${match.teamB?.name}\n🏆 ${match.result}\nScore: ${inn1.battingTeam} ${inn1.totalRuns}/${inn1.wickets} vs ${inn2.battingTeam} ${inn2.totalRuns}/${inn2.wickets}`;
+        const shareText = `🏏 Cric Yuva Match Result:\n${match.teamA?.name} vs ${match.teamB?.name}\n🏆 ${match.result}\nScore: ${inn1.battingTeam} ${inn1.totalRuns}/${inn1.wickets} vs ${inn2.battingTeam} ${inn2.totalRuns}/${inn2.wickets}`;
         if (navigator.share) {
-          navigator.share({ title: "Cric Yuva 2 Match Result", text: shareText }).catch(() => {});
+          navigator.share({ title: "Cric Yuva Match Result", text: shareText }).catch(() => {});
         } else if (navigator.clipboard) {
           navigator.clipboard.writeText(shareText).then(() => {
             showToast("Match details copied to clipboard!");
@@ -7898,7 +7898,7 @@ function rotateStrike(innings) {
       const mId = match.matchId || `m_${Math.random()}`;
       const tA = match.teamA?.name || "Team A";
       const tB = match.teamB?.name || "Team B";
-      const tourneyName = match.tournament || "Cric Yuva 2 Trophy";
+      const tourneyName = match.tournament || "Cric Yuva Trophy";
       const matchDate = match.matchDate || match.date || "Recent Match";
       const ground = match.ground || "Yuva Stadium";
       const resultText = match.result || "Match Concluded";
@@ -8976,11 +8976,11 @@ function rotateStrike(innings) {
     btnSharePlayerProfile.addEventListener("click", () => {
       if (!currentViewingPlayer) return;
       const p = currentViewingPlayer;
-      const shareText = `🏏 CRIC YUVA 2 PLAYER PROFILE 🏏\n${p.name} (${p.team})\nRole: ${p.role}\nMatches: ${p.matchesPlayed} | Runs: ${p.runs} (HS: ${p.hsDisplay}, Avg: ${p.batAvg}, SR: ${p.strikeRate})\nWickets: ${p.wickets} (BBI: ${p.bbiDisplay}, Econ: ${p.economy})\nCatches: ${p.catches}\n\nTracked via Cric Yuva 2 Cricket App.`;
+      const shareText = `🏏 CRIC YUVA PLAYER PROFILE 🏏\n${p.name} (${p.team})\nRole: ${p.role}\nMatches: ${p.matchesPlayed} | Runs: ${p.runs} (HS: ${p.hsDisplay}, Avg: ${p.batAvg}, SR: ${p.strikeRate})\nWickets: ${p.wickets} (BBI: ${p.bbiDisplay}, Econ: ${p.economy})\nCatches: ${p.catches}\n\nTracked via Cric Yuva Cricket App.`;
 
       if (navigator.share) {
         navigator.share({
-          title: `${p.name} - Cric Yuva 2 Stats`,
+          title: `${p.name} - Cric Yuva Stats`,
           text: shareText
         }).catch(() => {});
       } else {
@@ -12353,7 +12353,7 @@ let auctionCloudPlayersCache = []; async function loadAuctionCloudPlayers() { tr
     console.warn("Could not load customClubs into master player DB:", e);
   }
 
-  // 4. Registered Cric Yuva 2 accounts (works on GitHub Pages/local fallback too).
+  // 4. Registered Cric Yuva accounts (works on GitHub Pages/local fallback too).
   // These are real accounts created through the registration flow and are searchable
   // in the Auction master database by Player ID, mobile number, or name.
   try {
@@ -16852,7 +16852,7 @@ if (btnTourneyEdit) {
           ctx.fillStyle = "#1e293b";
           ctx.font = "bold 28px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("CRIC YUVA 2 LIVE BROADCAST INGEST", w / 2, h / 2 - 20);
+          ctx.fillText("CRIC YUVA LIVE BROADCAST INGEST", w / 2, h / 2 - 20);
         }
 
         // 2. Draw TV Watermark in Top Corner
@@ -16868,7 +16868,7 @@ if (btnTourneyEdit) {
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 16px sans-serif";
         ctx.textAlign = "left";
-        ctx.fillText("CRIC YUVA 2", w - 114, 46);
+        ctx.fillText("CRIC YUVA", w - 114, 46);
 
         ctx.fillStyle = "#ef4444";
         roundRect(ctx, w - 114, 52, 54, 18, 4, true, false);
@@ -17273,7 +17273,7 @@ if (btnTourneyEdit) {
 
     const tAName = matchData?.teamA?.name || matchData?.teamA || "Team A";
     const tBName = matchData?.teamB?.name || matchData?.teamB || "Team B";
-    const tourneyName = matchData?.tournament || matchData?.tourneyName || "Cric Yuva 2 Live Championship";
+    const tourneyName = matchData?.tournament || matchData?.tourneyName || "Cric Yuva Live Championship";
     const ground = matchData?.ground || "Wankhede Stadium, Mumbai";
     const matchOvers = matchData?.overs || 20;
 
@@ -17812,7 +17812,7 @@ if (btnTourneyEdit) {
     }
 
     if (!localStorage.getItem("cricYuvaCloudToken")) {
-      alert("Please login to your Cric Yuva 2 cloud account first, then connect YouTube Live.");
+      alert("Please login to your Cric Yuva cloud account first, then connect YouTube Live.");
       return;
     }
 
@@ -17823,7 +17823,7 @@ if (btnTourneyEdit) {
         if (!auth.authorizationUrl) throw new Error("YouTube authorization URL was not returned.");
         const popup = window.open(auth.authorizationUrl, "cricYuvaYouTubeOAuth", "width=520,height=720,resizable=yes,scrollbars=yes");
         if (!popup) {
-          alert("Popup blocked. Please allow popups for Cric Yuva 2 and tap YouTube again.");
+          alert("Popup blocked. Please allow popups for Cric Yuva and tap YouTube again.");
           return;
         }
         showToast("🔐 YouTube authorization opened. Complete Google permission, then return here.");
@@ -17840,11 +17840,11 @@ if (btnTourneyEdit) {
 
       const source = currentBroadcastSource || {};
       const match = (typeof getActiveMatch === "function" ? getActiveMatch() : null) || {};
-      const suggestedTitle = source.title || match.title || `Cric Yuva 2 Live — ${effectiveMatchId}`;
+      const suggestedTitle = source.title || match.title || `Cric Yuva Live — ${effectiveMatchId}`;
       const result = await CricYuvaCloud.createYoutubeLive({
         matchId: effectiveMatchId,
         title: suggestedTitle,
-        description: `Live cricket match ${effectiveMatchId} powered by Cric Yuva 2.`,
+        description: `Live cricket match ${effectiveMatchId} powered by Cric Yuva.`,
         privacyStatus: "public"
       });
       if (!result.success) throw new Error(result.error || "Unable to create YouTube Live.");
@@ -18628,13 +18628,13 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
 
   document.getElementById("shareQrCloseBtn")?.addEventListener("click", () => { document.getElementById("cricYuvaShareQrModal").style.display = "none"; });
   document.getElementById("shareQrCopyBtn")?.addEventListener("click", () => { const v = document.getElementById("shareQrUrl")?.value || ""; if (navigator.clipboard) navigator.clipboard.writeText(v).then(() => showToast("Link copied!")); });
-  document.getElementById("shareQrShareBtn")?.addEventListener("click", () => { const v = document.getElementById("shareQrUrl")?.value || ""; shareCurrentUrl(v, document.getElementById("shareQrTitle")?.textContent || "Cric Yuva 2"); });
+  document.getElementById("shareQrShareBtn")?.addEventListener("click", () => { const v = document.getElementById("shareQrUrl")?.value || ""; shareCurrentUrl(v, document.getElementById("shareQrTitle")?.textContent || "Cric Yuva"); });
 
   const teamShareBtn = document.getElementById("btnTeamShareQr");
   if (teamShareBtn) teamShareBtn.addEventListener("click", () => { const team = getTeamData(); if (team?.teamName) openShareQr("Join Team: " + team.teamName, buildShareUrl("joinTeam", team.id || team.teamName)); else showToast("Create your real team first.", true); });
 
   const appShareBtn = document.getElementById("btnAppShare");
-  if (appShareBtn) appShareBtn.addEventListener("click", () => openShareQr("Open / Download Cric Yuva 2", buildShareUrl("download", "cric-yuva")));
+  if (appShareBtn) appShareBtn.addEventListener("click", () => openShareQr("Open / Download Cric Yuva", buildShareUrl("download", "cric-yuva")));
 
 
   // Auto-open via URL query parameters on page load
@@ -18704,7 +18704,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
     getTournamentsList().forEach(t => (t.teams || []).forEach(tm =>
       (tm.players || []).forEach(p => add(p, tm.name || ""))
     ));
-    // Include every locally registered Cric Yuva 2 account so global/team search
+    // Include every locally registered Cric Yuva account so global/team search
     // can find a real user even when GitHub Pages has no API backend.
     getRegisteredUsersAsDirectoryPlayers().forEach(p => add(p, "Registered Users"));
     return out;
@@ -18991,7 +18991,7 @@ if (window.RealtimeLiveService) RealtimeLiveService.on("auction_chat", msg => {
       }
       clearTimeout(teamSearchTimer);
       teamSearchTimer = setTimeout(() => {
-        // This modal is strictly for real registered Cric Yuva 2 accounts.
+        // This modal is strictly for real registered Cric Yuva accounts.
         // Never fall back to the old dummy/master-player directory here.
         renderRegisteredTeamPlayerResults(val);
       }, 180);

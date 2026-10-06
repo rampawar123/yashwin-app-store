@@ -1,5 +1,5 @@
 /* =========================================
- CRIC YUVA 2 APP V1.0
+ CRIC YUVA APP V1.0
  SCREEN 1 TO SCREEN 4
  ORANGE THEME
 ========================================= */
@@ -9832,7 +9832,7 @@ body {
 }
 
 /* =========================================================
-   CRIC YUVA 2 FINAL LOGIN COMPACT FIX
+   CRIC YUVA FINAL LOGIN COMPACT FIX
 ========================================================= */
 
 #screen2.login-screen {
@@ -9879,7 +9879,7 @@ body {
 }
 
 /* =========================================================
-   CRIC YUVA 2 FINAL HOME PAGE GAP FIX
+   CRIC YUVA FINAL HOME PAGE GAP FIX
 ========================================================= */
 
 #screen5,
@@ -9935,7 +9935,7 @@ body {
 }
 
 /* =========================================================
-   CRIC YUVA 2 COMPLETE TOURNAMENT SUITE STYLES
+   CRIC YUVA COMPLETE TOURNAMENT SUITE STYLES
    ========================================================= */
 
 .emoji-btn {
@@ -11219,7 +11219,7 @@ body {
 }
 
 /* ==========================================================================
-   CRIC YUVA 2 TV-CHANNEL WATERMARK & BROADCAST VIDEO PLAYER STYLES
+   CRIC YUVA TV-CHANNEL WATERMARK & BROADCAST VIDEO PLAYER STYLES
    ========================================================================== */
 
 .cric-tv-watermark {
@@ -12368,7 +12368,7 @@ body {
 
 /* =========================================================
    FINAL MOBILE APP VIEWPORT — ONLY THE CURRENT SCREEN SCROLLS
-   (Targeted fix; existing Cric Yuva 2 UI/features are preserved.)
+   (Targeted fix; existing Cric Yuva UI/features are preserved.)
 ========================================================= */
 @media (max-width: 699px) {
   html, body {
@@ -12483,7 +12483,7 @@ body {
 }
 
 
-/* Cric Yuva 2 clean share/search additions */
+/* Cric Yuva clean share/search additions */
 .global-search-result{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:#151515;border:1px solid #2b2b2b;border-radius:10px;padding:11px 12px;color:#fff;text-align:left;cursor:pointer;}
 .global-search-result span{font-size:10px;color:#ff7a29;font-weight:800;text-transform:uppercase;}
 .global-search-result b{font-size:12px;flex:1;text-align:right;}

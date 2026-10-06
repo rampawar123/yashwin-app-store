@@ -506,7 +506,7 @@ app.post("/api/auth/request-otp", otpLimiter, async (req, res) => {
       try {
         const r = await fetch(process.env.OTP_WEBHOOK_URL, {
           method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ mobile: cleanMobile, otp, purpose, expiresInSeconds: 300, app: "Cric Yuva 2" })
+          body: JSON.stringify({ mobile: cleanMobile, otp, purpose, expiresInSeconds: 300, app: "Cric Yuva" })
         });
         delivered = r.ok;
       } catch (e) { console.error("OTP delivery webhook error:", e.message); }
@@ -2075,7 +2075,7 @@ app.post("/api/live-matches", async (req, res) => {
 });
 
 
-// ===== PHASE 1-19 DOMAIN ROUTES (integrated with original CRIC YUVA 2 UI) =====
+// ===== PHASE 1-19 DOMAIN ROUTES (integrated with original CRIC YUVA UI) =====
 const { id: makeDomainId, now: nowMs, scoreDelivery } = require("./phase-engine");
 
 async function audit(sql, req, action, resourceType, resourceId, data = {}) {
@@ -2105,7 +2105,7 @@ app.get("/api/youtube/auth", requireAuth, async (req, res) => {
 app.get("/api/youtube/callback", async (req, res) => {
   try {
     const state = verifyYoutubeState(req.query?.state);
-    if (!state) return res.status(400).send("Invalid or expired YouTube OAuth state. Please start again from Cric Yuva 2.");
+    if (!state) return res.status(400).send("Invalid or expired YouTube OAuth state. Please start again from Cric Yuva.");
     if (req.query?.error) return res.status(400).send(`YouTube authorization was not completed: ${String(req.query.error)}`);
     const code = String(req.query?.code || "").trim();
     if (!code) return res.status(400).send("Missing YouTube authorization code.");
@@ -2124,8 +2124,8 @@ app.get("/api/youtube/callback", async (req, res) => {
     await sql`INSERT INTO youtube_connections(user_id,channel_id,channel_title,access_token_enc,refresh_token_enc,token_expiry,scope,created_at,updated_at)
       VALUES(${state.userId},${item?.id || null},${item?.snippet?.title || null},${access},${refresh},${now + Number(token.expires_in || 3600)*1000},${token.scope || null},${now},${now})
       ON CONFLICT(user_id) DO UPDATE SET channel_id=EXCLUDED.channel_id,channel_title=EXCLUDED.channel_title,access_token_enc=EXCLUDED.access_token_enc,refresh_token_enc=COALESCE(EXCLUDED.refresh_token_enc,youtube_connections.refresh_token_enc),token_expiry=EXCLUDED.token_expiry,scope=EXCLUDED.scope,updated_at=EXCLUDED.updated_at`;
-    res.send(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cric Yuva 2 YouTube</title></head><body style="font-family:Arial;padding:30px;text-align:center"><h2>✅ YouTube connected</h2><p>${String(item?.snippet?.title || "Your YouTube channel").replace(/[<>]/g, "")}</p><p>You can close this window and return to Cric Yuva 2.</p><script>setTimeout(()=>window.close(),1200)</script></body></html>`);
-  } catch (e) { console.error("YouTube OAuth callback error:", e); res.status(500).send("YouTube connection failed. Please return to Cric Yuva 2 and try again."); }
+    res.send(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cric Yuva YouTube</title></head><body style="font-family:Arial;padding:30px;text-align:center"><h2>✅ YouTube connected</h2><p>${String(item?.snippet?.title || "Your YouTube channel").replace(/[<>]/g, "")}</p><p>You can close this window and return to Cric Yuva.</p><script>setTimeout(()=>window.close(),1200)</script></body></html>`);
+  } catch (e) { console.error("YouTube OAuth callback error:", e); res.status(500).send("YouTube connection failed. Please return to Cric Yuva and try again."); }
 });
 
 app.get("/api/youtube/status", requireAuth, async (req, res) => {
@@ -2144,8 +2144,8 @@ app.post("/api/youtube/live/create", requireAuth, async (req, res) => {
     const matchRows = await sql`SELECT match_id,tournament_id,title,data_json FROM matches WHERE match_id=${matchId} LIMIT 1`;
     const match = matchRows[0] || null;
     const data = match?.data_json || {};
-    const title = String(req.body?.title || data.title || match?.title || `Cric Yuva 2 Live — ${matchId}`).trim().slice(0,100);
-    const description = String(req.body?.description || data.description || `Live cricket match ${matchId} on Cric Yuva 2.`).trim().slice(0,5000);
+    const title = String(req.body?.title || data.title || match?.title || `Cric Yuva Live — ${matchId}`).trim().slice(0,100);
+    const description = String(req.body?.description || data.description || `Live cricket match ${matchId} on Cric Yuva.`).trim().slice(0,5000);
     const privacyStatus = ["public","unlisted","private"].includes(String(req.body?.privacyStatus)) ? String(req.body.privacyStatus) : "unlisted";
     const scheduledStartTime = new Date(Date.now() + 2 * 60 * 1000).toISOString();
 
@@ -2160,7 +2160,7 @@ app.post("/api/youtube/live/create", requireAuth, async (req, res) => {
     const stream = await youtubeApiRequest(sql, req.user.userId, "POST",
       "https://www.googleapis.com/youtube/v3/liveStreams?part=snippet,cdn,contentDetails,status",
       {
-        snippet: { title: `${title} — Cric Yuva 2 Stream` },
+        snippet: { title: `${title} — Cric Yuva Stream` },
         cdn: { frameRate: "30fps", ingestionType: "rtmp", resolution: "720p" },
         contentDetails: { isReusable: true }
       });
@@ -2350,7 +2350,7 @@ app.get("/api/tournaments/:tournamentId/points-table", async (req,res)=>{try{con
 app.get("/api/tournaments/:tournamentId/knockout", async(req,res)=>{try{const sql=await getDatabase();const rows=await sql`SELECT match_id,team_a_id,team_b_id,status,winner_team_id,scheduled_at,venue,data_json FROM matches WHERE tournament_id=${req.params.tournamentId} ORDER BY scheduled_at NULLS LAST,created_at`;const completed=rows.filter(m=>['completed','finished','result'].includes(m.status));const next=rows.filter(m=>!completed.includes(m));res.json({ok:true,success:true,fixtures:rows,completed,next});}catch(e){res.status(500).json({ok:false,error:e.message});}});
 
 // Phase 10: reports from the same central match/tournament data (printable HTML/JSON)
-app.get("/api/reports/match/:matchId", async(req,res)=>{try{const sql=await getDatabase();const m=await sql`SELECT m.*,a.name AS team_a_name,b.name AS team_b_name FROM matches m LEFT JOIN teams a ON a.team_id=m.team_a_id LEFT JOIN teams b ON b.team_id=m.team_b_id WHERE m.match_id=${req.params.matchId} LIMIT 1`;if(!m.length)return res.status(404).json({ok:false,error:"Match not found"});const innings=await sql`SELECT i.*,t.name AS batting_team_name FROM innings i LEFT JOIN teams t ON t.team_id=i.batting_team_id WHERE i.match_id=${req.params.matchId} ORDER BY innings_no`;const balls=await sql`SELECT b.*,p.name AS batter_name,q.name AS bowler_name FROM balls b LEFT JOIN players p ON p.player_id=b.batter_id LEFT JOIN players q ON q.player_id=b.bowler_id JOIN innings i ON i.innings_id=b.innings_id WHERE i.match_id=${req.params.matchId} ORDER BY i.innings_no,b.over_no,b.ball_no,b.created_at`;if(String(req.query.format||'json').toLowerCase()==='html'){const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let h=`<!doctype html><html><head><meta charset="utf-8"><title>Cric Yuva 2 Match Scorecard</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;text-align:left}@media print{button{display:none}}</style></head><body><button onclick="print()">Print / Save PDF</button><h1>${esc(m[0].team_a_name)} vs ${esc(m[0].team_b_name)}</h1><p>Match ID: ${esc(m[0].match_id)} • Status: ${esc(m[0].status)}</p>`;h+=`<h2>Innings</h2><table><tr><th>#</th><th>Batting Team</th><th>Runs</th><th>Wickets</th><th>Legal Balls</th></tr>`+innings.map(i=>`<tr><td>${i.innings_no}</td><td>${esc(i.batting_team_name)}</td><td>${i.runs}</td><td>${i.wickets}</td><td>${i.legal_balls}</td></tr>`).join('')+`</table><h2>Ball History</h2><table><tr><th>Innings</th><th>Over</th><th>Ball</th><th>Batter</th><th>Bowler</th><th>Runs</th><th>Extras</th><th>Wicket</th></tr>`+balls.map(b=>`<tr><td>${b.innings_id}</td><td>${b.over_no}</td><td>${b.ball_no}</td><td>${esc(b.batter_name)}</td><td>${esc(b.bowler_name)}</td><td>${b.runs}</td><td>${b.extras}</td><td>${b.wicket?'Yes':'No'}</td></tr>`).join('')+`</table></body></html>`;return res.type('html').send(h);}res.json({ok:true,success:true,match:m[0],innings,balls});}catch(e){res.status(500).json({ok:false,error:e.message});}});
+app.get("/api/reports/match/:matchId", async(req,res)=>{try{const sql=await getDatabase();const m=await sql`SELECT m.*,a.name AS team_a_name,b.name AS team_b_name FROM matches m LEFT JOIN teams a ON a.team_id=m.team_a_id LEFT JOIN teams b ON b.team_id=m.team_b_id WHERE m.match_id=${req.params.matchId} LIMIT 1`;if(!m.length)return res.status(404).json({ok:false,error:"Match not found"});const innings=await sql`SELECT i.*,t.name AS batting_team_name FROM innings i LEFT JOIN teams t ON t.team_id=i.batting_team_id WHERE i.match_id=${req.params.matchId} ORDER BY innings_no`;const balls=await sql`SELECT b.*,p.name AS batter_name,q.name AS bowler_name FROM balls b LEFT JOIN players p ON p.player_id=b.batter_id LEFT JOIN players q ON q.player_id=b.bowler_id JOIN innings i ON i.innings_id=b.innings_id WHERE i.match_id=${req.params.matchId} ORDER BY i.innings_no,b.over_no,b.ball_no,b.created_at`;if(String(req.query.format||'json').toLowerCase()==='html'){const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let h=`<!doctype html><html><head><meta charset="utf-8"><title>Cric Yuva Match Scorecard</title><style>body{font-family:Arial;padding:24px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;text-align:left}@media print{button{display:none}}</style></head><body><button onclick="print()">Print / Save PDF</button><h1>${esc(m[0].team_a_name)} vs ${esc(m[0].team_b_name)}</h1><p>Match ID: ${esc(m[0].match_id)} • Status: ${esc(m[0].status)}</p>`;h+=`<h2>Innings</h2><table><tr><th>#</th><th>Batting Team</th><th>Runs</th><th>Wickets</th><th>Legal Balls</th></tr>`+innings.map(i=>`<tr><td>${i.innings_no}</td><td>${esc(i.batting_team_name)}</td><td>${i.runs}</td><td>${i.wickets}</td><td>${i.legal_balls}</td></tr>`).join('')+`</table><h2>Ball History</h2><table><tr><th>Innings</th><th>Over</th><th>Ball</th><th>Batter</th><th>Bowler</th><th>Runs</th><th>Extras</th><th>Wicket</th></tr>`+balls.map(b=>`<tr><td>${b.innings_id}</td><td>${b.over_no}</td><td>${b.ball_no}</td><td>${esc(b.batter_name)}</td><td>${esc(b.bowler_name)}</td><td>${b.runs}</td><td>${b.extras}</td><td>${b.wicket?'Yes':'No'}</td></tr>`).join('')+`</table></body></html>`;return res.type('html').send(h);}res.json({ok:true,success:true,match:m[0],innings,balls});}catch(e){res.status(500).json({ok:false,error:e.message});}});
 app.get("/api/reports/tournament/:tournamentId", async(req,res)=>{try{const sql=await getDatabase();const t=await sql`SELECT * FROM tournaments WHERE tournament_id=${req.params.tournamentId} LIMIT 1`;if(!t.length)return res.status(404).json({ok:false,error:"Tournament not found"});const teams=await sql`SELECT tt.*,t.name,t.short_name FROM tournament_teams tt JOIN teams t ON t.team_id=tt.team_id WHERE tt.tournament_id=${req.params.tournamentId} ORDER BY t.name`;const matches=await sql`SELECT * FROM matches WHERE tournament_id=${req.params.tournamentId} ORDER BY scheduled_at NULLS LAST,created_at`;const stats=await sql`WITH mb AS (SELECT b.* FROM balls b JOIN innings i ON i.innings_id=b.innings_id JOIN matches m ON m.match_id=i.match_id WHERE m.tournament_id=${req.params.tournamentId}) SELECT p.player_id,p.name,COALESCE(SUM(mb.runs) FILTER(WHERE mb.batter_id=p.player_id),0)::int AS runs,COALESCE(SUM(mb.runs+mb.extras) FILTER(WHERE mb.bowler_id=p.player_id),0)::int AS conceded,COUNT(*) FILTER(WHERE mb.bowler_id=p.player_id AND mb.wicket)::int AS wickets FROM players p JOIN mb ON mb.batter_id=p.player_id OR mb.bowler_id=p.player_id GROUP BY p.player_id,p.name ORDER BY runs DESC,wickets DESC LIMIT 200`;res.json({ok:true,success:true,tournament:t[0],teams,matches,stats});}catch(e){res.status(500).json({ok:false,error:e.message});}});
 
 // Phase 8/9/10: unified match lifecycle, toss, result, ball correction and awards
@@ -2394,7 +2394,7 @@ app.get("/api/health", async (req, res) => {
   try {
     const sql = await getDatabase();
     await sql`SELECT 1 AS alive`;
-    res.json({ ok: true, success: true, message: "Cric Yuva 2 Backend & DB healthy" });
+    res.json({ ok: true, success: true, message: "Cric Yuva Backend & DB healthy" });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }
@@ -2485,7 +2485,7 @@ if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   attachWebSocket(server);
   server.listen(PORT, "0.0.0.0", async () => {
-    console.log(`Cric Yuva 2 Backend Server running on port ${PORT}`);
+    console.log(`Cric Yuva Backend Server running on port ${PORT}`);
     try {
       await getDatabase();
       console.log("PostgreSQL database initialized successfully");

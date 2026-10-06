@@ -1,6 +1,6 @@
 {
-  "name": "Cric Yuva 2",
-  "short_name": "Cric Yuva 2",
+  "name": "Cric Yuva",
+  "short_name": "Cric Yuva",
   "description": "Cricket scoring, teams, tournaments, live score and player community.",
   "start_url": "./",
   "scope": "./",
