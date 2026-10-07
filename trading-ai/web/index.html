@@ -64,6 +64,20 @@
         </div>
       </header>
 
+      <section class="global-search-bar">
+        <div class="global-search-box">
+          <span class="search-icon">🔎</span>
+          <input
+            id="marketSearch"
+            type="search"
+            placeholder="Search stock, index, option..."
+            autocomplete="off"
+          >
+          <button type="button" id="searchClearBtn" aria-label="Clear search">×</button>
+        </div>
+        <div id="marketSearchResults" class="market-search-results global-results" hidden></div>
+      </section>
+
       <section class="content">
 
         <div class="hero">
@@ -221,13 +235,103 @@
 
         </div>
 
+
+
         <footer>
           <span>YASHWIN AI Trading Assistant</span>
           <span>Phase 1 • Paper Trading Only</span>
         </footer>
 
       </section>
-    </main>
+
+        <section class="page-section" id="paperPage" hidden>
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">PAPER TRADING ENGINE</span>
+              <h2>Practice Trade</h2>
+              <p>Virtual trading only. No real Angel One order will be sent.</p>
+            </div>
+            <span class="badge green" id="paperModeBadge">PAPER MODE</span>
+          </div>
+
+          <div class="trade-grid">
+            <div class="panel trade-form">
+              <h3>New Paper Trade</h3>
+
+              <div class="direction-toggle">
+                <button type="button" class="trade-direction active" data-direction="BUY">BUY</button>
+                <button type="button" class="trade-direction sell" data-direction="SELL">SELL</button>
+              </div>
+
+              <label>Symbol</label>
+              <select id="paperSymbol">
+                <option value="NIFTY 50">NIFTY 50</option>
+                <option value="BANK NIFTY">BANK NIFTY</option>
+              </select>
+
+              <label>Entry Price</label>
+              <input id="paperEntry" type="number" step="0.05" placeholder="25000">
+
+              <label>Quantity</label>
+              <input id="paperQty" type="number" min="1" step="1" placeholder="1">
+
+              <label>Stop Loss</label>
+              <input id="paperStop" type="number" step="0.05" placeholder="24900">
+
+              <label>Target</label>
+              <input id="paperTarget" type="number" step="0.05" placeholder="25200">
+
+              <div class="risk-preview">
+                <div><span>Risk</span><strong id="paperRisk">₹0</strong></div>
+                <div><span>Reward</span><strong id="paperReward">₹0</strong></div>
+                <div><span>R:R</span><strong id="paperRR">0.00</strong></div>
+              </div>
+
+              <button id="openPaperTrade" class="primary-action">Open Paper Trade</button>
+            </div>
+
+            <div class="panel position-panel">
+              <div class="panel-title-row">
+                <h3>Open Position</h3>
+                <span id="paperPositionStatus" class="status-pill">NO POSITION</span>
+              </div>
+
+              <div id="paperNoPosition" class="empty-state">
+                <div class="empty-icon">▣</div>
+                <strong>No open paper position</strong>
+                <span>Create a trade to see live virtual P&amp;L here.</span>
+              </div>
+
+              <div id="paperPosition" hidden>
+                <div class="position-summary">
+                  <strong id="paperPositionSide">BUY</strong>
+                  <span id="paperPositionSymbol">NIFTY 50</span>
+                </div>
+
+                <div class="position-values">
+                  <div><span>Entry</span><strong id="paperPositionEntry">₹0</strong></div>
+                  <div><span>Current</span><strong id="paperPositionCurrent">₹0</strong></div>
+                  <div><span>Quantity</span><strong id="paperPositionQty">0</strong></div>
+                  <div><span>Position Value</span><strong id="paperPositionValue">₹0</strong></div>
+                  <div><span>Virtual P&amp;L</span><strong id="paperPositionPnl">₹0</strong></div>
+                  <div><span>Profit Milestone</span><strong id="paperProfitMilestone">₹0</strong></div>
+                  <div><span>Protected Profit</span><strong id="paperLockedProfit">₹0</strong></div>
+                  <div><span>Next Milestone</span><strong id="paperNextMilestone">₹0</strong></div>
+                </div>
+
+                <button id="closePaperTrade" class="danger-action">Close Position</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel paper-stats">
+            <div><span>Daily P&amp;L</span><strong id="paperDailyPnl">₹0</strong></div>
+            <div><span>Trades Today</span><strong id="paperTradesToday">0 / 3</strong></div>
+            <div><span>Max Loss / Trade</span><strong>₹500</strong></div>
+            <div><span>Max Daily Loss</span><strong>₹1,000</strong></div>
+          </div>
+        </section>
+
   </div>
 
 
@@ -241,6 +345,14 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="modules/risk-engine.js"></script>
+  <script src="modules/paper.js"></script>
+  <script src="modules/market-data/providers/provider.js"></script>
+  <script src="modules/market-data/provider-registry.js"></script>
+  <script src="modules/market-data/market-data-service.js"></script>
+  <script src="modules/market-data.js"></script>
+<script src="modules/market-analysis.js"></script>
+  <script src="modules/market-search.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
