@@ -70,11 +70,24 @@ async function refreshDashboardQuotes() {
 
       if (
         result?.ok === true &&
-        result.quote?.dataReady === true &&
-        Number.isFinite(Number(result.quote.price)) &&
-        Number(result.quote.price) > 0
+        typeof RealMarketDataService !== "undefined" &&
+        typeof RealMarketDataService.validateQuote === "function"
       ) {
-        state[key] = Number(result.quote.price);
+        const validation = RealMarketDataService.validateQuote(
+          result.quote,
+          key,
+          result.provider || "ANGEL_ONE"
+        );
+
+        if (
+          validation.ok === true &&
+          validation.dataReady === true &&
+          validation.quote &&
+          Number.isFinite(Number(validation.quote.price)) &&
+          Number(validation.quote.price) > 0
+        ) {
+          state[key] = Number(validation.quote.price);
+        }
       }
     } catch (error) {
       /*

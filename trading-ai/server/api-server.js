@@ -129,10 +129,7 @@ async function handle(req, res) {
         exactSymbol || undefined
       );
 
-      return json(res, 200, {
-        ok: true,
-        quote
-      });
+      return json(res, 200, quote);
     } catch (error) {
       return json(res, 400, {
         ok: false,

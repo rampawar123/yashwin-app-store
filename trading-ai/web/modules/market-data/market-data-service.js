@@ -57,6 +57,70 @@ const RealMarketDataService = (() => {
     return provider.connect();
   }
 
+  function validateQuote(rawQuote, instrumentKey, providerName = activeProviderName) {
+    const quote = MarketDataProvider.normalizeQuote(rawQuote);
+
+    const base = {
+      provider: providerName,
+      instrument: instrumentKey || quote.instrument || null
+    };
+
+    if (
+      quote.dataReady !== true ||
+      quote.price === null ||
+      !quote.timestamp
+    ) {
+      return {
+        ok: false,
+        code: "INVALID_MARKET_DATA",
+        ...base,
+        dataReady: false,
+        quote: null
+      };
+    }
+
+    const numericPrice = Number(quote.price);
+    const timestampMs = Date.parse(quote.timestamp);
+    const nowMs = Date.now();
+
+    if (
+      !Number.isFinite(numericPrice) ||
+      numericPrice <= 0 ||
+      !Number.isFinite(timestampMs)
+    ) {
+      return {
+        ok: false,
+        code: "INVALID_MARKET_DATA",
+        ...base,
+        dataReady: false,
+        quote: null
+      };
+    }
+
+    const quoteAgeMs = nowMs - timestampMs;
+
+    if (
+      quoteAgeMs > MAX_QUOTE_AGE_MS ||
+      quoteAgeMs < -MAX_FUTURE_TIMESTAMP_MS
+    ) {
+      return {
+        ok: false,
+        code: "STALE_MARKET_DATA",
+        ...base,
+        dataReady: false,
+        quote: null
+      };
+    }
+
+    return {
+      ok: true,
+      code: "OK",
+      ...base,
+      dataReady: true,
+      quote
+    };
+  }
+
   async function getQuote(instrument) {
     if (!instrument?.key) {
       throw new Error("Valid instrument is required.");
@@ -84,66 +148,11 @@ const RealMarketDataService = (() => {
 
     const raw = await provider.getQuote(instrument);
 
-    const quote = MarketDataProvider.normalizeQuote(raw);
-
-    if (
-      quote.dataReady !== true ||
-      quote.price === null ||
-      !quote.timestamp
-    ) {
-      return {
-        ok: false,
-        code: "INVALID_MARKET_DATA",
-        provider: activeProviderName,
-        instrument: instrument.key,
-        dataReady: false,
-        quote: null
-      };
-    }
-
-    const numericPrice = Number(quote.price);
-    const timestampMs = Date.parse(quote.timestamp);
-    const nowMs = Date.now();
-
-    if (
-      !Number.isFinite(numericPrice) ||
-      numericPrice <= 0 ||
-      !Number.isFinite(timestampMs)
-    ) {
-      return {
-        ok: false,
-        code: "INVALID_MARKET_DATA",
-        provider: activeProviderName,
-        instrument: instrument.key,
-        dataReady: false,
-        quote: null
-      };
-    }
-
-    const quoteAgeMs = nowMs - timestampMs;
-
-    if (
-      quoteAgeMs > MAX_QUOTE_AGE_MS ||
-      quoteAgeMs < -MAX_FUTURE_TIMESTAMP_MS
-    ) {
-      return {
-        ok: false,
-        code: "STALE_MARKET_DATA",
-        provider: activeProviderName,
-        instrument: instrument.key,
-        dataReady: false,
-        quote: null
-      };
-    }
-
-    return {
-      ok: true,
-      code: "OK",
-      provider: activeProviderName,
-      instrument: instrument.key,
-      dataReady: true,
-      quote
-    };
+    return validateQuote(
+      raw,
+      instrument.key,
+      activeProviderName
+    );
   }
 
   return {
@@ -151,6 +160,7 @@ const RealMarketDataService = (() => {
     getProvider,
     getStatus,
     connect,
+    validateQuote,
     getQuote
   };
 
