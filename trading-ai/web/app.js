@@ -814,9 +814,11 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
         snapshot.indicators?.supportResistanceScore,
       volatilityScore:
         snapshot.indicators?.volatilityScore,
-      optionsScore: snapshot.options?.available
-        ? 0
-        : null,
+      optionsScore:
+        typeof MarketAnalysis.calculateOptionScore === "function" &&
+        snapshot.options?.available === true
+          ? MarketAnalysis.calculateOptionScore(snapshot.options)
+          : null,
       newsScore: snapshot.newsContext?.available
         ? snapshot.newsContext.score
         : null,

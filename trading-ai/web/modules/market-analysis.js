@@ -29,6 +29,71 @@ const MarketAnalysis = (() => {
     return "SIDEWAYS";
   }
 
+  /*
+   * Option-chain directional score.
+   *
+   * PCR:
+   * - Higher PCR can support a bullish bias.
+   * - Lower PCR can support a bearish bias.
+   *
+   * OI change:
+   * - Positive put OI change relative to call OI change supports bullish bias.
+   * - Positive call OI change relative to put OI change supports bearish bias.
+   *
+   * IV is used only as a volatility/context adjustment.
+   *
+   * Missing or invalid option metrics return 0.
+   * No option metric is allowed to create a trading decision by itself.
+   */
+  function calculateOptionScore(options = {}) {
+    if (options.available !== true) return 0;
+
+    if (
+      options.pcr === null ||
+      options.pcr === undefined ||
+      options.callOIChange === null ||
+      options.callOIChange === undefined ||
+      options.putOIChange === null ||
+      options.putOIChange === undefined
+    ) {
+      return 0;
+    }
+
+    const pcr = Number(options.pcr);
+    const callOIChange = Number(options.callOIChange);
+    const putOIChange = Number(options.putOIChange);
+    const iv = Number(options.iv);
+
+    if (
+      !Number.isFinite(pcr) ||
+      !Number.isFinite(callOIChange) ||
+      !Number.isFinite(putOIChange)
+    ) {
+      return 0;
+    }
+
+    let score = 0;
+
+    if (pcr >= 1.20) score += 35;
+    else if (pcr >= 1.00) score += 20;
+    else if (pcr <= 0.80) score -= 35;
+    else if (pcr <= 1.00) score -= 20;
+
+    const oiDelta = putOIChange - callOIChange;
+
+    if (oiDelta > 0) score += 30;
+    else if (oiDelta < 0) score -= 30;
+
+    /*
+     * High IV should reduce conviction rather than create direction.
+     */
+    if (Number.isFinite(iv) && iv >= 35) {
+      score *= 0.75;
+    }
+
+    return clamp(score, -100, 100);
+  }
+
   function analyze(input = {}) {
     const result = {
       score: 0,
@@ -157,7 +222,8 @@ const MarketAnalysis = (() => {
 
   return {
     analyze,
-    clamp
+    clamp,
+    calculateOptionScore
   };
 
 })();
