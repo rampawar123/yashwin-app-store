@@ -70,6 +70,10 @@ async function getQuoteBySearch(
       exactSymbol
     );
 
+  // NFO/BFO contracts must pass strict option metadata validation
+  // before any quote request is allowed.
+  normalizer.assertValidOptionContract(instrument);
+
   const quote =
     await quoteAdapter.getQuote(
       instrument

@@ -38,6 +38,59 @@ function normalizeInstrument(item = {}) {
   };
 }
 
+function validateOptionContract(instrument = {}) {
+  const exchange = String(instrument.exchange || '').trim().toUpperCase();
+
+  // Non-derivative instruments keep the existing validation flow.
+  if (!['NFO', 'BFO'].includes(exchange)) {
+    return {
+      valid: true,
+      reasons: []
+    };
+  }
+
+  const reasons = [];
+  const optionType = String(instrument.optionType || '').trim().toUpperCase();
+  const strikePrice = Number(instrument.strikePrice);
+  const expiry = String(instrument.expiry || '').trim();
+
+  if (optionType !== 'CE' && optionType !== 'PE') {
+    reasons.push('Option type must be CE or PE.');
+  }
+
+  if (!Number.isFinite(strikePrice) || strikePrice <= 0) {
+    reasons.push('Option strike price must be a positive number.');
+  }
+
+  if (!expiry) {
+    reasons.push('Option expiry is required.');
+  } else if (Number.isNaN(Date.parse(expiry))) {
+    reasons.push('Option expiry is not a valid date.');
+  }
+
+  return {
+    valid: reasons.length === 0,
+    reasons
+  };
+}
+
+function assertValidOptionContract(instrument = {}) {
+  const result = validateOptionContract(instrument);
+
+  if (!result.valid) {
+    const error = new Error(
+      `Invalid option contract: ${result.reasons.join(' ')}`
+    );
+
+    error.code = 'INVALID_OPTION_CONTRACT';
+    error.reasons = result.reasons;
+
+    throw error;
+  }
+
+  return instrument;
+}
+
 function normalizeSearchResults(response = {}) {
   const source = Array.isArray(response.results)
     ? response.results
@@ -67,5 +120,7 @@ function findExact(results, tradingsymbol) {
 module.exports = {
   normalizeInstrument,
   normalizeSearchResults,
-  findExact
+  findExact,
+  validateOptionContract,
+  assertValidOptionContract
 };
