@@ -11,6 +11,15 @@
 
 const RealMarketDataService = (() => {
 
+  /*
+   * Market-data quality guard.
+   *
+   * A quote older than this must never become trading-ready data.
+   * 60 seconds is intentionally conservative for the dashboard layer.
+   */
+  const MAX_QUOTE_AGE_MS = 60 * 1000;
+  const MAX_FUTURE_TIMESTAMP_MS = 5 * 1000;
+
   let activeProviderName = "UNCONFIGURED";
 
   function setProvider(name) {
@@ -85,6 +94,41 @@ const RealMarketDataService = (() => {
       return {
         ok: false,
         code: "INVALID_MARKET_DATA",
+        provider: activeProviderName,
+        instrument: instrument.key,
+        dataReady: false,
+        quote: null
+      };
+    }
+
+    const numericPrice = Number(quote.price);
+    const timestampMs = Date.parse(quote.timestamp);
+    const nowMs = Date.now();
+
+    if (
+      !Number.isFinite(numericPrice) ||
+      numericPrice <= 0 ||
+      !Number.isFinite(timestampMs)
+    ) {
+      return {
+        ok: false,
+        code: "INVALID_MARKET_DATA",
+        provider: activeProviderName,
+        instrument: instrument.key,
+        dataReady: false,
+        quote: null
+      };
+    }
+
+    const quoteAgeMs = nowMs - timestampMs;
+
+    if (
+      quoteAgeMs > MAX_QUOTE_AGE_MS ||
+      quoteAgeMs < -MAX_FUTURE_TIMESTAMP_MS
+    ) {
+      return {
+        ok: false,
+        code: "STALE_MARKET_DATA",
         provider: activeProviderName,
         instrument: instrument.key,
         dataReady: false,

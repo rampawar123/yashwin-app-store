@@ -2,8 +2,8 @@ const state = {
   nifty: 25000,
   bank: 55000,
   pnl: 0,
-  signal: "NEUTRAL",
-  confidence: 50
+  signal: "DATA WAITING",
+  confidence: null
 };
 
 const pageTitles = {
