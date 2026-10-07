@@ -59,6 +59,45 @@ function validateInstrument(instrument = {}) {
   };
 }
 
+function mapAngelQuoteResponse(response, instrument) {
+  const fetched = response?.data?.fetched;
+
+  if (!Array.isArray(fetched) || fetched.length === 0) {
+    const error = new Error('Angel One returned no fetched market quote.');
+    error.code = 'ANGEL_MARKET_DATA_EMPTY';
+    throw error;
+  }
+
+  const row = fetched.find(item =>
+    String(item?.exchange || '').toUpperCase() === String(instrument.exchange).toUpperCase() &&
+    String(item?.symbolToken || '') === String(instrument.symboltoken)
+  ) || fetched[0];
+
+  const price = Number(row?.ltp);
+  if (!Number.isFinite(price) || price <= 0) {
+    const error = new Error('Angel One returned an invalid LTP.');
+    error.code = 'ANGEL_MARKET_DATA_INVALID_PRICE';
+    throw error;
+  }
+
+  const timestamp = row?.exchTradeTime || row?.exchFeedTime || null;
+
+  return {
+    instrument: instrument,
+    exchange: row?.exchange || instrument.exchange,
+    tradingSymbol: row?.tradingSymbol || instrument.tradingsymbol,
+    symbolToken: row?.symbolToken || instrument.symboltoken,
+    price,
+    open: row?.open ?? null,
+    high: row?.high ?? null,
+    low: row?.low ?? null,
+    previousClose: row?.close ?? null,
+    volume: row?.tradeVolume ?? null,
+    timestamp,
+    dataReady: true
+  };
+}
+
 async function getQuote(instrument) {
   const normalized = validateInstrument(instrument);
   const api = requireAuthenticatedAPI();
@@ -72,12 +111,12 @@ async function getQuote(instrument) {
    * No placeOrder / modifyOrder / cancelOrder calls exist here.
    */
 
-  const response = await api.getMarketData(
-    'FULL',
-    {
+  const response = await api.marketData({
+    mode: 'FULL',
+    exchangeTokens: {
       [normalized.exchange]: [normalized.symboltoken]
     }
-  );
+  });
 
   if (!response || response.status !== true) {
     const error = new Error(
@@ -88,15 +127,18 @@ async function getQuote(instrument) {
     throw error;
   }
 
+  const quote = mapAngelQuoteResponse(response, normalized);
+
   return {
     ok: true,
     provider: 'ANGEL_ONE',
     instrument: normalized,
-    raw: response
+    quote
   };
 }
 
 module.exports = {
   getQuote,
-  validateInstrument
+  validateInstrument,
+  mapAngelQuoteResponse
 };

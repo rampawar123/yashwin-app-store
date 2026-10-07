@@ -1,6 +1,6 @@
 const state = {
-  nifty: 25000,
-  bank: 55000,
+  nifty: null,
+  bank: null,
   pnl: 0,
   signal: "DATA WAITING",
   confidence: null
@@ -24,16 +24,20 @@ function money(value) {
 
 function updateDashboard() {
   document.getElementById("niftyValue").textContent =
-    state.nifty.toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    state.nifty === null
+      ? "--"
+      : Number(state.nifty).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
 
   document.getElementById("bankValue").textContent =
-    state.bank.toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    state.bank === null
+      ? "--"
+      : Number(state.bank).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
 
   document.getElementById("pnl").textContent = money(state.pnl);
   document.getElementById("signal").textContent = state.signal;
@@ -45,6 +49,42 @@ function updateDashboard() {
     state.confidence === null
       ? "0%"
       : Math.max(0, Math.min(100, Number(state.confidence) || 0)) + "%";
+}
+
+async function refreshDashboardQuotes() {
+  if (
+    typeof MarketAPI === "undefined" ||
+    typeof MarketAPI.quote !== "function"
+  ) {
+    return;
+  }
+
+  const requests = [
+    ["nifty", "NIFTY 50"],
+    ["bank", "BANK NIFTY"]
+  ];
+
+  for (const [key, query] of requests) {
+    try {
+      const result = await MarketAPI.quote("NSE", query);
+
+      if (
+        result?.ok === true &&
+        result.quote?.dataReady === true &&
+        Number.isFinite(Number(result.quote.price)) &&
+        Number(result.quote.price) > 0
+      ) {
+        state[key] = Number(result.quote.price);
+      }
+    } catch (error) {
+      /*
+       * Quote failures must never create fake prices or trading signals.
+       * Keep the last validated value, or "--" when no validated quote exists.
+       */
+    }
+  }
+
+  updateDashboard();
 }
 
 function showToast(message) {
@@ -114,8 +154,10 @@ function simulateMarket() {
 }
 
 updateDashboard();
+refreshDashboardQuotes();
 
 setInterval(simulateMarket, 4000);
+setInterval(refreshDashboardQuotes, 15000);
 
 /* Mobile navigation */
 document.querySelectorAll(".mobile-nav-item").forEach(button => {
