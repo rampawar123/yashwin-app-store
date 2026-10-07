@@ -161,18 +161,74 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     });
 
   function values() {
+    const assetType = String($("paperAssetType")?.value || "EQUITY").toUpperCase();
+
+    const qty = Number($("paperQty")?.value);
+    const lotSize = Number($("paperLotSize")?.value);
+    const lots = Number($("paperLots")?.value);
+
+    const effectiveQuantity = assetType === "OPTION"
+      ? lotSize * lots
+      : qty;
+
     return {
       entry: Number($("paperEntry").value),
-      qty: Number($("paperQty").value),
+      qty,
       stop: Number($("paperStop").value),
-      target: Number($("paperTarget").value)
+      target: Number($("paperTarget").value),
+      assetType,
+      lotSize,
+      lots,
+      effectiveQuantity
     };
+  }
+
+  function updateAssetTypeUI() {
+    const v = values();
+    const option = v.assetType === "OPTION";
+
+    $("paperEquityQuantityGroup").hidden = option;
+    $("paperOptionQuantityGroup").hidden = !option;
+
+    if ($("paperQty")) {
+      $("paperQty").disabled = option;
+    }
+
+    if ($("paperLotSize")) {
+      $("paperLotSize").disabled = !option;
+    }
+
+    if ($("paperLots")) {
+      $("paperLots").disabled = !option;
+    }
+
+    $("paperEffectiveQty").textContent =
+      Number.isFinite(v.effectiveQuantity) && v.effectiveQuantity > 0
+        ? v.effectiveQuantity
+        : "0";
+
+    updatePreview();
   }
 
   function updatePreview() {
     const v = values();
 
-    if (!v.entry || !v.qty || !v.stop || !v.target) {
+    const quantityValid = v.assetType === "OPTION"
+      ? Number.isInteger(v.lotSize) &&
+        v.lotSize > 0 &&
+        Number.isInteger(v.lots) &&
+        v.lots > 0
+      : Number.isFinite(v.qty) && v.qty > 0;
+
+    if (
+      !Number.isFinite(v.entry) ||
+      !Number.isFinite(v.stop) ||
+      !Number.isFinite(v.target) ||
+      v.entry <= 0 ||
+      v.stop <= 0 ||
+      v.target <= 0 ||
+      !quantityValid
+    ) {
       $("paperRisk").textContent = "₹0";
       $("paperReward").textContent = "₹0";
       $("paperRR").textContent = "0.00";
@@ -183,18 +239,42 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       v.entry,
       v.stop,
       v.target,
-      v.qty
+      v.qty,
+      {
+        assetType: v.assetType,
+        lotSize: v.lotSize,
+        lots: v.lots
+      }
     );
 
     $("paperRisk").textContent = money(preview.risk);
     $("paperReward").textContent = money(preview.reward);
-    $("paperRR").textContent = preview.rr.toFixed(2);
+    $("paperRR").textContent =
+      Number.isFinite(preview.rr) ? preview.rr.toFixed(2) : "0.00";
+
+    if ($("paperEffectiveQty")) {
+      $("paperEffectiveQty").textContent =
+        preview.effectiveQuantity || "0";
+    }
   }
 
-  ["paperEntry", "paperQty", "paperStop", "paperTarget"]
-    .forEach(id => {
-      $(id).addEventListener("input", updatePreview);
-    });
+  [
+    "paperAssetType",
+    "paperEntry",
+    "paperQty",
+    "paperLotSize",
+    "paperLots",
+    "paperStop",
+    "paperTarget"
+  ].forEach(id => {
+    const element = $(id);
+    if (element) {
+      element.addEventListener("input", updatePreview);
+      element.addEventListener("change", updatePreview);
+    }
+  });
+
+  $("paperAssetType").addEventListener("change", updateAssetTypeUI);
 
   document.querySelectorAll(".trade-direction").forEach(button => {
     button.addEventListener("click", () => {
@@ -223,6 +303,7 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     }
 
     const p = state.position;
+    const effectiveQty = Number(p.effectiveQty || p.qty || 0);
 
     $("paperNoPosition").hidden = true;
     $("paperPosition").hidden = false;
@@ -232,10 +313,11 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     $("paperPositionSymbol").textContent = p.symbol;
     $("paperPositionEntry").textContent = money(p.entry);
     $("paperPositionCurrent").textContent = money(p.current);
-    $("paperPositionQty").textContent = p.qty;
+
+    $("paperPositionQty").textContent = effectiveQty;
 
     $("paperPositionValue").textContent =
-      money(p.positionValue || (p.entry * p.qty));
+      money(p.positionValue || (p.entry * effectiveQty));
 
     $("paperProfitMilestone").textContent =
       money(p.profitStep || 0);
@@ -247,8 +329,8 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       money(p.nextProfitMilestone || 0);
 
     const pnl = p.direction === "BUY"
-      ? (p.current - p.entry) * p.qty
-      : (p.entry - p.current) * p.qty;
+      ? (p.current - p.entry) * effectiveQty
+      : (p.entry - p.current) * effectiveQty;
 
     $("paperPositionPnl").textContent = money(pnl);
   }
@@ -256,15 +338,23 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
   $("openPaperTrade").addEventListener("click", () => {
     const v = values();
 
+    const quantityValid = v.assetType === "OPTION"
+      ? Number.isInteger(v.lotSize) &&
+        v.lotSize > 0 &&
+        Number.isInteger(v.lots) &&
+        v.lots > 0
+      : Number.isFinite(v.qty) && v.qty > 0;
+
     if (
       !Number.isFinite(v.entry) ||
-      !Number.isFinite(v.qty) ||
       !Number.isFinite(v.stop) ||
       !Number.isFinite(v.target) ||
       v.entry <= 0 ||
-      v.qty <= 0 ||
       v.stop <= 0 ||
-      v.target <= 0
+      v.target <= 0 ||
+      !quantityValid ||
+      !Number.isFinite(v.effectiveQuantity) ||
+      v.effectiveQuantity <= 0
     ) {
       showToast("Enter valid trade values");
       return;
@@ -277,6 +367,9 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       entry: v.entry,
       stop: v.stop,
       quantity: v.qty,
+      assetType: v.assetType,
+      lotSize: v.lotSize,
+      lots: v.lots,
       dailyPnl: paperState.dailyPnl,
       tradesToday: paperState.tradesToday,
       openPositions: paperState.position ? 1 : 0,
@@ -297,7 +390,10 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       entry: v.entry,
       stop: v.stop,
       target: v.target,
-      qty: v.qty
+      qty: v.qty,
+      assetType: v.assetType,
+      lotSize: v.lotSize,
+      lots: v.lots
     });
 
     if (!result.ok) {
@@ -306,7 +402,9 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     }
 
     showToast(
-      `${direction} paper trade opened • Risk ${money(result.preview.risk)}`
+      `${direction} ${v.assetType} paper trade opened • ` +
+      `Qty ${result.preview.effectiveQuantity} • ` +
+      `Risk ${money(result.preview.risk)}`
     );
 
     renderState();
@@ -387,20 +485,21 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
 
     if (result.action === "AI_REANALYZE") {
       showToast(
-        `AI RE-ANALYSIS • Profit ${money(result.pnl)} • Next milestone ${money(result.nextProfitMilestone)}`
+        `AI RE-ANALYSIS • Profit ${money(result.pnl)} • ` +
+        `Next milestone ${money(result.nextProfitMilestone)}`
       );
       renderState();
       return;
     }
 
-    if (result.action === "HOLD" &&
-        result.lockedProfit > 0) {
+    if (result.action === "HOLD" && result.lockedProfit > 0) {
       showToast(
         `Profit protected • ${money(result.lockedProfit)} locked`
       );
     }
   }, 1500);
 
+  updateAssetTypeUI();
   renderState();
 })();
 

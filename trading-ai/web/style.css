@@ -1451,3 +1451,24 @@ body {
     font-size: 13px;
   }
 }
+
+.effective-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.effective-quantity span {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.effective-quantity strong {
+  font-size: 14px;
+}

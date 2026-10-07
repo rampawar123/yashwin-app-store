@@ -61,10 +61,6 @@ const RiskEngine = (() => {
       result.reasons.push("Invalid stop-loss price.");
     }
 
-    if (qty <= 0) {
-      result.reasons.push("Invalid quantity.");
-    }
-
     if (assetType === "OPTION") {
       if (lotSize <= 0) {
         result.reasons.push("Invalid option lot size.");
@@ -81,6 +77,8 @@ const RiskEngine = (() => {
       if (!Number.isInteger(lots)) {
         result.reasons.push("Option lot count must be a whole number.");
       }
+    } else if (qty <= 0) {
+      result.reasons.push("Invalid quantity.");
     }
 
     if (side !== "BUY" && side !== "SELL") {
@@ -117,6 +115,11 @@ const RiskEngine = (() => {
         ? lotSize * lots
         : qty;
 
+    if (!Number.isFinite(effectiveQuantity) || effectiveQuantity <= 0) {
+      result.reasons.push("Invalid effective quantity.");
+      return result;
+    }
+
     result.riskAmount =
       Math.abs(entry - stop) * effectiveQuantity;
 
@@ -146,7 +149,7 @@ const RiskEngine = (() => {
       );
     }
 
-    if (qty > limits.maxQuantity) {
+    if (effectiveQuantity > limits.maxQuantity) {
       result.reasons.push(
         "Order quantity exceeds the maximum quantity limit."
       );

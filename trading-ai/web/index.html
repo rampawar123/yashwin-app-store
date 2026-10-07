@@ -269,11 +269,32 @@
                 <option value="BANK NIFTY">BANK NIFTY</option>
               </select>
 
+              <label>Asset Type</label>
+              <select id="paperAssetType">
+                <option value="EQUITY">Equity / Index</option>
+                <option value="OPTION">Option</option>
+              </select>
+
+              <div id="paperEquityQuantityGroup">
+                <label>Quantity</label>
+                <input id="paperQty" type="number" min="1" step="1" placeholder="1">
+              </div>
+
+              <div id="paperOptionQuantityGroup" hidden>
+                <label>Lot Size</label>
+                <input id="paperLotSize" type="number" min="1" step="1" placeholder="75">
+
+                <label>Lots</label>
+                <input id="paperLots" type="number" min="1" step="1" placeholder="1">
+
+                <div class="effective-quantity">
+                  <span>Effective Quantity</span>
+                  <strong id="paperEffectiveQty">0</strong>
+                </div>
+              </div>
+
               <label>Entry Price</label>
               <input id="paperEntry" type="number" step="0.05" placeholder="25000">
-
-              <label>Quantity</label>
-              <input id="paperQty" type="number" min="1" step="1" placeholder="1">
 
               <label>Stop Loss</label>
               <input id="paperStop" type="number" step="0.05" placeholder="24900">
