@@ -74,7 +74,7 @@ async function getQuoteBySearch(
   // before any quote request is allowed.
   normalizer.assertValidOptionContract(instrument);
 
-  const quote =
+  const quoteResponse =
     await quoteAdapter.getQuote(
       instrument
     );
@@ -82,7 +82,8 @@ async function getQuoteBySearch(
   return {
     ok: true,
     instrument,
-    quote
+    provider: quoteResponse.provider,
+    quote: quoteResponse.quote
   };
 }
 
