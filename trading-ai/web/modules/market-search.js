@@ -84,6 +84,53 @@ const MarketSearch = (() => {
       .slice(0, 10);
   }
 
+  async function searchAsync(query, exchange) {
+    const localResults = search(query);
+
+    if (
+      typeof MarketAPI === "undefined" ||
+      typeof MarketAPI.searchInstruments !== "function"
+    ) {
+      return localResults;
+    }
+
+    const normalizedQuery = String(query || "").trim();
+    const normalizedExchange = String(exchange || "").trim().toUpperCase();
+
+    if (!normalizedQuery || !normalizedExchange) {
+      return localResults;
+    }
+
+    try {
+      const response = await MarketAPI.searchInstruments(
+        normalizedExchange,
+        normalizedQuery
+      );
+
+      const brokerResults = Array.isArray(response?.results)
+        ? response.results.map(item => ({
+            key: item.tradingsymbol || item.symboltoken,
+            name: item.tradingsymbol || item.symboltoken,
+            exchange: item.exchange || normalizedExchange,
+            type: ["NFO", "BFO"].includes(
+              String(item.exchange || normalizedExchange).toUpperCase()
+            )
+              ? "OPTION"
+              : "EQUITY",
+            optionType: item.optionType || null,
+            strikePrice: item.strikePrice ?? null,
+            expiry: item.expiry || null,
+            symboltoken: item.symboltoken || null,
+            brokerInstrument: true
+          }))
+        : [];
+
+      return brokerResults.length ? brokerResults.slice(0, 10) : localResults;
+    } catch (_) {
+      return localResults;
+    }
+  }
+
   function render(results, container, onSelect) {
     if (!container) return;
 
@@ -116,6 +163,7 @@ const MarketSearch = (() => {
   return {
     allInstruments,
     search,
+    searchAsync,
     render
   };
 

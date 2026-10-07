@@ -630,13 +630,14 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     }
   }
 
-  function bindSearch(input, results, hideAfterSelect = false) {
+  async function bindSearch(input, results, hideAfterSelect = false) {
     if (!input || !results) return;
 
-    function update() {
-      const found = MarketSearch.search(input.value);
+    async function update() {
+      const query = input.value;
+      const localFound = MarketSearch.search(query);
 
-      MarketSearch.render(found, results, item => {
+      MarketSearch.render(localFound, results, item => {
         selectInstrument(item);
 
         if (hideAfterSelect) {
@@ -644,15 +645,41 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
         }
       });
 
-      if (found.length) {
-        results.hidden = false;
-      } else {
-        results.hidden = false;
+      results.hidden = false;
+
+      if (
+        typeof MarketSearch.searchAsync !== "function" ||
+        !String(query || "").trim()
+      ) {
+        return;
       }
+
+      const exchange =
+        localFound.length && localFound[0].exchange
+          ? localFound[0].exchange
+          : "NSE";
+
+      const brokerFound = await MarketSearch.searchAsync(
+        query,
+        exchange
+      );
+
+      if (String(input.value || "").trim() !== String(query || "").trim()) {
+        return;
+      }
+
+      MarketSearch.render(brokerFound, results, item => {
+        selectInstrument(item);
+
+        if (hideAfterSelect) {
+          results.hidden = true;
+        }
+      });
+
+      results.hidden = false;
     }
 
     input.addEventListener("input", update);
-
     input.addEventListener("focus", update);
 
     input.addEventListener("keydown", event => {
