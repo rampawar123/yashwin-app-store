@@ -22,11 +22,20 @@ const PORT = Number(process.env.API_PORT || 8787);
 
 function json(res, statusCode, body) {
   const payload = JSON.stringify(body);
+  const requestOrigin = String(res.req?.headers?.origin || '').trim();
+  const allowedOrigins = new Set([
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:8787',
+    'http://127.0.0.1:8787'
+  ]);
 
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
-    'Access-Control-Allow-Origin': 'http://localhost:8787',
+    'Access-Control-Allow-Origin': allowedOrigins.has(requestOrigin)
+      ? requestOrigin
+      : 'http://localhost:8787',
     'Access-Control-Allow-Methods': 'GET,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   });
