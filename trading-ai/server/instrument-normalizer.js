@@ -22,6 +22,18 @@ function normalizeInstrument(item = {}) {
 
     symboltoken: item.symboltoken
       ? String(item.symboltoken).trim()
+      : null,
+
+    optionType: item.optionType
+      ? String(item.optionType).trim().toUpperCase()
+      : null,
+
+    strikePrice: Number.isFinite(Number(item.strikePrice))
+      ? Number(item.strikePrice)
+      : null,
+
+    expiry: item.expiry
+      ? String(item.expiry).trim()
       : null
   };
 }

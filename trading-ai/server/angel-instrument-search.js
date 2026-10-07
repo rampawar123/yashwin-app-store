@@ -105,7 +105,10 @@ async function searchScrip(exchange, searchText) {
     ? response.data.map((item) => ({
         exchange: item.exchange || null,
         tradingsymbol: item.tradingsymbol || null,
-        symboltoken: item.symboltoken || null
+        symboltoken: item.symboltoken || null,
+        optionType: item.optionType || null,
+        strikePrice: item.strikePrice ?? null,
+        expiry: item.expiry || null
       }))
     : [];
 

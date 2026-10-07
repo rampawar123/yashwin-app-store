@@ -171,6 +171,13 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       ? lotSize * lots
       : qty;
 
+    const selectedInstrument =
+      window.YashwinSelectedInstrument || {};
+
+    const optionType = String(
+      selectedInstrument.optionType || ""
+    ).trim().toUpperCase();
+
     return {
       entry: Number($("paperEntry").value),
       qty,
@@ -179,7 +186,8 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       assetType,
       lotSize,
       lots,
-      effectiveQuantity
+      effectiveQuantity,
+      optionType
     };
   }
 
@@ -396,6 +404,7 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       confidence: aiConfidence,
       risk: aiRisk,
       riskCheck,
+      optionType: v.optionType,
       emergencyStop: false,
       averaging: false
     });

@@ -59,6 +59,31 @@ const AISafetyGate = (() => {
     }
 
     /*
+     * AI option signal must match the selected option contract.
+     * BUY_CE -> CE only
+     * BUY_PE -> PE only
+     */
+    const optionType = String(input.optionType || "").trim().toUpperCase();
+
+    if (
+      result.signal === "BUY_CE" &&
+      optionType !== "CE"
+    ) {
+      result.reasons.push(
+        "AI BUY_CE signal does not match the selected option contract."
+      );
+    }
+
+    if (
+      result.signal === "BUY_PE" &&
+      optionType !== "PE"
+    ) {
+      result.reasons.push(
+        "AI BUY_PE signal does not match the selected option contract."
+      );
+    }
+
+    /*
      * High AI risk always blocks the trade.
      */
     if (result.risk === "HIGH") {
