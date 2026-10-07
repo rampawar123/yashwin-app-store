@@ -384,6 +384,29 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
       return;
     }
 
+    const aiSignal = String(state.signal || "").toUpperCase();
+    const aiConfidence = Number(state.confidence);
+    const aiRisk = String(
+      document.getElementById("riskLevel")?.textContent || "HIGH"
+    ).toUpperCase();
+
+    const aiGate = AISafetyGate.evaluate({
+      dataReady: window.YashwinMarketSnapshot?.dataReady === true,
+      signal: aiSignal,
+      confidence: aiConfidence,
+      risk: aiRisk,
+      riskCheck,
+      emergencyStop: false,
+      averaging: false
+    });
+
+    if (!aiGate.allowed) {
+      showToast(
+        "AI SAFETY BLOCKED • " + aiGate.reasons.join(" ")
+      );
+      return;
+    }
+
     const result = PaperTrading.openPosition({
       symbol: $("paperSymbol").value,
       direction,
@@ -755,6 +778,9 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     const meter = document.getElementById("meterFill");
 
     if (!snapshot || snapshot.dataReady !== true) {
+      state.signal = "DATA WAITING";
+      state.confidence = null;
+
       if (signal) signal.textContent = "DATA WAITING";
       if (bigSignal) bigSignal.textContent = "DATA WAITING";
       if (confidence) confidence.textContent = "--%";
@@ -795,6 +821,9 @@ document.querySelectorAll(".mobile-nav-item").forEach(button => {
     }
 
     const result = MarketAnalysis.analyze(input);
+
+    state.signal = result.signal;
+    state.confidence = result.confidence;
 
     if (signal) signal.textContent = result.signal;
     if (bigSignal) bigSignal.textContent = result.signal;
