@@ -36,7 +36,7 @@ function json(res, statusCode, body) {
     'Access-Control-Allow-Origin': allowedOrigins.has(requestOrigin)
       ? requestOrigin
       : 'http://localhost:8787',
-    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   });
 
@@ -56,6 +56,25 @@ async function handle(req, res) {
   }
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+
+  if (url.pathname === '/api/auth/login') {
+    if (req.method !== 'POST') {
+      return json(res, 405, {
+        ok: false,
+        code: 'METHOD_NOT_ALLOWED'
+      });
+    }
+
+    try {
+      const result = await auth.login();
+      return json(res, 200, result);
+    } catch (error) {
+      return json(res, 400, {
+        ok: false,
+        ...safeError(error)
+      });
+    }
+  }
 
   if (req.method !== 'GET') {
     return json(res, 405, {

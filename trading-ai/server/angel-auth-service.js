@@ -39,7 +39,12 @@ function requireAuthenticationReady() {
   return status;
 }
 
+async function login() {
+  return session.login();
+}
+
 module.exports = {
   getAuthStatus,
-  requireAuthenticationReady
+  requireAuthenticationReady,
+  login
 };
