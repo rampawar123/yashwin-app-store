@@ -1,0 +1,3088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>window.YASHWIN_API_BASE_URL = "https://yashwin-ai-trading.onrender.com";</script>
+  <meta name="theme-color" content="#07111f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="YASHWIN AI">
+  <title>YASHWIN AI Trading Assistant</title>
+  <meta name="description" content="Personal AI-powered market analysis, risk control, and paper trading assistant.">
+  <meta property="og:title" content="YASHWIN AI Trading Assistant">
+  <meta property="og:description" content="Personal AI-powered market analysis, risk control, and paper trading assistant.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">Y</div>
+        <div>
+          <h1>YASHWIN AI</h1>
+          <span>TRADING ASSISTANT</span>
+        </div>
+      </div>
+
+      <nav>
+        <button class="nav-item active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+        <button class="nav-item" data-page="scanner">◈ <span>Market Scanner</span></button>
+        <button class="nav-item" data-page="watchlist">★ <span>Watchlist &amp; Alerts</span></button>
+        <button class="nav-item" data-page="analysis">✦ <span>AI Analysis</span></button>
+        <button class="nav-item" data-page="intelligence">🌐 <span>Market Intelligence</span></button>
+        <button class="nav-item" data-page="strategy">⚙ <span>Strategy</span></button>
+        <button class="nav-item" data-page="paper">▣ <span>Paper Trading</span></button>
+        <button class="nav-item" data-page="positions">◫ <span>Positions</span></button>
+        <button class="nav-item" data-page="orders">☷ <span>Orders</span></button>
+        <button class="nav-item" data-page="risk">⚠ <span>Risk Controls</span></button>
+        <button class="nav-item" data-page="history">◴ <span>Trade History</span></button>
+        <button class="nav-item" data-page="account">◉ <span>Account &amp; Profile</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="mode-box">
+          <span class="dot" id="sidebarModeDot"></span>
+          <div>
+            <small>TRADING MODE</small>
+            <strong id="sidebarModeText">PAPER TRADING</strong>
+          </div>
+        </div>
+
+        <button class="emergency" id="emergencyBtn" type="button">
+          ⛔ Emergency Stop
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">AI-powered market monitoring</p>
+        </div>
+
+        <div class="top-actions">
+          <div class="market-status" id="topMarketStatus">
+            <span class="dot" id="topMarketStatusDot"></span>
+            <span id="topMarketStatusText">DATA WAITING</span>
+          </div>
+          <span class="status-pill pwa-net-pill" id="pwaNetworkStatusBadge" title="Network Connectivity Status">ONLINE</span>
+          <button type="button" class="user-top-btn pwa-install-btn" id="pwaInstallBtn" title="Install YASHWIN AI App" hidden>
+            <span>⬇</span>
+            <span class="user-top-label" id="pwaInstallBtnLabel">Install App</span>
+          </button>
+          <button type="button" class="user-top-btn" id="topNotificationBtn" title="Alert Notifications Center" aria-label="Open Alert Notifications Center">
+            <span>🔔</span>
+            <span class="user-top-label">Alerts</span>
+            <span class="status-pill tabular-nums" id="topNotificationBadge" style="padding: 2px 7px; font-size: 0.72rem;">0</span>
+          </button>
+          <button type="button" class="user-top-btn" id="topAccountBtn" title="YASHWIN User Account &amp; Profile">
+            <span class="avatar" id="topUserAvatar">Y</span>
+            <span class="user-top-label" id="topUserLabel">Sign In</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- GLOBAL PWA OFFLINE / UPDATE STATUS BANNERS -->
+      <div id="pwaOfflineBanner" class="dash-banner warning pwa-global-banner" role="alert" hidden>
+        <div>
+          <strong>Offline Mode — Static App Shell Active</strong>
+          <span id="pwaOfflineBannerText">Network connection is unavailable. Live market quotes, candles, AI analysis, and paper order execution are paused until connectivity is restored. Zero synthetic prices or signals are generated.</span>
+        </div>
+        <button type="button" id="pwaOfflineRetryBtn" class="dash-inline-btn">Retry Connection</button>
+      </div>
+
+      <div id="pwaUpdateBanner" class="dash-banner info pwa-global-banner" role="status" hidden>
+        <div>
+          <strong>App Update Ready</strong>
+          <span>A newer version of the YASHWIN AI Trading Assistant shell is ready.</span>
+        </div>
+        <button type="button" id="pwaApplyUpdateBtn" class="dash-inline-btn">Reload App</button>
+      </div>
+
+      <!-- iOS SAFARI INSTALL GUIDE MODAL -->
+      <div id="pwaIosInstallModal" class="pwa-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pwaIosModalTitle" hidden>
+        <div class="panel pwa-modal-card">
+          <div class="panel-header">
+            <div>
+              <h3 id="pwaIosModalTitle">Install YASHWIN AI on iPhone / iPad</h3>
+              <p>Add to Home Screen for standalone full-screen paper trading access</p>
+            </div>
+            <span class="status-pill">iOS PWA</span>
+          </div>
+          <div class="risk-list" style="margin-top: 12px;">
+            <div><span>Step 1</span><strong>Tap the Share button in Safari toolbar</strong></div>
+            <div><span>Step 2</span><strong>Scroll down and tap "Add to Home Screen"</strong></div>
+            <div><span>Step 3</span><strong>Tap "Add" to launch in Standalone Mode</strong></div>
+          </div>
+          <button type="button" id="pwaIosModalCloseBtn" class="primary-action" style="margin-top: 14px;">Close Guide</button>
+        </div>
+      </div>
+
+      <section class="global-search-bar">
+        <div class="global-search-box">
+          <span class="search-icon">🔎</span>
+          <input
+            id="marketSearch"
+            type="search"
+            placeholder="Search stock, index, option..."
+            autocomplete="off"
+          >
+          <button type="button" id="searchClearBtn" aria-label="Clear search">×</button>
+        </div>
+        <div id="marketSearchResults" class="market-search-results global-results" hidden></div>
+      </section>
+
+      <!-- PAGE 1: DASHBOARD -->
+      <section class="content page-section" id="dashboardPage" data-section="dashboard">
+
+        <!-- UX STATE BANNERS: LOADING, SESSION EXPIRED, API ERROR, EMPTY ACCOUNT -->
+        <div id="dashSessionExpiredBanner" class="dash-banner warning" role="alert" hidden>
+          <div>
+            <strong>Session Expired or Unauthenticated</strong>
+            <span>Your YASHWIN session has expired or you are viewing in Guest mode. Sign in to access your isolated paper trading ledger.</span>
+          </div>
+          <button type="button" id="dashSessionSignInBtn" class="dash-inline-btn">Sign In</button>
+        </div>
+
+        <div id="dashApiErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong>Market / API Connection Notice</strong>
+            <span id="dashApiErrorText">Unable to reach market data endpoint. No fake prices or signals are generated.</span>
+          </div>
+          <button type="button" id="dashRetryBtn" class="dash-inline-btn">Retry Sync</button>
+        </div>
+
+        <div id="dashLoadingBanner" class="dash-banner info" aria-live="polite" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span id="dashLoadingText">Synchronizing validated market data, AI contract, and account ledger...</span>
+        </div>
+
+        <div class="hero">
+          <div>
+            <span class="eyebrow">YASHWIN AI ENGINE • PAPER MODE ONLY</span>
+            <h3>Market Intelligence &amp; Paper Trading Command Center</h3>
+            <p>
+              Real-time validated market status, deterministic AI analysis, risk-gated trade levels, and isolated paper account telemetry.
+            </p>
+          </div>
+
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>MODE</span>
+              <strong id="heroModeBadge">PAPER</strong>
+            </div>
+            <button type="button" id="dashRefreshAllBtn" class="dash-refresh-btn" aria-label="Refresh Dashboard Data">
+              ↻ Refresh Feed
+            </button>
+          </div>
+        </div>
+
+        <!-- QUICK NAVIGATION HUB TO ALL 10 REQUIRED DESTINATIONS -->
+        <nav class="dash-quick-nav" aria-label="Dashboard quick module navigation">
+          <button type="button" class="dash-nav-link" data-nav-target="scanner">Market Search</button>
+          <button type="button" class="dash-nav-link" data-nav-target="analysis">AI Analysis</button>
+          <button type="button" class="dash-nav-link" data-nav-target="intelligence">Market Intelligence</button>
+          <button type="button" class="dash-nav-link" data-nav-target="watchlist">Watchlist &amp; Alerts</button>
+          <button type="button" class="dash-nav-link" data-nav-target="positions">Portfolio</button>
+          <button type="button" class="dash-nav-link" data-nav-target="orders">Orders</button>
+          <button type="button" class="dash-nav-link" data-nav-target="history">Trade History</button>
+          <button type="button" class="dash-nav-link" data-nav-target="strategy">Backtesting</button>
+          <button type="button" class="dash-nav-link" data-nav-target="risk">Risk Management</button>
+          <button type="button" class="dash-nav-link" data-nav-target="account">Account / Profile</button>
+          <button type="button" class="dash-nav-link" data-nav-target="account" data-subview="settings">Settings</button>
+        </nav>
+
+        <!-- SECTIONS 1, 2, 3, 18: MARKET STATUS, SELECTED INSTRUMENT, CURRENT PRICE & % CHANGE, TIMESTAMP & FRESHNESS -->
+        <div class="dash-instrument-strip panel" id="dashInstrumentStrip">
+          <div class="dash-strip-col">
+            <span class="dash-kicker">1. MARKET STATUS</span>
+            <strong id="dashMarketStatusLabel">DATA WAITING</strong>
+            <small id="dashMarketStatusCode">Waiting for validated quote</small>
+          </div>
+
+          <div class="dash-strip-col">
+            <span class="dash-kicker">2. SELECTED INSTRUMENT</span>
+            <strong id="dashSelectedSymbol">NIFTY 50</strong>
+            <small id="dashSelectedMeta">NSE • INDEX</small>
+          </div>
+
+          <div class="dash-strip-col">
+            <span class="dash-kicker">3. CURRENT PRICE &amp; CHANGE</span>
+            <strong id="dashSelectedPrice" class="tabular-nums">--</strong>
+            <small id="dashSelectedChange" class="tabular-nums">-- (--%)</small>
+          </div>
+
+          <div class="dash-strip-col">
+            <span class="dash-kicker">18. TIMESTAMP &amp; FRESHNESS</span>
+            <strong id="dashQuoteFreshness">WAITING FOR FEED</strong>
+            <small id="dashQuoteTimestamp" class="tabular-nums">--</small>
+          </div>
+        </div>
+
+        <!-- BENCHMARK INDEX CARDS + AI SIGNAL + PAPER P&L SUMMARY -->
+        <div class="cards">
+
+          <div class="card index-card">
+            <div class="card-top">
+              <span>NIFTY 50</span>
+              <span class="positive tabular-nums" id="niftyChange">--</span>
+            </div>
+            <strong id="niftyValue" class="tabular-nums">--</strong>
+            <small id="niftyStatusLabel">DATA WAITING</small>
+          </div>
+
+          <div class="card index-card">
+            <div class="card-top">
+              <span>BANK NIFTY</span>
+              <span class="positive tabular-nums" id="bankChange">--</span>
+            </div>
+            <strong id="bankValue" class="tabular-nums">--</strong>
+            <small id="bankStatusLabel">DATA WAITING</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span>5. AI ACTION SIGNAL</span>
+              <span class="signal neutral" id="signal">NO_TRADE</span>
+            </div>
+            <strong id="confidence" class="tabular-nums">--%</strong>
+            <small id="signalDataState">6. Validated Confidence Only</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span>NET DAILY P&amp;L</span>
+              <span id="dashUserScopeLabel">Paper Account</span>
+            </div>
+            <strong id="pnl" class="tabular-nums">₹0.00</strong>
+            <small id="dashAccountEmptyNote">Virtual trading account</small>
+          </div>
+
+        </div>
+
+        <!-- SECTIONS 11, 12, 13: PAPER ACCOUNT PORTFOLIO TELEMETRY -->
+        <div class="dash-kpi-row">
+          <div class="panel dash-kpi-box">
+            <span class="dash-kicker">11. AVAILABLE PAPER BALANCE</span>
+            <strong id="dashAvailableBalance" class="tabular-nums">₹1,00,000.00</strong>
+            <small id="dashCapitalMeta" class="tabular-nums">Total Capital: ₹1,00,000.00 • Margin Used: ₹0.00</small>
+          </div>
+
+          <div class="panel dash-kpi-box">
+            <span class="dash-kicker">12. TODAY'S REALIZED P&amp;L</span>
+            <strong id="dashRealizedPnl" class="tabular-nums">₹0.00</strong>
+            <small id="dashRealizedMeta">Closed intraday paper trades</small>
+          </div>
+
+          <div class="panel dash-kpi-box">
+            <span class="dash-kicker">13. UNREALIZED P&amp;L</span>
+            <strong id="dashUnrealizedPnl" class="tabular-nums">₹0.00</strong>
+            <small id="dashUnrealizedMeta">Mark-to-market on validated quote</small>
+          </div>
+        </div>
+
+        <!-- MAIN ANALYTICS GRID: CHART + TECHNICAL INDICATORS (9) + AI MARKET VIEW & TRADE LEVELS (4, 5, 6, 7, 8) -->
+        <div class="grid">
+
+          <section class="panel chart-panel">
+            <div class="panel-header chart-header-top">
+              <div>
+                <h3>Market Overview, Candlestick Chart &amp; 9. Technical Indicators</h3>
+                <p id="chartSubtitle">Waiting for validated market feed</p>
+              </div>
+
+              <div class="chart-header-controls">
+                <select id="timeframe" aria-label="Chart Timeframe">
+                  <option value="ONE_MINUTE">1 Min</option>
+                  <option value="THREE_MINUTE">3 Min</option>
+                  <option value="FIVE_MINUTE" selected>5 Min</option>
+                  <option value="TEN_MINUTE">10 Min</option>
+                  <option value="FIFTEEN_MINUTE">15 Min</option>
+                  <option value="THIRTY_MINUTE">30 Min</option>
+                  <option value="ONE_HOUR">1 Hour</option>
+                  <option value="ONE_DAY">1 Day</option>
+                </select>
+                <button type="button" id="chartRefreshBtn" class="dash-inline-btn" title="Reload historical candles">↻ Candles</button>
+              </div>
+            </div>
+
+            <!-- TIMEFRAME SEGMENTED TOOLBAR + ZOOM & PAN CONTROLS -->
+            <div class="chart-toolbar-row">
+              <div class="chart-tf-pills" id="chartTimeframePills" role="group" aria-label="Candlestick Timeframes">
+                <button type="button" class="chart-tf-btn" data-tf="ONE_MINUTE">1m</button>
+                <button type="button" class="chart-tf-btn" data-tf="THREE_MINUTE">3m</button>
+                <button type="button" class="chart-tf-btn active" data-tf="FIVE_MINUTE">5m</button>
+                <button type="button" class="chart-tf-btn" data-tf="TEN_MINUTE">10m</button>
+                <button type="button" class="chart-tf-btn" data-tf="FIFTEEN_MINUTE">15m</button>
+                <button type="button" class="chart-tf-btn" data-tf="THIRTY_MINUTE">30m</button>
+                <button type="button" class="chart-tf-btn" data-tf="ONE_HOUR">1h</button>
+                <button type="button" class="chart-tf-btn" data-tf="ONE_DAY">1D</button>
+              </div>
+
+              <div class="chart-zoom-controls" role="group" aria-label="Chart Zoom and Pan">
+                <button type="button" id="chartPanLeftBtn" class="chart-ctrl-btn" title="Pan Left (Older Candles)">◀</button>
+                <button type="button" id="chartZoomInBtn" class="chart-ctrl-btn" title="Zoom In">＋</button>
+                <button type="button" id="chartZoomOutBtn" class="chart-ctrl-btn" title="Zoom Out">－</button>
+                <button type="button" id="chartPanRightBtn" class="chart-ctrl-btn" title="Pan Right (Newer Candles)">▶</button>
+                <button type="button" id="chartResetViewBtn" class="chart-ctrl-btn" title="Reset Chart Viewport">Reset</button>
+              </div>
+            </div>
+
+            <!-- OVERLAY & SUBCHART TOGGLES -->
+            <div class="chart-overlays-bar" role="group" aria-label="Indicator Overlays and Subchart">
+              <button type="button" class="chart-overlay-btn active" data-chart-overlay="ema9">EMA 9</button>
+              <button type="button" class="chart-overlay-btn active" data-chart-overlay="ema21">EMA 21</button>
+              <button type="button" class="chart-overlay-btn" data-chart-overlay="sma20">SMA 20</button>
+              <button type="button" class="chart-overlay-btn" data-chart-overlay="sma50">SMA 50</button>
+              <button type="button" class="chart-overlay-btn active" data-chart-overlay="vwap">VWAP</button>
+              <button type="button" class="chart-overlay-btn active" data-chart-overlay="bollinger">BB (20,2)</button>
+              <button type="button" class="chart-overlay-btn active" data-chart-overlay="srLevels">S/R Levels</button>
+              <button type="button" class="chart-overlay-btn active" data-chart-overlay="tradeLevels">Trade Levels</button>
+              <select id="chartSubchartSelect" aria-label="Oscillator Subchart">
+                <option value="RSI" selected>Subchart: RSI 14</option>
+                <option value="MACD">Subchart: MACD (12,26,9)</option>
+                <option value="ATR_ADX">Subchart: ADX 14 / ATR 14</option>
+                <option value="NONE">Subchart: Hidden</option>
+              </select>
+            </div>
+
+            <!-- CROSSHAIR / HOVER INSPECTOR BAR (OHLCV + TIMESTAMP + OVERLAY VALUES) -->
+            <div class="chart-crosshair-bar tabular-nums" id="chartCrosshairBar">
+              <span id="chartHoverTime">TIME: --</span>
+              <span>O: <strong id="chartHoverOpen">--</strong></span>
+              <span>H: <strong id="chartHoverHigh">--</strong></span>
+              <span>L: <strong id="chartHoverLow">--</strong></span>
+              <span>C: <strong id="chartHoverClose">--</strong></span>
+              <span>VOL: <strong id="chartHoverVolume">--</strong></span>
+              <span id="chartHoverIndicatorSummary">EMA9: -- • VWAP: -- • RSI14: --</span>
+            </div>
+
+            <!-- INTERACTIVE CANDLESTICK & VOLUME CANVAS -->
+            <div class="chart candlestick-chart-wrap" id="candlestickChartContainer">
+              <div class="chart-line" hidden></div>
+              <div class="chart-grid" hidden></div>
+              <span class="chart-label l1 tabular-nums" id="chartLabel1" hidden>--</span>
+              <span class="chart-label l2 tabular-nums" id="chartLabel2" hidden>--</span>
+              <span class="chart-label l3 tabular-nums" id="chartLabel3" hidden>--</span>
+              <span class="chart-label l4 tabular-nums" id="chartLabel4" hidden>--</span>
+            </div>
+
+            <div class="chart-diagnostics-strip">
+              <span id="chartCandleCountNote" class="tabular-nums">0 validated candles</span>
+              <span id="chartSufficiencyNote">Waiting for historical candle series — no synthetic candles generated</span>
+            </div>
+
+            <!-- COMPLETE 12-INDICATOR SUMMARY GRID -->
+            <div class="dash-indicators-grid" id="dashIndicatorsGrid">
+              <div><span>EMA (9 / 21)</span><strong id="dashIndEma" class="tabular-nums">-- / --</strong></div>
+              <div><span>SMA (20 / 50)</span><strong id="dashIndSma20" class="tabular-nums">-- / --</strong></div>
+              <div><span>VWAP</span><strong id="dashIndVwap" class="tabular-nums">--</strong></div>
+              <div><span>RSI (14)</span><strong id="dashIndRsi" class="tabular-nums">--</strong></div>
+              <div><span>MACD (12,26,9)</span><strong id="dashIndMacd" class="tabular-nums">--</strong></div>
+              <div><span>Bollinger (20,2)</span><strong id="dashIndBollinger" class="tabular-nums">--</strong></div>
+              <div><span>ATR (14) / ADX (14)</span><strong id="dashIndAtrAdx" class="tabular-nums">-- / --</strong></div>
+              <div><span>Support / Resistance</span><strong id="dashIndSr" class="tabular-nums">-- / --</strong></div>
+              <div><span>Breakout Status</span><strong id="dashIndBreakout">NONE</strong></div>
+              <div><span>Market Regime</span><strong id="dashIndRegime">DATA_UNAVAILABLE</strong></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>4. AI Market View &amp; Strategy Levels</h3>
+                <p id="aiMarketSubtitle">Validated market assessment</p>
+              </div>
+              <span class="ai-icon" id="dashAiSourceBadge">WAITING</span>
+            </div>
+
+            <div class="ai-view">
+              <div class="dash-signal-row">
+                <div>
+                  <span class="dash-kicker">5. SIGNAL DECISION</span>
+                  <div class="big-signal" id="bigSignal">DATA WAITING</div>
+                </div>
+                <div class="dash-action-tag-box">
+                  <span class="dash-kicker">CONTRACT ACTION</span>
+                  <strong id="dashActionBadge">NO_TRADE</strong>
+                </div>
+              </div>
+
+              <div class="meter" aria-label="Validated AI Confidence Meter">
+                <div class="meter-fill" id="meterFill"></div>
+              </div>
+
+              <div class="signal-details">
+                <div>
+                  <span>Trend</span>
+                  <strong id="trend">Waiting</strong>
+                </div>
+                <div>
+                  <span>Risk Classification</span>
+                  <strong id="riskLevel">HIGH</strong>
+                </div>
+                <div>
+                  <span>6. Validated Confidence</span>
+                  <strong id="dashValidatedConfidence" class="tabular-nums">--%</strong>
+                </div>
+                <div>
+                  <span>8. Risk / Reward</span>
+                  <strong id="dashRiskRewardRatio" class="tabular-nums">--</strong>
+                </div>
+              </div>
+
+              <!-- SECTION 7 & 8: ENTRY / STOP-LOSS / TARGET & RISK/REWARD -->
+              <div class="dash-levels-box">
+                <div class="dash-level-item">
+                  <span>7. Entry Price</span>
+                  <strong id="dashLevelEntry" class="tabular-nums">--</strong>
+                </div>
+                <div class="dash-level-item">
+                  <span>Mandatory Stop-Loss</span>
+                  <strong id="dashLevelStop" class="tabular-nums">--</strong>
+                </div>
+                <div class="dash-level-item">
+                  <span>Target (2.0R)</span>
+                  <strong id="dashLevelTarget" class="tabular-nums">--</strong>
+                </div>
+                <div class="dash-level-item">
+                  <span>Unit Risk / Reward</span>
+                  <strong id="dashUnitRiskReward" class="tabular-nums">-- / --</strong>
+                </div>
+              </div>
+
+              <p class="analysis-text" id="analysisText">
+                Waiting for validated market data. No AI trading signal is generated.
+              </p>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- SECTIONS 10, 14, 15: OPEN POSITIONS, RECENT ORDERS, RECENT TRADES -->
+        <div class="dash-three-col-grid">
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>10. Open Positions</h3>
+                <p>Active paper position (Max 1 concurrent)</p>
+              </div>
+              <span class="safe tabular-nums" id="dashOpenPosBadge">0 / 1 OPEN</span>
+            </div>
+
+            <div id="dashOpenPositionEmpty" class="dash-empty-box">
+              <strong>No Open Paper Position</strong>
+              <span>Account is currently flat. Open a trade in Paper Trading or approve a Strategy Pilot setup.</span>
+              <button type="button" class="dash-inline-btn" data-nav-target="paper">Go to Paper Trading</button>
+            </div>
+
+            <div id="dashOpenPositionCard" class="risk-list" hidden>
+              <div><span>Symbol &amp; Side</span><strong id="dashPosSymbolSide">--</strong></div>
+              <div><span>Quantity / Type</span><strong id="dashPosQtyType" class="tabular-nums">--</strong></div>
+              <div><span>Entry / Current</span><strong id="dashPosEntryCurrent" class="tabular-nums">--</strong></div>
+              <div><span>Stop-Loss / Target</span><strong id="dashPosStopTarget" class="tabular-nums">--</strong></div>
+              <div><span>Unrealized P&amp;L</span><strong id="dashPosUnrealized" class="tabular-nums">₹0.00</strong></div>
+              <div style="border-bottom: 0; padding-top: 12px;">
+                <button type="button" id="dashQuickClosePosBtn" class="danger-action" style="margin-top: 0;">Close Paper Position</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>14. Recent Orders</h3>
+                <p>Latest virtual order executions</p>
+              </div>
+              <button type="button" class="dash-link-btn" data-nav-target="orders">View All</button>
+            </div>
+            <div id="dashRecentOrdersList" class="risk-list">
+              <div><span>No paper orders recorded yet.</span><strong>--</strong></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>15. Recent Trades</h3>
+                <p>Latest closed paper trades &amp; realized P&amp;L</p>
+              </div>
+              <button type="button" class="dash-link-btn" data-nav-target="history">View All</button>
+            </div>
+            <div id="dashRecentTradesList" class="risk-list">
+              <div><span>No closed paper trades yet.</span><strong>--</strong></div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- SECTIONS 16 & 17: RISK LIMIT STATUS & EMERGENCY STOP STATUS -->
+        <div class="grid bottom-grid">
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>16. Risk Limit Status</h3>
+                <p>Deterministic server-side RiskEngine rules</p>
+              </div>
+              <span class="safe" id="riskProtectionBadge">PROTECTED</span>
+            </div>
+
+            <div class="risk-list">
+              <div><span>Maximum loss per trade</span><strong id="dashMaxLossTrade" class="tabular-nums">₹500.00</strong></div>
+              <div><span>Daily loss lock</span><strong id="dashMaxDailyLoss" class="tabular-nums">₹1,000.00</strong></div>
+              <div><span>Maximum trades per day</span><strong id="dashMaxTradesDay" class="tabular-nums">0 / 3</strong></div>
+              <div><span>Maximum open positions</span><strong id="dashMaxOpenPositions" class="tabular-nums">0 / 1</strong></div>
+              <div><span>Position averaging</span><strong>OFF (BLOCKED)</strong></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>17. Emergency Stop &amp; Runtime Status</h3>
+                <p>Server-side kill switch &amp; infrastructure state</p>
+              </div>
+              <span class="safe" id="dashEmergencyBadge">STANDBY (SAFE)</span>
+            </div>
+
+            <div class="status-list">
+              <div><span>Emergency Stop State</span><strong id="dashEmergencyStateText">INACTIVE — ARMED</strong></div>
+              <div><span><i class="status-dot" id="dbStatusDot"></i> SQLite Database</span><strong id="dbStatusText">ONLINE (WAL)</strong></div>
+              <div><span><i class="status-dot" id="riskEngineStatusDot"></i> Risk Engine</span><strong id="riskEngineStatusText">READY</strong></div>
+              <div><span><i class="status-dot" id="autoPaperStatusDot"></i> Auto Paper Engine</span><strong id="autoPaperStatusText">AUTO ON (PAPER)</strong></div>
+              <div><span><i class="status-dot off" id="angelStatusDot"></i> Angel One Broker</span><strong id="angelStatusText">NOT CONNECTED</strong></div>
+              <div><span><i class="status-dot off" id="googleAIStatusDot"></i> Google AI Service</span><strong id="googleAIStatusText">NOT CONFIGURED</strong></div>
+            </div>
+
+            <div class="direction-toggle" style="margin-top: 12px;">
+              <button type="button" id="dashEmergencyToggleBtn" class="danger-action" style="margin-top: 0;">⛔ Toggle Emergency Stop</button>
+              <button type="button" class="dash-inline-btn" data-nav-target="risk">Risk Audit</button>
+            </div>
+          </section>
+
+        </div>
+
+        <footer>
+          <span>YASHWIN AI Trading Assistant</span>
+          <span>Paper Trading Default • Live Trading Disabled</span>
+        </footer>
+
+      </section>
+
+      <!-- PAGE 2: MARKET SEARCH, SCANNER & WATCHLIST (TASK 4) -->
+      <section class="content page-section" id="scannerPage" data-section="scanner" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">MARKET SEARCH &amp; INSTRUMENT DISCOVERY</span>
+            <h3>Search NSE, BSE, NFO &amp; BFO Instruments</h3>
+            <p>Search equities, indices, futures, and option contracts with exact symbol resolution, contract validation, recent searches, and isolated watchlist.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>DATA</span>
+              <strong id="scannerDataBadge">READ ONLY</strong>
+            </div>
+            <button type="button" id="scannerRetrySearchBtn" class="dash-refresh-btn">↻ Retry Search</button>
+          </div>
+        </div>
+
+        <!-- SEARCH INPUT, FILTERS & STATUS BANNERS -->
+        <div class="panel market-search-panel">
+          <div class="panel-header">
+            <div>
+              <h3>Instrument Search &amp; Filters</h3>
+              <p id="scannerSearchSourceNote">Connected to GET /api/instruments/search • Zero fabricated tokens or prices</p>
+            </div>
+            <span class="status-pill" id="scannerSearchStateBadge">READY</span>
+          </div>
+
+          <form id="scannerSearchForm" class="scanner-search-bar" autocomplete="off">
+            <div class="scanner-input-wrap">
+              <input
+                id="scannerSearchInput"
+                type="search"
+                placeholder="Search by symbol, trading symbol, or company name (e.g., RELIANCE, NIFTY 50, TCS, SBIN)..."
+                aria-label="Search market instruments"
+              >
+              <button type="button" id="scannerClearBtn" class="scanner-clear-btn" aria-label="Clear search query">×</button>
+            </div>
+            <button type="submit" id="scannerSubmitBtn" class="primary-action scanner-submit-btn">Search</button>
+          </form>
+
+          <!-- EXCHANGE & INSTRUMENT TYPE SEGMENTED FILTERS -->
+          <div class="scanner-filters-row">
+            <div class="scanner-filter-group" role="group" aria-label="Filter by Exchange">
+              <span class="dash-kicker">EXCHANGE</span>
+              <div class="scanner-filter-pills" id="scannerExchangeFilters">
+                <button type="button" class="scanner-filter-btn active" data-exchange-filter="ALL">All</button>
+                <button type="button" class="scanner-filter-btn" data-exchange-filter="NSE">NSE</button>
+                <button type="button" class="scanner-filter-btn" data-exchange-filter="BSE">BSE</button>
+                <button type="button" class="scanner-filter-btn" data-exchange-filter="NFO">NFO (F&amp;O)</button>
+                <button type="button" class="scanner-filter-btn" data-exchange-filter="BFO">BFO (BSE F&amp;O)</button>
+              </div>
+            </div>
+
+            <div class="scanner-filter-group" role="group" aria-label="Filter by Instrument Type">
+              <span class="dash-kicker">INSTRUMENT TYPE</span>
+              <div class="scanner-filter-pills" id="scannerTypeFilters">
+                <button type="button" class="scanner-filter-btn active" data-type-filter="ALL">All Types</button>
+                <button type="button" class="scanner-filter-btn" data-type-filter="INDEX">Indices</button>
+                <button type="button" class="scanner-filter-btn" data-type-filter="EQUITY">Equities</button>
+                <button type="button" class="scanner-filter-btn" data-type-filter="FUTURES">Futures</button>
+                <button type="button" class="scanner-filter-btn" data-type-filter="OPTION">Options (CE/PE)</button>
+              </div>
+            </div>
+
+            <div class="scanner-filter-group" role="group" aria-label="Filter Option Type">
+              <span class="dash-kicker">OPTION SIDE</span>
+              <div class="scanner-filter-pills" id="scannerOptionSideFilters">
+                <button type="button" class="scanner-filter-btn active" data-opt-filter="ALL">All</button>
+                <button type="button" class="scanner-filter-btn" data-opt-filter="CE">CE (Call)</button>
+                <button type="button" class="scanner-filter-btn" data-opt-filter="PE">PE (Put)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUICK BENCHMARK INDICES & EQUITIES -->
+          <div class="quick-markets" style="margin-top: 14px;">
+            <button type="button" class="instrument-chip" data-instrument="NIFTY50">
+              <strong>NIFTY 50</strong>
+              <small>NSE • INDEX</small>
+            </button>
+            <button type="button" class="instrument-chip" data-instrument="BANKNIFTY">
+              <strong>BANK NIFTY</strong>
+              <small>NSE • INDEX</small>
+            </button>
+            <button type="button" class="instrument-chip" data-instrument="SENSEX">
+              <strong>SENSEX</strong>
+              <small>BSE • INDEX</small>
+            </button>
+            <button type="button" class="instrument-chip" data-instrument="RELIANCE">
+              <strong>RELIANCE</strong>
+              <small>NSE • EQUITY</small>
+            </button>
+            <button type="button" class="instrument-chip" data-instrument="TCS">
+              <strong>TCS</strong>
+              <small>NSE • EQUITY</small>
+            </button>
+            <button type="button" class="instrument-chip" data-instrument="SBIN">
+              <strong>SBIN</strong>
+              <small>NSE • EQUITY</small>
+            </button>
+          </div>
+
+          <!-- SEARCH LOADING, ERROR & DISAMBIGUATION BANNERS -->
+          <div id="scannerLoadingBanner" class="dash-banner info" style="margin-top: 14px;" hidden>
+            <span class="dash-spinner" aria-hidden="true"></span>
+            <span id="scannerLoadingText">Querying GET /api/instruments/search and validating contracts...</span>
+          </div>
+
+          <div id="scannerErrorBanner" class="dash-banner danger" style="margin-top: 14px;" role="alert" hidden>
+            <div>
+              <strong id="scannerErrorTitle">Search Notice</strong>
+              <span id="scannerErrorText">Unable to reach broker search endpoint.</span>
+            </div>
+            <button type="button" id="scannerBannerRetryBtn" class="dash-inline-btn">Retry</button>
+          </div>
+
+          <div id="scannerAmbiguousBanner" class="dash-banner warning" style="margin-top: 14px;" hidden>
+            <div>
+              <strong>Multiple Matching Instruments Found — Select Exact Instrument</strong>
+              <span id="scannerAmbiguousText">Ambiguous symbol detected across exchanges or contract series. Click the exact trading symbol below to resolve.</span>
+            </div>
+          </div>
+
+          <!-- SEARCH RESULTS LIST (SYMBOL, EXCHANGE, INSTRUMENT TYPE, TOKEN & WATCHLIST ACTION) -->
+          <div class="scanner-results-head">
+            <span class="dash-kicker" id="scannerResultsCountLabel">SEARCH RESULTS</span>
+            <small id="scannerResolutionLabel">Select an instrument to load validated quote, candles &amp; AI analysis</small>
+          </div>
+          <div id="scannerSearchResultsList" class="market-search-results scanner-results-box"></div>
+        </div>
+
+        <!-- SELECTED INSTRUMENT SNAPSHOT + OPTION CONTRACT VALIDATOR + OPTION CHAIN -->
+        <div class="grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Selected Instrument, Quote &amp; Candles</h3>
+                <p id="scannerSelectedSubtitle">Exact instrument resolution &amp; market data status</p>
+              </div>
+              <span class="status-pill" id="scannerSnapshotStatus">DATA WAITING</span>
+            </div>
+            <div class="risk-list" style="margin-top: 14px;">
+              <div><span>Instrument / Company</span><strong id="scannerInstName">--</strong></div>
+              <div><span>Trading Symbol &amp; Token</span><strong id="scannerInstToken" class="tabular-nums">--</strong></div>
+              <div><span>Exchange / Instrument Type</span><strong id="scannerInstMeta">--</strong></div>
+              <div><span>Contract Validation</span><strong id="scannerContractValidation">--</strong></div>
+              <div><span>Validated Quote Price</span><strong id="scannerInstPrice" class="tabular-nums">--</strong></div>
+              <div><span>Historical Candles Loaded</span><strong id="scannerCandlesStatus" class="tabular-nums">0 candles (WAITING)</strong></div>
+              <div><span>Quote Timestamp</span><strong id="scannerInstTime" class="tabular-nums">--</strong></div>
+            </div>
+            <div class="direction-toggle" style="margin-top: 14px;">
+              <button type="button" id="scannerAddSelectedWatchlistBtn" class="dash-inline-btn">☆ Add Selected to Watchlist</button>
+              <button type="button" id="scannerCreateSelectedAlertBtn" class="dash-inline-btn">🔔 Create Market Alert</button>
+              <button type="button" class="dash-inline-btn" data-nav-target="watchlist">Open Watchlist &amp; Alerts</button>
+              <button type="button" class="dash-inline-btn" data-nav-target="dashboard">View on Dashboard</button>
+              <button type="button" class="dash-inline-btn" data-nav-target="analysis">Open AI Analysis</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Option Contract Validator &amp; Option Chain</h3>
+                <p>Enforces expiry, positive strike price &amp; CE/PE rules on NFO/BFO</p>
+              </div>
+              <span class="status-pill" id="optionChainStatusPill">NO CHAIN DATA</span>
+            </div>
+            <div class="risk-list" style="margin-top: 14px;">
+              <div><span>Put-Call Ratio (PCR)</span><strong id="optionChainPCR" class="tabular-nums">--</strong></div>
+              <div><span>Average IV</span><strong id="optionChainIV" class="tabular-nums">--</strong></div>
+              <div><span>Call OI / Change</span><strong id="optionChainCallOI" class="tabular-nums">--</strong></div>
+              <div><span>Put OI / Change</span><strong id="optionChainPutOI" class="tabular-nums">--</strong></div>
+              <div><span>Option Score</span><strong id="optionChainScore" class="tabular-nums">0</strong></div>
+            </div>
+
+            <form id="scannerOptionCheckForm" class="scanner-option-check-box">
+              <span class="dash-kicker">VALIDATE OPTION / FUTURES CONTRACT PARAMETERS</span>
+              <div class="scanner-opt-grid">
+                <select id="optCheckExchange" aria-label="Contract Exchange">
+                  <option value="NFO">NFO</option>
+                  <option value="BFO">BFO</option>
+                  <option value="NSE">NSE (Invalid for Option)</option>
+                </select>
+                <select id="optCheckType" aria-label="Option Type">
+                  <option value="CE">CE (Call)</option>
+                  <option value="PE">PE (Put)</option>
+                </select>
+                <input id="optCheckStrike" type="number" step="0.05" placeholder="Strike (e.g. 25000)" aria-label="Strike Price">
+                <input id="optCheckExpiry" type="text" placeholder="Expiry (e.g. 28NOV2026)" aria-label="Expiry Date">
+              </div>
+              <div class="scanner-opt-actions">
+                <button type="submit" class="dash-inline-btn">Validate Contract</button>
+                <span id="optCheckResultText" class="scanner-opt-result">Enter expiry, strike &amp; CE/PE to verify contract eligibility.</span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- WATCHLIST & RECENT SEARCHES (PERSISTED IN SQLITE & USER-ISOLATED) -->
+        <div class="grid" id="scannerWatchlistSection" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>User Watchlist</h3>
+                <p>Saved instruments for quick selection &amp; monitoring</p>
+              </div>
+              <span class="status-pill tabular-nums" id="scannerWatchlistCount">0 SAVED</span>
+            </div>
+            <div id="scannerWatchlistContainer" class="risk-list" style="margin-top: 12px;">
+              <div><span>No instruments in your watchlist yet.</span><strong>--</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Recent Searches</h3>
+                <p>Recently resolved instruments in this workspace</p>
+              </div>
+              <button type="button" id="scannerClearRecentBtn" class="dash-link-btn">Clear History</button>
+            </div>
+            <div id="scannerRecentSearchesContainer" class="risk-list" style="margin-top: 12px;">
+              <div><span>No recent instrument searches yet.</span><strong>--</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: AI ANALYSIS (TASK 6 — COMPLETE AI ANALYSIS UI) -->
+      <section class="content page-section" id="analysisPage" data-section="analysis" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">DETERMINISTIC &amp; SERVER-SIDE GOOGLE AI ANALYSIS</span>
+            <h3>Multi-Factor Market Assessment, Contract Validation &amp; Safety Gate</h3>
+            <p>Signals are generated strictly from validated market quotes and historical candles, verified by AIDecisionContract, and gated by AISafetyGate + RiskEngine.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>DECISION</span>
+              <strong id="analysisPageSignalBadge">NO_TRADE</strong>
+            </div>
+            <button type="button" id="aiRunAnalysisBtn" class="primary-action" style="width: auto; padding: 9px 16px;">✦ Run AI Analysis</button>
+            <button type="button" id="aiRefreshHistoryBtn" class="dash-refresh-btn">↻ Refresh</button>
+          </div>
+        </div>
+
+        <!-- AI PROVIDER LOADING / CONFIGURATION / ERROR BANNERS -->
+        <div id="aiAnalysisLoadingBanner" class="dash-banner info" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span id="aiAnalysisLoadingText">Evaluating validated market snapshot and querying POST /api/ai/analyze...</span>
+        </div>
+
+        <div id="aiAnalysisErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong id="aiAnalysisErrorTitle">AI Provider / Validation Notice</strong>
+            <span id="aiAnalysisErrorText">Google AI provider unavailable or returned an invalid contract.</span>
+          </div>
+          <button type="button" id="aiAnalysisRetryBtn" class="dash-inline-btn">Retry AI Analysis</button>
+        </div>
+
+        <div id="aiAnalysisConfigBanner" class="dash-banner warning" hidden>
+          <div>
+            <strong>Server Google AI Status</strong>
+            <span id="aiAnalysisConfigText">GEMINI_API_KEY is not configured on the server. Operating in Deterministic Multi-Factor Analysis mode.</span>
+          </div>
+        </div>
+
+        <!-- TOP SUMMARY STRIP: INSTRUMENT, VALIDATED QUOTE, TIMEFRAME, FRESHNESS & AI PROVIDER STATUS -->
+        <div class="dashboard-kpi-strip ai-analysis-kpi-strip">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">SELECTED INSTRUMENT &amp; EXCHANGE</span>
+            <strong id="aiInstName" class="dash-kpi-main">NIFTY 50</strong>
+            <small id="aiInstExchangeMeta">NSE • INDEX</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">VALIDATED CURRENT QUOTE</span>
+            <strong id="aiQuotePrice" class="dash-kpi-main tabular-nums">-- (DATA WAITING)</strong>
+            <small id="aiQuoteChange" class="tabular-nums">Waiting for validated quote</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">CANDLE TIMEFRAME &amp; DEPTH</span>
+            <strong id="aiTimeframeLabel" class="dash-kpi-main">5m (5 Minutes)</strong>
+            <small id="aiCandlesLoadedCount" class="tabular-nums">0 validated candles</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">DATA FRESHNESS &amp; QUOTE TIME</span>
+            <strong id="aiFreshnessBadge" class="dash-kpi-main">WAITING FOR DATA</strong>
+            <small id="aiQuoteTimestamp" class="tabular-nums">--</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">AI PROVIDER &amp; ANALYSIS TIME</span>
+            <strong id="aiProviderBadge" class="dash-kpi-main">NOT CONFIGURED</strong>
+            <small id="aiAnalysisTimestamp" class="tabular-nums">--</small>
+          </div>
+        </div>
+
+        <!-- TIMEFRAME SELECTOR FOR AI ANALYSIS -->
+        <div class="panel ai-timeframe-bar-panel">
+          <div class="ai-timeframe-bar-row">
+            <div>
+              <span class="dash-kicker">ACTIVE CANDLE TIMEFRAME FOR ANALYSIS</span>
+              <p class="ai-tf-note" id="aiProviderMessageText">Select timeframe or click "Run AI Analysis" to evaluate current validated market state.</p>
+            </div>
+            <div class="chart-tf-pills" role="group" aria-label="AI Analysis Candle Timeframe">
+              <button type="button" class="chart-tf-btn" data-tf="ONE_MINUTE">1m</button>
+              <button type="button" class="chart-tf-btn" data-tf="THREE_MINUTE">3m</button>
+              <button type="button" class="chart-tf-btn active" data-tf="FIVE_MINUTE">5m</button>
+              <button type="button" class="chart-tf-btn" data-tf="TEN_MINUTE">10m</button>
+              <button type="button" class="chart-tf-btn" data-tf="FIFTEEN_MINUTE">15m</button>
+              <button type="button" class="chart-tf-btn" data-tf="THIRTY_MINUTE">30m</button>
+              <button type="button" class="chart-tf-btn" data-tf="ONE_HOUR">1h</button>
+              <button type="button" class="chart-tf-btn" data-tf="ONE_DAY">1D</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRIMARY DECISION, CONFIDENCE, LEVELS, R:R & SAFETY GATE -->
+        <div class="grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>AI Decision, Confidence &amp; Trade Setup</h3>
+                <p>BUY / SELL / HOLD / NO_TRADE • Mandatory Stop-Loss &amp; R:R</p>
+              </div>
+              <span class="status-pill" id="aiDecisionActionPill">NO_TRADE</span>
+            </div>
+
+            <div class="risk-list">
+              <div><span>Primary Decision (BUY / SELL / HOLD / NO_TRADE)</span><strong id="aiDecisionDisplay">NO_TRADE</strong></div>
+              <div><span>Raw Signal Classification</span><strong id="aiRawSignalDisplay">NO_TRADE</strong></div>
+              <div><span>Validated Confidence</span><strong id="aiValidatedConfidence" class="tabular-nums">-- (UNVALIDATED)</strong></div>
+              <div><span>Trend &amp; Market Regime</span><strong id="aiTrendAndRegime">UNKNOWN • UNKNOWN</strong></div>
+              <div><span>Risk Classification</span><strong id="aiRiskClassification">HIGH</strong></div>
+              <div><span>Entry Price</span><strong id="aiEntryPrice" class="tabular-nums">--</strong></div>
+              <div><span>Mandatory Stop-Loss</span><strong id="aiStopLossPrice" class="tabular-nums">--</strong></div>
+              <div><span>Target Price</span><strong id="aiTargetPrice" class="tabular-nums">--</strong></div>
+              <div><span>Risk / Reward Ratio</span><strong id="aiRiskRewardRatio" class="tabular-nums">--</strong></div>
+              <div><span>Unit Risk / Reward</span><strong id="aiUnitRiskReward" class="tabular-nums">-- / --</strong></div>
+            </div>
+
+            <div class="direction-toggle" style="margin-top: 14px;">
+              <button type="button" id="aiStageToPaperBtn" class="primary-action" disabled>▣ Stage Approved Setup in Paper Trading</button>
+              <button type="button" class="dash-inline-btn" data-nav-target="scanner">Change Instrument</button>
+            </div>
+            <small id="aiStageBlockedNote" class="ai-stage-note">Waiting for validated setup and AISafetyGate + RiskEngine approval.</small>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>AI Safety Gate &amp; Provider Diagnostics</h3>
+                <p>AIDecisionContract + AISafetyGate + RiskEngine enforcement</p>
+              </div>
+              <span class="status-pill" id="aiSafetyStatusPill">BLOCKED</span>
+            </div>
+            <div class="risk-list">
+              <div><span>Data Ready</span><strong id="aiGateDataReady">FALSE</strong></div>
+              <div><span>AI Decision Contract</span><strong id="aiContractStatus">WAITING</strong></div>
+              <div><span>AI Analysis Source</span><strong id="aiAnalysisSource">DETERMINISTIC</strong></div>
+              <div><span>AI Provider / Model</span><strong id="aiProviderModelLabel">GOOGLE_GENAI (gemini-3.8-flash)</strong></div>
+              <div><span>Minimum Confidence Required</span><strong>70%</strong></div>
+              <div><span>Current Confidence</span><strong id="aiGateConfidence" class="tabular-nums">--%</strong></div>
+              <div><span>Risk Classification</span><strong id="aiGateRisk">HIGH</strong></div>
+              <div><span>Trading Mode Lock</span><strong>PAPER ONLY (LIVE DISABLED)</strong></div>
+            </div>
+            <p class="analysis-text" id="aiGateReasonsText">
+              Validated market data is required before AI trade approval.
+            </p>
+          </div>
+        </div>
+
+        <!-- TECHNICAL INDICATOR SUMMARY & COMPONENT BREAKDOWN -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Technical Indicator Summary</h3>
+                <p id="aiTechQualitySubtitle">Calculated strictly from validated candles &amp; quote</p>
+              </div>
+              <span class="status-pill" id="aiTechQualityBadge">DATA_UNAVAILABLE</span>
+            </div>
+            <div class="risk-list">
+              <div><span>EMA 9 / EMA 21</span><strong id="aiIndEma" class="tabular-nums">-- / --</strong></div>
+              <div><span>SMA 20 / SMA 50</span><strong id="aiIndSma" class="tabular-nums">-- / --</strong></div>
+              <div><span>VWAP</span><strong id="aiIndVwap" class="tabular-nums">--</strong></div>
+              <div><span>RSI 14</span><strong id="aiIndRsi" class="tabular-nums">--</strong></div>
+              <div><span>MACD (12, 26, 9)</span><strong id="aiIndMacd" class="tabular-nums">--</strong></div>
+              <div><span>Bollinger Bands (20, 2)</span><strong id="aiIndBollinger" class="tabular-nums">--</strong></div>
+              <div><span>ATR 14 / ADX 14</span><strong id="aiIndAtrAdx" class="tabular-nums">-- / --</strong></div>
+              <div><span>Support / Resistance</span><strong id="aiIndSr" class="tabular-nums">-- / --</strong></div>
+              <div><span>Breakout Status / Regime</span><strong id="aiIndBreakoutRegime">NONE • UNKNOWN</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Deterministic Component Breakdown</h3>
+                <p>Weighted multi-factor scores (-100 to +100)</p>
+              </div>
+              <span class="status-pill tabular-nums" id="aiCompositeScorePill">SCORE: 0</span>
+            </div>
+            <div class="risk-list">
+              <div><span>Trend Score (20%)</span><strong id="compTrend" class="tabular-nums">0</strong></div>
+              <div><span>Momentum Score (15%)</span><strong id="compMomentum" class="tabular-nums">0</strong></div>
+              <div><span>Volume Score (10%)</span><strong id="compVolume" class="tabular-nums">0</strong></div>
+              <div><span>VWAP Score (10%)</span><strong id="compVwap" class="tabular-nums">0</strong></div>
+              <div><span>Support / Resistance (10%)</span><strong id="compSR" class="tabular-nums">0</strong></div>
+              <div><span>Option-Chain Score (15%)</span><strong id="compOptions" class="tabular-nums">0</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUPPORTING REASONS, RISK WARNINGS & INVALIDATION CONDITIONS -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Supporting Analysis Reasons</h3>
+                <p>Evidence from Google AI &amp; deterministic indicator structure</p>
+              </div>
+            </div>
+            <div id="aiSupportingReasonsList" class="risk-list">
+              <div><span>Waiting for validated market data before generating analysis reasons.</span><strong>INFO</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Risk Warnings &amp; Invalidation Conditions</h3>
+                <p>Safety blockers &amp; setup invalidation thresholds</p>
+              </div>
+            </div>
+            <div id="aiRiskWarningsList" class="risk-list">
+              <div><span>Validated market data is unavailable (DATA_WAITING).</span><strong>WARNING</strong></div>
+            </div>
+            <div class="scanner-results-head" style="margin-top: 14px;">
+              <span class="dash-kicker">SETUP INVALIDATION CONDITIONS</span>
+            </div>
+            <div id="aiInvalidationList" class="risk-list">
+              <div><span>Setup invalidated on mandatory stop-loss breach, stale data, or Emergency Stop.</span><strong>RULE</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREVIOUS AI ANALYSIS HISTORY (PERSISTED IN SQLITE) -->
+        <div class="panel" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Previous AI Analysis History</h3>
+              <p>Persisted server-side AI decisions in single SQLite database (user-isolated)</p>
+            </div>
+            <span class="status-pill tabular-nums" id="aiHistoryCountBadge">0 RECORDS</span>
+          </div>
+          <div id="aiAnalysisHistoryContainer" class="risk-list" style="margin-top: 12px;">
+            <div><span>No previous AI analysis decisions recorded for this workspace yet.</span><strong>--</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: STRATEGY, BACKTESTING & HUMAN PILOT (TASK 8 — COMPLETE STRATEGY ENGINE) -->
+      <section class="content page-section" id="strategyPage" data-section="strategy" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">STRATEGY &amp; VALIDATION</span>
+            <h3>Deterministic Strategy Engine, Signal Generation, Backtester &amp; Human-Approved Pilot</h3>
+            <p>Explicit, testable BUY / SELL / HOLD / NO_TRADE evaluation, Market Regime classification, mandatory directional stop-loss, R:R, invalidation &amp; exit rules, and full safety gate enforcement.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>VERSION</span>
+              <strong id="strategyVersionBadge">1.0.0-DETERMINISTIC</strong>
+            </div>
+            <button type="button" id="stratReevaluateBtn" class="primary-action" style="width: auto; padding: 9px 16px;">↻ Re-Evaluate Strategy</button>
+          </div>
+        </div>
+
+        <!-- TOP KPI STRIP: DECISION, MARKET REGIME, RISK/REWARD, SAFETY PIPELINE -->
+        <div class="dashboard-kpi-strip intel-kpi-strip">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">DETERMINISTIC SIGNAL &amp; SIDE</span>
+            <strong id="stratKpiSignal" class="dash-kpi-main">NO_TRADE</strong>
+            <small id="stratKpiInstrument">NIFTY 50 (NSE • EQUITY)</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">MARKET REGIME &amp; QUALITY</span>
+            <strong id="stratKpiRegime" class="dash-kpi-main">INSUFFICIENT_DATA</strong>
+            <small id="stratKpiDataQuality" class="tabular-nums">DATA_UNAVAILABLE</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">RISK / REWARD &amp; CONFIDENCE</span>
+            <strong id="stratKpiRR" class="dash-kpi-main tabular-nums">--</strong>
+            <small id="stratKpiConfidence" class="tabular-nums">Confidence: 0%</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">SAFETY PIPELINE GATE</span>
+            <strong id="stratKpiSafetyGate" class="dash-kpi-main">BLOCKED</strong>
+            <small id="stratKpiModeLock">TRADING_MODE=paper • LIVE=false</small>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Deterministic Strategy Output</h3>
+                <p>Current rule evaluation • Mandatory directional SL &amp; Target</p>
+              </div>
+              <span class="status-pill" id="strategyActionPill">NO_TRADE</span>
+            </div>
+            <div class="risk-list">
+              <div><span>Action / Signal</span><strong id="stratAction">NO_TRADE</strong></div>
+              <div><span>Trade Side / Executable</span><strong id="stratTradeSideExecutable">HOLD • NON-EXECUTABLE</strong></div>
+              <div><span>Market Regime</span><strong id="stratRegimeDisplay">INSUFFICIENT_DATA</strong></div>
+              <div><span>Data Quality</span><strong id="stratDataQualityDisplay">DATA_UNAVAILABLE</strong></div>
+              <div><span>Entry Price</span><strong id="stratEntry" class="tabular-nums">--</strong></div>
+              <div><span>Mandatory Stop-Loss</span><strong id="stratStop" class="tabular-nums">--</strong></div>
+              <div><span>Target (2.0R)</span><strong id="stratTarget" class="tabular-nums">--</strong></div>
+              <div><span>Risk / Reward Ratio</span><strong id="stratRRDisplay" class="tabular-nums">--</strong></div>
+              <div><span>Unit Risk / Unit Reward</span><strong id="stratUnitRiskReward" class="tabular-nums">-- / --</strong></div>
+              <div><span>Confidence</span><strong id="stratConfidence" class="tabular-nums">0%</strong></div>
+            </div>
+            <p class="analysis-text" id="stratReasonText">
+              Waiting for validated market data and analysis signal.
+            </p>
+            <div class="direction-toggle" style="margin-top: 14px;">
+              <button type="button" id="stratStagePilotBtn" class="primary-action" disabled>▣ Stage Proposal to Human Pilot Queue</button>
+              <button type="button" id="stratStagePaperBtn" class="dash-inline-btn" disabled>Open in Paper Trading</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Safety Pipeline &amp; Human-Approved Pilot Queue</h3>
+                <p>RiskEngine → AISafetyGate → EmergencyStop → Paper/Sandbox ONLY</p>
+              </div>
+              <span class="status-pill" id="pilotStatusPill">NO PROPOSAL</span>
+            </div>
+            <div class="risk-list">
+              <div><span>RiskEngine Gate</span><strong id="stratRiskEngineStatus">BLOCKED</strong></div>
+              <div><span>AISafetyGate</span><strong id="stratAISafetyGateStatus">BLOCKED</strong></div>
+              <div><span>Global Emergency Stop</span><strong id="stratEmergencyStopStatus">INACTIVE</strong></div>
+              <div><span>AI / Regime Conflict Check</span><strong id="stratConflictCheckStatus">CLEAR</strong></div>
+            </div>
+            <div class="scanner-results-head" style="margin-top: 12px;">
+              <span class="dash-kicker">HUMAN-APPROVED PILOT PROPOSAL (PAPER SANDBOX ONLY)</span>
+            </div>
+            <div id="pilotProposalBox" class="risk-list">
+              <div><span>Instrument</span><strong id="pilotInstrument">--</strong></div>
+              <div><span>Direction / Qty</span><strong id="pilotDirQty">--</strong></div>
+              <div><span>Entry / Stop / Target</span><strong id="pilotLevels">--</strong></div>
+              <div><span>Maximum Loss</span><strong id="pilotMaxLoss">--</strong></div>
+            </div>
+            <div class="direction-toggle" style="margin-top: 14px;">
+              <button type="button" id="approvePilotBtn" class="primary-action" disabled>Approve (Paper)</button>
+              <button type="button" id="rejectPilotBtn" class="danger-action" style="margin-top: 0;" disabled>Reject</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ENTRY CONDITIONS, INVALIDATION CONDITIONS & EXIT PRIORITY RULES -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Explicit Entry Conditions &amp; Supporting Context</h3>
+                <p>Validated price action, technical indicators &amp; supporting AI/news context</p>
+              </div>
+            </div>
+            <div id="stratEntryConditionsList" class="risk-list">
+              <div><span>Waiting for validated market data and directional signal.</span><strong>RULE</strong></div>
+            </div>
+            <div class="scanner-results-head" style="margin-top: 12px;">
+              <span class="dash-kicker">DOCUMENTED SIGNAL GENERATION RULES</span>
+            </div>
+            <div id="stratDocumentedRulesList" class="risk-list">
+              <div><span>BUY: dataReady=true, risk != HIGH, confidence &gt;= 70%, bullish regime/alignment, zero conflict.</span><strong>BUY</strong></div>
+              <div><span>SELL: dataReady=true, risk != HIGH, confidence &gt;= 70%, bearish regime/alignment, zero conflict.</span><strong>SELL</strong></div>
+              <div><span>HOLD: developing setup (55-69% confidence) or neutral RANGEBOUND consolidation.</span><strong>HOLD</strong></div>
+              <div><span>NO_TRADE: missing/stale data, HIGH risk/volatility, confidence &lt; 55%, or conflicting signals.</span><strong>NO_TRADE</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Strategy Invalidation &amp; Mandatory Exit Rules</h3>
+                <p>Deterministic invalidation triggers &amp; 5-tier exit priority</p>
+              </div>
+            </div>
+            <div id="stratInvalidationConditionsList" class="risk-list">
+              <div><span>Setup invalidated on mandatory stop-loss breach, stale data, or Emergency Stop.</span><strong>INVALIDATION</strong></div>
+            </div>
+            <div class="scanner-results-head" style="margin-top: 12px;">
+              <span class="dash-kicker">DETERMINISTIC EXIT PRIORITY ORDER</span>
+            </div>
+            <div id="stratExitRulesList" class="risk-list">
+              <div><span>1. Global Emergency Stop → Immediate market exit in Paper Mode</span><strong>PRIORITY 1</strong></div>
+              <div><span>2. Hard Directional Stop-Loss → Immediate exit on SL breach</span><strong>PRIORITY 2</strong></div>
+              <div><span>3. Daily Risk Lock → Exit when cumulative daily P&amp;L reaches -₹1,000</span><strong>PRIORITY 3</strong></div>
+              <div><span>4. Target Price (2.0R) → Exit or activate trailing protection</span><strong>PRIORITY 4</strong></div>
+              <div><span>5. Trailing Profit Lock → Lock 10% milestones and exit on pullback</span><strong>PRIORITY 5</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TASK 13 — COMPLETE DETERMINISTIC HISTORICAL BACKTESTING ENGINE -->
+        <div class="panel" id="backtestingSection" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <span class="eyebrow">HISTORICAL SIMULATION • ZERO LOOK-AHEAD BIAS • PAPER ONLY</span>
+              <h3>Deterministic Historical Backtesting Engine (v2.0.0)</h3>
+              <p id="btDisclaimerText">
+                SIMULATED HISTORICAL BACKTEST ONLY — Backtest results are hypothetical, do not represent actual live trading, and do not guarantee future performance. Zero live broker orders are ever placed.
+              </p>
+            </div>
+            <div class="hero-actions-group">
+              <span class="badge green" id="btModeSafetyBadge">SIMULATED BACKTEST (NO LIVE ORDERS)</span>
+              <button type="button" id="btUseSelectedInstrumentBtn" class="dash-inline-btn" style="width: auto;">Use Selected Market Instrument</button>
+              <button type="button" id="runBacktestBtn" class="primary-action" style="width: auto; padding: 9px 16px;">▶ Run Historical Backtest</button>
+            </div>
+          </div>
+
+          <!-- BACKTEST UX BANNERS: LOADING, VALIDATION / INSUFFICIENT DATA ERROR, SESSION EXPIRED -->
+          <div id="btSessionBanner" class="dash-banner warning" role="alert" hidden style="margin-top: 12px;">
+            <div>
+              <strong>Guest / Session Notice</strong>
+              <span>Sign in to save and isolate your backtest run history under your YASHWIN account.</span>
+            </div>
+          </div>
+
+          <div id="btLoadingBanner" class="dash-banner info" aria-live="polite" hidden style="margin-top: 12px;">
+            <span class="dash-spinner" aria-hidden="true"></span>
+            <span id="btLoadingText">Executing chronological step-by-step historical backtest (candles[0..i] only)...</span>
+          </div>
+
+          <div id="btErrorBanner" class="dash-banner danger" role="alert" hidden style="margin-top: 12px;">
+            <div>
+              <strong id="btErrorTitle">Backtest Validation / Data Notice</strong>
+              <span id="btErrorText">Historical candle data is unavailable or insufficient for the selected range.</span>
+            </div>
+            <button type="button" id="btRetryBtn" class="dash-inline-btn">Retry Backtest</button>
+          </div>
+
+          <!-- BACKTEST CONFIGURATION CONTROLS -->
+          <div class="trade-grid" style="margin-top: 14px;">
+            <div class="panel trade-form" style="margin: 0;">
+              <div class="panel-title-row">
+                <h4>1. Instrument, Timeframe &amp; Date Range</h4>
+                <span class="status-pill" id="btDataSourceBadge">VALIDATED_CANDLES</span>
+              </div>
+
+              <label for="btSymbolInput">Instrument / Trading Symbol (Connected to Market Search)</label>
+              <input id="btSymbolInput" type="text" value="NIFTY 50" placeholder="e.g. NIFTY 50, RELIANCE, SBIN-EQ">
+
+              <div class="direction-toggle" style="gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="btExchangeSelect">Exchange</label>
+                  <select id="btExchangeSelect">
+                    <option value="NSE" selected>NSE</option>
+                    <option value="NFO">NFO</option>
+                    <option value="BSE">BSE</option>
+                  </select>
+                </div>
+                <div style="flex: 1;">
+                  <label for="btAssetTypeSelect">Asset Type</label>
+                  <select id="btAssetTypeSelect">
+                    <option value="EQUITY" selected>EQUITY / INDEX</option>
+                    <option value="OPTION">OPTION</option>
+                  </select>
+                </div>
+              </div>
+
+              <label for="btTimeframeSelect">Historical Candle Timeframe</label>
+              <select id="btTimeframeSelect">
+                <option value="ONE_MINUTE">ONE_MINUTE (1m)</option>
+                <option value="THREE_MINUTE">THREE_MINUTE (3m)</option>
+                <option value="FIVE_MINUTE" selected>FIVE_MINUTE (5m)</option>
+                <option value="TEN_MINUTE">TEN_MINUTE (10m)</option>
+                <option value="FIFTEEN_MINUTE">FIFTEEN_MINUTE (15m)</option>
+                <option value="THIRTY_MINUTE">THIRTY_MINUTE (30m)</option>
+                <option value="ONE_HOUR">ONE_HOUR (1h)</option>
+                <option value="ONE_DAY">ONE_DAY (1d)</option>
+              </select>
+
+              <div class="direction-toggle" style="gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="btFromDateInput">Start Date</label>
+                  <input id="btFromDateInput" type="date" aria-label="Backtest Start Date">
+                </div>
+                <div style="flex: 1;">
+                  <label for="btToDateInput">End Date</label>
+                  <input id="btToDateInput" type="date" aria-label="Backtest End Date">
+                </div>
+              </div>
+
+              <label for="btDataModeSelect">Historical Data Source</label>
+              <select id="btDataModeSelect">
+                <option value="LOADED_CHART_CANDLES" selected>Use Loaded Validated Chart Candles</option>
+                <option value="FETCH_SERVER_CANDLES">Fetch Historical Candles from Server (/api/market/candles)</option>
+              </select>
+            </div>
+
+            <div class="panel trade-form" style="margin: 0;">
+              <div class="panel-title-row">
+                <h4>2. Capital, Risk Limits, Execution &amp; Cost Model</h4>
+                <span class="status-pill" id="btStrategyVersionPill">1.0.0-DETERMINISTIC</span>
+              </div>
+
+              <div class="direction-toggle" style="gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="btInitialCapitalInput">Initial Virtual Capital (₹)</label>
+                  <input id="btInitialCapitalInput" type="number" min="1000" step="1000" value="100000">
+                </div>
+                <div style="flex: 1;">
+                  <label for="btQuantityInput">Quantity / Lots</label>
+                  <input id="btQuantityInput" type="number" min="1" step="1" value="1">
+                </div>
+                <div style="flex: 1;">
+                  <label for="btLotSizeInput">Lot Size</label>
+                  <input id="btLotSizeInput" type="number" min="1" step="1" value="1">
+                </div>
+              </div>
+
+              <div class="direction-toggle" style="gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="btMaxLossPerTradeInput">Max Loss / Trade (≤ ₹500)</label>
+                  <input id="btMaxLossPerTradeInput" type="number" min="50" max="500" step="50" value="500">
+                </div>
+                <div style="flex: 1;">
+                  <label for="btMaxDailyLossInput">Daily Loss Lock (≤ ₹1,000)</label>
+                  <input id="btMaxDailyLossInput" type="number" min="100" max="1000" step="100" value="1000">
+                </div>
+                <div style="flex: 1;">
+                  <label for="btMaxTradesPerDayInput">Max Trades / Day (≤ 3)</label>
+                  <input id="btMaxTradesPerDayInput" type="number" min="1" max="3" step="1" value="3">
+                </div>
+              </div>
+
+              <div class="direction-toggle" style="gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="btFeePerTradeInput">Fee / Brokerage per Trade (₹)</label>
+                  <input id="btFeePerTradeInput" type="number" min="0" step="1" value="20">
+                </div>
+                <div style="flex: 1;">
+                  <label for="btSlippageInput">Slippage per Unit per Leg (₹)</label>
+                  <input id="btSlippageInput" type="number" min="0" step="0.05" value="0.50">
+                </div>
+              </div>
+
+              <div class="direction-toggle" style="gap: 10px;">
+                <div style="flex: 1;">
+                  <label for="btEntryModelSelect">Entry Fill Assumption</label>
+                  <select id="btEntryModelSelect">
+                    <option value="SIGNAL_CANDLE_CLOSE" selected>Signal Candle Close (Exits evaluated from bar i+1)</option>
+                    <option value="NEXT_CANDLE_OPEN">Next Candle Open (Bar i+1 Open with gap-adjusted SL/Target)</option>
+                  </select>
+                </div>
+                <div style="flex: 1;">
+                  <label for="btMinConfidenceInput">Min Strategy Confidence (%)</label>
+                  <input id="btMinConfidenceInput" type="number" min="55" max="95" step="5" value="70">
+                </div>
+              </div>
+
+              <small class="tabular-nums" id="btCostDisclosureNote" style="display: block; margin-top: 6px; opacity: 0.82;">
+                Cost Disclosure: Includes configured feePerTrade + 2×slippagePerUnit×qty. Statutory STT/GST/SEBI charges are not modeled unless included in feePerTrade.
+              </small>
+            </div>
+          </div>
+
+          <!-- PRIMARY BACKTEST KPI SUMMARY STRIP (PRESERVES #btTotalTrades, #btWinRate, #btNetPnl, #btMaxDD) -->
+          <div class="dash-kpi-grid" style="margin-top: 14px;">
+            <div class="dash-kpi-card">
+              <span class="dash-kicker">RUN STATUS &amp; DATA QUALITY</span>
+              <strong id="btRunStatusBadge" class="dash-kpi-main">READY</strong>
+              <small id="btCandlesProcessedMeta" class="tabular-nums">0 candles • --</small>
+            </div>
+            <div class="dash-kpi-card">
+              <span class="dash-kicker">INITIAL → FINAL VIRTUAL EQUITY</span>
+              <strong id="btFinalEquity" class="dash-kpi-main tabular-nums">₹1,00,000.00</strong>
+              <small id="btReturnPctMeta" class="tabular-nums">Initial: ₹1,00,000.00 (0.00%)</small>
+            </div>
+            <div class="dash-kpi-card">
+              <span class="dash-kicker">GROSS vs NET P&amp;L (AFTER COSTS)</span>
+              <strong id="btNetPnl" class="dash-kpi-main tabular-nums">₹0.00</strong>
+              <small id="btGrossAndCostsMeta" class="tabular-nums">Gross: ₹0.00 • Costs: ₹0.00</small>
+            </div>
+            <div class="dash-kpi-card">
+              <span class="dash-kicker">CLOSED TRADES &amp; WIN RATE</span>
+              <strong id="btTotalTrades" class="dash-kpi-main tabular-nums">0</strong>
+              <small>Win Rate: <strong id="btWinRate" class="tabular-nums">0%</strong> (<span id="btWinLossBreakdown" class="tabular-nums">0W / 0L / 0BE</span>)</small>
+            </div>
+          </div>
+
+          <!-- SECONDARY BACKTEST ANALYTICS STRIP -->
+          <div class="paper-stats" style="margin-top: 12px;">
+            <div><span>Profit Factor</span><strong id="btProfitFactor" class="tabular-nums">N/A (No Closed Trades)</strong></div>
+            <div><span>Expectancy / Trade</span><strong id="btExpectancy" class="tabular-nums">₹0.00</strong></div>
+            <div><span>Avg Win / Avg Loss</span><strong id="btAvgWinLoss" class="tabular-nums">₹0.00 / ₹0.00</strong></div>
+            <div><span>Max Drawdown</span><strong id="btMaxDD" class="tabular-nums">₹0.00 (0.00%)</strong></div>
+            <div><span>Avg Holding Duration</span><strong id="btAvgHoldDuration" class="tabular-nums">0s</strong></div>
+            <div><span>Longest Losing Streak</span><strong id="btLosingStreak" class="tabular-nums">0</strong></div>
+            <div><span>Risk / Gate Rejections</span><strong id="btRiskRejectionsCount" class="tabular-nums">0 / 0</strong></div>
+            <div><span>Ambiguous / Gap Bars</span><strong id="btAmbiguousGapCount" class="tabular-nums">0 / 0</strong></div>
+          </div>
+
+          <!-- EQUITY CURVE, DRAWDOWN VISUALIZATION & EXIT REASON / DAILY P&L BREAKDOWN -->
+          <div class="grid" style="margin-top: 14px;">
+            <div class="panel" style="margin: 0;">
+              <div class="panel-header">
+                <div>
+                  <h4>Chronological Equity Curve &amp; Drawdown</h4>
+                  <p>Constructed strictly from simulated backtest trade closes (never fabricated)</p>
+                </div>
+                <span class="status-pill tabular-nums" id="btEquityPointsPill">0 POINTS</span>
+              </div>
+              <div id="btEquityCurveContainer" class="risk-list">
+                <div><span>Run a historical backtest on validated candles to view the chronological equity and drawdown curve.</span><strong>WAITING</strong></div>
+              </div>
+            </div>
+
+            <div class="panel" style="margin: 0;">
+              <div class="panel-header">
+                <div>
+                  <h4>Exit-Reason Breakdown &amp; Daily P&amp;L</h4>
+                  <p>Attribution across STOP_LOSS, TARGET, RISK_LOCK, EMERGENCY_STOP &amp; END_OF_SERIES</p>
+                </div>
+              </div>
+              <div id="btExitReasonContainer" class="risk-list">
+                <div><span>No simulated exits recorded yet.</span><strong>--</strong></div>
+              </div>
+              <div class="scanner-results-head" style="margin-top: 12px;">
+                <span class="dash-kicker">DAILY P&amp;L &amp; RISK LOCK SUMMARY</span>
+              </div>
+              <div id="btDailyPnlContainer" class="risk-list">
+                <div><span>No daily P&amp;L sessions simulated yet.</span><strong>--</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SIMULATED TRADES LIST & PERSISTED BACKTEST RUN HISTORY -->
+          <div class="grid" style="margin-top: 14px;">
+            <div class="panel" style="margin: 0;">
+              <div class="panel-header">
+                <div>
+                  <h4>Simulated Backtest Trades</h4>
+                  <p>Entry/exit prices, timestamps, stop/target, gross vs net P&amp;L, fees/slippage &amp; ambiguity flags</p>
+                </div>
+                <span class="status-pill tabular-nums" id="btTradesCountPill">0 TRADES</span>
+              </div>
+              <div id="btTradesListContainer" class="risk-list">
+                <div><span>No simulated trades generated in current backtest run.</span><strong>--</strong></div>
+              </div>
+            </div>
+
+            <div class="panel" style="margin: 0;">
+              <div class="panel-header">
+                <div>
+                  <h4>Persisted Backtest Run History (Reproducible)</h4>
+                  <p>Stored in SQLite (backtest_runs table, isolated per authenticated user)</p>
+                </div>
+                <span class="status-pill tabular-nums" id="btRunHistoryCountPill">0 RUNS</span>
+              </div>
+              <div id="btRunHistoryContainer" class="risk-list">
+                <div><span>No persisted backtest runs found for this workspace.</span><strong>--</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSISTED STRATEGY DECISION HISTORY -->
+        <div class="panel" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Persisted Strategy Decision History</h3>
+              <p>Recorded in single SQLite database (strategy_decisions table, user-isolated)</p>
+            </div>
+            <span class="status-pill tabular-nums" id="stratHistoryCountBadge">0 RECORDS</span>
+          </div>
+          <div id="stratHistoryContainer" class="risk-list" style="margin-top: 12px;">
+            <div><span>No persisted strategy evaluations recorded for this workspace yet.</span><strong>--</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 5: PAPER TRADING (TASK 10 — COMPLETE PAPER TRADING ENGINE) -->
+      <section class="content page-section" id="paperPage" data-section="paper" hidden>
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">ISOLATED PAPER TRADING ENGINE (v2.0.0)</span>
+            <h2>Virtual Paper Trading &amp; Execution Desk</h2>
+            <p>Simulated virtual trading only — zero real Angel One broker orders are ever sent (TRADING_MODE=paper, LIVE_TRADING_ENABLED=false).</p>
+          </div>
+          <div class="hero-actions-group">
+            <span class="badge green" id="paperModeBadge">PAPER MODE (NO LIVE ORDERS)</span>
+            <button type="button" id="paperSyncBtn" class="dash-refresh-btn">↻ Sync Paper Account</button>
+          </div>
+        </div>
+
+        <!-- TOP KPI STRIP: PAPER ACCOUNT CAPITAL, RESERVED MARGIN, AVAILABLE BALANCE, REALIZED & UNREALIZED P&L -->
+        <div class="dash-kpi-grid" style="margin-bottom: 14px;">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">INITIAL VIRTUAL CAPITAL</span>
+            <strong id="paperAccountCapital" class="tabular-nums">₹1,00,000.00</strong>
+            <small id="paperTotalEquityText">Net Equity: ₹1,00,000.00</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">AVAILABLE &amp; RESERVED BALANCE</span>
+            <strong id="paperAvailableBalance" class="tabular-nums">₹1,00,000.00</strong>
+            <small id="paperReservedCapital">Reserved Margin: ₹0.00</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">REALIZED &amp; UNREALIZED P&amp;L</span>
+            <strong id="paperTotalRealizedPnl" class="tabular-nums">+₹0.00</strong>
+            <small id="paperOpenUnrealizedPnl">Unrealized P&amp;L: +₹0.00</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">WIN RATE &amp; AUTO-PAPER STATUS</span>
+            <strong id="paperWinRateStats" class="tabular-nums">0% (0W / 0L)</strong>
+            <small id="paperAutoExecBadge">Auto Paper Execution: ENABLED</small>
+          </div>
+        </div>
+
+        <div class="trade-grid">
+          <div class="panel trade-form">
+            <div class="panel-title-row">
+              <h3>New Paper Trade</h3>
+              <button type="button" id="paperFillFromMarketBtn" class="dash-inline-btn">Use Validated Quote</button>
+            </div>
+
+            <div class="direction-toggle">
+              <button type="button" class="trade-direction active" data-direction="BUY">BUY</button>
+              <button type="button" class="trade-direction sell" data-direction="SELL">SELL</button>
+            </div>
+
+            <label>Execution Authorization Mode</label>
+            <select id="paperAuthMode">
+              <option value="MANUAL">Manual Paper Practice (RiskEngine + EmergencyStop)</option>
+              <option value="AI_ASSISTED">AI-Assisted Paper Trade (MarketAnalysis + AISafetyGate + RiskEngine)</option>
+            </select>
+
+            <label>Symbol</label>
+            <select id="paperSymbol">
+              <option value="NIFTY 50">NIFTY 50</option>
+              <option value="BANK NIFTY">BANK NIFTY</option>
+              <option value="SENSEX">SENSEX</option>
+              <option value="RELIANCE">RELIANCE</option>
+              <option value="TCS">TCS</option>
+            </select>
+
+            <label>Asset Type</label>
+            <select id="paperAssetType">
+              <option value="EQUITY">Equity / Index</option>
+              <option value="OPTION">Option</option>
+            </select>
+
+            <div id="paperEquityQuantityGroup">
+              <label>Quantity</label>
+              <input id="paperQty" type="number" min="1" step="1" value="1" placeholder="1">
+            </div>
+
+            <div id="paperOptionQuantityGroup" hidden>
+              <label>Lot Size</label>
+              <input id="paperLotSize" type="number" min="1" step="1" value="75" placeholder="75">
+
+              <label>Lots</label>
+              <input id="paperLots" type="number" min="1" step="1" value="1" placeholder="1">
+
+              <div class="effective-quantity">
+                <span>Effective Quantity</span>
+                <strong id="paperEffectiveQty">0</strong>
+              </div>
+            </div>
+
+            <label>Entry Price</label>
+            <input id="paperEntry" type="number" step="0.05" placeholder="25000">
+
+            <label>Mandatory Stop Loss</label>
+            <input id="paperStop" type="number" step="0.05" placeholder="24900">
+
+            <label>Target Price</label>
+            <input id="paperTarget" type="number" step="0.05" placeholder="25200">
+
+            <label for="paperExitOnTarget">Target Behavior</label>
+            <select id="paperExitOnTarget">
+              <option value="true" selected>Auto-Close Position at Target (TARGET_EXIT)</option>
+              <option value="false">Activate Trailing Protection at Target (TARGET_ACTIVATED)</option>
+            </select>
+
+            <div class="risk-preview">
+              <div><span>Risk (Max ₹500)</span><strong id="paperRisk">₹0</strong></div>
+              <div><span>Reward</span><strong id="paperReward">₹0</strong></div>
+              <div><span>R:R</span><strong id="paperRR">0.00</strong></div>
+            </div>
+
+            <div class="risk-list" style="margin-bottom: 10px;">
+              <div><span>Required Capital / Available</span><strong id="paperPreviewCapital" class="tabular-nums">₹0.00 / ₹1,00,000.00</strong></div>
+              <div><span>Pre-Trade Gate Verdict</span><strong id="paperPreviewVerdict">Enter valid Entry, SL &amp; Target</strong></div>
+            </div>
+
+            <button id="openPaperTrade" type="button" class="primary-action">Open Paper Trade</button>
+          </div>
+
+          <div class="panel position-panel">
+            <div class="panel-title-row">
+              <h3>Open Position &amp; Live Exit Monitor</h3>
+              <span id="paperPositionStatus" class="status-pill">NO POSITION</span>
+            </div>
+
+            <div id="paperNoPosition" class="empty-state">
+              <div class="empty-icon">▣</div>
+              <strong>No open paper position</strong>
+              <span>Create a trade or stage an approved AI/Strategy setup to track virtual P&amp;L and automatic exits here.</span>
+            </div>
+
+            <div id="paperPosition" hidden>
+              <div class="position-summary">
+                <strong id="paperPositionSide">BUY</strong>
+                <span id="paperPositionSymbol">NIFTY 50</span>
+                <span class="status-pill" id="paperPositionModePill" style="margin-left: auto;">MANUAL_PAPER</span>
+              </div>
+
+              <div class="position-values">
+                <div><span>Entry</span><strong id="paperPositionEntry">₹0</strong></div>
+                <div><span>Current</span><strong id="paperPositionCurrent">₹0</strong></div>
+                <div><span>Stop Loss</span><strong id="paperPositionStop">₹0</strong></div>
+                <div><span>Target</span><strong id="paperPositionTarget">₹0</strong></div>
+                <div><span>Quantity</span><strong id="paperPositionQty">0</strong></div>
+                <div><span>Position Value</span><strong id="paperPositionValue">₹0</strong></div>
+                <div><span>Virtual P&amp;L</span><strong id="paperPositionPnl">₹0</strong></div>
+                <div><span>Profit Milestone</span><strong id="paperProfitMilestone">₹0</strong></div>
+                <div><span>Protected Profit</span><strong id="paperLockedProfit">₹0</strong></div>
+                <div><span>Next Milestone</span><strong id="paperNextMilestone">₹0</strong></div>
+              </div>
+
+              <!-- VALIDATED QUOTE / EXIT PRIORITY TESTER -->
+              <div class="scanner-results-head" style="margin-top: 12px;">
+                <span class="dash-kicker">VALIDATED MARKET PRICE UPDATE &amp; AUTOMATIC EXIT CHECK</span>
+              </div>
+              <div class="direction-toggle" style="margin-top: 8px;">
+                <input id="paperUpdatePriceInput" type="number" step="0.05" placeholder="Validated Price (₹)" aria-label="Validated Price Update">
+                <button type="button" id="paperApplyPriceUpdateBtn" class="primary-action" style="width: auto; padding: 9px 14px;">Update Price &amp; Check Exits</button>
+              </div>
+
+              <button id="closePaperTrade" type="button" class="danger-action">Close Position Manually</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel paper-stats">
+          <div><span>Daily P&amp;L</span><strong id="paperDailyPnl">₹0</strong></div>
+          <div><span>Trades Today</span><strong id="paperTradesToday">0 / 3</strong></div>
+          <div><span>Max Loss / Trade</span><strong>₹500</strong></div>
+          <div><span>Max Daily Loss</span><strong>₹1,000</strong></div>
+        </div>
+      </section>
+
+      <!-- PAGE 6: PORTFOLIO MANAGEMENT & POSITIONS (TASK 11 — COMPLETE PORTFOLIO MANAGEMENT) -->
+      <section class="content page-section" id="positionsPage" data-section="positions" hidden>
+        <!-- UX STATE BANNERS: LOADING, SESSION EXPIRED, STALE QUOTE, API ERROR -->
+        <div id="portfolioSessionBanner" class="dash-banner warning" role="alert" hidden>
+          <div>
+            <strong>Guest / Session Notice</strong>
+            <span>Viewing default paper portfolio ledger. Sign in to access your isolated user portfolio.</span>
+          </div>
+          <button type="button" id="portfolioSignInBtn" class="dash-inline-btn">Sign In</button>
+        </div>
+
+        <div id="portfolioStaleBanner" class="dash-banner warning" role="alert" hidden>
+          <div>
+            <strong>Stale or Unavailable Market Quote Notice</strong>
+            <span id="portfolioStaleBannerText">Open position valuation is using the last recorded valid price and timestamp — not a fresh live quote.</span>
+          </div>
+        </div>
+
+        <div id="portfolioErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong>Portfolio Sync Error</strong>
+            <span id="portfolioErrorText">Unable to synchronize portfolio telemetry from server.</span>
+          </div>
+          <button type="button" id="portfolioRetryBtn" class="dash-inline-btn">Retry Sync</button>
+        </div>
+
+        <div id="portfolioLoadingBanner" class="dash-banner info" aria-live="polite" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span>Synchronizing authoritative SQLite portfolio ledger, open holdings, and performance analytics...</span>
+        </div>
+
+        <div class="hero">
+          <div>
+            <span class="eyebrow">PORTFOLIO MANAGEMENT &amp; POSITION ANALYTICS • PAPER MODE ONLY</span>
+            <h3>Portfolio Capital, Open Holdings, Equity Curve &amp; Performance Analytics</h3>
+            <p>Authoritative server-computed virtual capital, reserved margin, mark-to-market holdings, chronological equity curve, and exit-reason attribution. Past paper-trading performance does not guarantee future profits.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>OPEN</span>
+              <strong id="positionsOpenCount">0 / 1</strong>
+            </div>
+            <button type="button" id="portfolioRefreshBtn" class="dash-refresh-btn" aria-label="Refresh Portfolio Data">
+              ↻ Refresh Portfolio
+            </button>
+          </div>
+        </div>
+
+        <!-- PORTFOLIO KPI SUMMARY STRIP (ROW 1: CAPITAL, EQUITY & P&L) -->
+        <div class="dash-kpi-grid" style="margin-bottom: 14px;" id="portfolioKpiPrimaryGrid">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">INITIAL VIRTUAL CAPITAL</span>
+            <strong id="portKpiInitialCapital" class="tabular-nums">₹1,00,000.00</strong>
+            <small id="portKpiTotalEquity" class="tabular-nums">Total Equity: ₹1,00,000.00</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">AVAILABLE BALANCE &amp; RESERVED</span>
+            <strong id="portKpiAvailableBalance" class="tabular-nums">₹1,00,000.00</strong>
+            <small id="portKpiReservedCapital" class="tabular-nums">Reserved Margin: ₹0.00</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">CUMULATIVE REALIZED &amp; RETURN %</span>
+            <strong id="portKpiRealizedPnl" class="tabular-nums">₹0.00</strong>
+            <small id="portKpiOverallReturnPct" class="tabular-nums">Overall Return: +0.00% (vs Initial Capital)</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">TODAY'S REALIZED &amp; UNREALIZED P&amp;L</span>
+            <strong id="portKpiTodayPnl" class="tabular-nums">₹0.00 / ₹0.00</strong>
+            <small id="portKpiUnrealizedMeta" class="tabular-nums">Effective Daily: ₹0.00 • Updated: --</small>
+          </div>
+        </div>
+
+        <!-- PORTFOLIO KPI SUMMARY STRIP (ROW 2: PERFORMANCE & RISK METRICS) -->
+        <div class="dash-kpi-grid" style="margin-bottom: 14px;" id="portfolioKpiSecondaryGrid">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">CLOSED TRADES &amp; WIN / LOSS</span>
+            <strong id="portKpiClosedTrades" class="tabular-nums">0 Closed (0W / 0L)</strong>
+            <small id="portKpiWinRate" class="tabular-nums">Win Rate: INSUFFICIENT_DATA</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">PROFIT FACTOR &amp; EXPECTANCY</span>
+            <strong id="portKpiProfitFactor" class="tabular-nums">INSUFFICIENT_DATA</strong>
+            <small id="portKpiExpectancy" class="tabular-nums">Expectancy: INSUFFICIENT_DATA</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">AVERAGE WIN / AVERAGE LOSS</span>
+            <strong id="portKpiAvgWinLoss" class="tabular-nums">INSUFFICIENT_DATA</strong>
+            <small id="portKpiStreakMeta" class="tabular-nums">Max Streak: 0W / 0L</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">LARGEST DRAWDOWN &amp; DATA STATUS</span>
+            <strong id="portKpiMaxDrawdown" class="tabular-nums">INSUFFICIENT_DATA</strong>
+            <small id="portKpiDataAvailability">Status: EMPTY_PORTFOLIO</small>
+          </div>
+        </div>
+
+        <!-- HOLDINGS & OPEN POSITIONS VALUATION PANEL -->
+        <div class="panel" id="positionsDetailPanel">
+          <div class="panel-header">
+            <div>
+              <h3>Holdings &amp; Open Paper Positions (Mark-to-Market Valuation)</h3>
+              <p id="portHoldingsSubtitle">Updated strictly from validated market quotes • Max 1 open position per user</p>
+            </div>
+            <span class="status-pill" id="positionsStateBadge">FLAT</span>
+          </div>
+
+          <div class="risk-list" id="positionsSummaryList">
+            <div><span>Symbol / Side / Exchange</span><strong id="posViewSymbol">--</strong></div>
+            <div><span>Entry / Latest Validated Price</span><strong id="posViewPrices">--</strong></div>
+            <div><span>Hard Stop-Loss / Target</span><strong id="posViewStops">--</strong></div>
+            <div><span>Locked Profit / Next Milestone</span><strong id="posViewTrailing">--</strong></div>
+            <div><span>Trailing Stop Price / Target Status</span><strong id="posViewTrailingStop">--</strong></div>
+            <div><span>Reserved Margin / Market Value</span><strong id="posViewMargin">₹0.00</strong></div>
+            <div><span>Unrealized Gross &amp; Net P&amp;L (% Return)</span><strong id="posViewPnl">₹0.00</strong></div>
+            <div><span>Quote Timestamp &amp; Valuation Freshness</span><strong id="posViewQuoteFreshness">NO OPEN POSITION</strong></div>
+            <div><span>Position Risk Status</span><strong id="posViewRiskStatus">FLAT</strong></div>
+          </div>
+
+          <div id="portfolioHoldingsTableContainer" style="margin-top: 12px;">
+            <div class="empty-state" id="portfolioNoOpenHoldingsState">
+              <strong>No active open paper holdings</strong>
+              <span>Capital is 100% unreserved. Open a validated paper position via Paper Trading to monitor live mark-to-market valuation here.</span>
+            </div>
+          </div>
+
+          <div class="direction-toggle" id="portfolioPositionActionRow" style="margin-top: 12px;" hidden>
+            <button type="button" id="portfolioCloseOpenPositionBtn" class="danger-action" style="margin-top: 0;">Close Open Position Manually</button>
+          </div>
+        </div>
+
+        <!-- CHRONOLOGICAL EQUITY & CUMULATIVE P&L CHART + EXIT REASON BREAKDOWN -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Chronological Equity &amp; Cumulative P&amp;L Curve</h3>
+                <p>Rendered strictly from actual persisted closed-trade records (no synthetic points)</p>
+              </div>
+              <span class="status-pill tabular-nums" id="portfolioEquityChartBadge">INSUFFICIENT_DATA</span>
+            </div>
+
+            <div id="portfolioEquityChartEmpty" class="empty-state">
+              <strong>INSUFFICIENT_DATA — No closed trades recorded yet</strong>
+              <span>Complete at least one paper trade to plot your actual chronological equity and drawdown curve.</span>
+            </div>
+
+            <div id="portfolioEquityChartContainer" hidden>
+              <svg id="portfolioEquitySvg" viewBox="0 0 640 200" style="width: 100%; height: 200px; display: block;" role="img" aria-label="Portfolio Equity Curve"></svg>
+              <div class="risk-list" id="portfolioEquityCurveSummary" style="margin-top: 8px;"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Exit-Reason Distribution &amp; Attribution</h3>
+                <p>Breakdown across 5-tier deterministic exits &amp; manual closes</p>
+              </div>
+              <span class="status-pill tabular-nums" id="portfolioExitBreakdownBadge">0 TRADES</span>
+            </div>
+            <div class="risk-list" id="portfolioExitReasonList">
+              <div><span>STOP_LOSS (Hard Stop-Loss)</span><strong class="tabular-nums">0 (0.0%) • ₹0.00</strong></div>
+              <div><span>TARGET_EXIT (Target Reached)</span><strong class="tabular-nums">0 (0.0%) • ₹0.00</strong></div>
+              <div><span>EMERGENCY_STOP (Kill-Switch)</span><strong class="tabular-nums">0 (0.0%) • ₹0.00</strong></div>
+              <div><span>RISK_LOCK (₹1,000 Daily Loss Lock)</span><strong class="tabular-nums">0 (0.0%) • ₹0.00</strong></div>
+              <div><span>PROFIT_LOCK (Trailing Profit Lock)</span><strong class="tabular-nums">0 (0.0%) • ₹0.00</strong></div>
+              <div><span>MANUAL (User Manual Close)</span><strong class="tabular-nums">0 (0.0%) • ₹0.00</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PORTFOLIO FILTERS + DAILY P&L HISTORY & CLOSED TRADE LEDGER -->
+        <div class="panel" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Filter Portfolio Trade History &amp; Performance</h3>
+              <p>Filter persisted closed trades by instrument symbol, trade outcome, exit reason, or date range</p>
+            </div>
+            <span class="status-pill tabular-nums" id="portfolioFilteredCountBadge">0 MATCHING</span>
+          </div>
+
+          <div class="direction-toggle" style="flex-wrap: wrap; gap: 10px;">
+            <input id="portfolioFilterSymbol" type="search" placeholder="Filter by symbol (e.g. NIFTY, RELIANCE)" aria-label="Filter by symbol" style="flex: 1; min-width: 180px;">
+            <select id="portfolioFilterStatus" aria-label="Filter by trade outcome" style="min-width: 150px;">
+              <option value="ALL" selected>Outcome: All Closed</option>
+              <option value="WIN">Winning Trades (+P&amp;L)</option>
+              <option value="LOSS">Losing Trades (-P&amp;L)</option>
+            </select>
+            <select id="portfolioFilterReason" aria-label="Filter by exit reason" style="min-width: 160px;">
+              <option value="ALL" selected>Exit Reason: All</option>
+              <option value="STOP_LOSS">STOP_LOSS</option>
+              <option value="TARGET_EXIT">TARGET_EXIT</option>
+              <option value="EMERGENCY_STOP">EMERGENCY_STOP</option>
+              <option value="RISK_LOCK">RISK_LOCK</option>
+              <option value="PROFIT_LOCK">PROFIT_LOCK</option>
+              <option value="MANUAL">MANUAL</option>
+            </select>
+            <input id="portfolioFilterFromDate" type="date" aria-label="From Date" style="min-width: 140px;">
+            <input id="portfolioFilterToDate" type="date" aria-label="To Date" style="min-width: 140px;">
+            <button type="button" id="portfolioApplyFilterBtn" class="primary-action" style="width: auto; padding: 9px 16px;">Apply Filter</button>
+            <button type="button" id="portfolioResetFilterBtn" class="dash-refresh-btn" style="width: auto; padding: 9px 14px;">Reset</button>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Daily Realized P&amp;L History</h3>
+                <p>Chronological daily trading session breakdown</p>
+              </div>
+              <span class="status-pill tabular-nums" id="portfolioDailyHistoryBadge">0 DAYS</span>
+            </div>
+            <div class="risk-list" id="portfolioDailyPnlList">
+              <div><span>No daily closed-trade sessions recorded yet.</span><strong>INSUFFICIENT_DATA</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Filtered Closed Trade Performance Ledger</h3>
+                <p>Persisted closed paper trades with entry/exit, R-multiple &amp; exit reason</p>
+              </div>
+              <span class="status-pill tabular-nums" id="portfolioClosedListBadge">0 TRADES</span>
+            </div>
+            <div class="risk-list" id="portfolioClosedTradesList">
+              <div><span>No closed paper trades match the current filter.</span><strong>--</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 7: ORDERS & VIRTUAL FILLS (TASK 12 — COMPLETE ORDERS & VIRTUAL FILLS) -->
+      <section class="content page-section" id="ordersPage" data-section="orders" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">PAPER ORDER BOOK &amp; VIRTUAL FILLS (TASK 12)</span>
+            <h3>Simulated Paper Order &amp; Virtual Fill Ledger</h3>
+            <p>All entry, exit, and rejected paper orders and virtual fills persisted in SQLite. Explicitly distinguished as <strong>FILLED_PAPER</strong> — zero live Angel One broker orders are ever placed.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>BROKER EXECUTION</span>
+              <strong id="ordersBrokerExecBadge">NONE (SIMULATED_PAPER)</strong>
+            </div>
+            <button type="button" id="ordersRefreshBtn" class="primary-action" style="width: auto; padding: 9px 16px;">↻ Refresh Orders &amp; Fills</button>
+          </div>
+        </div>
+
+        <!-- LOADING / ERROR / SESSION BANNERS FOR ORDERS & FILLS -->
+        <div id="ordersLoadingBanner" class="dash-banner info" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span id="ordersLoadingText">Loading persisted paper orders and virtual fills from SQLite...</span>
+        </div>
+
+        <div id="ordersErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong id="ordersErrorTitle">Orders &amp; Fills Load Error</strong>
+            <span id="ordersErrorText">Unable to load order history.</span>
+          </div>
+          <button type="button" id="ordersRetryBtn" class="dash-inline-btn">Retry</button>
+        </div>
+
+        <!-- TOP KPI STRIP FOR ORDERS & VIRTUAL FILLS -->
+        <div class="dash-kpi-grid" style="margin-bottom: 14px;">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">TOTAL PAPER ORDERS</span>
+            <strong id="ordersKpiTotalOrders" class="tabular-nums">0</strong>
+            <small id="ordersKpiFilledVsRejected" class="tabular-nums">0 FILLED_PAPER • 0 REJECTED</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">EXECUTED VIRTUAL FILLS</span>
+            <strong id="ordersKpiTotalFills" class="tabular-nums">0</strong>
+            <small id="ordersKpiFillSource">Source: VALIDATED_PAPER_QUOTE</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">SIMULATED FEES &amp; SLIPPAGE</span>
+            <strong id="ordersKpiTotalFees" class="tabular-nums">₹0.00</strong>
+            <small id="ordersKpiSlippageAssumptions">0 bps synthetic slippage • ₹0 broker fee</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">EXECUTION SAFETY &amp; ISOLATION</span>
+            <strong id="ordersKpiModeBadge">PAPER ONLY</strong>
+            <small id="ordersKpiIsolationLabel">User-Isolated SQLite Ledger</small>
+          </div>
+        </div>
+
+        <!-- SEARCH, FILTER & PAGINATION BAR FOR ORDERS & FILLS -->
+        <div class="panel" style="margin-bottom: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Search &amp; Filter Paper Orders and Virtual Fills</h3>
+              <p>Filter persisted orders and fills by symbol, exchange, direction, simulated status, lifecycle stage, or date range</p>
+            </div>
+            <span class="status-pill tabular-nums" id="ordersFilteredSummaryBadge">ALL RECORDS</span>
+          </div>
+
+          <div class="direction-toggle" style="flex-wrap: wrap; gap: 10px;">
+            <input id="ordersFilterSymbol" type="search" placeholder="Search symbol or Order/Fill ID (e.g. NIFTY, RELIANCE)" aria-label="Search Orders by Symbol" style="flex: 1; min-width: 180px;">
+            <select id="ordersFilterExchange" aria-label="Filter Orders by Exchange" style="min-width: 120px;">
+              <option value="ALL" selected>Exchange: All</option>
+              <option value="NSE">NSE</option>
+              <option value="NFO">NFO</option>
+              <option value="BSE">BSE</option>
+            </select>
+            <select id="ordersFilterDirection" aria-label="Filter Orders by Direction" style="min-width: 120px;">
+              <option value="ALL" selected>Side: All</option>
+              <option value="BUY">BUY</option>
+              <option value="SELL">SELL</option>
+            </select>
+            <select id="ordersFilterStatus" aria-label="Filter Orders by Status" style="min-width: 150px;">
+              <option value="ALL" selected>Status: All</option>
+              <option value="FILLED_PAPER">FILLED_PAPER</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+            <select id="ordersFilterType" aria-label="Filter Orders by Stage" style="min-width: 130px;">
+              <option value="ALL" selected>Stage: Entry &amp; Exit</option>
+              <option value="ENTRY">ENTRY Orders</option>
+              <option value="EXIT">EXIT Orders</option>
+            </select>
+            <input id="ordersFilterFromDate" type="date" aria-label="Orders From Date" style="min-width: 135px;">
+            <input id="ordersFilterToDate" type="date" aria-label="Orders To Date" style="min-width: 135px;">
+            <button type="button" id="ordersApplyFilterBtn" class="primary-action" style="width: auto; padding: 9px 16px;">Apply Filter</button>
+            <button type="button" id="ordersResetFilterBtn" class="dash-refresh-btn" style="width: auto; padding: 9px 14px;">Reset</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Persisted Paper Orders (<span id="ordersPageIndicator" class="tabular-nums">Page 1 of 1</span>)</h3>
+                <p>Order ID, timestamp, symbol/exchange, option contract, qty/lots, status, fill price, SL/target &amp; linked IDs</p>
+              </div>
+              <span class="status-pill tabular-nums" id="ordersCountPill">0 ORDERS</span>
+            </div>
+            <div id="ordersListContainer" class="risk-list">
+              <div><span>No paper orders recorded yet.</span><strong>--</strong></div>
+            </div>
+            <div class="direction-toggle" style="margin-top: 12px; justify-content: space-between; align-items: center;">
+              <button type="button" id="ordersPrevPageBtn" class="dash-refresh-btn" style="width: auto; padding: 6px 12px;" disabled>← Prev Page</button>
+              <small id="ordersPaginationMeta" class="tabular-nums">Showing 0 of 0 orders</small>
+              <button type="button" id="ordersNextPageBtn" class="dash-refresh-btn" style="width: auto; padding: 6px 12px;" disabled>Next Page →</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Persisted Virtual Paper Fills</h3>
+                <p>Fill ID, linked Order ID, ENTRY/EXIT stage, simulated fill price, fees/slippage, data source &amp; linked position/trade</p>
+              </div>
+              <span class="status-pill tabular-nums" id="fillsCountPill">0 FILLS</span>
+            </div>
+            <div id="fillsListContainer" class="risk-list">
+              <div><span>No virtual paper fills recorded yet.</span><strong>--</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 8: RISK CONTROLS & EMERGENCY STOP (TASK 9 — COMPLETE RISK MANAGEMENT ENGINE) -->
+      <section class="content page-section" id="riskPage" data-section="risk" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">RISK &amp; SAFETY ARCHITECTURE</span>
+            <h3>Risk Engine, Emergency Stop &amp; Live-Readiness Audit</h3>
+            <p>Centralized deterministic safety enforcement: ₹500 max loss per trade, ₹1,000 daily loss lock, 3 trades/day max, 1 open position max, and global Emergency Stop.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>SAFETY</span>
+              <strong id="riskPageSafetyStatus">ARMED</strong>
+            </div>
+            <button type="button" id="riskRefreshStatusBtn" class="dash-refresh-btn">↻ Sync Risk State</button>
+          </div>
+        </div>
+
+        <!-- TOP KPI STRIP: REAL-TIME RISK METRICS -->
+        <div class="dash-kpi-grid" style="margin-bottom: 14px;">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">PER-TRADE RISK LIMIT</span>
+            <strong id="riskKpiMaxLossTrade" class="tabular-nums">₹500.00</strong>
+            <small id="riskKpiOpenTradeRisk">Active Trade Risk: ₹0.00</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">DAILY LOSS LOCK &amp; BUFFER</span>
+            <strong id="riskKpiDailyBuffer" class="tabular-nums">₹1,000.00 Remaining</strong>
+            <small id="riskKpiEffectiveDailyPnl">Effective Daily P&amp;L: +₹0.00 / -₹1,000.00</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">DAILY TRADE FREQUENCY</span>
+            <strong id="riskKpiTradesCounter" class="tabular-nums">0 / 3 Trades</strong>
+            <small id="riskKpiTradesRemaining">3 trades remaining today</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">OPEN POSITION &amp; CAPITAL</span>
+            <strong id="riskKpiOpenPositionCounter" class="tabular-nums">0 / 1 Open</strong>
+            <small id="riskKpiAvailableBalance">Available Balance: ₹100,000.00</small>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Mandatory Risk Rules &amp; Live Counters</h3>
+                <p>Enforced in code by RiskEngine (v2.0.0-DETERMINISTIC-RISK)</p>
+              </div>
+              <span class="status-pill" id="riskEmergencyPill">NORMAL</span>
+            </div>
+            <div class="risk-list">
+              <div><span>Max Loss Per Trade</span><strong id="riskRuleMaxLossPerTrade" class="tabular-nums">₹500.00</strong></div>
+              <div><span>Max Daily Loss Lock</span><strong id="riskRuleMaxDailyLoss" class="tabular-nums">₹1,000.00</strong></div>
+              <div><span>Realized / Unrealized Daily P&amp;L</span><strong id="riskRuleDailyPnlBreakdown" class="tabular-nums">+₹0.00 / +₹0.00</strong></div>
+              <div><span>Remaining Daily Loss Buffer</span><strong id="riskRuleRemainingDailyBuffer" class="tabular-nums">₹1,000.00</strong></div>
+              <div><span>Daily Trade Count</span><strong id="riskRuleTradesToday" class="tabular-nums">0 / 3</strong></div>
+              <div><span>Concurrent Open Positions</span><strong id="riskRuleOpenPositions" class="tabular-nums">0 / 1</strong></div>
+              <div><span>Position Averaging</span><strong>BLOCKED</strong></div>
+              <div><span>Emergency Stop State</span><strong id="riskEmergencyStateText">INACTIVE</strong></div>
+            </div>
+            <div class="direction-toggle" style="margin-top: 14px;">
+              <button type="button" id="triggerEmergencyPageBtn" class="danger-action" style="margin-top: 0;">Activate Emergency Stop</button>
+              <button type="button" id="resetEmergencyPageBtn" class="primary-action" disabled>Reset Emergency Stop</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Interactive Per-Trade Risk &amp; Position Sizing Calculator</h3>
+                <p>Verify stop-loss direction, ₹500 max trade loss &amp; safe quantity/lots</p>
+              </div>
+              <span class="status-pill" id="riskSimStatusBadge">READY</span>
+            </div>
+            <div class="trade-form" style="gap: 8px;">
+              <div class="direction-toggle">
+                <select id="riskSimSide" aria-label="Simulated Trade Side">
+                  <option value="BUY" selected>Side: BUY (Long)</option>
+                  <option value="SELL">Side: SELL (Short)</option>
+                </select>
+                <select id="riskSimAssetType" aria-label="Simulated Asset Type">
+                  <option value="EQUITY" selected>Asset: EQUITY / INDEX</option>
+                  <option value="OPTION">Asset: OPTION (Lots)</option>
+                </select>
+              </div>
+              <div class="direction-toggle">
+                <input id="riskSimEntry" type="number" step="0.05" value="2000" placeholder="Entry Price (₹)" aria-label="Entry Price">
+                <input id="riskSimStop" type="number" step="0.05" value="1980" placeholder="Stop-Loss Price (₹)" aria-label="Stop-Loss Price">
+                <input id="riskSimTarget" type="number" step="0.05" value="2040" placeholder="Target Price (₹)" aria-label="Target Price">
+              </div>
+              <div class="direction-toggle">
+                <input id="riskSimQty" type="number" step="1" min="1" value="10" placeholder="Quantity / Lots" aria-label="Quantity or Lots">
+                <input id="riskSimLotSize" type="number" step="1" min="1" value="1" placeholder="Lot Size (Option)" aria-label="Option Lot Size">
+                <button type="button" id="riskSimEvaluateBtn" class="primary-action" style="width: auto; padding: 9px 16px;">Evaluate Risk</button>
+              </div>
+            </div>
+            <div class="risk-list" style="margin-top: 10px;">
+              <div><span>Per-Trade Risk Amount</span><strong id="riskSimRiskAmount" class="tabular-nums">₹200.00 / ₹500.00</strong></div>
+              <div><span>Risk / Reward Ratio</span><strong id="riskSimRR" class="tabular-nums">1 : 2.00</strong></div>
+              <div><span>Max Safe Position Size (≤ ₹500 Risk)</span><strong id="riskSimRecommendedSize" class="tabular-nums">25 unit(s)</strong></div>
+              <div><span>Evaluation Verdict</span><strong id="riskSimVerdictText">APPROVED — Within ₹500 per-trade limit</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Active Risk Lockouts &amp; Persisted Risk Event Log</h3>
+                <p>User-isolated SQLite risk_events &amp; rejection reasons</p>
+              </div>
+              <span class="status-pill tabular-nums" id="riskEventsCountBadge">0 EVENTS</span>
+            </div>
+            <div id="riskActiveRejectionBox" class="risk-list">
+              <div><span>All risk gates clear — workspace eligible for Paper Mode execution.</span><strong>CLEAR</strong></div>
+            </div>
+            <div class="scanner-results-head" style="margin-top: 12px;">
+              <span class="dash-kicker">RECENT PERSISTED RISK EVALUATIONS (SQLITE)</span>
+            </div>
+            <div id="riskEventsHistoryList" class="risk-list">
+              <div><span>No risk evaluation events recorded yet.</span><strong>--</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Phase 19 Live-Readiness Safety Audit</h3>
+                <p>Automated verification of safety invariants</p>
+              </div>
+              <span class="status-pill" id="liveAuditStatusPill">VERIFIED</span>
+            </div>
+            <div id="liveAuditChecksList" class="risk-list">
+              <div><span>Live Trading Enabled</span><strong>FALSE (LOCKED)</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 9: TRADE HISTORY & AUDIT LOGS (TASK 12 — COMPLETE CLOSED TRADE HISTORY) -->
+      <section class="content page-section" id="historyPage" data-section="history" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">CLOSED PAPER TRADE HISTORY &amp; AUDIT TRAIL (TASK 12)</span>
+            <h3>Chronological Closed Paper Trades, Entry/Exit Links &amp; Security Audit Log</h3>
+            <p>Complete chronological ledger of closed paper trades with entry/exit prices, initial stop-loss &amp; target, gross/net P&amp;L, fees, R-multiple, holding duration, exit reason, and linked Order/Fill IDs. Open positions and rejected orders are strictly excluded.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>CLOSED TRADES</span>
+              <strong id="historyTradesCount" class="tabular-nums">0</strong>
+            </div>
+            <button type="button" id="historyRefreshBtn" class="primary-action" style="width: auto; padding: 9px 16px;">↻ Refresh Trade History</button>
+          </div>
+        </div>
+
+        <!-- LOADING / ERROR BANNERS FOR TRADE HISTORY -->
+        <div id="historyLoadingBanner" class="dash-banner info" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span id="historyLoadingText">Loading persisted closed paper trade history from SQLite...</span>
+        </div>
+
+        <div id="historyErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong id="historyErrorTitle">Trade History Load Error</strong>
+            <span id="historyErrorText">Unable to load closed trade history.</span>
+          </div>
+          <button type="button" id="historyRetryBtn" class="dash-inline-btn">Retry</button>
+        </div>
+
+        <!-- TOP KPI STRIP FOR CLOSED TRADE HISTORY -->
+        <div class="dash-kpi-grid" style="margin-bottom: 14px;">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">MATCHING CLOSED TRADES</span>
+            <strong id="historyKpiClosedCount" class="tabular-nums">0 Trades</strong>
+            <small id="historyKpiWinLossBreakdown" class="tabular-nums">0W • 0L • 0BE</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">GROSS REALIZED P&amp;L</span>
+            <strong id="historyKpiGrossPnl" class="tabular-nums">+₹0.00</strong>
+            <small id="historyKpiFeesTotal" class="tabular-nums">Total Fees: ₹0.00</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">NET REALIZED P&amp;L</span>
+            <strong id="historyKpiNetPnl" class="tabular-nums">+₹0.00</strong>
+            <small id="historyKpiAccountingCheck">Accounting: VERIFIED</small>
+          </div>
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">EXCLUSION GUARANTEES</span>
+            <strong id="historyKpiExclusionsBadge">CLOSED ONLY</strong>
+            <small>Open positions &amp; rejected orders excluded</small>
+          </div>
+        </div>
+
+        <!-- SEARCH, FILTER & PAGINATION BAR FOR CLOSED TRADE HISTORY -->
+        <div class="panel" style="margin-bottom: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Search &amp; Filter Closed Trade History</h3>
+              <p>Filter completed paper trades by instrument, exchange, direction, profit/loss outcome, exit reason, or date range</p>
+            </div>
+            <span class="status-pill tabular-nums" id="historyFilteredCountBadge">0 MATCHING</span>
+          </div>
+
+          <div class="direction-toggle" style="flex-wrap: wrap; gap: 10px;">
+            <input id="historyFilterSymbol" type="search" placeholder="Search symbol or Trade/Position ID (e.g. NIFTY, TCS)" aria-label="Filter Trade History by Symbol" style="flex: 1; min-width: 180px;">
+            <select id="historyFilterExchange" aria-label="Filter Trade History by Exchange" style="min-width: 120px;">
+              <option value="ALL" selected>Exchange: All</option>
+              <option value="NSE">NSE</option>
+              <option value="NFO">NFO</option>
+              <option value="BSE">BSE</option>
+            </select>
+            <select id="historyFilterDirection" aria-label="Filter Trade History by Direction" style="min-width: 120px;">
+              <option value="ALL" selected>Side: All</option>
+              <option value="BUY">BUY</option>
+              <option value="SELL">SELL</option>
+            </select>
+            <select id="historyFilterOutcome" aria-label="Filter Trade History by P&L Outcome" style="min-width: 150px;">
+              <option value="ALL" selected>Outcome: All Closed</option>
+              <option value="WIN">Winning (+P&amp;L)</option>
+              <option value="LOSS">Losing (-P&amp;L)</option>
+              <option value="BREAKEVEN">Breakeven (₹0.00)</option>
+            </select>
+            <select id="historyFilterExitReason" aria-label="Filter Trade History by Exit Reason" style="min-width: 160px;">
+              <option value="ALL" selected>Exit Reason: All</option>
+              <option value="STOP_LOSS">STOP_LOSS</option>
+              <option value="TARGET_EXIT">TARGET_EXIT</option>
+              <option value="PROFIT_LOCK">PROFIT_LOCK</option>
+              <option value="RISK_LOCK">RISK_LOCK</option>
+              <option value="EMERGENCY_STOP">EMERGENCY_STOP</option>
+              <option value="MANUAL_EXIT">MANUAL_EXIT</option>
+            </select>
+            <input id="historyFilterFromDate" type="date" aria-label="Trade History From Date" style="min-width: 135px;">
+            <input id="historyFilterToDate" type="date" aria-label="Trade History To Date" style="min-width: 135px;">
+            <button type="button" id="historyApplyFilterBtn" class="primary-action" style="width: auto; padding: 9px 16px;">Apply Filter</button>
+            <button type="button" id="historyResetFilterBtn" class="dash-refresh-btn" style="width: auto; padding: 9px 14px;">Reset</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Closed Paper Trades (<span id="historyPageIndicator" class="tabular-nums">Page 1 of 1</span>)</h3>
+                <p>Chronological closed trades with entry/exit, stop/target, gross/net P&amp;L, R-multiple, holding duration &amp; linked Order/Fill IDs</p>
+              </div>
+              <span class="status-pill tabular-nums" id="historyTradesListPill">0 TRADES</span>
+            </div>
+            <div id="tradeHistoryContainer" class="risk-list">
+              <div><span>No closed paper trades yet.</span><strong>--</strong></div>
+            </div>
+            <div class="direction-toggle" style="margin-top: 12px; justify-content: space-between; align-items: center;">
+              <button type="button" id="historyPrevPageBtn" class="dash-refresh-btn" style="width: auto; padding: 6px 12px;" disabled>← Prev Page</button>
+              <small id="historyPaginationMeta" class="tabular-nums">Showing 0 of 0 closed trades</small>
+              <button type="button" id="historyNextPageBtn" class="dash-refresh-btn" style="width: auto; padding: 6px 12px;" disabled>Next Page →</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>System Audit Log</h3>
+                <p>Decisions, risk rejections, and emergency events</p>
+              </div>
+            </div>
+            <div id="auditLogContainer" class="risk-list">
+              <div><span>System initialized in PAPER mode.</span><strong>SYSTEM</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 10: YASHWIN USER ACCOUNT & PROFILE -->
+      <section class="content page-section" id="accountPage" data-section="account" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">YASHWIN USER ACCOUNT SYSTEM</span>
+            <h3>User Authentication, Profile &amp; Account Security</h3>
+            <p>Manage your YASHWIN account, server-side session, and personal paper trading workspace (completely separate from Angel One broker credentials).</p>
+          </div>
+          <div class="hero-badge">
+            <span>SESSION</span>
+            <strong id="accountSessionBadge">GUEST</strong>
+          </div>
+        </div>
+
+        <!-- GUEST VIEW: LOGIN & REGISTRATION -->
+        <div class="grid" id="accountGuestView">
+          <div class="panel trade-form">
+            <div class="panel-header">
+              <div>
+                <h3>Sign In to YASHWIN</h3>
+                <p>Server-managed HttpOnly session with CSRF protection</p>
+              </div>
+              <span class="status-pill" id="loginRateStatusPill">SECURE</span>
+            </div>
+
+            <form id="userLoginForm" autocomplete="on">
+              <label for="loginEmail">Email Address</label>
+              <input id="loginEmail" type="email" required placeholder="trader@example.com" autocomplete="email">
+
+              <label for="loginPassword">Password</label>
+              <input id="loginPassword" type="password" required placeholder="Enter your password" autocomplete="current-password">
+
+              <p class="form-feedback" id="loginFeedbackText" hidden></p>
+
+              <button id="loginSubmitBtn" type="submit" class="primary-action" style="margin-top: 16px;">Sign In</button>
+            </form>
+          </div>
+
+          <div class="panel trade-form">
+            <div class="panel-header">
+              <div>
+                <h3>Create YASHWIN Account</h3>
+                <p>Bcrypt password hashing &amp; isolated paper trading ledger</p>
+              </div>
+              <span class="status-pill">NEW USER</span>
+            </div>
+
+            <form id="userRegisterForm" autocomplete="on">
+              <label for="registerName">Full Name</label>
+              <input id="registerName" type="text" required minlength="2" maxlength="80" placeholder="Yashwin Trader" autocomplete="name">
+
+              <label for="registerEmail">Email Address</label>
+              <input id="registerEmail" type="email" required placeholder="trader@example.com" autocomplete="email">
+
+              <label for="registerPassword">Password (min 8 chars, letters &amp; numbers)</label>
+              <input id="registerPassword" type="password" required minlength="8" placeholder="At least 8 characters with letter &amp; number" autocomplete="new-password">
+
+              <p class="form-feedback" id="registerFeedbackText" hidden></p>
+
+              <button id="registerSubmitBtn" type="submit" class="primary-action" style="margin-top: 16px;">Create Account</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- AUTHENTICATED VIEW: PROFILE, EMAIL, PASSWORD & SETTINGS -->
+        <div id="accountAuthenticatedView" hidden>
+          <div class="grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Account Profile Summary</h3>
+                  <p>Immutable user identity &amp; isolated paper account</p>
+                </div>
+                <span class="status-pill" id="profileVerifiedBadge">VERIFIED</span>
+              </div>
+
+              <div class="risk-list">
+                <div><span>Immutable User ID</span><strong id="profileUserId">--</strong></div>
+                <div><span>Full Name</span><strong id="profileNameDisplay">--</strong></div>
+                <div><span>Email Address</span><strong id="profileEmailDisplay">--</strong></div>
+                <div><span>Account Created</span><strong id="profileCreatedAt">--</strong></div>
+                <div><span>Last Updated</span><strong id="profileUpdatedAt">--</strong></div>
+                <div><span>Isolated Paper Capital</span><strong id="profilePaperCapital">₹1,00,000.00</strong></div>
+                <div><span>Auth Separation</span><strong>YASHWIN USER (ANGEL SEPARATE)</strong></div>
+              </div>
+
+              <button type="button" id="userLogoutBtn" class="danger-action">Sign Out &amp; Invalidate Session</button>
+            </div>
+
+            <div class="panel trade-form">
+              <div class="panel-header">
+                <div>
+                  <h3>Edit Profile &amp; Account Settings</h3>
+                  <p>Update display name, email address, and preferences</p>
+                </div>
+              </div>
+
+              <form id="userProfileForm">
+                <label for="profileEditName">Display Name</label>
+                <input id="profileEditName" type="text" required minlength="2" maxlength="80">
+
+                <label for="profileEditEmail">Email Address</label>
+                <input id="profileEditEmail" type="email" required>
+
+                <label for="profileNotificationsToggle">Account Notifications</label>
+                <select id="profileNotificationsToggle">
+                  <option value="true">Enabled</option>
+                  <option value="false">Muted</option>
+                </select>
+
+                <p class="form-feedback" id="profileFeedbackText" hidden></p>
+
+                <button id="profileSaveBtn" type="submit" class="primary-action" style="margin-top: 16px;">Save Profile Changes</button>
+              </form>
+
+              <div id="pendingEmailVerifyBox" class="pending-verify-box" hidden>
+                <p id="pendingEmailVerifyText">Pending email verification required.</p>
+                <div class="direction-toggle" style="margin-top: 8px;">
+                  <input id="emailVerifyTokenInput" type="text" placeholder="Enter verification token">
+                  <button type="button" id="emailVerifyConfirmBtn" class="primary-action">Verify Email</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel trade-form" style="margin-top: 14px;">
+            <div class="panel-header">
+              <div>
+                <h3>Change Password</h3>
+                <p>Requires current password verification and revokes other sessions</p>
+              </div>
+              <span class="status-pill">BCRYPT HASHED</span>
+            </div>
+
+            <form id="userPasswordForm" class="password-grid-form">
+              <div>
+                <label for="currentPasswordInput">Current Password</label>
+                <input id="currentPasswordInput" type="password" required autocomplete="current-password" placeholder="Current password">
+              </div>
+              <div>
+                <label for="newPasswordInput">New Password (min 8 chars, letter + number)</label>
+                <input id="newPasswordInput" type="password" required minlength="8" autocomplete="new-password" placeholder="New strong password">
+              </div>
+              <div class="password-submit-col">
+                <button id="changePasswordBtn" type="submit" class="primary-action">Update Password</button>
+              </div>
+            </form>
+            <p class="form-feedback" id="passwordFeedbackText" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 11: MARKET INTELLIGENCE (TASK 7 — COMPLETE MARKET INTELLIGENCE) -->
+      <section class="content page-section" id="intelligencePage" data-section="intelligence" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">SERVER-SIDE MARKET INTELLIGENCE &amp; MACRO CONTEXT</span>
+            <h3>Indian &amp; Global Market News, Company Feeds, Economic Calendar &amp; Global Indices</h3>
+            <p>Verified server-side news, economic events, global indices, and source-backed sentiment. Supporting context only — never overrides price action, technical indicators, or RiskEngine.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>FEED STATUS</span>
+              <strong id="intelHeroStatusBadge">DATA_UNAVAILABLE</strong>
+            </div>
+            <button type="button" id="intelRefreshBtn" class="primary-action" style="width: auto; padding: 9px 16px;">↻ Refresh Intelligence</button>
+          </div>
+        </div>
+
+        <!-- LOADING / ERROR / UNCONFIGURED BANNERS -->
+        <div id="intelLoadingBanner" class="dash-banner info" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span id="intelLoadingText">Fetching and validating server-side market intelligence feeds...</span>
+        </div>
+
+        <div id="intelErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong id="intelErrorTitle">Market Intelligence Provider Error</strong>
+            <span id="intelErrorText">Provider request failed or rate limit exceeded.</span>
+          </div>
+          <button type="button" id="intelRetryBtn" class="dash-inline-btn">Retry Feed</button>
+        </div>
+
+        <div id="intelConfigBanner" class="dash-banner warning">
+          <div>
+            <strong>External Market Intelligence Provider Status</strong>
+            <span id="intelConfigText">No external intelligence provider credentials configured on server (FINNHUB_API_KEY, ALPHA_VANTAGE_API_KEY, or INDIAN_MARKET_RSS_URL). Showing explicit DATA_UNAVAILABLE state — zero fake headlines or synthetic sentiment generated.</span>
+          </div>
+        </div>
+
+        <!-- TOP KPI STRIP: PROVIDER, RETRIEVAL TIME, SELECTED SYMBOL, VERIFIED SENTIMENT -->
+        <div class="dashboard-kpi-strip intel-kpi-strip">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">PROVIDER &amp; FEED STATE</span>
+            <strong id="intelProviderBadge" class="dash-kpi-main">UNCONFIGURED</strong>
+            <small id="intelRetrievalTimestamp" class="tabular-nums">Retrieval: --</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">SELECTED INSTRUMENT CONTEXT</span>
+            <strong id="intelSelectedSymbol" class="dash-kpi-main">NIFTY 50</strong>
+            <small id="intelSelectedExchange">NSE • Supporting Context Only</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">VERIFIED MARKET SENTIMENT</span>
+            <strong id="intelSentimentLabel" class="dash-kpi-main">UNAVAILABLE</strong>
+            <small id="intelSentimentMeta" class="tabular-nums">-- (Requires verified source)</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">VALIDATION &amp; DEDUPLICATION</span>
+            <strong id="intelValidatedCountBadge" class="dash-kpi-main tabular-nums">0 ITEMS</strong>
+            <small id="intelDedupDiagnostics" class="tabular-nums">0 duplicates removed • 0 malformed rejected</small>
+          </div>
+        </div>
+
+        <!-- CATEGORY FILTER BAR -->
+        <div class="panel intel-filter-bar-panel">
+          <div class="ai-timeframe-bar-row">
+            <div>
+              <span class="dash-kicker">FILTER INTELLIGENCE BY CATEGORY &amp; INSTRUMENT</span>
+              <p class="ai-tf-note" id="intelGovernanceNote">Governance: Market Intelligence is supporting context only and never overrides price action, technical indicators, AISafetyGate, or RiskEngine.</p>
+            </div>
+            <div class="scanner-filter-pills" id="intelCategoryFilters" role="group" aria-label="Market Intelligence Category Filter">
+              <button type="button" class="scanner-filter-btn active" data-intel-filter="ALL">All Feeds</button>
+              <button type="button" class="scanner-filter-btn" data-intel-filter="INDIAN_MARKET">Indian Market News</button>
+              <button type="button" class="scanner-filter-btn" data-intel-filter="GLOBAL_MARKET">Global Market News</button>
+              <button type="button" class="scanner-filter-btn" data-intel-filter="COMPANY_NEWS">Relevant Company News</button>
+              <button type="button" class="scanner-filter-btn" data-intel-filter="ECONOMIC_EVENTS">Economic Calendar</button>
+              <button type="button" class="scanner-filter-btn" data-intel-filter="GLOBAL_INDICES">Global Indices</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GLOBAL MARKET INDICES & VERIFIED SENTIMENT BREAKDOWN -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Global Market Indices</h3>
+                <p>Verified global benchmark quotes &amp; freshness status</p>
+              </div>
+              <span class="status-pill tabular-nums" id="intelGlobalIndicesCountPill">0 INDICES</span>
+            </div>
+            <div id="intelGlobalIndicesContainer" class="risk-list">
+              <div><span>Global index quotes unavailable — no external index feed configured.</span><strong>DATA_UNAVAILABLE</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Economic Calendar &amp; Macro Events</h3>
+                <p>Scheduled RBI, Fed, CPI, GDP &amp; macro releases with source &amp; timestamps</p>
+              </div>
+              <span class="status-pill tabular-nums" id="intelEconomicEventsCountPill">0 EVENTS</span>
+            </div>
+            <div id="intelEconomicEventsContainer" class="risk-list">
+              <div><span>Economic calendar events unavailable — no macro calendar feed configured.</span><strong>DATA_UNAVAILABLE</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INDIAN MARKET NEWS & GLOBAL MARKET NEWS -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Indian Market News (NSE / BSE / Macro)</h3>
+                <p>Preserves source, headline, publication timestamp, retrieval time &amp; URL</p>
+              </div>
+              <span class="status-pill tabular-nums" id="intelIndianNewsCountPill">0 ITEMS</span>
+            </div>
+            <div id="intelIndianNewsContainer" class="risk-list">
+              <div><span>Indian market news unavailable — configure server provider credentials.</span><strong>DATA_UNAVAILABLE</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Global Market News</h3>
+                <p>International equities, central banks, commodities &amp; FX feeds</p>
+              </div>
+              <span class="status-pill tabular-nums" id="intelGlobalNewsCountPill">0 ITEMS</span>
+            </div>
+            <div id="intelGlobalNewsContainer" class="risk-list">
+              <div><span>Global market news unavailable — configure server provider credentials.</span><strong>DATA_UNAVAILABLE</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RELEVANT COMPANY NEWS (FOR SELECTED INSTRUMENT) -->
+        <div class="panel" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Relevant Company &amp; Instrument News</h3>
+              <p id="intelCompanyNewsSubtitle">Filtered for selected symbol • Preserves source, publication time, retrieval time &amp; URL</p>
+            </div>
+            <span class="status-pill tabular-nums" id="intelCompanyNewsCountPill">0 ITEMS</span>
+          </div>
+          <div id="intelCompanyNewsContainer" class="risk-list" style="margin-top: 12px;">
+            <div><span>No verified company news items retrieved for the selected instrument.</span><strong>DATA_UNAVAILABLE</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 12: WATCHLIST & MARKET ALERTS (TASK 14 — COMPLETE WATCHLIST & MARKET ALERTS) -->
+      <section class="content page-section" id="watchlistPage" data-section="watchlist" hidden>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">USER-ISOLATED WATCHLIST &amp; REAL-DATA MARKET ALERTS • ZERO FABRICATION</span>
+            <h3>Watchlist Management, Validated Market Quotes &amp; Deterministic Alert Engine</h3>
+            <p>Track NSE, BSE, NFO &amp; BFO equities, indices, futures and option contracts. Configure price, % change, volume spike, indicator, strategy signal and candle-range alerts evaluated strictly against validated market data.</p>
+          </div>
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>ALERTS MODE</span>
+              <strong id="wlHeroModeBadge">NOTIFY ONLY • PAPER</strong>
+            </div>
+            <button type="button" id="wlEvaluateAlertsNowBtn" class="primary-action" style="width: auto; padding: 9px 16px;">⚡ Evaluate Active Alerts</button>
+            <button type="button" id="wlRefreshAllBtn" class="dash-refresh-btn">↻ Refresh Quotes &amp; Alerts</button>
+          </div>
+        </div>
+
+        <!-- LOADING / ERROR / TRIGGERED NOTIFICATION BANNERS -->
+        <div id="wlLoadingBanner" class="dash-banner info" hidden>
+          <span class="dash-spinner" aria-hidden="true"></span>
+          <span id="wlLoadingText">Synchronizing user watchlist, validated market quotes, and active alert conditions...</span>
+        </div>
+
+        <div id="wlErrorBanner" class="dash-banner danger" role="alert" hidden>
+          <div>
+            <strong id="wlErrorTitle">Watchlist / Alert Operation Error</strong>
+            <span id="wlErrorText">Unable to complete watchlist or alert request.</span>
+          </div>
+          <button type="button" id="wlRetrySyncBtn" class="dash-inline-btn">Retry Sync</button>
+        </div>
+
+        <div id="wlTriggeredNotificationBanner" class="dash-banner warning" role="status" hidden>
+          <div>
+            <strong id="wlTriggeredBannerTitle">🔔 Market Alert Triggered (Notification Only — No Order Placed)</strong>
+            <span id="wlTriggeredBannerText">An alert condition matched validated market data. Review details below or open in Chart / AI Analysis.</span>
+          </div>
+          <button type="button" id="wlAcknowledgeLatestBtn" class="dash-inline-btn">Acknowledge &amp; Dismiss</button>
+        </div>
+
+        <!-- TOP KPI STRIP -->
+        <div class="dashboard-kpi-strip" style="margin-bottom: 14px;">
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">WATCHLIST INSTRUMENTS</span>
+            <strong id="wlKpiTotalItems" class="dash-kpi-main tabular-nums">0 SAVED</strong>
+            <small id="wlKpiQuoteCoverage" class="tabular-nums">0 validated quotes • 0 waiting</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">ACTIVE MARKET ALERTS</span>
+            <strong id="wlKpiActiveAlerts" class="dash-kpi-main tabular-nums">0 ACTIVE</strong>
+            <small id="wlKpiPausedAlerts" class="tabular-nums">0 paused • 0 cancelled</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">TRIGGERED ALERT EVENTS</span>
+            <strong id="wlKpiTriggeredEvents" class="dash-kpi-main tabular-nums">0 TRIGGERED</strong>
+            <small id="wlKpiUnackCount" class="tabular-nums">0 unacknowledged notifications</small>
+          </div>
+
+          <div class="dash-kpi-card">
+            <span class="dash-kicker">EXECUTION SAFETY &amp; ISOLATION</span>
+            <strong id="wlKpiSafetyState" class="dash-kpi-main">NO AUTO ORDERS</strong>
+            <small id="wlKpiOwnerScope">User-isolated SQLite • Paper Mode Only</small>
+          </div>
+        </div>
+
+        <!-- WATCHLIST TABLE & QUICK ADD BAR -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>1. Persistent User Watchlist &amp; Validated Quote Monitor</h3>
+              <p>Ordered by custom sort_order • Supports NSE, BSE, NFO &amp; BFO (Equities, Indices, Futures &amp; CE/PE Option Contracts)</p>
+            </div>
+            <div class="direction-toggle" style="margin-top: 0;">
+              <button type="button" id="wlAddCurrentInstBtn" class="dash-inline-btn">★ Add Selected Instrument (<span id="wlSelectedInstLabel">NIFTY 50</span>)</button>
+              <button type="button" class="dash-inline-btn" data-nav-target="scanner">🔎 Search More Instruments</button>
+            </div>
+          </div>
+
+          <div id="wlTableEmptyState" class="risk-list" style="margin-top: 12px;" hidden>
+            <div>
+              <span>Your watchlist is currently empty. Add instruments from Market Search or click "Add Selected Instrument" above.</span>
+              <strong>EMPTY WATCHLIST</strong>
+            </div>
+          </div>
+
+          <div class="table-scroll-wrap" style="margin-top: 12px; overflow-x: auto;">
+            <table class="data-table" id="wlWatchlistTable" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 10px 8px;">Order</th>
+                  <th style="text-align: left; padding: 10px 8px;">Instrument &amp; Contract</th>
+                  <th style="text-align: left; padding: 10px 8px;">Exchange / Type</th>
+                  <th style="text-align: right; padding: 10px 8px;">Last Price (LTP)</th>
+                  <th style="text-align: right; padding: 10px 8px;">Change &amp; %</th>
+                  <th style="text-align: right; padding: 10px 8px;">Day High / Low</th>
+                  <th style="text-align: right; padding: 10px 8px;">Volume</th>
+                  <th style="text-align: left; padding: 10px 8px;">Quote Freshness &amp; Source</th>
+                  <th style="text-align: right; padding: 10px 8px;">Workspace Actions</th>
+                </tr>
+              </thead>
+              <tbody id="wlWatchlistTableBody">
+                <tr>
+                  <td colspan="9" style="padding: 14px; text-align: center;">Loading user watchlist...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CREATE MARKET ALERT FORM + ACTIVE / PAUSED ALERTS LIST -->
+        <div class="grid" style="margin-top: 14px;">
+          <div class="panel trade-form">
+            <div class="panel-header">
+              <div>
+                <h3>2. Create Market Alert Rule</h3>
+                <p>Evaluated strictly on real/validated market data — never places live or paper orders automatically</p>
+              </div>
+              <span class="status-pill" id="wlAlertFormBadge">8 ALERT TYPES</span>
+            </div>
+
+            <form id="wlCreateAlertForm">
+              <div class="password-grid-form" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label for="wlAlertSymbolInput">Symbol / Trading Symbol</label>
+                  <input id="wlAlertSymbolInput" type="text" required placeholder="e.g. NIFTY 50, RELIANCE, NIFTY28NOV2624500CE" value="NIFTY 50">
+                </div>
+                <div>
+                  <label for="wlAlertExchangeSelect">Exchange</label>
+                  <select id="wlAlertExchangeSelect">
+                    <option value="NSE">NSE</option>
+                    <option value="BSE">BSE</option>
+                    <option value="NFO">NFO (F&amp;O)</option>
+                    <option value="BFO">BFO (BSE F&amp;O)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="password-grid-form" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 8px;">
+                <div>
+                  <label for="wlAlertInstTypeSelect">Instrument Type</label>
+                  <select id="wlAlertInstTypeSelect">
+                    <option value="INDEX">INDEX</option>
+                    <option value="EQUITY">EQUITY</option>
+                    <option value="FUTURES">FUTURES</option>
+                    <option value="OPTION">OPTION (CE/PE)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="wlAlertTypeSelect">Alert Condition Type</label>
+                  <select id="wlAlertTypeSelect">
+                    <option value="PRICE_ABOVE">1. Price Above Threshold (≥)</option>
+                    <option value="PRICE_BELOW">2. Price Below Threshold (≤)</option>
+                    <option value="PERCENT_CHANGE_UP">3. % Change Up Threshold (+%)</option>
+                    <option value="PERCENT_CHANGE_DOWN">4. % Change Down Threshold (-%)</option>
+                    <option value="VOLUME_SPIKE">5. Volume Spike vs Avg Volume (×)</option>
+                    <option value="INDICATOR_CONDITION">6. Technical Indicator Condition</option>
+                    <option value="STRATEGY_SIGNAL">7. StrategyEngine Signal Match</option>
+                    <option value="CANDLE_BREAKOUT">8. Candle Range / Breakout</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="wlAlertThresholdInput" id="wlAlertThresholdLabel">Threshold Value</label>
+                  <input id="wlAlertThresholdInput" type="number" step="any" placeholder="e.g. 22500" value="22500">
+                </div>
+              </div>
+
+              <!-- DYNAMIC SUB-PARAMETERS FOR INDICATOR / STRATEGY / BREAKOUT / OPTION -->
+              <div id="wlAlertOptionFieldsRow" class="password-grid-form" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 8px;" hidden>
+                <div>
+                  <label for="wlAlertOptionType">Option Side (CE/PE)</label>
+                  <select id="wlAlertOptionType">
+                    <option value="CE">CE (Call)</option>
+                    <option value="PE">PE (Put)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="wlAlertStrikePrice">Strike Price</label>
+                  <input id="wlAlertStrikePrice" type="number" step="0.05" placeholder="e.g. 24500">
+                </div>
+                <div>
+                  <label for="wlAlertExpiryDate">Expiry Date</label>
+                  <input id="wlAlertExpiryDate" type="text" placeholder="e.g. 28NOV2026">
+                </div>
+              </div>
+
+              <div id="wlAlertConditionParamsRow" class="password-grid-form" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 8px;">
+                <div>
+                  <label for="wlAlertIndicatorName">Indicator / Metric</label>
+                  <select id="wlAlertIndicatorName">
+                    <option value="RSI14">RSI (14)</option>
+                    <option value="EMA20">EMA (20)</option>
+                    <option value="VWAP">VWAP</option>
+                    <option value="ATR14">ATR (14)</option>
+                    <option value="PRICE_VS_VWAP">Price vs VWAP</option>
+                    <option value="PRICE_VS_EMA20">Price vs EMA20</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="wlAlertOperatorSelect">Operator / Direction</label>
+                  <select id="wlAlertOperatorSelect">
+                    <option value="GTE">≥ Greater or Equal</option>
+                    <option value="LTE">≤ Less or Equal</option>
+                    <option value="GT">&gt; Strictly Greater</option>
+                    <option value="LT">&lt; Strictly Less</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="wlAlertTargetSignalSelect">Strategy Signal / Breakout Dir</label>
+                  <select id="wlAlertTargetSignalSelect">
+                    <option value="BUY">BUY Signal</option>
+                    <option value="SELL">SELL Signal</option>
+                    <option value="UP">Breakout UP (Above High)</option>
+                    <option value="DOWN">Breakout DOWN (Below Low)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="password-grid-form" style="grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 8px;">
+                <div>
+                  <label for="wlAlertNotesInput">Alert Note / Context (Optional)</label>
+                  <input id="wlAlertNotesInput" type="text" maxlength="240" placeholder="e.g. Watch NIFTY breakout above resistance for paper setup">
+                </div>
+                <div>
+                  <label for="wlAlertCooldownInput">Cooldown Seconds</label>
+                  <input id="wlAlertCooldownInput" type="number" min="0" max="86400" value="300">
+                </div>
+              </div>
+
+              <p class="form-feedback" id="wlAlertFormFeedback" hidden></p>
+
+              <div class="direction-toggle" style="margin-top: 12px;">
+                <button type="submit" id="wlCreateAlertSubmitBtn" class="primary-action" style="margin-top: 0;">+ Create Persistent Alert</button>
+                <button type="button" id="wlUseSelectedInstForAlertBtn" class="dash-inline-btn">Use Selected Instrument</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>3. Configured Market Alerts &amp; Lifecycle Controls</h3>
+                <p>Pause, Resume, Reset or Cancel alerts • Deduplicated trigger state</p>
+              </div>
+              <div class="scanner-filter-pills" id="wlAlertStatusFilterGroup" role="group" aria-label="Filter Alerts by Status">
+                <button type="button" class="scanner-filter-btn active" data-wl-alert-status="ALL">All</button>
+                <button type="button" class="scanner-filter-btn" data-wl-alert-status="ACTIVE">Active</button>
+                <button type="button" class="scanner-filter-btn" data-wl-alert-status="PAUSED">Paused</button>
+                <button type="button" class="scanner-filter-btn" data-wl-alert-status="TRIGGERED">Triggered</button>
+                <button type="button" class="scanner-filter-btn" data-wl-alert-status="CANCELLED">Cancelled</button>
+              </div>
+            </div>
+
+            <div id="wlAlertsListContainer" class="risk-list" style="margin-top: 12px; max-height: 420px; overflow-y: auto;">
+              <div><span>No market alerts configured yet.</span><strong>0 ALERTS</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRIGGERED ALERT EVENT HISTORY & AUDIT LOG -->
+        <div class="panel" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>4. Triggered Alert Event History &amp; Audit Trail</h3>
+              <p>Persisted trigger events with exact observed value, threshold, data source, quote timestamp &amp; acknowledgment state</p>
+            </div>
+            <div class="direction-toggle" style="margin-top: 0;">
+              <input id="wlHistorySymbolFilter" type="search" placeholder="Filter by symbol..." style="max-width: 170px; padding: 6px 10px;">
+              <select id="wlHistoryTypeFilter" style="max-width: 190px; padding: 6px 10px;">
+                <option value="ALL">All Alert Types</option>
+                <option value="PRICE_ABOVE">PRICE_ABOVE</option>
+                <option value="PRICE_BELOW">PRICE_BELOW</option>
+                <option value="PERCENT_CHANGE_UP">PERCENT_CHANGE_UP</option>
+                <option value="PERCENT_CHANGE_DOWN">PERCENT_CHANGE_DOWN</option>
+                <option value="VOLUME_SPIKE">VOLUME_SPIKE</option>
+                <option value="INDICATOR_CONDITION">INDICATOR_CONDITION</option>
+                <option value="STRATEGY_SIGNAL">STRATEGY_SIGNAL</option>
+                <option value="CANDLE_BREAKOUT">CANDLE_BREAKOUT</option>
+              </select>
+              <button type="button" id="wlHistoryFilterApplyBtn" class="dash-inline-btn">Filter</button>
+            </div>
+          </div>
+
+          <div id="wlAlertEventsHistoryContainer" class="risk-list" style="margin-top: 12px;">
+            <div><span>No triggered alert events recorded yet.</span><strong>0 EVENTS</strong></div>
+          </div>
+        </div>
+
+        <!-- TASK 15: PERSISTENT ALERT NOTIFICATIONS CENTER & PREFERENCES -->
+        <div class="grid" style="margin-top: 14px;" id="notifCenterSection">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>5. Persistent In-App Alert Notification Center</h3>
+                <p>Deduplicated notifications from Task 14 market alerts, strategy signals, risk locks &amp; emergency stop</p>
+              </div>
+              <div class="direction-toggle" style="margin-top: 0;">
+                <span class="status-pill tabular-nums" id="notifUnreadCountPill">0 UNREAD</span>
+                <button type="button" id="notifMarkAllReadBtn" class="dash-inline-btn">✓ Mark All Read</button>
+                <button type="button" id="notifRefreshBtn" class="dash-inline-btn">↻ Refresh</button>
+              </div>
+            </div>
+
+            <!-- FILTER TOOLBAR -->
+            <div class="password-grid-form" style="grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 8px; margin-top: 10px;">
+              <div>
+                <label for="notifReadFilterSelect">Read Status</label>
+                <select id="notifReadFilterSelect">
+                  <option value="ALL">All Notifications</option>
+                  <option value="UNREAD">Unread Only</option>
+                  <option value="READ">Read Only</option>
+                </select>
+              </div>
+              <div>
+                <label for="notifCategoryFilterSelect">Category</label>
+                <select id="notifCategoryFilterSelect">
+                  <option value="ALL">All Categories</option>
+                  <option value="PRICE_ALERT">Price Alerts</option>
+                  <option value="PERCENT_CHANGE_ALERT">% Change Alerts</option>
+                  <option value="VOLUME_SPIKE_ALERT">Volume Spike</option>
+                  <option value="INDICATOR_ALERT">Indicator Alerts</option>
+                  <option value="STRATEGY_SIGNAL_ALERT">Strategy Signals</option>
+                  <option value="CANDLE_BREAKOUT_ALERT">Candle Breakout</option>
+                  <option value="RISK_WARNING">Risk Warnings</option>
+                  <option value="EMERGENCY_STOP">Emergency Stop</option>
+                </select>
+              </div>
+              <div>
+                <label for="notifSymbolFilterInput">Instrument</label>
+                <input id="notifSymbolFilterInput" type="search" placeholder="e.g. NIFTY 50">
+              </div>
+              <div>
+                <label for="notifDateFilterInput">Date (YYYY-MM-DD)</label>
+                <input id="notifDateFilterInput" type="date">
+              </div>
+              <div style="display: flex; align-items: flex-end;">
+                <button type="button" id="notifApplyFiltersBtn" class="dash-inline-btn" style="height: 38px;">Apply</button>
+              </div>
+            </div>
+
+            <div id="notifCenterListContainer" class="risk-list" style="margin-top: 12px; max-height: 460px; overflow-y: auto;">
+              <div><span>No alert notifications recorded yet.</span><strong>0 NOTIFICATIONS</strong></div>
+            </div>
+
+            <div class="direction-toggle" style="margin-top: 10px; justify-content: space-between; align-items: center;">
+              <small id="notifPaginationSummary" class="tabular-nums">Page 1 of 1 • 0 total</small>
+              <div style="display: flex; gap: 8px;">
+                <button type="button" id="notifPrevPageBtn" class="dash-inline-btn" disabled>◀ Prev</button>
+                <button type="button" id="notifNextPageBtn" class="dash-inline-btn" disabled>Next ▶</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel trade-form">
+            <div class="panel-header">
+              <div>
+                <h3>6. Notification Preferences &amp; Delivery Channels</h3>
+                <p>User-isolated SQLite settings • Honest browser permission &amp; server channel status</p>
+              </div>
+              <span class="status-pill" id="notifBrowserPermBadge">BROWSER: CHECKING</span>
+            </div>
+
+            <form id="notifPreferencesForm">
+              <div class="risk-list" style="margin-top: 8px;">
+                <div>
+                  <span>In-App Notification Center</span>
+                  <input type="checkbox" id="notifPrefInApp" checked>
+                </div>
+                <div>
+                  <span>Browser Desktop Notifications (Requires Permission)</span>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="checkbox" id="notifPrefBrowser">
+                    <button type="button" id="notifRequestBrowserPermBtn" class="dash-inline-btn" style="padding: 4px 8px; font-size: 0.75rem;">Request Permission</button>
+                  </div>
+                </div>
+                <div>
+                  <span>Sound Alert Chime (Web Audio API)</span>
+                  <input type="checkbox" id="notifPrefSound">
+                </div>
+                <div>
+                  <span>Quiet Hours (Suppress Browser &amp; Sound during window)</span>
+                  <input type="checkbox" id="notifPrefQuietEnabled">
+                </div>
+              </div>
+
+              <div class="password-grid-form" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <div>
+                  <label for="notifPrefQuietStart">Quiet Hours Start (HH:MM)</label>
+                  <input type="text" id="notifPrefQuietStart" value="22:00" placeholder="22:00">
+                </div>
+                <div>
+                  <label for="notifPrefQuietEnd">Quiet Hours End (HH:MM)</label>
+                  <input type="text" id="notifPrefQuietEnd" value="08:00" placeholder="08:00">
+                </div>
+              </div>
+
+              <div style="margin-top: 12px;">
+                <span class="dash-kicker">ALERT CATEGORY TOGGLES</span>
+                <div class="password-grid-form" style="grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatPrice" checked> Price Alerts</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatPct" checked> % Change Alerts</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatVol" checked> Volume Spike</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatInd" checked> Indicator Alerts</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatStrat" checked> Strategy Signals</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatBreakout" checked> Candle Breakout</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatRisk" checked> Risk Warnings</label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem;"><input type="checkbox" id="notifCatEmergency" checked> Emergency Stop</label>
+                </div>
+              </div>
+
+              <div style="margin-top: 12px;">
+                <span class="dash-kicker">OPTIONAL SERVER-SIDE EXTERNAL CHANNELS (NO SECRETS IN BROWSER)</span>
+                <div class="risk-list" style="margin-top: 6px;">
+                  <div>
+                    <span>Telegram Bot (<small id="notifExtTelegramStatus">UNCONFIGURED</small>)</span>
+                    <input type="checkbox" id="notifPrefTelegram">
+                  </div>
+                  <div>
+                    <span>Webhook Endpoint (<small id="notifExtWebhookStatus">UNCONFIGURED</small>)</span>
+                    <input type="checkbox" id="notifPrefWebhook">
+                  </div>
+                  <div>
+                    <span>Email Relay (<small id="notifExtEmailStatus">UNCONFIGURED</small>)</span>
+                    <input type="checkbox" id="notifPrefEmail">
+                  </div>
+                </div>
+              </div>
+
+              <p class="form-feedback" id="notifPrefFeedback" hidden></p>
+
+              <div class="direction-toggle" style="margin-top: 12px;">
+                <button type="submit" id="notifSavePrefsBtn" class="primary-action" style="margin-top: 0;">Save Notification Preferences</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button type="button" class="mobile-nav-item active" data-page="dashboard">⌂<span>Home</span></button>
+    <button type="button" class="mobile-nav-item" data-page="scanner">◈<span>Scan</span></button>
+    <button type="button" class="mobile-nav-item" data-page="watchlist">★<span>Alerts</span></button>
+    <button type="button" class="mobile-nav-item" data-page="analysis">✦<span>AI</span></button>
+    <button type="button" class="mobile-nav-item" data-page="intelligence">🌐<span>Intel</span></button>
+    <button type="button" class="mobile-nav-item" data-page="strategy">⚙<span>Strategy</span></button>
+    <button type="button" class="mobile-nav-item" data-page="paper">▣<span>Trade</span></button>
+    <button type="button" class="mobile-nav-item" data-page="positions">◫<span>Portfolio</span></button>
+    <button type="button" class="mobile-nav-item" data-page="orders">☷<span>Orders</span></button>
+    <button type="button" class="mobile-nav-item" data-page="risk">⚠<span>Risk</span></button>
+    <button type="button" class="mobile-nav-item" data-page="history">◴<span>History</span></button>
+    <button type="button" class="mobile-nav-item" data-page="account">◉<span>Account</span></button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="modules/audit-logger.js"></script>
+  <script src="modules/risk-engine.js"></script>
+  <script src="modules/ai-decision-contract.js"></script>
+  <script src="modules/ai-safety-gate.js"></script>
+  <script src="modules/strategy-engine.js"></script>
+  <script src="modules/paper.js"></script>
+  <script src="modules/portfolio-engine.js"></script>
+  <script src="modules/order-trade-history-engine.js"></script>
+  <script src="modules/watchlist-alert-engine.js"></script>
+  <script src="modules/notification-engine.js"></script>
+  <script src="modules/market-data/providers/provider.js"></script>
+  <script src="modules/market-data/provider-registry.js"></script>
+  <script src="modules/market-data/providers/angel-one.js"></script>
+  <script src="modules/market-data/market-data-service.js"></script>
+  <script src="modules/market-data.js"></script>
+  <script src="modules/market-intelligence.js"></script>
+  <script src="modules/market-analysis.js"></script>
+  <script src="modules/option-chain.js"></script>
+  <script src="modules/backtester.js"></script>
+  <script src="modules/pilot-approval.js"></script>
+  <script src="modules/live-readiness-audit.js"></script>
+  <script src="modules/dashboard-engine.js"></script>
+  <script src="modules/chart-engine.js"></script>
+  <script src="modules/ai-analysis-engine.js"></script>
+  <script src="modules/market-api.js"></script>
+  <script src="modules/market-search.js"></script>
+  <script src="modules/pwa-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
