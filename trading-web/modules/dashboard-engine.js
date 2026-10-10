@@ -115,6 +115,40 @@ const DashboardEngine = (() => {
 
     const clean = String(rawStatus || "").trim().toUpperCase().replace(/\s+/g, "_");
 
+    if (clean === "TWELVE_DATA_PLAN_RESTRICTED" || clean === "PLAN_RESTRICTED") {
+      return {
+        code: "TWELVE_DATA_PLAN_RESTRICTED",
+        label: "PROVIDER PLAN RESTRICTED",
+        isLive: false,
+        isStale: false,
+        tone: "danger"
+      };
+    }
+
+    if (clean === "TWELVE_DATA_UNSUPPORTED_INSTRUMENT" || clean === "UNSUPPORTED_INSTRUMENT") {
+      return {
+        code: "TWELVE_DATA_UNSUPPORTED_INSTRUMENT",
+        label: "UNSUPPORTED INSTRUMENT",
+        isLive: false,
+        isStale: false,
+        tone: "warning"
+      };
+    }
+
+    if (
+      clean === "TWELVE_DATA_RATE_LIMITED" ||
+      clean === "TWELVE_DATA_DAILY_QUOTA_EXCEEDED" ||
+      clean === "RATE_LIMITED"
+    ) {
+      return {
+        code: clean,
+        label: "PROVIDER RATE LIMITED",
+        isLive: false,
+        isStale: false,
+        tone: "warning"
+      };
+    }
+
     if (clean === "STALE_MARKET_DATA" || clean === "STALE_DATA") {
       return {
         code: "STALE_MARKET_DATA",
@@ -165,15 +199,18 @@ const DashboardEngine = (() => {
     const user = input.user || null;
     const sessionExpired = Boolean(input.sessionExpired);
     const loading = Boolean(input.loading);
-    const apiError = input.apiError ? String(input.apiError) : null;
+    const snapshot = input.snapshot || null;
+    const apiError = input.apiError
+      ? String(input.apiError)
+      : snapshot?.errorMessage
+        ? String(snapshot.errorMessage)
+        : null;
 
     const emergencyStop = Boolean(
       input.emergencyStop ||
         input.paperState?.emergencyStop ||
         input.serverEmergencyStop?.active
     );
-
-    const snapshot = input.snapshot || null;
     const instrument = input.instrument || {
       key: snapshot?.instrument || "NIFTY50",
       name: snapshot?.name || "NIFTY 50",

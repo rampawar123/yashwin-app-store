@@ -633,6 +633,101 @@ function updateDashboard() {
       ? "⚠ Reset Emergency Stop"
       : "⛔ Activate Emergency Stop";
   }
+
+  // Update Robot Mobile Command Center UI
+  const autoEnabled =
+    typeof PaperTrading !== "undefined" && typeof PaperTrading.isAutoPaperEnabled === "function"
+      ? PaperTrading.isAutoPaperEnabled()
+      : true;
+  const robotStateBadge = document.getElementById("robotStateBadge");
+  if (robotStateBadge) {
+    if (state.emergencyStop) {
+      robotStateBadge.textContent = "HALTED (EMERGENCY)";
+      robotStateBadge.classList.add("halted");
+    } else if (state.dataStatus === "LIVE DATA") {
+      robotStateBadge.textContent = autoEnabled ? "ROBOT ACTIVE" : "MANUAL MODE";
+      robotStateBadge.classList.remove("halted");
+    } else {
+      robotStateBadge.textContent = "STANDBY • " + state.dataStatus;
+      robotStateBadge.classList.remove("halted");
+    }
+  }
+
+  setText("robotActiveSymbol", inst?.name || "NIFTY 50");
+  setText(
+    "robotActivePrice",
+    snap?.dataReady && snap?.price
+      ? `${money(snap.price)} (${inst?.exchange || "NSE"})`
+      : `Waiting for quote (${inst?.exchange || "NSE"})`
+  );
+
+  const actLabel = state.lastStrategy?.action || state.lastAIDecision?.signal || state.signal || "NO_TRADE";
+  setText("robotAiDecisionLabel", actLabel);
+  setText(
+    "robotAiConfidenceLabel",
+    snap?.dataReady && state.confidence !== null
+      ? `Validated Confidence: ${state.confidence}%`
+      : "Confidence: --% (Waiting)"
+  );
+
+  setText("robotDailyPnlValue", money(state.pnl));
+  setToneClass(
+    "robotDailyPnlValue",
+    state.pnl > 0 ? "positive" : state.pnl < 0 ? "negative" : "neutral"
+  );
+  setText(
+    "robotTradesCounterLabel",
+    `${pState?.tradesToday || 0} / ${riskLimits?.maxTradesPerDay || 3} Trades Today`
+  );
+
+  setText(
+    "robotSafetyStatusLabel",
+    state.emergencyStop ? "EMERGENCY STOP" : "PROTECTED"
+  );
+  setToneClass(
+    "robotSafetyStatusLabel",
+    state.emergencyStop ? "danger" : "positive"
+  );
+
+  const stratObj = state.lastStrategy;
+  setText("robotLevelEntry", stratObj?.entry ? money(stratObj.entry) : "--");
+  setText("robotLevelStop", stratObj?.stopLoss ? money(stratObj.stopLoss) : "--");
+  setText("robotLevelTarget", stratObj?.target ? money(stratObj.target) : "--");
+  setText(
+    "robotLevelRR",
+    stratObj?.riskRewardRatio ? `1 : ${Number(stratObj.riskRewardRatio).toFixed(2)}` : "--"
+  );
+  setText(
+    "robotGateVerdictBadge",
+    state.emergencyStop
+      ? "HALTED"
+      : snap?.dataReady && (actLabel === "BUY" || actLabel === "SELL")
+        ? "READY (PAPER)"
+        : "NO_TRADE GATE"
+  );
+
+  const robotAutoBtn = document.getElementById("robotToggleAutoBtn");
+  const robotAutoDot = document.getElementById("robotAutoBtnDot");
+  if (robotAutoBtn) {
+    robotAutoBtn.classList.toggle("off", !autoEnabled || state.emergencyStop);
+  }
+  if (robotAutoDot) {
+    robotAutoDot.classList.toggle("off", !autoEnabled || state.emergencyStop);
+  }
+  setText(
+    "robotToggleAutoText",
+    state.emergencyStop
+      ? "Robot Halted (Emergency)"
+      : autoEnabled
+        ? "Auto Paper Robot: ON"
+        : "Auto Paper Robot: PAUSED"
+  );
+  const robotEmBtn = document.getElementById("robotEmergencyStopBtn");
+  if (robotEmBtn) {
+    robotEmBtn.textContent = state.emergencyStop
+      ? "⚠ Reset Emergency Stop"
+      : "⛔ Emergency Stop";
+  }
 }
 
 function updateChartHoverInspector(chartVm) {
@@ -2656,10 +2751,25 @@ async function refreshDashboardQuotes() {
   ];
 
   let anyLive = false;
+  let explicitProviderError = null;
 
   for (const [key, query] of requests) {
     try {
       const result = await MarketAPI.quote("NSE", query);
+
+      if (result && result.ok === false && result.code) {
+        if (
+          [
+            "TWELVE_DATA_PLAN_RESTRICTED",
+            "TWELVE_DATA_RATE_LIMITED",
+            "TWELVE_DATA_DAILY_QUOTA_EXCEEDED",
+            "TWELVE_DATA_AUTH_FAILED",
+            "TWELVE_DATA_CREDENTIALS_MISSING"
+          ].includes(result.code)
+        ) {
+          explicitProviderError = `${result.code}: ${result.message || "Provider unable to serve quote."}`;
+        }
+      }
 
       if (
         result?.ok === true &&
@@ -2704,8 +2814,13 @@ async function refreshDashboardQuotes() {
     }
   }
 
-  if (anyLive && state.dataStatus === "DATA WAITING") {
-    state.dataStatus = "LIVE DATA";
+  if (anyLive) {
+    state.apiError = null;
+    if (state.dataStatus === "DATA WAITING") {
+      state.dataStatus = "LIVE DATA";
+    }
+  } else if (explicitProviderError) {
+    state.apiError = explicitProviderError;
   }
 
   renderAllViews();
@@ -2714,12 +2829,19 @@ async function refreshDashboardQuotes() {
 async function updateAIFromSnapshot(snapshot, instrument) {
   if (!snapshot || snapshot.dataReady !== true) {
     const statusLabel =
-      snapshot?.status === "STALE_MARKET_DATA"
-        ? "STALE MARKET DATA"
-        : snapshot?.status === "INVALID_MARKET_DATA" ||
-            snapshot?.status === "FUTURE_MARKET_DATA"
-          ? "INVALID MARKET DATA"
-          : "DATA WAITING";
+      snapshot?.status === "TWELVE_DATA_PLAN_RESTRICTED"
+        ? "PROVIDER PLAN RESTRICTED"
+        : snapshot?.status === "TWELVE_DATA_UNSUPPORTED_INSTRUMENT"
+          ? "UNSUPPORTED INSTRUMENT"
+          : snapshot?.status === "TWELVE_DATA_RATE_LIMITED" ||
+              snapshot?.status === "TWELVE_DATA_DAILY_QUOTA_EXCEEDED"
+            ? "PROVIDER RATE LIMITED"
+            : snapshot?.status === "STALE_MARKET_DATA"
+              ? "STALE MARKET DATA"
+              : snapshot?.status === "INVALID_MARKET_DATA" ||
+                  snapshot?.status === "FUTURE_MARKET_DATA"
+                ? "INVALID MARKET DATA"
+                : "DATA WAITING";
 
     state.dataStatus = statusLabel;
     state.signal = statusLabel === "DATA WAITING" ? "DATA WAITING" : "NO_TRADE";
@@ -2732,7 +2854,9 @@ async function updateAIFromSnapshot(snapshot, instrument) {
 
     setText(
       "analysisText",
-      `${instrument?.name || "Selected market"}: ${statusLabel}. Waiting for validated market data before AI analysis.`
+      snapshot?.errorMessage
+        ? `${instrument?.name || "Selected market"}: ${snapshot.errorMessage}`
+        : `${instrument?.name || "Selected market"}: ${statusLabel}. Waiting for validated market data before AI analysis.`
     );
     renderAllViews();
     return;
@@ -3060,6 +3184,25 @@ async function fetchAndPopulateSelectedInstrument(item) {
     }
 
     snapshot = MarketData.snapshotFromValidatedQuote(item, validation, candles);
+    if (!validation.ok && response && response.ok === false && response.code) {
+      snapshot.status = response.code;
+      snapshot.errorMessage = `${response.code}: ${response.message || "Market quote unavailable."}`;
+      if (
+        [
+          "TWELVE_DATA_PLAN_RESTRICTED",
+          "TWELVE_DATA_UNSUPPORTED_INSTRUMENT",
+          "TWELVE_DATA_RATE_LIMITED",
+          "TWELVE_DATA_DAILY_QUOTA_EXCEEDED",
+          "TWELVE_DATA_AUTH_FAILED",
+          "TWELVE_DATA_CREDENTIALS_MISSING"
+        ].includes(response.code)
+      ) {
+        state.apiError = snapshot.errorMessage;
+      }
+    } else if (validation.ok) {
+      state.apiError = null;
+    }
+
     if (!validation.ok && candles.length > 0) {
       snapshot.candles = candles;
       const lastCandle = candles[candles.length - 1];
@@ -3307,6 +3450,42 @@ if (riskSimEvaluateBtn) {
 const dashEmergencyToggleBtn = document.getElementById("dashEmergencyToggleBtn");
 if (dashEmergencyToggleBtn) {
   dashEmergencyToggleBtn.addEventListener("click", toggleEmergencyStop);
+}
+
+const robotEmergencyStopBtn = document.getElementById("robotEmergencyStopBtn");
+if (robotEmergencyStopBtn) {
+  robotEmergencyStopBtn.addEventListener("click", toggleEmergencyStop);
+}
+
+const robotToggleAutoBtn = document.getElementById("robotToggleAutoBtn");
+if (robotToggleAutoBtn && typeof PaperTrading !== "undefined") {
+  robotToggleAutoBtn.addEventListener("click", () => {
+    if (state.emergencyStop) {
+      showToast("Reset Emergency Stop before enabling Auto Paper Robot.");
+      return;
+    }
+    if (typeof PaperTrading.setAutoPaperEnabled === "function") {
+      const next = !PaperTrading.isAutoPaperEnabled();
+      PaperTrading.setAutoPaperEnabled(next);
+      setText("autoPaperStatusText", next ? "AUTO ON (PAPER)" : "MANUAL ONLY");
+      const autoDot = document.getElementById("autoPaperStatusDot");
+      if (autoDot) autoDot.classList.toggle("off", !next);
+      updateDashboard();
+      showToast(
+        next
+          ? "Auto Paper Robot ENABLED (Paper Mode only)"
+          : "Auto Paper Robot PAUSED (Manual Paper Mode)"
+      );
+    }
+  });
+}
+
+const robotScanNowBtn = document.getElementById("robotScanNowBtn");
+if (robotScanNowBtn) {
+  robotScanNowBtn.addEventListener("click", async () => {
+    await refreshAllDashboardData();
+    showToast("Robot scan & market telemetry synchronized.");
+  });
 }
 
 document.querySelectorAll("[data-nav-target]").forEach((btn) => {
@@ -6755,8 +6934,7 @@ function renderPWAStatusUI() {
   }
 
   PWAEngine.registerServiceWorker({
-    swUrl: "./sw.js",
-    scope: "./",
+    swUrl: "/sw.js",
     onUpdateAvailable: () => {
       renderPWAStatusUI();
     }

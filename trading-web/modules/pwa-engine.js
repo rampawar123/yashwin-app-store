@@ -221,7 +221,7 @@ const PWAEngine = (() => {
 
   async function registerServiceWorker(options = {}) {
     const nav = options.navigator || (typeof navigator !== 'undefined' ? navigator : null);
-    const swUrl = options.swUrl || './sw.js';
+    const swUrl = options.swUrl || '/sw.js';
 
     if (!nav || !nav.serviceWorker || typeof nav.serviceWorker.register !== 'function') {
       state.swSupported = false;
@@ -236,7 +236,7 @@ const PWAEngine = (() => {
 
     state.swSupported = true;
     try {
-      const reg = await nav.serviceWorker.register(swUrl, { scope: options.scope || './' });
+      const reg = await nav.serviceWorker.register(swUrl, { scope: '/' });
       state.swRegistration = reg;
       state.swRegistered = true;
 
