@@ -78,6 +78,8 @@ const AuditLogger = (() => {
       "angel_pin",
       "totpSecret",
       "angel_totp_secret",
+      "twelve_data_api_key",
+      "twelvedataapikey",
       "accessToken",
       "refreshToken",
       "feedToken",

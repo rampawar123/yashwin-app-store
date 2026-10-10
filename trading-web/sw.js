@@ -10,13 +10,10 @@
  * - Versioned cache cleanup and deterministic update lifecycle
  */
 
-const CACHE_VERSION = 'v1.0.1-subfolder';
-const APP_BASE_PATH = typeof self !== 'undefined' && self.location
-  ? new URL('./', self.location.href).pathname
-  : '/trading-web/';
-const SHELL_CACHE_NAME = `yashwin-trading-pwa-shell-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v1.0.0-task17';
+const SHELL_CACHE_NAME = `yashwin-pwa-shell-${CACHE_VERSION}`;
 
-const SHELL_ASSET_RELATIVE_PATHS = [
+const PRECACHE_SHELL_ASSETS = [
   '/',
   '/index.html',
   '/style.css',
@@ -40,6 +37,7 @@ const SHELL_ASSET_RELATIVE_PATHS = [
   '/modules/market-data/providers/provider.js',
   '/modules/market-data/provider-registry.js',
   '/modules/market-data/providers/angel-one.js',
+  '/modules/market-data/providers/twelve-data.js',
   '/modules/market-data/market-data-service.js',
   '/modules/market-data.js',
   '/modules/market-intelligence.js',
@@ -56,10 +54,6 @@ const SHELL_ASSET_RELATIVE_PATHS = [
   '/modules/pwa-engine.js'
 ];
 
-const PRECACHE_SHELL_ASSETS = SHELL_ASSET_RELATIVE_PATHS.map((path) =>
-  path === '/' ? APP_BASE_PATH : APP_BASE_PATH + path.replace(/^\/+/, '')
-);
-
 const NEVER_CACHE_PATH_PREFIXES = [
   '/api/',
   '/auth/',
@@ -72,14 +66,6 @@ const NEVER_CACHE_PATH_PREFIXES = [
   '/alerts/',
   '/notifications/'
 ];
-
-function toAppRelativePath(pathname) {
-  const path = String(pathname || '/');
-  if (path.startsWith(APP_BASE_PATH)) {
-    return '/' + path.slice(APP_BASE_PATH.length);
-  }
-  return path;
-}
 
 function isSensitiveOrDynamicRequest(requestUrl, method = 'GET') {
   const normMethod = String(method || 'GET').toUpperCase();
@@ -96,7 +82,7 @@ function isSensitiveOrDynamicRequest(requestUrl, method = 'GET') {
     return true;
   }
 
-  const pathname = toAppRelativePath(parsed.pathname);
+  const pathname = String(parsed.pathname || '/');
   for (const prefix of NEVER_CACHE_PATH_PREFIXES) {
     if (pathname === prefix.slice(0, -1) || pathname.startsWith(prefix)) {
       return true;
@@ -112,11 +98,10 @@ function isSensitiveOrDynamicRequest(requestUrl, method = 'GET') {
 
 function isAllowedShellAssetPath(pathname) {
   const clean = String(pathname || '/').split('?')[0];
-  if (!clean.startsWith(APP_BASE_PATH)) return false;
-  if (PRECACHE_SHELL_ASSETS.includes(clean)) return true;
-  const relative = toAppRelativePath(clean);
-  return /\.(html|css|js|webmanifest|svg|png|ico)$/i.test(relative)
-    && !relative.startsWith('/api/');
+  if (PRECACHE_SHELL_ASSETS.includes(clean)) {
+    return true;
+  }
+  return /\.(html|css|js|webmanifest|svg|png|ico)$/i.test(clean) && !clean.startsWith('/api/');
 }
 
 function buildOfflineApiResponse(pathname = '/api/unknown') {
@@ -168,7 +153,7 @@ if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') 
           const keys = await caches.keys();
           await Promise.all(
             keys
-              .filter((k) => k.startsWith('yashwin-trading-pwa-shell-') && k !== SHELL_CACHE_NAME)
+              .filter((k) => k.startsWith('yashwin-pwa-shell-') && k !== SHELL_CACHE_NAME)
               .map((oldKey) => caches.delete(oldKey))
           );
         }
@@ -203,28 +188,28 @@ if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') 
 
     // 1. NEVER cache /api/* or mutating/authenticated requests
     if (isSensitiveOrDynamicRequest(url, req.method)) {
-      if (toAppRelativePath(url.pathname).startsWith('/api/')) {
+      if (url.pathname.startsWith('/api/')) {
         event.respondWith(
-          fetch(req).catch(() => buildOfflineApiResponse(toAppRelativePath(url.pathname)))
+          fetch(req).catch(() => buildOfflineApiResponse(url.pathname))
         );
       }
       return;
     }
 
     // 2. Navigation requests (HTML shell): Network-first with cached /index.html fallback
-    if (req.mode === 'navigate' || url.pathname === APP_BASE_PATH || url.pathname === APP_BASE_PATH + 'index.html') {
+    if (req.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
       event.respondWith(
         (async () => {
           try {
             const networkRes = await fetch(req);
             if (networkRes && networkRes.ok && typeof caches !== 'undefined') {
               const cache = await caches.open(SHELL_CACHE_NAME);
-              cache.put(APP_BASE_PATH + 'index.html', networkRes.clone()).catch(() => {});
+              cache.put('/index.html', networkRes.clone()).catch(() => {});
             }
             return networkRes;
           } catch (_) {
             if (typeof caches !== 'undefined') {
-              const cached = (await caches.match(APP_BASE_PATH + 'index.html')) || (await caches.match(APP_BASE_PATH));
+              const cached = (await caches.match('/index.html')) || (await caches.match('/'));
               if (cached) return cached;
             }
             throw new Error('Offline and no cached shell available.');
@@ -264,7 +249,6 @@ if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     CACHE_VERSION,
-    APP_BASE_PATH,
     SHELL_CACHE_NAME,
     PRECACHE_SHELL_ASSETS,
     NEVER_CACHE_PATH_PREFIXES,

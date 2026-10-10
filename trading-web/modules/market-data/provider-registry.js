@@ -60,6 +60,21 @@ MarketDataProviders.register(
   MarketDataProviders.createUnconfigured("UNCONFIGURED")
 );
 
+if (typeof require === "function") {
+  try {
+    const angelProvider = require("./providers/angel-one");
+    if (angelProvider && !MarketDataProviders.get("ANGEL_ONE")) {
+      MarketDataProviders.register("ANGEL_ONE", angelProvider);
+    }
+  } catch (_) {}
+  try {
+    const twelveDataProvider = require("./providers/twelve-data");
+    if (twelveDataProvider && !MarketDataProviders.get("TWELVE_DATA")) {
+      MarketDataProviders.register("TWELVE_DATA", twelveDataProvider);
+    }
+  } catch (_) {}
+}
+
 if (typeof module !== "undefined" && module.exports) {
   module.exports = MarketDataProviders;
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>window.YASHWIN_API_BASE_URL = "https://yashwin-ai-trading.onrender.com";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>window.YASHWIN_API_BASE_URL = "https://yashwin-ai-trading.onrender.com";</script>
   <meta name="theme-color" content="#07111f">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,9 +13,9 @@
   <meta name="description" content="Personal AI-powered market analysis, risk control, and paper trading assistant.">
   <meta property="og:title" content="YASHWIN AI Trading Assistant">
   <meta property="og:description" content="Personal AI-powered market analysis, risk control, and paper trading assistant.">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" type="image/svg+xml" href="./icon.svg">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -64,6 +64,7 @@
     <main class="main">
 
       <header class="topbar">
+  <script>window.YASHWIN_API_BASE_URL = "https://yashwin-ai-trading.onrender.com";</script>
         <div>
           <h2 id="pageTitle">Dashboard</h2>
           <p id="pageSubtitle">AI-powered market monitoring</p>
@@ -164,6 +165,126 @@
         <div id="dashLoadingBanner" class="dash-banner info" aria-live="polite" hidden>
           <span class="dash-spinner" aria-hidden="true"></span>
           <span id="dashLoadingText">Synchronizing validated market data, AI contract, and account ledger...</span>
+        </div>
+
+        <!-- YASHWIN AI AUTO-TRADING ROBOT — MOBILE COMMAND CENTER (FINAL MOBILE DESIGN) -->
+        <div class="robot-mobile-shell" id="robotMobileCommandCenter">
+          <!-- ROBOT HEADER STATUS STRIP -->
+          <div class="robot-status-header">
+            <div class="robot-brand-block">
+              <div class="robot-avatar-ring" aria-hidden="true">
+                <svg class="robot-svg-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="6" y="10" width="24" height="18" rx="6" stroke="currentColor" stroke-width="2" fill="rgba(53,184,255,0.12)"/>
+                  <path d="M18 4V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="18" cy="4" r="2" fill="currentColor"/>
+                  <circle cx="13" cy="18" r="2.2" fill="#35d49a"/>
+                  <circle cx="23" cy="18" r="2.2" fill="#35d49a"/>
+                  <path d="M13 23H23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M3 16V22M33 16V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <span class="robot-brand-kicker">YASHWIN AI • AUTO-TRADING ROBOT</span>
+                <h3 class="robot-brand-title">AI Trading Robot</h3>
+              </div>
+            </div>
+            <div class="robot-header-pills">
+              <span class="robot-state-pill" id="robotStateBadge">STANDBY</span>
+              <span class="robot-mode-pill" id="robotModePill">PAPER MODE</span>
+            </div>
+          </div>
+
+          <!-- PRIMARY ROBOT CONTROL & TELEMETRY CARD -->
+          <div class="robot-command-card panel">
+            <div class="robot-telemetry-grid">
+              <div class="robot-telemetry-item">
+                <span>ACTIVE MARKET</span>
+                <strong id="robotActiveSymbol" class="tabular-nums">NIFTY 50</strong>
+                <small id="robotActivePrice" class="tabular-nums">Waiting for quote</small>
+              </div>
+              <div class="robot-telemetry-item">
+                <span>AI SIGNAL</span>
+                <strong id="robotAiDecisionLabel" class="robot-signal-text">NO_TRADE</strong>
+                <small id="robotAiConfidenceLabel" class="tabular-nums">Confidence: --%</small>
+              </div>
+              <div class="robot-telemetry-item">
+                <span>DAILY PAPER P&amp;L</span>
+                <strong id="robotDailyPnlValue" class="tabular-nums">₹0.00</strong>
+                <small id="robotTradesCounterLabel" class="tabular-nums">0 / 3 Trades Today</small>
+              </div>
+              <div class="robot-telemetry-item">
+                <span>SAFETY SHIELD</span>
+                <strong id="robotSafetyStatusLabel" class="tone-positive">PROTECTED</strong>
+                <small id="robotRiskLocksSummary" class="tabular-nums">SL ≤ ₹500 • Day ≤ ₹1,000</small>
+              </div>
+            </div>
+
+            <!-- ROBOT PRIMARY ACTION CONTROLS -->
+            <div class="robot-action-row">
+              <button type="button" id="robotToggleAutoBtn" class="robot-btn-primary">
+                <span class="robot-btn-dot" id="robotAutoBtnDot"></span>
+                <span id="robotToggleAutoText">Auto Paper Robot: ON</span>
+              </button>
+              <button type="button" id="robotScanNowBtn" class="robot-btn-secondary">
+                ✦ Scan &amp; Analyze
+              </button>
+              <button type="button" id="robotEmergencyStopBtn" class="robot-btn-emergency">
+                ⛔ Emergency Stop
+              </button>
+            </div>
+          </div>
+
+          <!-- COMPACT MOBILE CARDS: AI SETUP LEVELS + USER QUICK GUIDE -->
+          <div class="robot-mobile-cards-row">
+            <div class="panel robot-mini-card">
+              <div class="panel-header">
+                <div>
+                  <h3>Robot Trade Levels &amp; Gate</h3>
+                  <p id="robotSetupSubtitle">Deterministic entry, mandatory stop-loss &amp; 2.0R target</p>
+                </div>
+                <span class="status-pill" id="robotGateVerdictBadge">WAITING</span>
+              </div>
+              <div class="robot-levels-strip tabular-nums">
+                <div>
+                  <span>ENTRY</span>
+                  <strong id="robotLevelEntry">--</strong>
+                </div>
+                <div>
+                  <span>STOP-LOSS</span>
+                  <strong id="robotLevelStop" class="tone-negative">--</strong>
+                </div>
+                <div>
+                  <span>TARGET (2R)</span>
+                  <strong id="robotLevelTarget" class="tone-positive">--</strong>
+                </div>
+                <div>
+                  <span>R:R RATIO</span>
+                  <strong id="robotLevelRR">--</strong>
+                </div>
+              </div>
+              <div class="robot-mini-actions">
+                <button type="button" class="dash-inline-btn" data-nav-target="paper">▣ Open Paper Desk</button>
+                <button type="button" class="dash-inline-btn" data-nav-target="analysis">✦ Full AI Report</button>
+                <button type="button" class="dash-inline-btn" data-nav-target="scanner">🔎 Switch Market</button>
+              </div>
+            </div>
+
+            <div class="panel robot-mini-card robot-guide-card">
+              <div class="panel-header">
+                <div>
+                  <h3>Complete User Guidance &amp; Safety Rules</h3>
+                  <p>How YASHWIN AI Auto-Trading Robot protects your account</p>
+                </div>
+                <span class="status-pill">USER GUIDE</span>
+              </div>
+              <div class="robot-guide-steps">
+                <div><span>1. Select Market</span><strong>Tap Markets to pick NIFTY 50, BANK NIFTY, SENSEX, or NSE stocks.</strong></div>
+                <div><span>2. Verify AI Signal</span><strong>AI Brain evaluates 12 indicators + news. Requires ≥70% confidence &amp; LOW/MEDIUM risk.</strong></div>
+                <div><span>3. Paper Execution</span><strong>Robot trades strictly in Paper Mode (₹1,00,000 virtual capital). Live orders are locked off.</strong></div>
+                <div><span>4. Hard Risk Locks</span><strong>Max ₹500 loss/trade, ₹1,000 daily loss lock, max 3 trades/day, 1 open position, Emergency Stop.</strong></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="hero">
@@ -3040,18 +3161,18 @@
   </div>
 
   <nav class="mobile-nav" aria-label="Mobile navigation">
-    <button type="button" class="mobile-nav-item active" data-page="dashboard">⌂<span>Home</span></button>
-    <button type="button" class="mobile-nav-item" data-page="scanner">◈<span>Scan</span></button>
-    <button type="button" class="mobile-nav-item" data-page="watchlist">★<span>Alerts</span></button>
-    <button type="button" class="mobile-nav-item" data-page="analysis">✦<span>AI</span></button>
-    <button type="button" class="mobile-nav-item" data-page="intelligence">🌐<span>Intel</span></button>
-    <button type="button" class="mobile-nav-item" data-page="strategy">⚙<span>Strategy</span></button>
-    <button type="button" class="mobile-nav-item" data-page="paper">▣<span>Trade</span></button>
-    <button type="button" class="mobile-nav-item" data-page="positions">◫<span>Portfolio</span></button>
-    <button type="button" class="mobile-nav-item" data-page="orders">☷<span>Orders</span></button>
-    <button type="button" class="mobile-nav-item" data-page="risk">⚠<span>Risk</span></button>
-    <button type="button" class="mobile-nav-item" data-page="history">◴<span>History</span></button>
-    <button type="button" class="mobile-nav-item" data-page="account">◉<span>Account</span></button>
+    <button type="button" class="mobile-nav-item primary-tab active" data-page="dashboard">🤖<span>Robot</span></button>
+    <button type="button" class="mobile-nav-item primary-tab" data-page="scanner">◈<span>Markets</span></button>
+    <button type="button" class="mobile-nav-item primary-tab" data-page="analysis">✦<span>AI Brain</span></button>
+    <button type="button" class="mobile-nav-item primary-tab" data-page="paper">▣<span>Trades</span></button>
+    <button type="button" class="mobile-nav-item primary-tab" data-page="risk">🛡<span>Safety</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="watchlist" hidden>★<span>Alerts</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="intelligence" hidden>🌐<span>Intel</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="strategy" hidden>⚙<span>Strategy</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="positions" hidden>◫<span>Portfolio</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="orders" hidden>☷<span>Orders</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="history" hidden>◴<span>History</span></button>
+    <button type="button" class="mobile-nav-item secondary-tab" data-page="account" hidden>◉<span>Account</span></button>
   </nav>
 
   <div class="toast" id="toast"></div>
@@ -3069,6 +3190,7 @@
   <script src="modules/market-data/providers/provider.js"></script>
   <script src="modules/market-data/provider-registry.js"></script>
   <script src="modules/market-data/providers/angel-one.js"></script>
+  <script src="modules/market-data/providers/twelve-data.js"></script>
   <script src="modules/market-data/market-data-service.js"></script>
   <script src="modules/market-data.js"></script>
   <script src="modules/market-intelligence.js"></script>
