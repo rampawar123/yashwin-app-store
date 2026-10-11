@@ -1129,6 +1129,32 @@ const PaperTrading = (() => {
 
     const snapshot = input.snapshot || {};
     const dataReady = input.dataReady === true || snapshot.dataReady === true;
+    const isStale =
+      input.staleData === true ||
+      snapshot.staleData === true ||
+      input.status === "STALE_MARKET_DATA" ||
+      snapshot.status === "STALE_MARKET_DATA";
+    const isDisconnected =
+      input.providerDisconnected === true ||
+      snapshot.providerDisconnected === true ||
+      input.status === "DISCONNECTED" ||
+      snapshot.status === "DISCONNECTED" ||
+      snapshot.status === "DATA_WAITING" ||
+      snapshot.status === "INVALID_MARKET_DATA";
+    const quoteTsRaw = input.quoteTimestamp || input.timestamp || snapshot.timestamp;
+    const nowMs = Number(input.nowMs) || Date.now();
+    let quoteTimestampInvalidOrStale = false;
+    if (quoteTsRaw) {
+      const parsedQuoteMs = Date.parse(quoteTsRaw);
+      if (
+        !Number.isFinite(parsedQuoteMs) ||
+        nowMs - parsedQuoteMs > 5 * 60 * 1000 ||
+        parsedQuoteMs > nowMs + 60 * 1000
+      ) {
+        quoteTimestampInvalidOrStale = true;
+      }
+    }
+
     const price = Number(input.price ?? snapshot.price);
     const symbol = String(input.symbol || snapshot.name || snapshot.key || "NIFTY 50").trim();
     const exchange = String(input.exchange || snapshot.exchange || "NSE").trim().toUpperCase();
@@ -1137,12 +1163,28 @@ const PaperTrading = (() => {
       : "EQUITY";
     const optionType = String(input.optionType || snapshot.optionType || "").toUpperCase();
 
-    if (!dataReady || !Number.isFinite(price) || price <= 0) {
+    if (
+      !dataReady ||
+      isStale ||
+      isDisconnected ||
+      quoteTimestampInvalidOrStale ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
       return {
         ok: false,
         executed: false,
         action: "NO_TRADE",
-        reason: "Validated market data is required for automatic paper trading."
+        code: isDisconnected
+          ? "MARKET_DATA_DISCONNECTED"
+          : isStale || quoteTimestampInvalidOrStale
+            ? "STALE_MARKET_DATA"
+            : "INVALID_MARKET_DATA",
+        reason: isDisconnected
+          ? "Market data provider is disconnected; automatic paper trading is blocked."
+          : isStale || quoteTimestampInvalidOrStale
+            ? "Market quote is stale or has an invalid timestamp; automatic paper trading is blocked."
+            : "Validated market data is required for automatic paper trading."
       };
     }
 
@@ -1185,7 +1227,18 @@ const PaperTrading = (() => {
       };
     }
 
-    // Step 1: Deterministic Market Analysis
+    // Step 1: Deterministic Market Analysis (exclude stale/future news scores from influencing analysis)
+    const rawNewsCtx = snapshot.newsContext || input.marketIntelligence || null;
+    const validNewsScore =
+      rawNewsCtx &&
+      rawNewsCtx.available === true &&
+      rawNewsCtx.status !== "STALE_DATA" &&
+      rawNewsCtx.freshness !== "STALE" &&
+      rawNewsCtx.freshness !== "INVALID_FUTURE_TIMESTAMP" &&
+      Number.isFinite(Number(rawNewsCtx.score ?? rawNewsCtx.sentiment?.score))
+        ? Number(rawNewsCtx.score ?? rawNewsCtx.sentiment?.score)
+        : null;
+
     const analysis =
       input.analysis ||
       (MarketAnalysisRefPaper
@@ -1198,16 +1251,28 @@ const PaperTrading = (() => {
             vwapScore: snapshot.indicators?.vwapScore,
             supportResistanceScore: snapshot.indicators?.supportResistanceScore,
             volatilityScore: snapshot.indicators?.volatilityScore,
-            optionsScore: snapshot.indicators?.optionsScore
+            optionsScore: snapshot.indicators?.optionsScore,
+            newsScore: validNewsScore
           })
         : null);
 
-    if (!analysis || analysis.dataReady !== true) {
+    const hasAnalyticalEvidence = Boolean(
+      input.analysis ||
+        input.strategy ||
+        input.aiDecision ||
+        (snapshot.indicators &&
+          snapshot.indicators.dataQuality !== "DATA_UNAVAILABLE" &&
+          (Number.isFinite(Number(snapshot.indicators.trendScore)) ||
+            Number.isFinite(Number(snapshot.indicators.momentumScore))))
+    );
+
+    if (!analysis || analysis.dataReady !== true || !hasAnalyticalEvidence) {
       return {
         ok: false,
         executed: false,
         action: "NO_TRADE",
-        reason: "Market analysis unavailable."
+        code: "INSUFFICIENT_EVIDENCE",
+        reason: "Required market analysis evidence is unavailable or insufficient for automatic paper trading."
       };
     }
 
@@ -1296,6 +1361,8 @@ const PaperTrading = (() => {
       openPositions: state.position ? 1 : 0,
       availableBalance: acctMetrics.availableBalance,
       averaging: false,
+      staleData: isStale,
+      dataReady: true,
       emergencyStop: isEmergency
     });
 
@@ -1326,6 +1393,7 @@ const PaperTrading = (() => {
     // Step 5: AI Safety Gate
     const aiGate = AISafetyGateRefPaper.evaluate({
       dataReady: true,
+      staleData: isStale,
       signal: strategy.action,
       confidence: strategy.confidence,
       risk: analysis.risk,

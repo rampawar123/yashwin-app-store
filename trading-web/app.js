@@ -11,6 +11,7 @@
 
 const state = {
   activePage: "dashboard",
+  currentPage: "dashboard",
   tradingMode: "PAPER",
   liveTradingEnabled: false,
   dataStatus: "DATA WAITING", // LIVE DATA | DATA WAITING | STALE DATA | INVALID MARKET DATA | ERROR
@@ -225,15 +226,34 @@ function safeHref(rawUrl) {
 if (typeof window !== "undefined") {
   window.showToast = showToast;
   window.escapeHtml = escapeHtml;
+  window.state = state;
 }
 
 /* =====================================================
    UNIFIED NAVIGATION CONTROLLER (NO DUPLICATE LISTENERS)
 ===================================================== */
 
-function switchPage(page) {
+function switchPage(page, options = {}) {
   const targetPage = pageTitles[page] ? page : "dashboard";
+  const prevPage = state.activePage;
   state.activePage = targetPage;
+  state.currentPage = targetPage;
+
+  if (
+    typeof window !== "undefined" &&
+    window.history &&
+    typeof window.history.pushState === "function" &&
+    options.fromHistory !== true &&
+    prevPage !== targetPage
+  ) {
+    try {
+      window.history.pushState(
+        { yashwinPage: targetPage },
+        "",
+        targetPage === "dashboard" ? window.location.pathname : `#${targetPage}`
+      );
+    } catch (_) {}
+  }
 
   document.querySelectorAll(".page-section").forEach((section) => {
     const sectionName = section.dataset.section || (section.id === "paperPage" ? "paper" : "dashboard");
@@ -254,7 +274,26 @@ function switchPage(page) {
     setText("pageSubtitle", info[1]);
   }
 
+  if (typeof window !== "undefined" && typeof window.scrollTo === "function") {
+    try {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    } catch (_) {
+      window.scrollTo(0, 0);
+    }
+  }
+
   renderAllViews();
+}
+
+if (typeof window !== "undefined") {
+  window.switchPage = switchPage;
+  window.addEventListener("popstate", (event) => {
+    const hashPage = String(window.location.hash || "").replace(/^#/, "").trim();
+    const target =
+      (event.state && event.state.yashwinPage) ||
+      (pageTitles[hashPage] ? hashPage : "dashboard");
+    switchPage(target, { fromHistory: true });
+  });
 }
 
 /* =====================================================
@@ -2436,10 +2475,12 @@ function renderMarketIntelligenceView() {
 
   const totalItems =
     vm.counts.totalNews + vm.counts.economicEvents + vm.counts.globalIndices;
-  setText("intelValidatedCountBadge", `${totalItems} ITEMS`);
+  setText("intelValidatedCountBadge", `${totalItems} FRESH ITEMS`);
+  const staleCount = Number(vm.diagnostics?.staleCount || 0);
+  const futureCount = Number(vm.diagnostics?.invalidFutureCount || 0);
   setText(
     "intelDedupDiagnostics",
-    `${vm.diagnostics?.duplicatesRemoved || 0} duplicates removed • ${vm.diagnostics?.malformedRejected || 0} malformed rejected`
+    `${vm.diagnostics?.duplicatesRemoved || 0} duplicates • ${staleCount} stale (${futureCount} future) • ${vm.diagnostics?.malformedRejected || 0} malformed`
   );
 
   const loadingBanner = document.getElementById("intelLoadingBanner");
@@ -2491,14 +2532,22 @@ function renderMarketIntelligenceView() {
         const titleHtml = cleanUrl
           ? `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="intel-news-link">${safeHeadline}</a>`
           : `<strong>${safeHeadline}</strong>`;
+        const classTag = item.classification
+          ? ` • Type: ${escapeHtml(item.classification)}`
+          : "";
         const symbolTag = item.relatedSymbol ? ` • Symbol: ${escapeHtml(item.relatedSymbol)}` : "";
         const sentTag = item.sentiment
           ? ` • Sentiment: ${escapeHtml(item.sentiment)}${item.sentimentScore !== null ? " (" + escapeHtml(item.sentimentScore) + ")" : ""}`
           : "";
+        const summaryLine =
+          item.factualSummary || item.summary
+            ? `<small style="display:block; margin-top:2px;">${escapeHtml(item.factualSummary || item.summary)}</small>`
+            : "";
         return `<div class="ai-history-item-row">
           <div class="ai-history-meta">
             <span>${titleHtml}</span>
-            <small>Source: ${escapeHtml(item.source)} (${escapeHtml(item.provider)})${symbolTag}${sentTag} • Published: ${escapeHtml(item.publicationTimestamp || "MISSING")} • Retrieved: ${escapeHtml(item.retrievalTimestamp)}</small>
+            ${summaryLine}
+            <small>Source: ${escapeHtml(item.source)} (${escapeHtml(item.provider)})${classTag}${symbolTag}${sentTag} • Published: ${escapeHtml(item.publicationTimestamp || "MISSING")} • Retrieved: ${escapeHtml(item.retrievalTimestamp)}</small>
           </div>
           <strong class="tabular-nums">${escapeHtml(item.freshness)}</strong>
         </div>`;
@@ -2584,6 +2633,14 @@ function renderMarketIntelligenceView() {
     "intelCompanyNewsCountPill",
     vm.companyNews,
     `No verified company news items retrieved for ${vm.selectedSymbol}.`
+  );
+
+  const staleItems = Array.isArray(vm.staleNews) ? vm.staleNews : [];
+  renderNewsList(
+    "intelStaleNewsContainer",
+    "intelStaleNewsCountPill",
+    staleItems,
+    "Zero stale or invalid future-dated news items filtered."
   );
 }
 
@@ -6952,5 +7009,3 @@ fetchMarketIntelligenceData();
 syncNotificationsAndPreferencesData();
 setInterval(refreshDashboardQuotes, 15000);
 setInterval(checkServerHealth, 30000);
-
-

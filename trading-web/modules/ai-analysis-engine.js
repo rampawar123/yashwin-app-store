@@ -115,11 +115,19 @@ const AIAnalysisEngine = (() => {
   }
 
   function buildAIAnalysisPayload(snapshot, instrument, deterministicAnalysis, options = {}) {
-    if (!snapshot || snapshot.dataReady !== true) {
+    if (
+      !snapshot ||
+      snapshot.dataReady !== true ||
+      snapshot.staleData === true ||
+      snapshot.status === "STALE_MARKET_DATA" ||
+      snapshot.status === "DISCONNECTED" ||
+      snapshot.status === "INVALID_MARKET_DATA"
+    ) {
       return {
         ok: false,
         code: "MARKET_DATA_NOT_READY",
-        message: "Validated market data (dataReady=true) is required before running AI analysis."
+        decision: "NO_TRADE",
+        message: "Validated, fresh, connected market data (dataReady=true) is required before running AI analysis."
       };
     }
 
@@ -128,6 +136,7 @@ const AIAnalysisEngine = (() => {
       return {
         ok: false,
         code: "INVALID_MARKET_PRICE",
+        decision: "NO_TRADE",
         message: "Valid positive market price is required for AI analysis."
       };
     }
@@ -141,6 +150,28 @@ const AIAnalysisEngine = (() => {
 
     const candles = Array.isArray(snapshot.candles)
       ? snapshot.candles.slice(-60)
+      : [];
+
+    const rawMi = options.marketIntelligence;
+    const miFresh =
+      rawMi &&
+      rawMi.available === true &&
+      rawMi.status !== "STALE_DATA" &&
+      rawMi.status !== "DATA_UNAVAILABLE";
+
+    const freshHeadlines = miFresh && Array.isArray(rawMi.headlines)
+      ? rawMi.headlines
+          .filter((h) => {
+            if (!h) return false;
+            if (typeof h === "string") return true;
+            return (
+              h.isStale !== true &&
+              h.freshness !== "STALE" &&
+              h.freshness !== "INVALID_FUTURE_TIMESTAMP" &&
+              h.freshness !== "MISSING_TIMESTAMP"
+            );
+          })
+          .slice(0, 5)
       : [];
 
     return {
@@ -179,22 +210,19 @@ const AIAnalysisEngine = (() => {
           deterministicAnalysis && typeof deterministicAnalysis === "object"
             ? deterministicAnalysis
             : null,
-        marketIntelligenceContext:
-          options.marketIntelligence && options.marketIntelligence.available === true
-            ? {
-                role: "SUPPORTING_CONTEXT_ONLY",
-                provider: options.marketIntelligence.provider || options.marketIntelligence.source,
-                sentiment: options.marketIntelligence.sentiment?.available
-                  ? options.marketIntelligence.sentiment.label
-                  : null,
-                sentimentScore: options.marketIntelligence.sentiment?.available
-                  ? options.marketIntelligence.sentiment.score
-                  : null,
-                headlines: Array.isArray(options.marketIntelligence.headlines)
-                  ? options.marketIntelligence.headlines.slice(0, 5)
-                  : []
-              }
-            : null,
+        marketIntelligenceContext: miFresh
+          ? {
+              role: "SUPPORTING_CONTEXT_ONLY",
+              provider: rawMi.provider || rawMi.source,
+              sentiment: rawMi.sentiment?.available
+                ? rawMi.sentiment.label
+                : null,
+              sentimentScore: rawMi.sentiment?.available
+                ? rawMi.sentiment.score
+                : null,
+              headlines: freshHeadlines
+            }
+          : null,
         dataSource: options.dataSource === "MOCK" ? "MOCK" : "REAL"
       }
     };

@@ -85,11 +85,73 @@ const MarketIntelligence = (() => {
         malformedRejected: 0,
         staleCount: 0,
         freshCount: 0,
+        invalidFutureCount: 0,
+        missingTimestampCount: 0,
+        staleItems: [],
         errors: [],
         rateLimited: false,
         message: reason
       }
     };
+  }
+
+  function classifyHeadline(raw = {}, headline = "", summary = "", source = "", category = "INDIAN_MARKET") {
+    if (raw && typeof raw.classification === "string") {
+      const explicit = raw.classification.trim().toUpperCase();
+      if (["EXCHANGE_FILING", "COMPANY_NEWS", "MACRO_NEWS", "MARKET_NEWS"].includes(explicit)) {
+        return explicit;
+      }
+    }
+
+    const text = `${headline || ""} ${summary || ""}`.toUpperCase();
+    const src = String(source || "").toUpperCase();
+
+    const isFiling =
+      /\b(?:REGULATION\s*30|SEBI\s*\(?LODR|CORPORATE\s*ANNOUNCEMENT|EXCHANGE\s*FILING|BOARD\s*MEETING\s*INTIMATION|CLOSURE\s*OF\s*TRADING\s*WINDOW|TRADING\s*WINDOW|SCRUTINIZER|POSTAL\s*BALLOT|ANNUAL\s*GENERAL\s*MEETING|\bAGM\b|\bEGM\b|ALLOTMENT\s*OF\s*ESOP|INVESTOR\s*PRESENTATION|OUTCOME\s*OF\s*BOARD\s*MEETING|COMPLIANCE\s*CERTIFICATE|SHAREHOLDING\s*PATTERN|NEWSPAPER\s*PUBLICATION|LOSS\s*OF\s*SHARE\s*CERTIFICATE|INTIMATION\s*UNDER\s*REGULATION|DISCLOSURE\s*UNDER\s*REGULATION)\b/.test(
+        text
+      ) || /\b(?:CORPORATE\s*FILING|BSE\s*ANNOUNCEMENT|NSE\s*ANNOUNCEMENT|EXCHANGE\s*FILING)\b/.test(src);
+
+    if (isFiling) {
+      return "EXCHANGE_FILING";
+    }
+
+    const isMacro =
+      /\b(?:RBI\s*MPC|REPO\s*RATE|CENTRAL\s*BANK|FOMC|FEDERAL\s*RESERVE|TREASURY\s*YIELD|CPI\s*INFLATION|WPI\s*INFLATION|GDP\s*GROWTH|MONETARY\s*POLICY|FISCAL\s*DEFICIT|PMI\s*DATA|UNEMPLOYMENT\s*RATE|ECB|BANK\s*OF\s*JAPAN|CRUDE\s*OIL|GEOPOLITICAL)\b/.test(
+        text
+      );
+
+    if (isMacro || category === "GLOBAL_MARKET") {
+      return "MACRO_NEWS";
+    }
+
+    if (
+      category === "COMPANY_NEWS" ||
+      Boolean(raw?.relatedSymbol || raw?.symbol || raw?.companyName || raw?.company) ||
+      /\b(?:Q[1-4]\s*(?:FY\d{2,4}\s*)?(?:RESULTS|PROFIT|EARNINGS|REVENUE)|NET\s*PROFIT|DIVIDEND|ORDER\s*WIN|ACQUISITION|MERGER|BUYBACK|CAPEX|GIGAFACTORY|SHARES)\b/.test(
+        text
+      )
+    ) {
+      return "COMPANY_NEWS";
+    }
+
+    return "MARKET_NEWS";
+  }
+
+  function buildFactualSummary(rawSummary, headline, classification, source) {
+    const cleanSummary = rawSummary ? String(rawSummary).trim() : "";
+    const cleanHeadline = String(headline || "").trim();
+    if (cleanSummary && cleanSummary.toLowerCase() !== cleanHeadline.toLowerCase()) {
+      return cleanSummary.slice(0, 500);
+    }
+    const label =
+      classification === "EXCHANGE_FILING"
+        ? "Exchange/corporate filing headline"
+        : classification === "MACRO_NEWS"
+          ? "Macro/market update headline"
+          : classification === "COMPANY_NEWS"
+            ? "Company news headline"
+            : "Market news headline";
+    return `${label} reported by ${source || "provider"}: ${cleanHeadline}`.slice(0, 500);
   }
 
   function normalizeHeadlineKey(title) {
@@ -125,16 +187,21 @@ const MarketIntelligence = (() => {
       if (!text) return { valid: false, status: "MALFORMED" };
       const pubIso = options.defaultTimestamp || retrievalIso;
       const pubMs = Date.parse(pubIso);
-      const isStale = !Number.isFinite(pubMs) || nowMs - pubMs > maxAgeMs;
+      const isFuture = Number.isFinite(pubMs) && pubMs > nowMs + 60000;
+      const isStale = !Number.isFinite(pubMs) || isFuture || nowMs - pubMs > maxAgeMs;
+      const category = options.defaultCategory || "INDIAN_MARKET";
+      const classification = classifyHeadline({}, text, null, defaultSource, category);
       return {
         valid: true,
         itemId: `NWS-${normalizeHeadlineKey(text).slice(0, 24)}`,
-        category: options.defaultCategory || "INDIAN_MARKET",
+        category,
+        classification,
         source: defaultSource,
         provider: defaultSource.toUpperCase(),
         headline: text,
         title: text,
         summary: null,
+        factualSummary: buildFactualSummary(null, text, classification, defaultSource),
         publicationTimestamp: Number.isFinite(pubMs) ? new Date(pubMs).toISOString() : null,
         retrievalTimestamp: retrievalIso,
         url: null,
@@ -142,9 +209,15 @@ const MarketIntelligence = (() => {
         companyName: null,
         sentiment: null,
         sentimentScore: null,
-        freshness: !Number.isFinite(pubMs) ? "MISSING_TIMESTAMP" : isStale ? "STALE" : "FRESH",
+        freshness: !Number.isFinite(pubMs)
+          ? "MISSING_TIMESTAMP"
+          : isFuture
+            ? "INVALID_FUTURE_TIMESTAMP"
+            : isStale
+              ? "STALE"
+              : "FRESH",
         isStale,
-        status: isStale ? "STALE" : "VALID"
+        status: isFuture ? "INVALID_FUTURE_TIMESTAMP" : isStale ? "STALE" : "VALID"
       };
     }
 
@@ -169,41 +242,55 @@ const MarketIntelligence = (() => {
           ? Date.parse(String(rawPub))
           : NaN;
 
-    const isStale = !Number.isFinite(pubMs) || nowMs - pubMs > maxAgeMs || pubMs > nowMs + 60000;
+    const isFuture = Number.isFinite(pubMs) && pubMs > nowMs + 60000;
+    const isStale = !Number.isFinite(pubMs) || isFuture || nowMs - pubMs > maxAgeMs;
     const freshness = !Number.isFinite(pubMs)
       ? "MISSING_TIMESTAMP"
-      : pubMs > nowMs + 60000
+      : isFuture
         ? "INVALID_FUTURE_TIMESTAMP"
         : isStale
           ? "STALE"
           : "FRESH";
 
-    const sentimentScore =
-      item.sentimentScore !== undefined && item.sentimentScore !== null && Number.isFinite(Number(item.sentimentScore))
-        ? Math.max(-100, Math.min(100, Number(item.sentimentScore)))
-        : null;
+    const category = String(item.category || options.defaultCategory || "INDIAN_MARKET").toUpperCase();
+    const rawSummary = item.summary ? String(item.summary).trim() : null;
+    const classification = classifyHeadline(item, headline, rawSummary, source, category);
+    const factualSummary = item.factualSummary
+      ? String(item.factualSummary).trim()
+      : buildFactualSummary(rawSummary, headline, classification, source);
 
-    const rawSent = item.sentiment ? String(item.sentiment).trim().toUpperCase() : null;
-    const sentiment =
-      rawSent && ["BULLISH", "BEARISH", "NEUTRAL", "MIXED"].includes(rawSent)
-        ? rawSent
-        : sentimentScore !== null
-          ? sentimentScore >= 20
-            ? "BULLISH"
-            : sentimentScore <= -20
-              ? "BEARISH"
-              : "NEUTRAL"
+    let sentimentScore = null;
+    let sentiment = null;
+    if (!isStale && freshness === "FRESH") {
+      sentimentScore =
+        item.sentimentScore !== undefined && item.sentimentScore !== null && Number.isFinite(Number(item.sentimentScore))
+          ? Math.max(-100, Math.min(100, Number(item.sentimentScore)))
           : null;
+
+      const rawSent = item.sentiment ? String(item.sentiment).trim().toUpperCase() : null;
+      sentiment =
+        rawSent && ["BULLISH", "BEARISH", "NEUTRAL", "MIXED"].includes(rawSent)
+          ? rawSent
+          : sentimentScore !== null
+            ? sentimentScore >= 20
+              ? "BULLISH"
+              : sentimentScore <= -20
+                ? "BEARISH"
+                : "NEUTRAL"
+            : null;
+    }
 
     return {
       valid: true,
       itemId: item.itemId || `NWS-${normalizeHeadlineKey(headline).slice(0, 24)}`,
-      category: String(item.category || options.defaultCategory || "INDIAN_MARKET").toUpperCase(),
+      category,
+      classification,
       source,
       provider: String(item.provider || source).toUpperCase(),
       headline,
       title: headline,
-      summary: item.summary ? String(item.summary).trim() : null,
+      summary: rawSummary,
+      factualSummary,
       publicationTimestamp: Number.isFinite(pubMs) ? new Date(pubMs).toISOString() : null,
       retrievalTimestamp: item.retrievalTimestamp || retrievalIso,
       url: normalizeUrl(item.url || item.link),
@@ -213,7 +300,7 @@ const MarketIntelligence = (() => {
       sentimentScore,
       freshness,
       isStale,
-      status: isStale ? "STALE" : "VALID"
+      status: freshness === "INVALID_FUTURE_TIMESTAMP" ? "INVALID_FUTURE_TIMESTAMP" : isStale ? "STALE" : "VALID"
     };
   }
 
@@ -242,7 +329,29 @@ const MarketIntelligence = (() => {
       items.push(norm);
     }
 
-    return { items, duplicatesRemoved, malformedRejected };
+    items.sort((a, b) => {
+      const aFresh = a.freshness === "FRESH" && !a.isStale ? 1 : 0;
+      const bFresh = b.freshness === "FRESH" && !b.isStale ? 1 : 0;
+      if (aFresh !== bFresh) return bFresh - aFresh;
+      const msA = a.publicationTimestamp ? Date.parse(a.publicationTimestamp) : 0;
+      const msB = b.publicationTimestamp ? Date.parse(b.publicationTimestamp) : 0;
+      return msB - msA;
+    });
+
+    const freshItems = items.filter((i) => i.freshness === "FRESH" && !i.isStale);
+    const staleItems = items.filter((i) => i.freshness !== "FRESH" || i.isStale);
+    const invalidFutureCount = items.filter((i) => i.freshness === "INVALID_FUTURE_TIMESTAMP").length;
+    const missingTimestampCount = items.filter((i) => i.freshness === "MISSING_TIMESTAMP").length;
+
+    return {
+      items,
+      freshItems,
+      staleItems,
+      duplicatesRemoved,
+      malformedRejected,
+      invalidFutureCount,
+      missingTimestampCount
+    };
   }
 
   function normalize(raw = {}, options = {}) {
@@ -273,6 +382,7 @@ const MarketIntelligence = (() => {
       ...(Array.isArray(raw.indianMarketNews) ? raw.indianMarketNews : []),
       ...(Array.isArray(raw.globalMarketNews) ? raw.globalMarketNews : []),
       ...(Array.isArray(raw.companyNews) ? raw.companyNews : []),
+      ...(Array.isArray(raw.staleNews) ? raw.staleNews : []),
       ...(Array.isArray(raw.headlines) ? raw.headlines : [])
     ];
 
@@ -285,10 +395,11 @@ const MarketIntelligence = (() => {
       defaultSymbol: raw.symbol || options.symbol || null
     });
 
-    const headlines = deduped.items.map((h) => h.headline);
-    const indianMarketNews = deduped.items.filter((i) => i.category === "INDIAN_MARKET");
-    const globalMarketNews = deduped.items.filter((i) => i.category === "GLOBAL_MARKET");
-    const companyNews = deduped.items.filter((i) => i.category === "COMPANY_NEWS");
+    const headlines = deduped.freshItems.map((h) => h.headline);
+    const indianMarketNews = deduped.freshItems.filter((i) => i.category === "INDIAN_MARKET");
+    const globalMarketNews = deduped.freshItems.filter((i) => i.category === "GLOBAL_MARKET");
+    const companyNews = deduped.freshItems.filter((i) => i.category === "COMPANY_NEWS");
+    const staleNews = deduped.staleItems;
 
     const economicEvents = Array.isArray(raw.economicEvents) ? raw.economicEvents : [];
     const globalIndices = Array.isArray(raw.globalIndices) ? raw.globalIndices : [];
@@ -328,39 +439,74 @@ const MarketIntelligence = (() => {
           ? sentimentBacked.label
           : "NEUTRAL";
         sentimentScore = sentimentBacked.score;
+      } else {
+        sentiment = "UNAVAILABLE";
+        sentimentScore = null;
       }
-    } else {
+    } else if (raw.sentiment !== undefined || raw.sentimentScore !== undefined) {
       const sentimentRaw = String(raw.sentiment || "NEUTRAL").trim().toUpperCase();
-      sentiment = ["BULLISH", "BEARISH", "NEUTRAL", "MIXED"].includes(sentimentRaw)
-        ? sentimentRaw
-        : "NEUTRAL";
+      const hasBackedLabel = ["BULLISH", "BEARISH", "NEUTRAL", "MIXED"].includes(sentimentRaw);
+      const hasNumericScore =
+        raw.sentimentScore !== undefined &&
+        raw.sentimentScore !== null &&
+        Number.isFinite(Number(raw.sentimentScore));
 
-      const computedScore =
-        raw.sentimentScore !== undefined && raw.sentimentScore !== null && Number.isFinite(Number(raw.sentimentScore))
+      if (isFresh && (hasBackedLabel || hasNumericScore)) {
+        sentiment = hasBackedLabel
+          ? sentimentRaw
+          : Number(raw.sentimentScore) >= 20
+            ? "BULLISH"
+            : Number(raw.sentimentScore) <= -20
+              ? "BEARISH"
+              : "NEUTRAL";
+        sentimentScore = hasNumericScore
           ? Math.max(-100, Math.min(100, Number(raw.sentimentScore)))
           : sentiment === "BULLISH"
             ? 50
             : sentiment === "BEARISH"
               ? -50
               : 0;
-
-      sentimentScore = isFresh ? computedScore : null;
-      sentimentBacked = {
-        available: isFresh && (raw.sentiment !== undefined || raw.sentimentScore !== undefined),
-        status: isFresh ? "AVAILABLE" : "STALE",
-        label: sentiment,
-        score: sentimentScore,
-        source,
-        provider: source.toUpperCase(),
-        publicationTimestamp: retrievalIso,
-        retrievalTimestamp: retrievalIso,
-        reason: isFresh ? `Backed by ${source}` : "Sentiment timestamp is stale."
-      };
+        sentimentBacked = {
+          available: true,
+          status: "AVAILABLE",
+          label: sentiment,
+          score: sentimentScore,
+          source,
+          provider: source.toUpperCase(),
+          publicationTimestamp: retrievalIso,
+          retrievalTimestamp: retrievalIso,
+          reason: `Backed by ${source}`
+        };
+      } else {
+        sentiment = "UNAVAILABLE";
+        sentimentScore = null;
+        sentimentBacked = {
+          available: false,
+          status: isFresh ? "UNAVAILABLE" : "STALE",
+          label: "UNAVAILABLE",
+          score: null,
+          source,
+          provider: source.toUpperCase(),
+          publicationTimestamp: retrievalIso,
+          retrievalTimestamp: retrievalIso,
+          reason: isFresh ? "No verified sentiment supplied." : "Sentiment timestamp is stale."
+        };
+      }
+    } else {
+      sentiment = "UNAVAILABLE";
+      sentimentScore = null;
     }
 
+    const hasFreshContent =
+      isFresh &&
+      (deduped.freshItems.length > 0 ||
+        economicEvents.length > 0 ||
+        globalIndices.length > 0 ||
+        sentimentBacked.available);
+
     return {
-      status: isFresh ? "AVAILABLE" : "STALE_DATA",
-      available: isFresh,
+      status: hasFreshContent ? "AVAILABLE" : "STALE_DATA",
+      available: hasFreshContent,
       timestamp: retrievalIso,
       retrievalTimestamp: retrievalIso,
       source,
@@ -371,6 +517,7 @@ const MarketIntelligence = (() => {
       indianMarketNews,
       globalMarketNews,
       companyNews,
+      staleNews,
       economicEvents,
       globalIndices,
       sentiment,
@@ -381,18 +528,25 @@ const MarketIntelligence = (() => {
       sectorFactors: Array.isArray(raw.sectorFactors) ? raw.sectorFactors.map(String) : [],
       optionsContext: raw.optionsContext && typeof raw.optionsContext === "object" ? raw.optionsContext : null,
       risks: Array.isArray(raw.risks) ? raw.risks.map(String) : [],
-      confidence: isFresh
+      confidence: hasFreshContent
         ? Math.max(0, Math.min(100, Number(raw.confidence ?? Math.abs(sentimentScore || 0)) || 0))
         : 0,
-      freshness,
-      diagnostics: raw.diagnostics || {
-        duplicatesRemoved: deduped.duplicatesRemoved,
-        malformedRejected: deduped.malformedRejected,
-        staleCount: deduped.items.filter((i) => i.isStale).length,
-        freshCount: deduped.items.filter((i) => !i.isStale).length,
-        errors: [],
-        rateLimited: false,
-        message: isFresh ? "Market intelligence normalized." : "Market intelligence is stale."
+      freshness: hasFreshContent ? "FRESH" : freshness === "INVALID_TIMESTAMP" ? "INVALID_TIMESTAMP" : "STALE",
+      diagnostics: {
+        duplicatesRemoved: raw.diagnostics?.duplicatesRemoved ?? deduped.duplicatesRemoved,
+        malformedRejected: raw.diagnostics?.malformedRejected ?? deduped.malformedRejected,
+        staleCount: raw.diagnostics?.staleCount ?? deduped.staleItems.length,
+        freshCount: raw.diagnostics?.freshCount ?? deduped.freshItems.length,
+        invalidFutureCount: raw.diagnostics?.invalidFutureCount ?? deduped.invalidFutureCount,
+        missingTimestampCount: raw.diagnostics?.missingTimestampCount ?? deduped.missingTimestampCount,
+        staleItems: Array.isArray(raw.diagnostics?.staleItems)
+          ? raw.diagnostics.staleItems
+          : deduped.staleItems,
+        errors: Array.isArray(raw.diagnostics?.errors) ? raw.diagnostics.errors : [],
+        rateLimited: Boolean(raw.diagnostics?.rateLimited),
+        message:
+          raw.diagnostics?.message ||
+          (hasFreshContent ? "Market intelligence normalized." : "Market intelligence is stale.")
       }
     };
   }
@@ -427,15 +581,48 @@ const MarketIntelligence = (() => {
     const provider = String(serverPayload?.provider || serverPayload?.source || "UNCONFIGURED");
     const retrievalTimestamp = serverPayload?.retrievalTimestamp || serverPayload?.timestamp || null;
 
-    const indianMarketNews = Array.isArray(serverPayload?.indianMarketNews)
+    const rawIndian = Array.isArray(serverPayload?.indianMarketNews)
       ? serverPayload.indianMarketNews
       : [];
-    const globalMarketNews = Array.isArray(serverPayload?.globalMarketNews)
+    const rawGlobal = Array.isArray(serverPayload?.globalMarketNews)
       ? serverPayload.globalMarketNews
       : [];
-    const companyNews = Array.isArray(serverPayload?.companyNews)
+    const rawCompany = Array.isArray(serverPayload?.companyNews)
       ? serverPayload.companyNews
       : [];
+    const rawStale = Array.isArray(serverPayload?.staleNews)
+      ? serverPayload.staleNews
+      : Array.isArray(serverPayload?.diagnostics?.staleItems)
+        ? serverPayload.diagnostics.staleItems
+        : [];
+
+    const isFreshItem = (item) =>
+      item &&
+      item.isStale !== true &&
+      item.freshness !== "STALE" &&
+      item.freshness !== "INVALID_FUTURE_TIMESTAMP" &&
+      item.freshness !== "MISSING_TIMESTAMP";
+
+    const indianMarketNews = rawIndian.filter(isFreshItem);
+    const globalMarketNews = rawGlobal.filter(isFreshItem);
+    const companyNews = rawCompany.filter(isFreshItem);
+
+    const staleNewsMap = new Map();
+    for (const item of [
+      ...rawIndian.filter((i) => !isFreshItem(i)),
+      ...rawGlobal.filter((i) => !isFreshItem(i)),
+      ...rawCompany.filter((i) => !isFreshItem(i)),
+      ...rawStale
+    ]) {
+      if (item && typeof item === "object") {
+        const key = item.itemId || item.url || item.headline || item.title;
+        if (key && !staleNewsMap.has(key)) {
+          staleNewsMap.set(key, item);
+        }
+      }
+    }
+    const staleNews = Array.from(staleNewsMap.values());
+
     const economicEvents = Array.isArray(serverPayload?.economicEvents)
       ? serverPayload.economicEvents
       : [];
@@ -478,6 +665,8 @@ const MarketIntelligence = (() => {
         indianNews: indianMarketNews.length,
         globalNews: globalMarketNews.length,
         companyNews: companyNews.length,
+        staleNews: staleNews.length,
+        invalidFutureNews: staleNews.filter((i) => i.freshness === "INVALID_FUTURE_TIMESTAMP").length,
         economicEvents: economicEvents.length,
         globalIndices: globalIndices.length,
         totalNews: allNews.length
@@ -485,6 +674,7 @@ const MarketIntelligence = (() => {
       indianMarketNews,
       globalMarketNews,
       companyNews,
+      staleNews,
       filteredNews,
       economicEvents,
       globalIndices,
@@ -502,14 +692,26 @@ const MarketIntelligence = (() => {
         retrievalTimestamp: sentimentObj.retrievalTimestamp || retrievalTimestamp,
         reason: sentimentObj.reason || "No verified sentiment source configured."
       },
-      diagnostics: serverPayload?.diagnostics || {
-        duplicatesRemoved: 0,
-        malformedRejected: 0,
-        staleCount: 0,
-        freshCount: 0,
-        errors: [],
-        rateLimited: false,
-        message: "External market intelligence provider is not configured."
+      diagnostics: {
+        duplicatesRemoved: Number(serverPayload?.diagnostics?.duplicatesRemoved) || 0,
+        malformedRejected: Number(serverPayload?.diagnostics?.malformedRejected) || 0,
+        staleCount: Number(serverPayload?.diagnostics?.staleCount ?? staleNews.length) || 0,
+        freshCount: Number(serverPayload?.diagnostics?.freshCount ?? allNews.length) || 0,
+        invalidFutureCount:
+          Number(
+            serverPayload?.diagnostics?.invalidFutureCount ??
+              staleNews.filter((i) => i.freshness === "INVALID_FUTURE_TIMESTAMP").length
+          ) || 0,
+        missingTimestampCount:
+          Number(
+            serverPayload?.diagnostics?.missingTimestampCount ??
+              staleNews.filter((i) => i.freshness === "MISSING_TIMESTAMP").length
+          ) || 0,
+        staleItems: staleNews,
+        errors: Array.isArray(serverPayload?.diagnostics?.errors) ? serverPayload.diagnostics.errors : [],
+        rateLimited: Boolean(serverPayload?.diagnostics?.rateLimited),
+        message:
+          serverPayload?.diagnostics?.message || "External market intelligence provider is not configured."
       },
       governanceRule:
         "SUPPORTING_CONTEXT_ONLY: Market Intelligence never overrides price action, technical indicators, AIDecisionContract, AISafetyGate, RiskEngine, or Emergency Stop."
@@ -522,6 +724,8 @@ const MarketIntelligence = (() => {
     clearProvider,
     hasConfiguredProvider,
     emptyIntelligence,
+    classifyHeadline,
+    buildFactualSummary,
     validateNewsItem,
     deduplicateItems,
     normalize,

@@ -1,0 +1,224 @@
+# YASHWIN AI Trading Assistant — Android Debug APK Build Workflow (Task 23)
+#
+# Mobile-only manual workflow (`workflow_dispatch`) for building the Android Debug APK
+# on GitHub-hosted Ubuntu runners without requiring local Android Studio or Android SDK.
+#
+# Safety & Security Invariants:
+# - Strictly enforces TRADING_MODE=paper and LIVE_TRADING_ENABLED=false
+# - Zero live broker order endpoints or live execution paths
+# - Zero API keys, broker credentials, diagnostic tokens, or signing secrets embedded in APK or printed in logs
+# - Minimal read-only repository permissions (`contents: read`)
+
+name: Build Android Debug APK (Paper Mode Only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_url:
+        description: "Optional HTTPS Backend URL override (defaults to repository variable YASHWIN_BACKEND_URL or YASHWIN_PROD_BASE_URL in android/gradle.properties)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-debug-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  TRADING_MODE: paper
+  LIVE_TRADING_ENABLED: "false"
+
+jobs:
+  build-android-debug-apk:
+    name: Verify Paper-Trading Suite & Build Debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install Root & Server Dependencies
+        run: |
+          npm ci
+          npm --prefix server ci
+
+      - name: Run Root & Server Automated Test Suites
+        env:
+          TRADING_MODE: paper
+          LIVE_TRADING_ENABLED: "false"
+        run: |
+          npm test
+          npm --prefix server test
+          npm run verify:prod
+
+      - name: Setup JDK 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Configure Android SDK Environment & Install Required SDK Packages (API 34 & Build Tools 34.0.0)
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ ! -d "$SDK_ROOT" ]; then
+            mkdir -p "$SDK_ROOT"
+          fi
+
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+
+          CMDLINE_BIN=""
+          if [ -x "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            CMDLINE_BIN="$SDK_ROOT/cmdline-tools/latest/bin"
+          else
+            FOUND_SDKMANAGER=$(find "$SDK_ROOT/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort -V | tail -n 1 || true)
+            if [ -n "$FOUND_SDKMANAGER" ]; then
+              CMDLINE_BIN=$(dirname "$FOUND_SDKMANAGER")
+            fi
+          fi
+
+          if [ -z "$CMDLINE_BIN" ]; then
+            echo "Installing Android SDK Command-Line Tools into $SDK_ROOT/cmdline-tools/latest..."
+            TMP_ZIP="/tmp/commandlinetools-linux.zip"
+            curl -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -o "$TMP_ZIP"
+            mkdir -p "$SDK_ROOT/cmdline-tools"
+            unzip -q "$TMP_ZIP" -d "$SDK_ROOT/cmdline-tools"
+            mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+            rm -f "$TMP_ZIP"
+            CMDLINE_BIN="$SDK_ROOT/cmdline-tools/latest/bin"
+          fi
+
+          echo "$CMDLINE_BIN" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          export PATH="$CMDLINE_BIN:$SDK_ROOT/platform-tools:$PATH"
+
+          yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
+          sdkmanager --sdk_root="$SDK_ROOT" \
+            "cmdline-tools;latest" \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0"
+          yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
+
+      - name: Setup Gradle 8.7 & Dependency Cache
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+          validate-wrappers: false
+
+      - name: Verify Gradle 8.7 & Wrapper Execution
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          gradle --version
+          ./gradlew --version --no-daemon
+
+      - name: Resolve & Validate Backend URL and Paper-Mode Safety Locks
+        id: config
+        env:
+          INPUT_BACKEND_URL: ${{ inputs.backend_url }}
+          REPO_VAR_BACKEND_URL: ${{ vars.YASHWIN_BACKEND_URL }}
+          REPO_VAR_PROD_BASE_URL: ${{ vars.YASHWIN_PROD_BASE_URL }}
+        run: |
+          if [ "$TRADING_MODE" != "paper" ] || [ "$LIVE_TRADING_ENABLED" != "false" ]; then
+            echo "::error::Safety lock violation: TRADING_MODE must be 'paper' and LIVE_TRADING_ENABLED must be 'false'."
+            exit 1
+          fi
+
+          GRADLE_DEFAULT_URL=$(grep -E '^YASHWIN_PROD_BASE_URL=' android/gradle.properties | cut -d'=' -f2- | tr -d '[:space:]' || true)
+
+          RESOLVED_URL=""
+          SOURCE_NAME=""
+          if [ -n "$INPUT_BACKEND_URL" ]; then
+            RESOLVED_URL="$INPUT_BACKEND_URL"
+            SOURCE_NAME="workflow_dispatch input (backend_url)"
+          elif [ -n "$REPO_VAR_BACKEND_URL" ]; then
+            RESOLVED_URL="$REPO_VAR_BACKEND_URL"
+            SOURCE_NAME="GitHub repository variable (vars.YASHWIN_BACKEND_URL)"
+          elif [ -n "$REPO_VAR_PROD_BASE_URL" ]; then
+            RESOLVED_URL="$REPO_VAR_PROD_BASE_URL"
+            SOURCE_NAME="GitHub repository variable (vars.YASHWIN_PROD_BASE_URL)"
+          elif [ -n "$GRADLE_DEFAULT_URL" ]; then
+            RESOLVED_URL="$GRADLE_DEFAULT_URL"
+            SOURCE_NAME="android/gradle.properties (YASHWIN_PROD_BASE_URL)"
+          fi
+
+          if [ -z "$RESOLVED_URL" ]; then
+            echo "::error::Missing required backend URL. Set GitHub repository variable YASHWIN_BACKEND_URL (or YASHWIN_PROD_BASE_URL), provide workflow_dispatch input 'backend_url', or define YASHWIN_PROD_BASE_URL in android/gradle.properties."
+            exit 1
+          fi
+
+          case "$RESOLVED_URL" in
+            https://*)
+              ;;
+            http://10.0.2.2*)
+              ;;
+            *)
+              echo "::error::Invalid backend URL scheme or host. Production/device builds require an https:// URL (or http://10.0.2.2 for Android Emulator only)."
+              exit 1
+              ;;
+          esac
+
+          case "$RESOLVED_URL" in
+            *localhost*|*127.0.0.1*)
+              echo "::error::Invalid backend URL: localhost / 127.0.0.1 cannot be used on an Android device because it refers to the phone itself."
+              exit 1
+              ;;
+          esac
+
+          echo "backend_url=$RESOLVED_URL" >> "$GITHUB_OUTPUT"
+          echo "Configured backend URL source: $SOURCE_NAME"
+          echo "Trading safety lock verified: TRADING_MODE=paper, LIVE_TRADING_ENABLED=false"
+
+      - name: Build Android Debug APK (:app:assembleDebug)
+        working-directory: android
+        env:
+          SELECTED_BACKEND_URL: ${{ steps.config.outputs.backend_url }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug \
+            -PYASHWIN_BACKEND_URL="$SELECTED_BACKEND_URL" \
+            -PYASHWIN_PROD_BASE_URL="$SELECTED_BACKEND_URL" \
+            --no-daemon \
+            --stacktrace
+
+      - name: Verify Generated Debug APK File & Size
+        id: verify_apk
+        run: |
+          APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "::error::Expected APK file was not found at $APK_PATH"
+            exit 1
+          fi
+
+          APK_SIZE=$(wc -c < "$APK_PATH" | tr -d '[:space:]')
+          if [ -z "$APK_SIZE" ] || [ "$APK_SIZE" -le 0 ]; then
+            echo "::error::Generated APK file at $APK_PATH is empty (0 bytes)."
+            exit 1
+          fi
+
+          APK_NAME=$(basename "$APK_PATH")
+          echo "Verified APK File Name: $APK_NAME"
+          echo "Verified APK File Path: $APK_PATH"
+          echo "Verified APK Size (bytes): $APK_SIZE"
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+          echo "apk_name=$APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "apk_size=$APK_SIZE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yashwin-ai-trading-debug-apk
+          path: ${{ steps.verify_apk.outputs.apk_path }}
+          if-no-files-found: error
+          retention-days: 14

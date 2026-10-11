@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YASHWIN AI Trading</string>
+    <string name="paper_mode_badge">PAPER MODE ONLY • LIVE TRADING DISABLED</string>
+    <string name="loading_message">Connecting to YASHWIN AI Trading Server (Paper Mode)…</string>
+    <string name="offline_title">Server or Network Unreachable</string>
+    <string name="offline_description">Unable to connect to the YASHWIN AI Trading backend. Live market quotes, AI analysis, and paper order execution require an active HTTPS connection. Zero synthetic prices or fake signals are generated.</string>
+    <string name="localhost_warning_note">Note: On an Android phone, localhost (127.0.0.1) refers to the phone itself, not your computer or cloud server. Use the deployed HTTPS URL or 10.0.2.2 in the Android Emulator.</string>
+    <string name="retry_connection">Retry Connection</string>
+    <string name="configure_endpoint">Endpoint Info</string>
+</resources>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>window.YASHWIN_API_BASE_URL = "https://yashwin-ai-trading.onrender.com";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#07111f">
@@ -64,7 +63,6 @@
     <main class="main">
 
       <header class="topbar">
-  <script>window.YASHWIN_API_BASE_URL = "https://yashwin-ai-trading.onrender.com";</script>
         <div>
           <h2 id="pageTitle">Dashboard</h2>
           <p id="pageSubtitle">AI-powered market monitoring</p>
@@ -2713,6 +2711,20 @@
           </div>
           <div id="intelCompanyNewsContainer" class="risk-list" style="margin-top: 12px;">
             <div><span>No verified company news items retrieved for the selected instrument.</span><strong>DATA_UNAVAILABLE</strong></div>
+          </div>
+        </div>
+
+        <!-- STALE & INVALID FUTURE-DATED NEWS DIAGNOSTICS (EXCLUDED FROM SENTIMENT & TRADING DECISIONS) -->
+        <div class="panel" style="margin-top: 14px;">
+          <div class="panel-header">
+            <div>
+              <h3>Filtered Stale &amp; Invalid Timestamp Diagnostics</h3>
+              <p>Excluded from main headlines, sentiment calculation, AI analysis context &amp; automatic paper-trading decisions</p>
+            </div>
+            <span class="status-pill tabular-nums" id="intelStaleNewsCountPill">0 ITEMS</span>
+          </div>
+          <div id="intelStaleNewsContainer" class="risk-list" style="margin-top: 12px;">
+            <div><span>Zero stale or invalid future-dated news items filtered.</span><strong>CLEAR</strong></div>
           </div>
         </div>
       </section>

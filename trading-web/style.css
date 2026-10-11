@@ -2912,3 +2912,109 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* =========================================================
+   PRODUCTION MOBILE RESPONSIVE & HORIZONTAL OVERFLOW GUARD
+   ========================================================= */
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app,
+.main,
+.content,
+.page-section,
+.panel,
+.card {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.risk-list div,
+.status-list div {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.risk-list span,
+.risk-list strong,
+.status-list span,
+.status-list strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.table-scroll-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 760px) {
+  .password-grid-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .password-submit-col {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .panel-header .direction-toggle {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .panel-header .direction-toggle > input,
+  .panel-header .direction-toggle > select {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 140px;
+  }
+
+  .dash-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .market-search {
+    width: 138px;
+  }
+
+  .topbar {
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .topbar h2 {
+    font-size: 15px;
+  }
+
+  .risk-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .position-values {
+    grid-template-columns: 1fr;
+  }
+}

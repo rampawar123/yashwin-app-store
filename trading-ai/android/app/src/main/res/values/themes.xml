@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.YashwinAITrading" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/yashwin_accent_blue</item>
+        <item name="colorPrimaryVariant">@color/yashwin_bg_primary</item>
+        <item name="colorOnPrimary">@color/yashwin_text_primary</item>
+        <item name="android:statusBarColor">@color/yashwin_bg_primary</item>
+        <item name="android:navigationBarColor">@color/yashwin_bg_primary</item>
+        <item name="android:windowBackground">@color/yashwin_bg_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
