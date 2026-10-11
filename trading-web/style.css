@@ -1495,6 +1495,18 @@ body {
   background: rgba(54, 185, 255, 0.12);
 }
 
+.user-top-btn img.avatar {
+  display: block;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border: none;
+  border-radius: 50%;
+  object-fit: cover;
+  background: transparent;
+  color: transparent;
+}
+
 .user-top-btn .avatar {
   width: 28px;
   height: 28px;
