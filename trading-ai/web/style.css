@@ -3018,3 +3018,56 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* YASHWIN AI — Mobile dashboard shortcuts */
+@media (max-width: 700px) {
+  .dash-quick-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+  }
+
+  .dash-nav-link {
+    min-height: 42px;
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .dash-nav-link:active {
+    background: rgba(53, 184, 255, 0.16);
+    border-color: var(--accent);
+  }
+
+  .dash-quick-nav .dash-nav-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .robot-mobile-shell {
+    gap: 10px;
+  }
+
+  .robot-status-header {
+    padding: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-nav {
+    padding-bottom: max(5px, env(safe-area-inset-bottom));
+  }
+
+  .page-section {
+    padding-bottom: 100px;
+  }
+}
