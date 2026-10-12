@@ -7005,6 +7005,20 @@ function renderPWAStatusUI() {
 })();
 
 /* Initial boot */
+(function initYashwinSplash() {
+  const splash = document.getElementById("yashwinSplashScreen");
+  if (!splash) return;
+
+  const finishSplash = () => {
+    splash.classList.add("is-hidden");
+    window.setTimeout(() => splash.remove(), 500);
+  };
+
+  window.setTimeout(() => {
+    switchPage(state.currentUser ? "dashboard" : "account");
+    finishSplash();
+  }, 2500);
+})();
 switchPage("dashboard");
 syncUserSessionAndPaperState();
 checkServerHealth();
