@@ -3074,3 +3074,133 @@ body:has(#yashwinSplashScreen) {
 body:has(#yashwinSplashScreen) .app {
   visibility: hidden;
 }
+
+/* SCREEN 3 STYLE — YASHWIN MOBILE DASHBOARD */
+@media (max-width: 700px) {
+  #dashboardPage {
+    padding: 12px 12px 84px;
+    background: radial-gradient(ellipse at top, rgba(24,91,115,.18), transparent 55%), #07111f;
+  }
+
+  #dashboardPage .robot-mobile-shell,
+  #dashboardPage .panel,
+  #dashboardPage .card {
+    border-radius: 16px;
+  }
+
+  #dashboardPage .robot-status-header {
+    gap: 10px;
+    padding: 14px;
+    background: linear-gradient(135deg, #102a3b, #0a1725);
+    border: 1px solid rgba(75,204,177,.24);
+    border-radius: 18px;
+  }
+
+  #dashboardPage .robot-brand-title { font-size: 18px; }
+  #dashboardPage .robot-brand-kicker { font-size: 9px; letter-spacing: .7px; }
+
+  #dashboardPage .robot-command-card {
+    padding: 12px;
+    background: linear-gradient(150deg, #102536, #0b1724);
+    border: 1px solid rgba(63,190,166,.2);
+  }
+
+  #dashboardPage .robot-telemetry-grid,
+  #dashboardPage .dash-instrument-strip,
+  #dashboardPage .cards,
+  #dashboardPage .dash-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  #dashboardPage .robot-telemetry-item {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(5,15,27,.78);
+    border: 1px solid rgba(130,175,198,.14);
+  }
+
+  #dashboardPage .robot-telemetry-item strong {
+    overflow-wrap: anywhere;
+    font-size: 17px;
+  }
+
+  #dashboardPage .robot-telemetry-item span { font-size: 9px; letter-spacing: .4px; }
+
+  #dashboardPage .robot-action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #dashboardPage .robot-action-row button {
+    min-height: 44px;
+    padding: 9px;
+    font-size: 12px;
+  }
+
+  #dashboardPage #robotEmergencyStopBtn { grid-column: 1 / -1; }
+
+  #dashboardPage .dash-instrument-strip { padding: 10px; }
+
+  #dashboardPage .dash-strip-col {
+    min-width: 0;
+    padding: 10px;
+    border-radius: 11px;
+    background: rgba(8,22,36,.8);
+  }
+
+  #dashboardPage .dash-strip-col strong {
+    overflow-wrap: anywhere;
+    font-size: 14px;
+  }
+
+  #dashboardPage .card {
+    min-width: 0;
+    padding: 13px;
+    background: linear-gradient(145deg, #11283a, #0b1725);
+    border: 1px solid rgba(103,159,186,.18);
+  }
+
+  #dashboardPage .card strong { overflow-wrap: anywhere; font-size: 20px; }
+
+  #dashboardPage .dash-kpi-box { min-width: 0; padding: 13px; }
+
+  #dashboardPage .dash-kpi-box strong {
+    overflow-wrap: anywhere;
+    font-size: 18px;
+  }
+
+  #dashboardPage .dash-quick-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  #dashboardPage .dash-nav-link {
+    min-width: 0;
+    min-height: 40px;
+    border-radius: 10px;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    z-index: 1000;
+    height: auto;
+    min-height: 60px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid rgba(91,185,197,.25);
+    border-radius: 16px;
+    background: rgba(7,17,31,.96);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  }
+}
