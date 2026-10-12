@@ -7015,7 +7015,7 @@ function renderPWAStatusUI() {
   };
 
   window.setTimeout(() => {
-    switchPage(state.currentUser ? "dashboard" : "account");
+    switchPage("dashboard");
     finishSplash();
   }, 2500);
 })();
