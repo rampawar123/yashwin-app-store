@@ -283,6 +283,7 @@ function switchPage(page, options = {}) {
   }
 
   renderAllViews();
+  if (typeof renderPWAStatusUI === "function") renderPWAStatusUI();
 }
 
 if (typeof window !== "undefined") {
@@ -6895,14 +6896,17 @@ function renderPWAStatusUI() {
     netBadge.classList.toggle("offline", !snap.online);
   }
 
+  // Keep PWA action banners off normal screens; show them only in Alerts.
+  const alertsScreenActive = state.activePage === "watchlist";
+
   const offlineBanner = document.getElementById("pwaOfflineBanner");
   if (offlineBanner) {
-    offlineBanner.hidden = Boolean(snap.online);
+    offlineBanner.hidden = Boolean(snap.online) || !alertsScreenActive;
   }
 
   const updateBanner = document.getElementById("pwaUpdateBanner");
   if (updateBanner) {
-    updateBanner.hidden = !snap.swUpdateAvailable;
+    updateBanner.hidden = !snap.swUpdateAvailable || !alertsScreenActive;
   }
 
   const installBtn = document.getElementById("pwaInstallBtn");
