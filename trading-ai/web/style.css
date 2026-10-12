@@ -3071,3 +3071,190 @@ body {
     padding-bottom: 100px;
   }
 }
+
+/* YASHWIN AI — Unified Mobile Screen Design */
+@media (max-width: 700px) {
+  .page-section {
+    padding: 14px 12px 112px !important;
+    min-width: 0;
+  }
+
+  .page-section h2 {
+    font-size: 21px;
+    line-height: 1.3;
+    letter-spacing: -0.35px;
+  }
+
+  .page-section h3 {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .page-section .panel,
+  .page-section .trade-form {
+    min-width: 0;
+    padding: 14px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+    background: linear-gradient(
+      145deg,
+      rgba(14, 32, 52, 0.98),
+      rgba(7, 19, 34, 0.98)
+    );
+    border: 1px solid rgba(65, 170, 230, 0.19);
+    box-shadow: 0 7px 22px rgba(0, 0, 0, 0.17);
+  }
+
+  .page-section .panel-header {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .page-section button:not(.mobile-nav-item) {
+    min-height: 40px;
+    border-radius: 10px;
+    touch-action: manipulation;
+  }
+
+  .page-section input,
+  .page-section select,
+  .page-section textarea {
+    max-width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .page-section table {
+    min-width: 560px;
+  }
+
+  .page-section .panel:has(table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dash-quick-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .dash-nav-link {
+    min-height: 44px;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+
+  .robot-telemetry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .robot-telemetry-item {
+    min-width: 0;
+    padding: 11px;
+    border-radius: 12px;
+  }
+
+  .robot-telemetry-item strong {
+    overflow-wrap: anywhere;
+  }
+
+  .robot-action-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .mobile-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    left: 10px;
+    right: 10px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    min-height: 62px;
+    border-radius: 18px;
+    background: rgba(5, 17, 31, 0.97);
+    border: 1px solid rgba(54, 185, 255, 0.22);
+    box-shadow: 0 -5px 26px rgba(0, 0, 0, 0.28);
+  }
+
+  .mobile-nav-item {
+    min-width: 0;
+    font-size: 17px;
+  }
+
+  .mobile-nav-item span {
+    font-size: 9px;
+  }
+
+  .mobile-nav-item.active {
+    color: #42d7ff;
+    background: linear-gradient(
+      145deg,
+      rgba(30, 119, 190, 0.25),
+      rgba(28, 62, 106, 0.20)
+    );
+  }
+
+  .page-section img,
+  .page-section svg,
+  .page-section canvas {
+    max-width: 100%;
+  }
+}
+
+/* Trades screen: compact mobile position and risk cards */
+@media (max-width: 700px) {
+  #paperPage .position-panel {
+    min-height: 0;
+    padding: 16px;
+  }
+
+  #paperPage #paperNoPosition {
+    min-height: 0;
+    padding: 28px 8px;
+    gap: 10px;
+    text-align: center;
+  }
+
+  #paperPage #paperNoPosition .empty-icon {
+    font-size: 28px;
+  }
+
+  #paperPage #paperNoPosition strong {
+    font-size: 16px;
+  }
+
+  #paperPage #paperNoPosition span {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #paperPage .paper-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+  }
+
+  #paperPage .paper-stats > div {
+    min-width: 0;
+    padding: 13px;
+    border-radius: 13px;
+    background: rgba(22, 39, 57, .85);
+  }
+
+  #paperPage .paper-stats span {
+    display: block;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  #paperPage .paper-stats strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+}
