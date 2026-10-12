@@ -3204,3 +3204,104 @@ body:has(#yashwinSplashScreen) .app {
     box-shadow: 0 8px 30px rgba(0,0,0,.35);
   }
 }
+
+/* YASHWIN HOME DASHBOARD — REFINED MOBILE LAYOUT */
+@media (max-width: 700px) {
+  #dashboardPage .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(75, 204, 177, .25);
+    border-radius: 18px;
+    background: linear-gradient(145deg, #102b3b, #091522);
+  }
+
+  #dashboardPage .hero h3 {
+    margin: 5px 0 8px;
+    font-size: 21px;
+    line-height: 1.25;
+  }
+
+  #dashboardPage .hero p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  #dashboardPage .hero-actions-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  #dashboardPage .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    margin: 10px 0;
+  }
+
+  #dashboardPage .cards .card {
+    min-height: 112px;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  #dashboardPage .cards .card-top {
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 11px;
+  }
+
+  #dashboardPage .cards .card strong {
+    font-size: clamp(16px, 5vw, 21px);
+  }
+
+  #dashboardPage .dash-kpi-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 10px 0 14px;
+  }
+
+  #dashboardPage .dash-kpi-box {
+    padding: 13px 14px;
+  }
+
+  #dashboardPage .dash-instrument-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 10px 0;
+  }
+
+  #dashboardPage .robot-mobile-shell {
+    margin: 10px 0 14px;
+    overflow: hidden;
+  }
+
+  #dashboardPage .dash-quick-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 12px 0;
+  }
+
+  .mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    padding-bottom: max(5px, env(safe-area-inset-bottom));
+  }
+
+  .mobile-nav .mobile-nav-item {
+    min-width: 0;
+    min-height: 48px;
+    padding: 5px 2px;
+    gap: 3px;
+    font-size: 10px;
+  }
+
+  .mobile-nav .mobile-nav-item span {
+    white-space: nowrap;
+    font-size: 10px;
+  }
+}

@@ -151,6 +151,115 @@
           <span id="dashLoadingText">Synchronizing validated market data, AI contract, and account ledger...</span>
         </div>
 
+        <div class="hero">
+          <div>
+            <span class="eyebrow">YASHWIN AI ENGINE • PAPER MODE ONLY</span>
+            <h3>Market Intelligence &amp; Paper Trading Command Center</h3>
+            <p>
+              Real-time validated market status, deterministic AI analysis, risk-gated trade levels, and isolated paper account telemetry.
+            </p>
+          </div>
+
+          <div class="hero-actions-group">
+            <div class="hero-badge">
+              <span>MODE</span>
+              <strong id="heroModeBadge">PAPER</strong>
+            </div>
+            <button type="button" id="dashRefreshAllBtn" class="dash-refresh-btn" aria-label="Refresh Dashboard Data">
+              ↻ Refresh Feed
+            </button>
+          </div>
+        </div>
+
+        <!-- BENCHMARK INDEX CARDS + AI SIGNAL + PAPER P&L SUMMARY -->
+        <div class="cards">
+
+          <div class="card index-card">
+            <div class="card-top">
+              <span>NIFTY 50</span>
+              <span class="positive tabular-nums" id="niftyChange">--</span>
+            </div>
+            <strong id="niftyValue" class="tabular-nums">--</strong>
+            <small id="niftyStatusLabel">DATA WAITING</small>
+          </div>
+
+          <div class="card index-card">
+            <div class="card-top">
+              <span>BANK NIFTY</span>
+              <span class="positive tabular-nums" id="bankChange">--</span>
+            </div>
+            <strong id="bankValue" class="tabular-nums">--</strong>
+            <small id="bankStatusLabel">DATA WAITING</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span>5. AI ACTION SIGNAL</span>
+              <span class="signal neutral" id="signal">NO_TRADE</span>
+            </div>
+            <strong id="confidence" class="tabular-nums">--%</strong>
+            <small id="signalDataState">6. Validated Confidence Only</small>
+          </div>
+
+          <div class="card">
+            <div class="card-top">
+              <span>NET DAILY P&amp;L</span>
+              <span id="dashUserScopeLabel">Paper Account</span>
+            </div>
+            <strong id="pnl" class="tabular-nums">₹0.00</strong>
+            <small id="dashAccountEmptyNote">Virtual trading account</small>
+          </div>
+
+        </div>
+
+        <!-- SECTIONS 11, 12, 13: PAPER ACCOUNT PORTFOLIO TELEMETRY -->
+        <div class="dash-kpi-row">
+          <div class="panel dash-kpi-box">
+            <span class="dash-kicker">11. AVAILABLE PAPER BALANCE</span>
+            <strong id="dashAvailableBalance" class="tabular-nums">₹1,00,000.00</strong>
+            <small id="dashCapitalMeta" class="tabular-nums">Total Capital: ₹1,00,000.00 • Margin Used: ₹0.00</small>
+          </div>
+
+          <div class="panel dash-kpi-box">
+            <span class="dash-kicker">12. TODAY'S REALIZED P&amp;L</span>
+            <strong id="dashRealizedPnl" class="tabular-nums">₹0.00</strong>
+            <small id="dashRealizedMeta">Closed intraday paper trades</small>
+          </div>
+
+          <div class="panel dash-kpi-box">
+            <span class="dash-kicker">13. UNREALIZED P&amp;L</span>
+            <strong id="dashUnrealizedPnl" class="tabular-nums">₹0.00</strong>
+            <small id="dashUnrealizedMeta">Mark-to-market on validated quote</small>
+          </div>
+        </div>
+
+        <!-- SECTIONS 1, 2, 3, 18: MARKET STATUS, SELECTED INSTRUMENT, CURRENT PRICE & % CHANGE, TIMESTAMP & FRESHNESS -->
+        <div class="dash-instrument-strip panel" id="dashInstrumentStrip">
+          <div class="dash-strip-col">
+            <span class="dash-kicker">1. MARKET STATUS</span>
+            <strong id="dashMarketStatusLabel">DATA WAITING</strong>
+            <small id="dashMarketStatusCode">Waiting for validated quote</small>
+          </div>
+
+          <div class="dash-strip-col">
+            <span class="dash-kicker">2. SELECTED INSTRUMENT</span>
+            <strong id="dashSelectedSymbol">NIFTY 50</strong>
+            <small id="dashSelectedMeta">NSE • INDEX</small>
+          </div>
+
+          <div class="dash-strip-col">
+            <span class="dash-kicker">3. CURRENT PRICE &amp; CHANGE</span>
+            <strong id="dashSelectedPrice" class="tabular-nums">--</strong>
+            <small id="dashSelectedChange" class="tabular-nums">-- (--%)</small>
+          </div>
+
+          <div class="dash-strip-col">
+            <span class="dash-kicker">18. TIMESTAMP &amp; FRESHNESS</span>
+            <strong id="dashQuoteFreshness">WAITING FOR FEED</strong>
+            <small id="dashQuoteTimestamp" class="tabular-nums">--</small>
+          </div>
+        </div>
+
         <!-- YASHWIN AI AUTO-TRADING ROBOT — MOBILE COMMAND CENTER (FINAL MOBILE DESIGN) -->
         <div class="robot-mobile-shell" id="robotMobileCommandCenter">
           <!-- ROBOT HEADER STATUS STRIP -->
@@ -271,26 +380,6 @@
           </div>
         </div>
 
-        <div class="hero">
-          <div>
-            <span class="eyebrow">YASHWIN AI ENGINE • PAPER MODE ONLY</span>
-            <h3>Market Intelligence &amp; Paper Trading Command Center</h3>
-            <p>
-              Real-time validated market status, deterministic AI analysis, risk-gated trade levels, and isolated paper account telemetry.
-            </p>
-          </div>
-
-          <div class="hero-actions-group">
-            <div class="hero-badge">
-              <span>MODE</span>
-              <strong id="heroModeBadge">PAPER</strong>
-            </div>
-            <button type="button" id="dashRefreshAllBtn" class="dash-refresh-btn" aria-label="Refresh Dashboard Data">
-              ↻ Refresh Feed
-            </button>
-          </div>
-        </div>
-
         <!-- QUICK NAVIGATION HUB TO ALL 10 REQUIRED DESTINATIONS -->
         <nav class="dash-quick-nav" aria-label="Dashboard quick module navigation">
           <button type="button" class="dash-nav-link" data-nav-target="scanner">Market Search</button>
@@ -305,95 +394,6 @@
           <button type="button" class="dash-nav-link" data-nav-target="account">Account / Profile</button>
           <button type="button" class="dash-nav-link" data-nav-target="account" data-subview="settings">Settings</button>
         </nav>
-
-        <!-- SECTIONS 1, 2, 3, 18: MARKET STATUS, SELECTED INSTRUMENT, CURRENT PRICE & % CHANGE, TIMESTAMP & FRESHNESS -->
-        <div class="dash-instrument-strip panel" id="dashInstrumentStrip">
-          <div class="dash-strip-col">
-            <span class="dash-kicker">1. MARKET STATUS</span>
-            <strong id="dashMarketStatusLabel">DATA WAITING</strong>
-            <small id="dashMarketStatusCode">Waiting for validated quote</small>
-          </div>
-
-          <div class="dash-strip-col">
-            <span class="dash-kicker">2. SELECTED INSTRUMENT</span>
-            <strong id="dashSelectedSymbol">NIFTY 50</strong>
-            <small id="dashSelectedMeta">NSE • INDEX</small>
-          </div>
-
-          <div class="dash-strip-col">
-            <span class="dash-kicker">3. CURRENT PRICE &amp; CHANGE</span>
-            <strong id="dashSelectedPrice" class="tabular-nums">--</strong>
-            <small id="dashSelectedChange" class="tabular-nums">-- (--%)</small>
-          </div>
-
-          <div class="dash-strip-col">
-            <span class="dash-kicker">18. TIMESTAMP &amp; FRESHNESS</span>
-            <strong id="dashQuoteFreshness">WAITING FOR FEED</strong>
-            <small id="dashQuoteTimestamp" class="tabular-nums">--</small>
-          </div>
-        </div>
-
-        <!-- BENCHMARK INDEX CARDS + AI SIGNAL + PAPER P&L SUMMARY -->
-        <div class="cards">
-
-          <div class="card index-card">
-            <div class="card-top">
-              <span>NIFTY 50</span>
-              <span class="positive tabular-nums" id="niftyChange">--</span>
-            </div>
-            <strong id="niftyValue" class="tabular-nums">--</strong>
-            <small id="niftyStatusLabel">DATA WAITING</small>
-          </div>
-
-          <div class="card index-card">
-            <div class="card-top">
-              <span>BANK NIFTY</span>
-              <span class="positive tabular-nums" id="bankChange">--</span>
-            </div>
-            <strong id="bankValue" class="tabular-nums">--</strong>
-            <small id="bankStatusLabel">DATA WAITING</small>
-          </div>
-
-          <div class="card">
-            <div class="card-top">
-              <span>5. AI ACTION SIGNAL</span>
-              <span class="signal neutral" id="signal">NO_TRADE</span>
-            </div>
-            <strong id="confidence" class="tabular-nums">--%</strong>
-            <small id="signalDataState">6. Validated Confidence Only</small>
-          </div>
-
-          <div class="card">
-            <div class="card-top">
-              <span>NET DAILY P&amp;L</span>
-              <span id="dashUserScopeLabel">Paper Account</span>
-            </div>
-            <strong id="pnl" class="tabular-nums">₹0.00</strong>
-            <small id="dashAccountEmptyNote">Virtual trading account</small>
-          </div>
-
-        </div>
-
-        <!-- SECTIONS 11, 12, 13: PAPER ACCOUNT PORTFOLIO TELEMETRY -->
-        <div class="dash-kpi-row">
-          <div class="panel dash-kpi-box">
-            <span class="dash-kicker">11. AVAILABLE PAPER BALANCE</span>
-            <strong id="dashAvailableBalance" class="tabular-nums">₹1,00,000.00</strong>
-            <small id="dashCapitalMeta" class="tabular-nums">Total Capital: ₹1,00,000.00 • Margin Used: ₹0.00</small>
-          </div>
-
-          <div class="panel dash-kpi-box">
-            <span class="dash-kicker">12. TODAY'S REALIZED P&amp;L</span>
-            <strong id="dashRealizedPnl" class="tabular-nums">₹0.00</strong>
-            <small id="dashRealizedMeta">Closed intraday paper trades</small>
-          </div>
-
-          <div class="panel dash-kpi-box">
-            <span class="dash-kicker">13. UNREALIZED P&amp;L</span>
-            <strong id="dashUnrealizedPnl" class="tabular-nums">₹0.00</strong>
-            <small id="dashUnrealizedMeta">Mark-to-market on validated quote</small>
-          </div>
-        </div>
 
         <!-- MAIN ANALYTICS GRID: CHART + TECHNICAL INDICATORS (9) + AI MARKET VIEW & TRADE LEVELS (4, 5, 6, 7, 8) -->
         <div class="grid">
@@ -3175,10 +3175,10 @@
   </div>
 
   <nav class="mobile-nav" aria-label="Mobile navigation">
-    <button type="button" class="mobile-nav-item primary-tab active" data-page="dashboard">🤖<span>Robot</span></button>
+    <button type="button" class="mobile-nav-item primary-tab active" data-page="dashboard">⌂<span>Home</span></button>
     <button type="button" class="mobile-nav-item primary-tab" data-page="scanner">◈<span>Markets</span></button>
     <button type="button" class="mobile-nav-item primary-tab" data-page="analysis">✦<span>AI Brain</span></button>
-    <button type="button" class="mobile-nav-item primary-tab" data-page="paper">▣<span>Trades</span></button>
+    <button type="button" class="mobile-nav-item primary-tab" data-page="paper">▣<span>Portfolio</span></button>
     <button type="button" class="mobile-nav-item primary-tab" data-page="risk">🛡<span>Safety</span></button>
     <button type="button" class="mobile-nav-item secondary-tab" data-page="watchlist" hidden>★<span>Alerts</span></button>
     <button type="button" class="mobile-nav-item secondary-tab" data-page="intelligence" hidden>🌐<span>Intel</span></button>
