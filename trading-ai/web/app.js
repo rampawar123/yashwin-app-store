@@ -6895,14 +6895,17 @@ function renderPWAStatusUI() {
     netBadge.classList.toggle("offline", !snap.online);
   }
 
+  // Show PWA action banners only on the Watchlist / Alerts screen.
+  const alertsScreenActive = state.activePage === "watchlist";
+
   const offlineBanner = document.getElementById("pwaOfflineBanner");
   if (offlineBanner) {
-    offlineBanner.hidden = Boolean(snap.online);
+    offlineBanner.hidden = Boolean(snap.online) || !alertsScreenActive;
   }
 
   const updateBanner = document.getElementById("pwaUpdateBanner");
   if (updateBanner) {
-    updateBanner.hidden = !snap.swUpdateAvailable;
+    updateBanner.hidden = !snap.swUpdateAvailable || !alertsScreenActive;
   }
 
   const installBtn = document.getElementById("pwaInstallBtn");
