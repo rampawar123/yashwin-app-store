@@ -3258,3 +3258,218 @@ body {
     overflow-wrap: anywhere;
   }
 }
+
+/* YASHWIN AI — Robot Screen: First Design Pass */
+@media (max-width: 700px) {
+  #dashboardPage .robot-mobile-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  #dashboardPage .robot-status-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px;
+    border: 1px solid rgba(53,184,255,.28);
+    border-radius: 16px;
+    background: linear-gradient(135deg,#102944,#091727);
+  }
+
+  #dashboardPage .robot-brand-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  #dashboardPage .robot-avatar-ring {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(53,184,255,.45);
+    border-radius: 14px;
+    color: #35b8ff;
+    background: rgba(53,184,255,.10);
+  }
+
+  #dashboardPage .robot-svg-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  #dashboardPage .robot-brand-kicker {
+    display: block;
+    color: #55caff;
+    font-size: 9px;
+    line-height: 1.5;
+    letter-spacing: .8px;
+  }
+
+  #dashboardPage .robot-brand-title {
+    font-size: 17px;
+    line-height: 1.3;
+    margin-top: 3px;
+  }
+
+  #dashboardPage .robot-header-pills {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  #dashboardPage .robot-state-pill,
+  #dashboardPage .robot-mode-pill {
+    padding: 6px 9px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  #dashboardPage .robot-command-card {
+    margin: 0;
+    padding: 13px;
+    border: 1px solid rgba(53,184,255,.25);
+    border-radius: 17px;
+    background: linear-gradient(160deg,#102238,#091626);
+  }
+
+  #dashboardPage .robot-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 9px;
+  }
+
+  #dashboardPage .robot-telemetry-item {
+    min-width: 0;
+    min-height: 104px;
+    padding: 12px;
+    border: 1px solid rgba(113,157,195,.13);
+    border-radius: 13px;
+    background: #142438;
+  }
+
+  #dashboardPage .robot-telemetry-item span {
+    display: block;
+    font-size: 9px;
+    line-height: 1.4;
+    letter-spacing: .5px;
+    color: #91a9c1;
+  }
+
+  #dashboardPage .robot-telemetry-item strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  #dashboardPage .robot-telemetry-item small {
+    display: block;
+    margin-top: 5px;
+    font-size: 10px;
+    line-height: 1.4;
+    color: #93a7bc;
+    overflow-wrap: anywhere;
+  }
+
+  #dashboardPage .robot-action-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-top: 12px;
+  }
+
+  #dashboardPage .robot-action-row button {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  #dashboardPage .robot-mobile-cards-row {
+    display: grid;
+    grid-template-columns: minmax(0,1fr);
+    gap: 12px;
+  }
+
+  #dashboardPage .robot-mini-card {
+    min-width: 0;
+    margin: 0;
+    padding: 14px;
+    border-radius: 15px;
+  }
+
+  #dashboardPage .robot-levels-strip {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+  }
+
+  #dashboardPage .robot-levels-strip > div {
+    min-width: 0;
+    padding: 11px;
+    border-radius: 10px;
+    background: #142438;
+  }
+
+  #dashboardPage .robot-levels-strip span {
+    display: block;
+    font-size: 9px;
+    color: #91a9c1;
+  }
+
+  #dashboardPage .robot-levels-strip strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  #dashboardPage .robot-mini-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #dashboardPage .robot-guide-steps {
+    display: grid;
+    gap: 10px;
+  }
+
+  #dashboardPage .robot-guide-steps > div {
+    padding: 10px;
+    border-radius: 10px;
+    background: #142438;
+  }
+
+  #dashboardPage .robot-guide-steps span,
+  #dashboardPage .robot-guide-steps strong {
+    display: block;
+    line-height: 1.5;
+  }
+
+  #dashboardPage .robot-guide-steps span {
+    margin-bottom: 4px;
+    color: #4dc9ff;
+    font-size: 12px;
+  }
+
+  #dashboardPage .robot-guide-steps strong {
+    font-size: 11px;
+    font-weight: 500;
+    color: #bdcada;
+  }
+}
