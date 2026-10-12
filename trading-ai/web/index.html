@@ -90,23 +90,6 @@
         </div>
       </header>
 
-      <!-- GLOBAL PWA OFFLINE / UPDATE STATUS BANNERS -->
-      <div id="pwaOfflineBanner" class="dash-banner warning pwa-global-banner" role="alert" hidden>
-        <div>
-          <strong>Offline Mode — Static App Shell Active</strong>
-          <span id="pwaOfflineBannerText">Network connection is unavailable. Live market quotes, candles, AI analysis, and paper order execution are paused until connectivity is restored. Zero synthetic prices or signals are generated.</span>
-        </div>
-        <button type="button" id="pwaOfflineRetryBtn" class="dash-inline-btn">Retry Connection</button>
-      </div>
-
-      <div id="pwaUpdateBanner" class="dash-banner info pwa-global-banner" role="status" hidden>
-        <div>
-          <strong>App Update Ready</strong>
-          <span>A newer version of the YASHWIN AI Trading Assistant shell is ready.</span>
-        </div>
-        <button type="button" id="pwaApplyUpdateBtn" class="dash-inline-btn">Reload App</button>
-      </div>
-
       <!-- iOS SAFARI INSTALL GUIDE MODAL -->
       <div id="pwaIosInstallModal" class="pwa-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pwaIosModalTitle" hidden>
         <div class="panel pwa-modal-card">
@@ -3033,7 +3016,25 @@
               </div>
             </div>
 
-            <!-- FILTER TOOLBAR -->
+            <!-- PWA STATUS: shown inside Alerts, not on every screen -->
+            <div id="pwaOfflineBanner" class="dash-banner warning pwa-global-banner" role="alert" hidden>
+            <div>
+            <strong>Offline Mode — Static App Shell Active</strong>
+            <span id="pwaOfflineBannerText">Network connection is unavailable. Live market quotes, candles, AI analysis, and paper order execution are paused until connectivity is restored. Zero synthetic prices or signals are generated.</span>
+            </div>
+            <button type="button" id="pwaOfflineRetryBtn" class="dash-inline-btn">Retry Connection</button>
+            </div>
+
+            <div id="pwaUpdateBanner" class="dash-banner info pwa-global-banner" role="status" hidden>
+            <div>
+            <strong>App Update Ready</strong>
+            <span>A newer version of the YASHWIN AI Trading Assistant shell is ready.</span>
+            </div>
+            <button type="button" id="pwaApplyUpdateBtn" class="dash-inline-btn">Reload App</button>
+            </div>
+
+
+          <!-- FILTER TOOLBAR -->
             <div class="password-grid-form" style="grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 8px; margin-top: 10px;">
               <div>
                 <label for="notifReadFilterSelect">Read Status</label>
