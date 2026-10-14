@@ -1,0 +1,8 @@
+{
+  "name": "YASHWIN APP STORE",
+  "description": "Discover, download, and enjoy useful Android apps directly synced from GitHub, including Vansh Calculator and Cric Yuva.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
