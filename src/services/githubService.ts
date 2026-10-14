@@ -12,33 +12,33 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     name: 'VANSH CALCULATOR',
     keys: ['vansh', 'calculator'],
     desc: 'Fast • Simple • Accurate calculation suite with history & saved maths',
-    icon: `${import.meta.env.BASE_URL}calculator-logo.png`,
-    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
+    icon: '/calculator-logo.png',
+    fallbackIcon: '/icon-512.png',
     openType: 'calculator',
     apkKeywords: ['vansh', 'calculator'],
-    defaultApk: `${import.meta.env.BASE_URL}VANSH-CALCULATOR.apk`
+    defaultApk: '/VANSH-CALCULATOR.apk'
   },
   {
     id: 'cric-yuva',
     name: 'CRIC YUVA',
     keys: ['cric-yuva', 'cric yuva', 'cric', 'cricket', 'yuva'],
     desc: 'Live Cricket Score • Teams • Match ID • Scorecard • Real-time stats',
-    icon: `${import.meta.env.BASE_URL}cric-yuva-2-logo.png`,
-    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
+    icon: '/cric-yuva-2-logo.png',
+    fallbackIcon: '/icon-512.png',
     openType: 'cric-yuva',
     apkKeywords: ['cric-yuva-2', 'cric yuva', 'cric', 'yuva'],
-    defaultApk: `${import.meta.env.BASE_URL}CRIC-YUVA.apk`
+    defaultApk: '/CRIC-YUVA.apk'
   },
   {
     id: 'store',
     name: 'YASHWIN APP STORE',
     keys: ['yashwin', 'store'],
     desc: 'Your App Hub • Direct APK Downloads • Always Updated from GitHub',
-    icon: `${import.meta.env.BASE_URL}icon-512.png`,
-    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
+    icon: '/icon-512.png',
+    fallbackIcon: '/icon-512.png',
     openType: 'external',
     apkKeywords: ['app-release-signed'],
-    defaultApk: `${import.meta.env.BASE_URL}app-release-signed.apk`
+    defaultApk: '/app-release-signed.apk'
   }
 ];
 

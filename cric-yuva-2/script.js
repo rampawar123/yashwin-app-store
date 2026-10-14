@@ -1677,7 +1677,9 @@ document.addEventListener("DOMContentLoaded", function () {
           unread: false
         }
       ];
-      this.save(defaults);
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(defaults));
+      } catch (e) {}
       return defaults;
     },
     save(list) {
@@ -2038,62 +2040,75 @@ document.addEventListener("DOMContentLoaded", function () {
   const loginOtpCode = document.getElementById("loginOtpCode");
   const loginOtpCodeGroup = document.getElementById("loginOtpCodeGroup");
   const otpDevHint = document.getElementById("otpDevHint");
-  if (loginOtpButton && loginOtpModal) loginOtpButton.addEventListener("click", () => { loginOtpModal.style.display = "flex"; if (loginOtpMobile) loginOtpMobile.focus(); });
-  if (loginOtpCloseBtn && loginOtpModal) loginOtpCloseBtn.addEventListener("click", () => loginOtpModal.style.display = "none");
-  if (requestLoginOtpButton) requestLoginOtpButton.addEventListener("click", async () => {
-    const mob = (loginOtpMobile?.value || "").trim();
-    if (!/^\d{10}$/.test(mob)) return alert("Please enter a valid 10 digit mobile number.");
-    try {
-      const result = await CricYuvaCloud.requestOtp({ mobile: mob, purpose: "login" });
-      if (loginOtpCodeGroup) loginOtpCodeGroup.style.display = "block";
-      if (verifyLoginOtpButton) verifyLoginOtpButton.style.display = "flex";
-      if (otpDevHint && result?.devOtp) { otpDevHint.textContent = "TEST OTP: " + result.devOtp; otpDevHint.style.display = "block"; }
-      if (loginOtpCode) loginOtpCode.focus();
-      else alert("OTP sent. Enter the 6-digit OTP.");
-    } catch (e) {
-      if (isStaticApiError(e)) {
-        const devOtp = createLocalOtp(mob, "login");
+  if (loginOtpButton && loginOtpModal) {
+    loginOtpButton.addEventListener("click", () => {
+      const loginMobile = document.getElementById("loginMobile");
+      if (loginMobile && loginMobile.value && loginOtpMobile) {
+        loginOtpMobile.value = loginMobile.value.trim();
+      }
+      loginOtpModal.style.display = "flex";
+      if (loginOtpMobile) loginOtpMobile.focus();
+    });
+  }
+  if (loginOtpCloseBtn && loginOtpModal) {
+    loginOtpCloseBtn.addEventListener("click", () => {
+      loginOtpModal.style.display = "none";
+    });
+  }
+  if (loginOtpModal) {
+    loginOtpModal.addEventListener("click", (e) => {
+      if (e.target === loginOtpModal) {
+        loginOtpModal.style.display = "none";
+      }
+    });
+  }
+  if (requestLoginOtpButton) {
+    requestLoginOtpButton.addEventListener("click", async () => {
+      const mob = (loginOtpMobile?.value || "").trim();
+      if (!/^\d{10}$/.test(mob)) return alert("Please enter a valid 10 digit mobile number.");
+      try {
+        const result = await CricYuvaCloud.requestOtp({ mobile: mob, purpose: "login" });
         if (loginOtpCodeGroup) loginOtpCodeGroup.style.display = "block";
         if (verifyLoginOtpButton) verifyLoginOtpButton.style.display = "flex";
-        if (otpDevHint) { otpDevHint.textContent = "TEST OTP: " + devOtp + " (API offline)"; otpDevHint.style.display = "block"; }
+        if (otpDevHint && result?.devOtp) {
+          otpDevHint.textContent = "TEST OTP: " + result.devOtp;
+          otpDevHint.style.display = "block";
+        }
         if (loginOtpCode) loginOtpCode.focus();
-        return;
-      }
-      alert(e.message || "OTP service unavailable.");
-    }
-  });
-  if (verifyLoginOtpButton) verifyLoginOtpButton.addEventListener("click", async () => {
-    const mob = (loginOtpMobile?.value || "").trim();
-    const code = (loginOtpCode?.value || "").trim();
-    if (!/^\d{10}$/.test(mob) || !/^\d{6}$/.test(code)) return alert("Enter valid mobile number and 6-digit OTP.");
-    try {
-      let cloud = null;
-      try {
-        cloud = await CricYuvaCloud.verifyOtp({ mobile: mob, code, purpose: "login" });
+        alert("OTP sent successfully. Please enter the 6-digit OTP.");
       } catch (e) {
-        if (!isStaticApiError(e)) throw e;
-        verifyLocalOtp(mob, code, "login");
-        const localUser = window.CricYuvaStorage?.getAllRegisteredUsers?.().find(u => u && u.mobile === mob);
-        if (!localUser) throw new Error("No Cric Yuva player is registered with this mobile number.");
-        cloud = { user: localUser, token: "local-" + mob };
+        alert("OTP service is currently unavailable: " + (e.message || "SMS provider / backend is not configured. Please log in using your password."));
       }
-      localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
-      if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
-      localStorage.setItem("cricYuvaLoggedIn", "true");
-      localStorage.setItem("cricYuvaMobile", mob);
-      localStorage.setItem("cricYuvaProfileMobile", mob);
-      if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
-      if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
-      if (window.CricYuvaStorage) {
-        const localUser = window.CricYuvaStorage.getAllRegisteredUsers().find(u => u && u.mobile === mob);
-        if (localUser) window.CricYuvaStorage.setActiveUserId(localUser.userId);
+    });
+  }
+  if (verifyLoginOtpButton) {
+    verifyLoginOtpButton.addEventListener("click", async () => {
+      const mob = (loginOtpMobile?.value || "").trim();
+      const code = (loginOtpCode?.value || "").trim();
+      if (!/^\d{10}$/.test(mob) || !/^\d{6}$/.test(code)) return alert("Enter valid mobile number and 6-digit OTP.");
+      try {
+        const cloud = await CricYuvaCloud.verifyOtp({ mobile: mob, code, purpose: "login" });
+        if (!cloud || !cloud.user) throw new Error("Invalid response from server.");
+        localStorage.setItem("cricYuvaCloudUserId", cloud.user.userId || cloud.user.id || "");
+        if (cloud.token) localStorage.setItem("cricYuvaCloudToken", cloud.token);
+        localStorage.setItem("cricYuvaLoggedIn", "true");
+        localStorage.setItem("cricYuvaMobile", mob);
+        localStorage.setItem("cricYuvaProfileMobile", mob);
+        if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
+        if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
+        if (window.CricYuvaStorage) {
+          const localUser = window.CricYuvaStorage.getAllRegisteredUsers().find(u => u && u.mobile === mob);
+          if (localUser) window.CricYuvaStorage.setActiveUserId(localUser.userId);
+        }
+        loginOtpModal.style.display = "none";
+        loadProfileData();
+        showScreen(isProfileCompleted() ? "screen5" : "screen4");
+        hydrateCloudData().finally(() => processPendingInvite());
+      } catch (e) {
+        alert("OTP verification failed: " + (e.message || "Invalid OTP code or verification service unavailable."));
       }
-      loginOtpModal.style.display = "none";
-      loadProfileData();
-      showScreen(isProfileCompleted() ? "screen5" : "screen4");
-      hydrateCloudData().finally(() => processPendingInvite());
-    } catch (e) { alert(e.message || "Invalid OTP."); }
-  });
+    });
+  }
 
 
   // ==========================================
@@ -13931,7 +13946,7 @@ function appendSingleChatMessage(container, m, currentUserId) {
 
 // Hook up RealtimeLiveService chat triggers
 if (window.RealtimeLiveService) {
-  RealtimeLiveService.on("tournament_chat", (msg) => {
+  window.RealtimeLiveService.on("tournament_chat", (msg) => {
     if (activeTourneyDetailTab === "chat" && currentActiveChatTourneyId === msg.tourneyId) {
       const messagesList = document.getElementById("tChatMessagesList");
       const currentUserId = getCurrentCricYuvaUserId();
@@ -13939,7 +13954,7 @@ if (window.RealtimeLiveService) {
     }
   });
 
-  RealtimeLiveService.on("team_chat", (msg) => {
+  window.RealtimeLiveService.on("team_chat", (msg) => {
     const modal = document.getElementById("teamChatModal");
     if (modal && modal.style.display !== "none" && currentTeamChatTeamName === msg.teamId) {
       const messagesList = document.getElementById("teamChatModalMessagesList");
