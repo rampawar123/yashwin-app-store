@@ -86,7 +86,7 @@ export const App: React.FC = () => {
     if (app.openType === 'calculator') {
       setActiveModal('calculator');
     } else if (app.openType === 'cric-yuva') {
-      setActiveModal('cric-yuva');
+      window.location.href = '/yashwin-app-store/cric-yuva-2/index.html'; return;
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       showToast('You are already browsing YASHWIN APP STORE.');
