@@ -39,46 +39,53 @@ export const App: React.FC = () => {
     setToastMessage(msg);
   }, []);
 
+  const checkingRef = React.useRef(false);
+
   const refreshCatalog = useCallback(async (manual: boolean = false) => {
-    if (isChecking) return;
+    if (checkingRef.current) return;
+    checkingRef.current = true;
     setIsChecking(true);
     setStatusText('GitHub status: checking latest APK files…');
 
-    const result = await fetchLatestGithubCatalog();
-    setCatalog(result.catalog);
-    setStatusText(result.message);
-    setIsChecking(false);
+    try {
+      const result = await fetchLatestGithubCatalog();
+      setCatalog(result.catalog);
+      setStatusText(result.message);
 
-    if (manual) {
-      if (result.hasAnyUpdate) {
-        showToast('New app update detected! Check UPDATE APK button to download.');
-      } else {
-        showToast('Store is up to date with the latest GitHub files.');
+      if (manual) {
+        showToast(
+          result.hasAnyUpdate
+            ? 'New app update detected! Check UPDATE APK button to download.'
+            : result.isOnline
+              ? 'Store is up to date with the latest GitHub files.'
+              : 'GitHub check failed. Please try again later.'
+        );
       }
+    } catch {
+      setStatusText('GitHub check failed. Please try again later.');
+    } finally {
+      checkingRef.current = false;
+      setIsChecking(false);
     }
-  }, [isChecking, showToast]);
+  }, [showToast]);
 
   useEffect(() => {
-    refreshCatalog(false);
+    void refreshCatalog(false);
 
-    // Auto check every 5 minutes
     const interval = setInterval(() => {
-      refreshCatalog(false);
+      if (!document.hidden) void refreshCatalog(false);
     }, 5 * 60 * 1000);
 
     const handleVisibility = () => {
-      if (!document.hidden) {
-        refreshCatalog(false);
-      }
+      // Refresh only when returning after the page was hidden.
+      if (!document.hidden) void refreshCatalog(false);
     };
 
     document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('pageshow', handleVisibility);
 
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('pageshow', handleVisibility);
     };
   }, [refreshCatalog]);
 
