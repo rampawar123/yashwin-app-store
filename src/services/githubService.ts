@@ -12,8 +12,8 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     name: 'VANSH CALCULATOR',
     keys: ['vansh', 'calculator'],
     desc: 'Fast • Simple • Accurate calculation suite with history & saved maths',
-    icon: '/calculator-logo.png',
-    fallbackIcon: '/icon-512.png',
+    icon: '/yashwin-app-store/calculator-logo.png',
+    fallbackIcon: '/yashwin-app-store/icon-512.png',
     openType: 'calculator',
     apkKeywords: ['vansh', 'calculator'],
     defaultApk: '/VANSH-CALCULATOR.apk'
@@ -23,8 +23,8 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     name: 'CRIC YUVA',
     keys: ['cric-yuva', 'cric yuva', 'cric', 'cricket', 'yuva'],
     desc: 'Live Cricket Score • Teams • Match ID • Scorecard • Real-time stats',
-    icon: '/cric-yuva-2-logo.png',
-    fallbackIcon: '/icon-512.png',
+    icon: '/yashwin-app-store/cric-yuva-2-logo.png',
+    fallbackIcon: '/yashwin-app-store/icon-512.png',
     openType: 'cric-yuva',
     apkKeywords: ['cric-yuva-2', 'cric yuva', 'cric', 'yuva'],
     defaultApk: '/CRIC-YUVA.apk'
@@ -34,8 +34,8 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     name: 'YASHWIN APP STORE',
     keys: ['yashwin', 'store'],
     desc: 'Your App Hub • Direct APK Downloads • Always Updated from GitHub',
-    icon: '/icon-512.png',
-    fallbackIcon: '/icon-512.png',
+    icon: '/yashwin-app-store/icon-512.png',
+    fallbackIcon: '/yashwin-app-store/icon-512.png',
     openType: 'external',
     apkKeywords: ['app-release-signed'],
     defaultApk: '/app-release-signed.apk'

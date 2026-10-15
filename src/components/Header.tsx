@@ -36,9 +36,9 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="min-h-[76px] flex items-center gap-3.5 py-2">
           <img
             className="w-[52px] h-[52px] rounded-2xl object-cover border border-[#ffb21a] shadow-[0_0_24px_rgba(255,178,26,0.18)]"
-            src="/icon-512.png"
+            src="/yashwin-app-store/icon-512.png"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = '/icon-512.png';
+              (e.currentTarget as HTMLImageElement).src = '/yashwin-app-store/icon-512.png';
             }}
             alt="YASHWIN"
           />
