@@ -572,7 +572,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function hasSavedAccount() {
     const mobile = localStorage.getItem("cricYuvaMobile");
     const pass = localStorage.getItem("cricYuvaPassword");
-    return !!(mobile && mobile.trim() && pass);
+    const cloudUserId = localStorage.getItem("cricYuvaCloudUserId");
+    return !!(
+      (mobile && mobile.trim() && pass) ||
+      (mobile && mobile.trim() && cloudUserId)
+    );
   }
 
   function isProfileCompleted() {
