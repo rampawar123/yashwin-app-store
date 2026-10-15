@@ -31,3 +31,16 @@ Build for production:
 ```bash
 npm run build
 ```
+
+
+## Deploy to GitHub Pages (fix for blank white page)
+
+This repository is a Vite + React + TypeScript app. **Do not publish the source `index.html`/`src` files directly as a static site**; GitHub Actions must build them into `dist/` first.
+
+1. Upload/commit the complete repository contents to the `main` branch of `rampawar123/yashwin-app-store`.
+2. In GitHub, open **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**.
+3. Open **Actions → Deploy YASHWIN APP STORE to GitHub Pages** and wait for the workflow to finish successfully.
+4. Open `https://rampawar123.github.io/` and refresh. The workflow deploys the generated `dist/` folder.
+5. If an older service worker keeps showing a cached page, clear the site data for `rampawar123.github.io` in the browser and reopen the site.
+
+The workflow above builds with `npm ci` and `npm run build`, verifies `dist/index.html`, and deploys the build artifact. The separate APK build workflow remains in place.
