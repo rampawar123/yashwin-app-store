@@ -1080,8 +1080,11 @@ async function shareHistory(index){
     return;
   }
 
+  const title = prompt("Is hisaab ka naam likhein:", "Vansh Calculator");
+  if (title === null) return;
+
   const text =
-    "VANSH CALCULATOR\n" +
+    (title.trim() || "Vansh Calculator") + "\n" +
     item.expression +
     " = " +
     item.answer;
@@ -1102,8 +1105,11 @@ async function shareSaved(index){
     return;
   }
 
+  const title = prompt("Is hisaab ka naam likhein:", "Vansh Calculator");
+  if (title === null) return;
+
   const text =
-    "VANSH CALCULATOR\n" +
+    (title.trim() || "Vansh Calculator") + "\n" +
     item.expression +
     " = " +
     item.answer;
