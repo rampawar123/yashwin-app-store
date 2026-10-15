@@ -573,12 +573,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const mobile = localStorage.getItem("cricYuvaMobile");
     const pass = localStorage.getItem("cricYuvaPassword");
     const cloudUserId = localStorage.getItem("cricYuvaCloudUserId");
+    const loggedIn = localStorage.getItem("cricYuvaLoggedIn") === "true";
     return !!(
-      (mobile && mobile.trim() && pass) ||
-      (mobile && mobile.trim() && cloudUserId)
+      mobile &&
+      mobile.trim() &&
+      (pass || cloudUserId || loggedIn)
     );
   }
-
   function isProfileCompleted() {
     const profileName = localStorage.getItem("cricYuvaProfileName");
     return !!(profileName && profileName.trim().length > 0);
