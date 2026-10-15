@@ -13,6 +13,6 @@
       host.includes("github.dev") ||
       host.includes("app.github.dev");
 
-    window.CRIC_YUVA_API_BASE = isDev ? "" : "https://yashwin-app-store.onrender.com";
+    window.CRIC_YUVA_API_BASE = isDev ? "" : "https://cric-yuva-2.onrender.com";
   }
 })();
