@@ -64,6 +64,30 @@ export function rawGithubUrl(path: string): string {
   return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encoded}?v=${Date.now()}`;
 }
 
+export const PENDING_UPDATES_KEY = 'yashwinStorePendingUpdatesV1';
+
+export function readPendingUpdates(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(PENDING_UPDATES_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+export function writePendingUpdates(state: Record<string, string>): void {
+  try {
+    localStorage.setItem(PENDING_UPDATES_KEY, JSON.stringify(state));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearPendingUpdate(appId: string): void {
+  const pending = readPendingUpdates();
+  delete pending[appId];
+  writePendingUpdates(pending);
+}
+
 export function readStoredShaState(): Record<string, string> {
   try {
     return JSON.parse(localStorage.getItem(UPDATE_STORAGE_KEY) || '{}');
@@ -91,6 +115,7 @@ export interface FetchResult {
 export async function fetchLatestGithubCatalog(): Promise<FetchResult> {
   const previousShaMap = readStoredShaState();
   const nextShaMap: Record<string, string> = {};
+  const pendingUpdates = readPendingUpdates();
   let changedAny = false;
 
   try {
@@ -121,13 +146,16 @@ export async function fetchLatestGithubCatalog(): Promise<FetchResult> {
 
       const chosen = candidates[0];
       const sha = chosen?.sha || '';
-      const hasChanged = Boolean(chosen && previousShaMap[app.name] && previousShaMap[app.name] !== sha);
+      const previousSha = previousShaMap[app.id] || previousShaMap[app.name] || '';
+      if (chosen && previousSha && previousSha !== sha) pendingUpdates[app.id] = sha;
+      if (chosen && pendingUpdates[app.id] && pendingUpdates[app.id] !== sha) pendingUpdates[app.id] = sha;
+      const hasChanged = Boolean(chosen && pendingUpdates[app.id]);
 
       if (hasChanged) {
         changedAny = true;
       }
       if (chosen) {
-        nextShaMap[app.name] = sha;
+        nextShaMap[app.id] = sha;
       }
 
       return {
@@ -142,6 +170,8 @@ export async function fetchLatestGithubCatalog(): Promise<FetchResult> {
     });
 
     writeStoredShaState(nextShaMap);
+    writePendingUpdates(pendingUpdates);
+    changedAny = Object.keys(pendingUpdates).length > 0;
 
     const timeStr = new Date().toLocaleTimeString();
     return {

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { CatalogApp } from './types';
 import {
   fetchLatestGithubCatalog,
-  APP_DEFINITIONS
+  APP_DEFINITIONS,
+  clearPendingUpdate
 } from './services/githubService';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -98,6 +99,41 @@ export const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       showToast('You are already browsing YASHWIN APP STORE.');
     }
+  };
+
+  const handleUpdateAll = () => {
+    const pendingApps = catalog.filter(app => app.hasUpdate && app.apkUrl);
+
+    if (pendingApps.length === 0) {
+      showToast('No app updates are currently available.');
+      return;
+    }
+
+    pendingApps.forEach((app, index) => {
+      const link = document.createElement('a');
+      link.href = app.apkUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.download = app.apkUrl.split('/').pop()?.split('?')[0] || app.id + '.apk';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      clearPendingUpdate(app.id);
+    });
+
+    setCatalog(current =>
+      current.map(app =>
+        pendingApps.some(pending => pending.id === app.id)
+          ? { ...app, hasUpdate: false }
+          : app
+      )
+    );
+
+    showToast(
+      'Started download requests for ' + pendingApps.length +
+      ' app update(s). Complete installation from Android when prompted.'
+    );
   };
 
   const handleShare = async (app: CatalogApp) => {
@@ -211,6 +247,8 @@ export const App: React.FC = () => {
           statusText={statusText}
           isChecking={isChecking}
           onRefresh={() => refreshCatalog(true)}
+          onUpdateAll={handleUpdateAll}
+          pendingCount={catalog.filter(app => app.hasUpdate).length}
         />
       </main>
 

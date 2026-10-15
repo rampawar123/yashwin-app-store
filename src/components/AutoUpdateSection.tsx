@@ -4,12 +4,16 @@ interface AutoUpdateSectionProps {
   statusText: string;
   isChecking: boolean;
   onRefresh: () => void;
+  onUpdateAll: () => void;
+  pendingCount: number;
 }
 
 export const AutoUpdateSection: React.FC<AutoUpdateSectionProps> = ({
   statusText,
   isChecking,
-  onRefresh
+  onRefresh,
+  onUpdateAll,
+  pendingCount
 }) => {
   return (
     <div className="my-6">
@@ -39,6 +43,14 @@ export const AutoUpdateSection: React.FC<AutoUpdateSectionProps> = ({
           {isChecking ? '⏳ Checking…' : '↻ Check Updates'}
         </button>
       </div>
+
+      <button
+        onClick={onUpdateAll}
+        disabled={pendingCount === 0}
+        className="w-full mt-3 px-5 py-3 rounded-xl bg-[#ffb21a] text-black font-extrabold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ⬇ UPDATE ALL APPS {pendingCount > 0 ? '(' + pendingCount + ')' : ''}
+      </button>
 
       <div className="text-xs text-[#7fa0b9] my-2 mb-6">
         {statusText}
