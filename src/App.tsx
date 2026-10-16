@@ -6,8 +6,6 @@ import {
   clearPendingUpdate
 } from './services/githubService';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { Features } from './components/Features';
 import { SearchBox } from './components/SearchBox';
 import { AboutSection } from './components/AboutModal';
 import { AppCard } from './components/AppCard';
@@ -30,6 +28,8 @@ export const App: React.FC = () => {
   );
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [statusText, setStatusText] = useState('GitHub status: checking latest APK files…');
@@ -168,35 +168,46 @@ export const App: React.FC = () => {
   };
 
   const filteredApps = catalog.filter(app => {
-    if (!searchQuery.trim()) return true;
+    const categoryMatches =
+      activeCategory === 'all' ||
+      (activeCategory === 'android' && ['calculator', 'cric-yuva'].includes(app.id)) ||
+      (activeCategory === 'tools' && app.id === 'calculator') ||
+      (activeCategory === 'games' && app.id === 'cric-yuva') ||
+      (activeCategory === 'others' && app.id === 'store');
+
     const q = searchQuery.toLowerCase().trim();
     const combined = `${app.name} ${app.desc} ${app.keys.join(' ')}`.toLowerCase();
-    return combined.includes(q);
+    return categoryMatches && (!q || combined.includes(q));
   });
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-[#ffb21a] selection:text-black">
+    <div className="flex h-screen flex-col overflow-hidden selection:bg-[#ffb21a] selection:text-black" style={{ height: "100dvh" }}>
       {/* Header */}
       <Header
         onShowApps={handleShowApps}
         onToggleAbout={() => setIsAboutOpen(prev => !prev)}
         onRefresh={() => refreshCatalog(true)}
         isChecking={isChecking}
+        onToggleSearch={() => setIsSearchOpen(prev => !prev)}
+        isSearchOpen={isSearchOpen}
       />
 
       {/* Main Container */}
-      <main className="max-w-[1120px] w-[calc(100%-20px)] sm:w-[calc(100%-28px)] mx-auto flex-1 pb-8">
-        <Hero />
+      <main className="mx-auto flex min-h-0 w-[calc(100%-20px)] max-w-[1120px] flex-1 flex-col overflow-hidden sm:w-[calc(100%-28px)]">
 
         {/* Search */}
         <SearchBox
           searchQuery={searchQuery}
+          isSearchOpen={isSearchOpen}
           onSearchChange={setSearchQuery}
           onClear={() => setSearchQuery('')}
+          activeCategory={activeCategory}
+          onCategoryChange={(category) => {
+            setActiveCategory(category);
+            if (category === 'all') setSearchQuery('');
+          }}
         />
 
-        {/* Features Showcase Strip */}
-        <Features />
 
         {/* About Expandable Card */}
         <AboutSection
@@ -204,21 +215,10 @@ export const App: React.FC = () => {
           onClose={() => setIsAboutOpen(false)}
         />
 
-        {/* Section Header */}
-        <div id="available-apps-section" className="flex items-end justify-between gap-2.5 my-5 mb-3.5">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white m-0">
-              Available Apps
-            </h2>
-            <div className="w-[72px] h-1 bg-[#ffb21a] rounded-full mt-2" />
-          </div>
-          <div className="border border-[#376483] py-2 px-3.5 rounded-full text-[#d7e8f7] text-xs sm:text-sm font-semibold">
-            {filteredApps.length} Apps
-          </div>
-        </div>
+        <div id="available-apps-section" className="mb-4" />
 
         {/* Apps Grid/List */}
-        <section className="grid gap-3.5">
+        <section className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y grid content-start gap-3.5 pb-4" style={{ WebkitOverflowScrolling: "touch" }}>
           {filteredApps.length === 0 ? (
             <div className="p-12 text-center bg-[#0b1a2b]/80 border border-[#21425f] rounded-2xl text-[#9db0c6]">
               <div className="text-3xl mb-2">🔍</div>
@@ -253,7 +253,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <div className="max-w-[1120px] w-[calc(100%-28px)] mx-auto">
+      <div className="hidden">
         <Footer onShowAbout={() => setIsAboutOpen(true)} />
       </div>
 
