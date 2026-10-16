@@ -44,9 +44,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function setUserStorage(key, value) {
     if (window.CricYuvaStorage) {
-      window.CricYuvaStorage.setUserItem(key, value);
-    } else {
+      return window.CricYuvaStorage.setUserItem(key, value);
+    }
+    try {
       localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.error("Error saving user storage:", key, e);
+      return false;
     }
   }
 
@@ -2238,8 +2243,8 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       const serialized = JSON.stringify(Array.isArray(teams) ? teams : []);
       const scopedSaved = setUserStorage(TEAM_STORAGE_KEY, serialized);
-      try { localStorage.setItem(TEAM_STORAGE_KEY, serialized); } catch (_) {}
-      return !!scopedSaved || !!localStorage.getItem(TEAM_STORAGE_KEY);
+      if (scopedSaved === false) return false;
+      return true;
     } catch (e) {
       console.error("Error saving teams:", e);
       return false;
