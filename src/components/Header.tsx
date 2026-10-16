@@ -11,79 +11,73 @@ export const Header: React.FC<HeaderProps> = ({
   onShowApps,
   onToggleAbout,
   onRefresh,
-  isChecking
+  isChecking,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleShowApps = () => {
-    onShowApps();
-    setMenuOpen(false);
-  };
-
-  const handleToggleAbout = () => {
-    onToggleAbout();
-    setMenuOpen(false);
-  };
-
-  const handleRefresh = () => {
-    onRefresh();
+  const runAction = (action: () => void) => {
+    action();
     setMenuOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-[#030a12]/90 backdrop-blur-md border-b border-[#5b91be]/20">
-      <div className="max-w-[1120px] w-[calc(100%-28px)] mx-auto">
-        <div className="min-h-[76px] flex items-center gap-3.5 py-2">
+    <header className="sticky top-0 z-30 border-b border-[#d9a52e]/25 bg-[#020a13]/95 backdrop-blur-xl">
+      <div className="mx-auto w-[calc(100%-28px)] max-w-[1120px]">
+        <div className="flex min-h-[88px] items-center gap-3 py-3 sm:min-h-[112px] sm:gap-5">
           <img
-            className="w-[52px] h-[52px] rounded-2xl object-cover border border-[#ffb21a] shadow-[0_0_24px_rgba(255,178,26,0.18)]"
+            className="h-[58px] w-[58px] shrink-0 rounded-2xl border border-[#ffb21a] object-cover shadow-[0_0_22px_rgba(255,178,26,0.16)] sm:h-[76px] sm:w-[76px]"
             src="/yashwin-app-store/icon-512.png"
+            alt="YASHWIN APP STORE"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = '/yashwin-app-store/icon-512.png';
             }}
-            alt="YASHWIN"
           />
 
-          <div className="flex-1">
-            <b className="text-[22px] tracking-[0.3px] text-white">
+          <div className="min-w-0 flex-1">
+            <div className="text-[clamp(17px,4.5vw,34px)] font-black leading-tight tracking-wide text-white">
               YASHWIN <span className="text-[#ffb21a]">APP STORE</span>
-            </b>
-            <small className="block text-[#9db0c6] tracking-[3px] mt-0.5 text-[9px] uppercase font-semibold">
+            </div>
+            <p className="m-0 mt-1 text-[8px] font-bold tracking-[2px] text-[#a9bed8] sm:text-xs sm:tracking-[4px]">
               DISCOVER • DOWNLOAD • ENJOY
-            </small>
+            </p>
           </div>
 
           <button
-            className="w-12 h-12 rounded-[15px] border border-[#ffb21a] bg-[#ffb21a]/10 text-white text-2xl flex items-center justify-center cursor-pointer hover:bg-[#ffb21a]/20 transition-all active:scale-95"
+            type="button"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-[18px] border border-[#ffb21a] bg-[#ffb21a]/5 text-3xl text-white transition hover:bg-[#ffb21a]/15 active:scale-95 sm:h-[72px] sm:w-[72px] sm:text-4xl"
           >
-            {menuOpen ? '✕' : '☰'}
+            {menuOpen ? '×' : '☰'}
           </button>
         </div>
 
-        {/* Drawer Menu */}
         {menuOpen && (
-          <div className="flex gap-2.5 pb-4 pt-1 border-t border-[#21425f]/40">
+          <nav className="grid grid-cols-3 gap-2 border-t border-[#24415b] py-3">
             <button
-              onClick={handleShowApps}
-              className="flex-1 py-3 px-2 border border-[#21425f] rounded-xl bg-[#0b1828] text-white font-medium text-sm hover:border-[#ffb21a] transition-colors"
+              type="button"
+              onClick={() => runAction(onShowApps)}
+              className="rounded-xl border border-[#24415b] bg-[#0b1b2d] px-2 py-3 text-sm font-bold text-white hover:border-[#ffb21a]"
             >
               📱 Apps
             </button>
             <button
-              onClick={handleToggleAbout}
-              className="flex-1 py-3 px-2 border border-[#21425f] rounded-xl bg-[#0b1828] text-white font-medium text-sm hover:border-[#ffb21a] transition-colors"
+              type="button"
+              onClick={() => runAction(onToggleAbout)}
+              className="rounded-xl border border-[#24415b] bg-[#0b1b2d] px-2 py-3 text-sm font-bold text-white hover:border-[#ffb21a]"
             >
               ℹ️ About
             </button>
             <button
-              onClick={handleRefresh}
+              type="button"
+              onClick={() => runAction(onRefresh)}
               disabled={isChecking}
-              className="flex-1 py-3 px-2 border border-[#ffb21a]/60 rounded-xl bg-[#ffb21a]/15 text-[#ffb21a] font-semibold text-sm hover:bg-[#ffb21a]/25 transition-colors disabled:opacity-50"
+              className="rounded-xl border border-[#ffb21a]/60 bg-[#ffb21a]/10 px-2 py-3 text-sm font-bold text-[#ffcf68] hover:bg-[#ffb21a]/20 disabled:opacity-50"
             >
-              {isChecking ? '⏳ Checking…' : '↻ Refresh'}
+              {isChecking ? '⏳ Checking' : '↻ Refresh'}
             </button>
-          </div>
+          </nav>
         )}
       </div>
     </header>
