@@ -9,10 +9,10 @@ interface AppCardProps {
 
 export const AppCard: React.FC<AppCardProps> = ({ app, onOpenApp, onShare }) => {
   return (
-    <article className="grid grid-cols-[82px_1fr] sm:grid-cols-[120px_1fr] gap-3.5 sm:gap-4.5 p-3.5 sm:p-4.5 rounded-[19px] sm:rounded-[24px] bg-gradient-to-br from-[#10273d]/95 to-[#071421]/95 border border-[#285274] shadow-[0_18px_50px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 hover:border-[#4d85ad] transition-all">
+    <article className="grid grid-cols-[64px_minmax(0,1fr)] sm:grid-cols-[88px_minmax(0,1fr)] gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-[#10273d]/95 to-[#071421]/95 border border-[#285274] shadow-[0_18px_50px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 hover:border-[#4d85ad] transition-all">
       {/* App Icon */}
       <img
-        className="w-[82px] h-[82px] sm:w-[120px] sm:h-[120px] rounded-[18px] sm:rounded-[24px] object-cover border border-[#ffb21a]/55 bg-[#02070e]"
+        className="w-16 h-16 sm:w-[88px] sm:h-[88px] rounded-xl sm:rounded-2xl object-cover border border-[#ffb21a]/55 bg-[#02070e]"
         src={app.icon}
         alt={app.name}
         onError={(e) => {
@@ -24,7 +24,7 @@ export const AppCard: React.FC<AppCardProps> = ({ app, onOpenApp, onShare }) => 
       <div className="min-w-0 flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg sm:text-2xl font-bold text-white m-0">
+            <h3 className="text-base sm:text-xl font-bold text-white m-0">
               {app.name}
             </h3>
             <span className="text-[11px] py-1 px-2.5 rounded-full bg-[#0b6b47] text-[#baffdf] font-extrabold tracking-wide">
@@ -37,11 +37,11 @@ export const AppCard: React.FC<AppCardProps> = ({ app, onOpenApp, onShare }) => 
             )}
           </div>
 
-          <div className="text-[#9db0c6] text-xs sm:text-sm my-1.5 sm:my-2.5">
+          <div className="text-[#9db0c6] text-xs sm:text-sm my-1 sm:my-1.5 leading-snug">
             {app.desc}
           </div>
 
-          <div className="flex gap-2.5 sm:gap-3.5 flex-wrap text-[#a9c0d5] text-xs mb-2.5 sm:mb-3.5">
+          <div className="flex gap-1.5 flex-wrap text-[#a9c0d5] text-[11px] sm:text-xs mb-2">
             <span className="bg-[#0b1b2d] px-2 py-0.5 rounded-md border border-[#21425f]/50">
               🏷️ {app.version}
             </span>
@@ -63,7 +63,7 @@ export const AppCard: React.FC<AppCardProps> = ({ app, onOpenApp, onShare }) => 
               download={Boolean(app.apkUrl)}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center justify-center gap-1.5 py-2.5 px-3 sm:px-4 rounded-xl font-extrabold text-xs sm:text-sm text-white cursor-pointer transition-all bg-[#2388ff] hover:bg-[#2388ff]/90 ${!app.apkUrl ? "opacity-50 pointer-events-none" : ""}`}
+              className={`inline-flex items-center justify-center gap-1.5 py-2 px-2 sm:px-3 rounded-lg font-extrabold text-[11px] sm:text-sm text-white cursor-pointer transition-all bg-[#2388ff] hover:bg-[#2388ff]/90 ${!app.apkUrl ? "opacity-50 pointer-events-none" : ""}`}
             >
               ⬇ Download APK
             </a>
@@ -83,7 +83,7 @@ export const AppCard: React.FC<AppCardProps> = ({ app, onOpenApp, onShare }) => 
             </button>
           </div>
 
-          <div className="text-[11px] text-[#7fa0b9] mt-2 truncate">
+          <div className="text-[10px] sm:text-[11px] text-[#7fa0b9] mt-1.5 truncate">
             {app.updatedLabel}
           </div>
         </div>

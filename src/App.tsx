@@ -185,7 +185,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Container */}
-      <main className="max-w-[1120px] w-[calc(100%-28px)] mx-auto flex-1 pb-10">
+      <main className="max-w-[1120px] w-[calc(100%-20px)] sm:w-[calc(100%-28px)] mx-auto flex-1 pb-8">
         <Hero />
 
         {/* Search */}
