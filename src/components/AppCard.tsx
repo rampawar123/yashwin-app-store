@@ -58,6 +58,16 @@ export const AppCard: React.FC<AppCardProps> = ({ app, onOpenApp, onShare }) => 
         <div>
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
 
+            <a
+              href={app.apkUrl || "#"}
+              download={Boolean(app.apkUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center justify-center gap-1.5 py-2.5 px-3 sm:px-4 rounded-xl font-extrabold text-xs sm:text-sm text-white cursor-pointer transition-all bg-[#2388ff] hover:bg-[#2388ff]/90 ${!app.apkUrl ? "opacity-50 pointer-events-none" : ""}`}
+            >
+              ⬇ Download APK
+            </a>
+
             <button
               onClick={() => onOpenApp(app)}
               className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 sm:px-4 rounded-xl font-extrabold text-xs sm:text-sm bg-[#16c784] text-[#06150f] hover:bg-[#16c784]/90 cursor-pointer transition-all"
