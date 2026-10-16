@@ -105,7 +105,7 @@
 
     if (active) {
       const users = getAllRegisteredUsers();
-      if (users.some((u) => u && u.userId === active)) {
+      if (users.some((u) => u && String(u.userId || "").trim() === active)) {
         return active;
       }
       localStorage.removeItem(ACTIVE_USER_KEY);
@@ -119,11 +119,13 @@
     if (!userId) return false;
 
     const users = getAllRegisteredUsers();
-    const exists = users.some((u) => u && u.userId === userId);
+    const normalizedId = String(userId || "").trim();
+    if (!normalizedId) return false;
+    const exists = users.some((u) => u && String(u.userId || "").trim() === normalizedId);
 
     if (!exists) return false;
 
-    localStorage.setItem(ACTIVE_USER_KEY, userId);
+    localStorage.setItem(ACTIVE_USER_KEY, normalizedId);
     localStorage.setItem(LOGIN_KEY, "true");
     return true;
   }

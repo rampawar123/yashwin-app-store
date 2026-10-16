@@ -154,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (photo) { user.photoUrl = photo; user.photo = photo; user.profilePhoto = photo; }
       localStorage.setItem("cricYuva_users_registry", JSON.stringify(users));
       try { window.CricYuvaStorage?.saveRegisteredUsers?.(users); } catch(e) {}
+      try { if (user.userId) window.CricYuvaStorage?.setActiveUserId?.(String(user.userId)); } catch(e) { console.warn("Could not activate local profile:", e); }
     } catch(e) { console.warn("Could not sync active profile directory:", e); }
   }
 
