@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   function syncActiveProfileToRegisteredDirectory() {
     try {
-      const activeId = String(window.CricYuvaStorage?.getActiveUserId?.() || localStorage.getItem("cricYuvaCloudUserId") || "").trim();
+      const activeId = String(localStorage.getItem("cricYuvaCloudUserId") || window.CricYuvaStorage?.getActiveUserId?.() || "").trim();
       const mobile = String(localStorage.getItem("cricYuvaProfileMobile") || localStorage.getItem("cricYuvaMobile") || "").replace(/\D/g, "");
       const playerId = String(localStorage.getItem("cricYuvaPlayerId") || (mobile ? "CY-" + mobile : "")).trim();
       const name = String(localStorage.getItem("cricYuvaProfileName") || "").trim();
@@ -2108,11 +2108,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cloud.user.name) localStorage.setItem("cricYuvaProfileName", cloud.user.name);
         if (cloud.user.playerId) localStorage.setItem("cricYuvaPlayerId", cloud.user.playerId);
         if (window.CricYuvaStorage) {
-          const localUser = window.CricYuvaStorage.getAllRegisteredUsers().find(u => u && u.mobile === mob);
+          const localUser = window.CricYuvaStorage.getAllRegisteredUsers().find(u => u && String(u.mobile || "").replace(/\D/g, "") === mob);
           if (localUser) window.CricYuvaStorage.setActiveUserId(localUser.userId);
         }
         loginOtpModal.style.display = "none";
         loadProfileData();
+        syncActiveProfileToRegisteredDirectory();
         showScreen(isProfileCompleted() ? "screen5" : "screen4");
         hydrateCloudData().finally(() => processPendingInvite());
       } catch (e) {
@@ -2211,6 +2212,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Get all teams saved by the current user.
   function getAllTeams() {
     try {
+      if (typeof syncActiveProfileToRegisteredDirectory === "function") {
+        syncActiveProfileToRegisteredDirectory();
+      }
       const raw = getUserStorage(TEAM_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
