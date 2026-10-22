@@ -1,0 +1,48 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#0B132B">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hi Ram"
+        android:textColor="#FFFFFF"
+        android:textSize="34sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:text="Namaste! Mic dabakar boliye."
+        android:textColor="#B8C7E0"
+        android:textSize="16sp" />
+
+    <ImageButton
+        android:id="@+id/btnMic"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:backgroundTint="#4CC9F0"
+        android:src="@android:drawable/ic_btn_speak_now"
+        android:contentDescription="Voice command microphone"
+        android:scaleType="centerInside" />
+
+    <TextView
+        android:id="@+id/txtResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
+        android:textColor="#4CC9F0"
+        android:textSize="18sp" />
+
+</LinearLayout>
