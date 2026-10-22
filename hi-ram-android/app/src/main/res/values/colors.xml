@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hiram_navy">#0B132B</color>
+    <color name="hiram_blue">#1C2541</color>
+    <color name="hiram_cyan">#4CC9F0</color>
+    <color name="hiram_white">#FFFFFF</color>
+    <color name="hiram_text_muted">#B8C7E0</color>
+</resources>
+
