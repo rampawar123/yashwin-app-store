@@ -1,0 +1,10 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hi Ram</string>
+    <string name="mic_description">Voice command microphone</string>
+    <string name="status_ready">Namaste! Mic dabakar boliye.</string>
+    <string name="status_listening">Sun raha hoon... Boliye!</string>
+    <string name="status_processing">Aapki command samajh raha hoon...</string>
+    <string name="status_error">Dobara koshish karein.</string>
+</resources>
