@@ -1,5 +1,4 @@
 
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,38 +10,39 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hi Ram"
+        android:text="@string/app_name"
         android:textColor="#FFFFFF"
-        android:textSize="34sp"
-        android:textStyle="bold" />
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="40dp" />
 
     <TextView
         android:id="@+id/txtStatus"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="30dp"
+        android:text="@string/status_ready"
+        android:textColor="#8D99AE"
+        android:textSize="16sp"
         android:gravity="center"
-        android:text="Namaste! Mic dabakar boliye."
-        android:textColor="#B8C7E0"
-        android:textSize="16sp" />
+        android:layout_marginBottom="30dp" />
 
     <ImageButton
         android:id="@+id/btnMic"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:backgroundTint="#4CC9F0"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:background="@android:color/transparent"
         android:src="@android:drawable/ic_btn_speak_now"
-        android:contentDescription="Voice command microphone"
-        android:scaleType="centerInside" />
+        android:contentDescription="@string/mic_description"
+        android:scaleType="centerInside"
+        android:layout_marginBottom="30dp" />
 
     <TextView
         android:id="@+id/txtResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:gravity="center"
         android:textColor="#4CC9F0"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:gravity="center"
+        android:padding="16dp" />
 
 </LinearLayout>
