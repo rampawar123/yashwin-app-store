@@ -1,5 +1,4 @@
 
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.HiRam" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">#0B132B</item>
@@ -10,4 +9,3 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>
-
