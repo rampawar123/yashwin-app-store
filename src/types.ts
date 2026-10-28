@@ -5,7 +5,7 @@ export interface AppDefinition {
   desc: string;
   icon: string;
   fallbackIcon: string;
-  openType: 'calculator' | 'cric-yuva' | 'external';
+  openType: 'calculator' | 'cric-yuva' | 'hi-ram' | 'external';
   openUrl?: string;
   apkKeywords: string[];
   defaultApk?: string;

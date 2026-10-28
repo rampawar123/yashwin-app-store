@@ -293,7 +293,7 @@ export const VanshCalculatorModal: React.FC<VanshCalculatorModalProps> = ({
         {/* Logo & Title */}
         <div className="text-center">
           <img
-            src="/yashwin-app-store/calculator-logo.png"
+            src="/calculator-logo.png"
             alt="VANSH CALCULATOR"
             className="w-24 h-24 sm:w-28 sm:h-28 object-cover mx-auto mb-2 rounded-2xl border-2 border-[#ff9800]/40 shadow-md"
             onError={(e) => {

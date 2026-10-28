@@ -1,48 +1,476 @@
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="#0B132B">
+    android:background="@color/hiram_bg_dark"
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textColor="#FFFFFF"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="40dp" />
-
-    <TextView
-        android:id="@+id/txtStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/status_ready"
-        android:textColor="#8D99AE"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginBottom="30dp" />
-
-    <ImageButton
-        android:id="@+id/btnMic"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
-        android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_btn_speak_now"
-        android:contentDescription="@string/mic_description"
-        android:scaleType="centerInside"
-        android:layout_marginBottom="30dp" />
-
-    <TextView
-        android:id="@+id/txtResult"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#4CC9F0"
-        android:textSize="18sp"
-        android:gravity="center"
-        android:padding="16dp" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-</LinearLayout>
+        <!-- Top Header: Robot Icon, Title & Language -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:id="@+id/imgRobotIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_hiram_robot"
+                android:contentDescription="@string/app_name"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_subtitle"
+                    android:textColor="@color/hiram_cyan"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Language Selector Dropdown -->
+            <Spinner
+                android:id="@+id/spinnerLanguage"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_chip"
+                android:dropDownWidth="200dp"
+                android:popupBackground="@color/hiram_card_dark"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+        </LinearLayout>
+
+        <!-- Main Hero Card: Mic, Waveform & Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_card_dark"
+            android:padding="24dp"
+            android:layout_marginBottom="18dp">
+
+            <!-- Status Pill Badge -->
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/status_ready"
+                android:textColor="@color/hiram_cyan"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_chip"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Glowing Mic Button Container -->
+            <FrameLayout
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginBottom="20dp">
+
+                <!-- Outer Glowing Pulse Ring -->
+                <View
+                    android:id="@+id/viewMicRing"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:background="@drawable/bg_mic_glow_ring" />
+
+                <!-- Central Glowing Microphone Button -->
+                <ImageButton
+                    android:id="@+id/btnMic"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_mic_button"
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    android:contentDescription="@string/mic_description"
+                    android:scaleType="centerInside"
+                    app:tint="@color/hiram_white" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wake Phrase: &quot;Hi Ram&quot;"
+                android:textColor="@color/hiram_text_muted"
+                android:textSize="12sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Foreground Service Controls (Start, Pause, Stop) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="14dp">
+
+                <Button
+                    android:id="@+id/btnStartService"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_start_listening"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="11sp"
+                    android:backgroundTint="@color/hiram_blue_accent"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnPauseService"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="0.8"
+                    android:text="@string/btn_pause_listening"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="11sp"
+                    android:backgroundTint="@color/hiram_chip_bg"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnStopService"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="0.8"
+                    android:text="@string/btn_stop_listening"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="11sp"
+                    android:backgroundTint="#B91C1C" />
+            </LinearLayout>
+
+            <!-- Recognized Speech Result & Spoken Feedback -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#0A1527"
+                android:padding="14dp"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Spoken Command:"
+                    android:textColor="@color/hiram_text_muted"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/txtResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Aapki aawaz yahan dikhegi..."
+                    android:textColor="@color/hiram_white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/txtFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hi Ram is ready."
+                    android:textColor="@color/hiram_cyan"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Quick Voice Command Suggestions -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Try Saying:"
+            android:textColor="@color/hiram_text_secondary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/chipYoutube"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_youtube"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chipWhatsapp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_whatsapp"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chipMusic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_music"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chipBattery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_battery"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chipTorch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_torch_on"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chipHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_home"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chipVolume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_volume_up"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_chip" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Accessibility Setup Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_dark"
+            android:padding="16dp"
+            android:layout_marginBottom="18dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/accessibility_title"
+                    android:textColor="@color/hiram_white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtAccessibilityBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INACTIVE"
+                    android:textColor="@color/hiram_amber"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:background="@drawable/bg_chip" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/accessibility_why_needed"
+                android:textColor="@color/hiram_text_secondary"
+                android:textSize="12sp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btnOpenAccessibility"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:text="@string/accessibility_enable_btn"
+                android:textColor="@color/hiram_white"
+                android:textSize="12sp"
+                android:backgroundTint="@color/hiram_card_stroke" />
+        </LinearLayout>
+
+        <!-- Permissions Status Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_dark"
+            android:padding="16dp"
+            android:layout_marginBottom="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Permissions Status"
+                android:textColor="@color/hiram_white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="10dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+                <TextView
+                    android:id="@+id/iconPermAudio"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:text="✓"
+                    android:textColor="@color/hiram_green"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Microphone (Audio)"
+                    android:textColor="@color/hiram_text_primary"
+                    android:textSize="13sp" />
+                <Button
+                    android:id="@+id/btnGrantAudio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Grant"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    android:backgroundTint="@color/hiram_blue_accent" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+                <TextView
+                    android:id="@+id/iconPermContacts"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:text="✓"
+                    android:textColor="@color/hiram_green"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Contacts"
+                    android:textColor="@color/hiram_text_primary"
+                    android:textSize="13sp" />
+                <Button
+                    android:id="@+id/btnGrantContacts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Grant"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    android:backgroundTint="@color/hiram_blue_accent" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/iconPermCamera"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:text="✓"
+                    android:textColor="@color/hiram_green"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Camera &amp; Flashlight"
+                    android:textColor="@color/hiram_text_primary"
+                    android:textSize="13sp" />
+                <Button
+                    android:id="@+id/btnGrantCamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Grant"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    android:backgroundTint="@color/hiram_blue_accent" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Command History Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recent Commands"
+            android:textColor="@color/hiram_white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

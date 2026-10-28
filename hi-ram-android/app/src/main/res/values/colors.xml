@@ -1,9 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="hiram_navy">#0B132B</color>
-    <color name="hiram_blue">#1C2541</color>
-    <color name="hiram_cyan">#4CC9F0</color>
-    <color name="hiram_white">#FFFFFF</color>
-    <color name="hiram_text_muted">#B8C7E0</color>
-</resources>
+    <!-- Hi Ram Dark Blue Theme Palette -->
+    <color name="hiram_bg_dark">#070E1E</color>
+    <color name="hiram_surface">#0D192E</color>
+    <color name="hiram_card_dark">#12233F</color>
+    <color name="hiram_card_stroke">#1F3A66</color>
 
+    <!-- Hi Ram Glowing Accents -->
+    <color name="hiram_cyan">#4CC9F0</color>
+    <color name="hiram_cyan_glow">#404CC9F0</color>
+    <color name="hiram_cyan_pressed">#35AEDB</color>
+    <color name="hiram_blue_primary">#1E6091</color>
+    <color name="hiram_blue_accent">#1688FF</color>
+
+    <!-- Status Indicators -->
+    <color name="hiram_green">#10B981</color>
+    <color name="hiram_green_bg">#1A10B981</color>
+    <color name="hiram_amber">#F59E0B</color>
+    <color name="hiram_amber_bg">#1AF59E0B</color>
+    <color name="hiram_red">#EF4444</color>
+    <color name="hiram_red_bg">#1AEF4444</color>
+
+    <!-- Text & Hierarchy -->
+    <color name="hiram_white">#FFFFFF</color>
+    <color name="hiram_text_primary">#F8FAFC</color>
+    <color name="hiram_text_secondary">#B2C7E5</color>
+    <color name="hiram_text_muted">#6884AB</color>
+
+    <!-- Control States -->
+    <color name="hiram_chip_bg">#152A4A</color>
+    <color name="hiram_divider">#1A3258</color>
+</resources>

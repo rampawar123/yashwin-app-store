@@ -1,0 +1,34 @@
+# Node dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Android build outputs & caches
+.gradle/
+**/build/
+hi-ram-android/.gradle/
+hi-ram-android/app/build/
+hi-ram-android/local.properties
+*.keystore
+*.jks
+
+# Environment & IDE
+.env
+.env.*.local
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

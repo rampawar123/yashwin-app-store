@@ -1,21 +1,18 @@
-
-name: Build Hi Ram Android APK
+name: Build Hi Ram APK (Standalone)
 
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'hi-ram-android/**'
 
 jobs:
   build:
+    name: Build Hi Ram APK
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -24,13 +21,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build debug APK
-        working-directory: hi-ram-android
-        run: gradle assembleDebug
+      - name: Build Debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Hi-Ram-debug-APK
-          path: hi-ram-android/app/build/outputs/apk/debug/app-debug.apk
-          
+          path: app/build/outputs/apk/debug/app-debug.apk

@@ -13,6 +13,7 @@ import { AutoUpdateSection } from './components/AutoUpdateSection';
 import { Footer } from './components/Footer';
 import { VanshCalculatorModal } from './components/VanshCalculatorModal';
 import { CricYuvaModal } from './components/CricYuvaModal';
+import { HiRamModal } from './components/HiRamModal';
 import { Toast } from './components/Toast';
 
 export const App: React.FC = () => {
@@ -33,7 +34,7 @@ export const App: React.FC = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [statusText, setStatusText] = useState('GitHub status: checking latest APK files…');
-  const [activeModal, setActiveModal] = useState<'calculator' | 'cric-yuva' | null>(null);
+  const [activeModal, setActiveModal] = useState<'calculator' | 'cric-yuva' | 'hi-ram' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = useCallback((msg: string) => {
@@ -94,7 +95,9 @@ export const App: React.FC = () => {
     if (app.openType === 'calculator') {
       setActiveModal('calculator');
     } else if (app.openType === 'cric-yuva') {
-      window.location.href = '/yashwin-app-store/cric-yuva-2/index.html'; return;
+      setActiveModal('cric-yuva');
+    } else if (app.openType === 'hi-ram') {
+      setActiveModal('hi-ram');
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       showToast('You are already browsing YASHWIN APP STORE.');
@@ -267,6 +270,13 @@ export const App: React.FC = () => {
       <CricYuvaModal
         isOpen={activeModal === 'cric-yuva'}
         onClose={() => setActiveModal(null)}
+        onShowToast={showToast}
+      />
+
+      <HiRamModal
+        isOpen={activeModal === 'hi-ram'}
+        onClose={() => setActiveModal(null)}
+        apkUrl={catalog.find(app => app.id === 'hi-ram')?.apkUrl}
         onShowToast={showToast}
       />
 

@@ -1,9 +1,75 @@
-
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Hi Ram</string>
-    <string name="mic_description">Voice command microphone</string>
-    <string name="status_ready">Namaste! Mic dabakar boliye.</string>
-    <string name="status_listening">Sun raha hoon... Boliye!</string>
-    <string name="status_processing">Aapki command samajh raha hoon...</string>
-    <string name="status_error">Dobara koshish karein.</string>
+    <string name="app_subtitle">Voice Controlled Mobile Operator</string>
+    <string name="robot_tagline">Namaste! Bol kar phone control karein.</string>
+
+    <!-- Controls -->
+    <string name="mic_description">Hi Ram voice microphone</string>
+    <string name="btn_start_listening">Start Listening</string>
+    <string name="btn_pause_listening">Pause</string>
+    <string name="btn_stop_listening">Stop Service</string>
+
+    <!-- Statuses -->
+    <string name="status_ready">Ready • Say \"Hi Ram\" or tap mic</string>
+    <string name="status_listening">Listening… Speak your command</string>
+    <string name="status_processing">Processing command…</string>
+    <string name="status_speaking">Responding…</string>
+    <string name="status_paused">Paused • Tap Start to resume</string>
+    <string name="status_error">Could not understand. Tap mic to retry.</string>
+
+    <!-- Commands Prompts & Suggestions -->
+    <string name="chip_youtube">YouTube kholo</string>
+    <string name="chip_whatsapp">WhatsApp kholo</string>
+    <string name="chip_music">Music chalao</string>
+    <string name="chip_battery">Battery kitni hai?</string>
+    <string name="chip_torch_on">Flashlight on karo</string>
+    <string name="chip_torch_off">Flashlight off karo</string>
+    <string name="chip_home">Home screen par jao</string>
+    <string name="chip_volume_up">Volume badhao</string>
+    <string name="chip_volume_down">Volume kam karo</string>
+    <string name="chip_notifications">Notification dikhao</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_description">Hi Ram Accessibility Service allows hands-free voice control of your phone: performing Home, Back, Recent Apps, opening notifications, and clicking on-screen buttons only when explicitly commanded by you.</string>
+    <string name="accessibility_title">Android Accessibility Service</string>
+    <string name="accessibility_why_needed">Accessibility permission is needed to navigate Home, Back, open Notifications, and tap screen elements upon your voice command. Hi Ram never collects passwords or monitors your private information.</string>
+    <string name="accessibility_enable_btn">Open Accessibility Settings</string>
+    <string name="accessibility_status_active">Accessibility Active</string>
+    <string name="accessibility_status_inactive">Accessibility Inactive (Tap to Enable)</string>
+
+    <!-- Permissions -->
+    <string name="perm_audio_title">Microphone Access</string>
+    <string name="perm_audio_desc">Required to hear \"Hi Ram\" wake word and process voice commands.</string>
+    <string name="perm_contacts_title">Contacts Access</string>
+    <string name="perm_contacts_desc">Used to search contacts and make phone calls when requested.</string>
+    <string name="perm_camera_title">Camera / Flashlight</string>
+    <string name="perm_camera_desc">Used to turn the flashlight/torch on and off on command.</string>
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_desc">Shows persistent service status while background listening is active.</string>
+
+    <!-- Security & Auth -->
+    <string name="auth_confirm_title">Confirm Sensitive Action</string>
+    <string name="auth_confirm_body">Are you sure you want to proceed with: %1$s?</string>
+    <string name="auth_proceed">Proceed</string>
+    <string name="auth_cancel">Cancel</string>
+    <string name="auth_biometric_prompt_title">Hi Ram Device Authentication</string>
+    <string name="auth_biometric_prompt_desc">Authenticate to confirm sensitive action</string>
+
+    <!-- Notifications -->
+    <string name="channel_voice_name">Hi Ram Background Assistant</string>
+    <string name="channel_voice_desc">Foreground service notification for active voice listening and wake word detection.</string>
+    <string name="notif_listening_active">Hi Ram is listening for \"Hi Ram\"…</string>
+    <string name="notif_action_pause">Pause</string>
+    <string name="notif_action_resume">Resume</string>
+    <string name="notif_action_stop">Stop</string>
+
+    <!-- Language selector -->
+    <string name="lang_hindi">Hindi (हिन्दी)</string>
+    <string name="lang_english_in">English (India)</string>
+    <string name="lang_english_us">English (US)</string>
+    <string name="lang_marathi">Marathi (मराठी)</string>
+    <string name="lang_gujarati">Gujarati (ગુજરાતી)</string>
+    <string name="lang_tamil">Tamil (தமிழ்)</string>
+    <string name="lang_telugu">Telugu (తెలుగు)</string>
 </resources>

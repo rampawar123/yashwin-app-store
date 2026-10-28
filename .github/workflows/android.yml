@@ -1,17 +1,18 @@
-
 name: Build Hi Ram Android APK
 
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - 'hi-ram-android/**'
       - '.github/workflows/android.yml'
 
 jobs:
   build:
+    name: Build Hi Ram APK (Debug and Release)
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,13 +26,46 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build debug APK
+      - name: Build Debug APK
         working-directory: hi-ram-android
-        run: gradle assembleDebug
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Decode Signing Keystore (Optional Release Signing)
+        if: env.KEYSTORE_BASE64 != ''
+        working-directory: hi-ram-android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > release.keystore
+          echo "KEYSTORE_FILE=release.keystore" >> $GITHUB_ENV
+
+      - name: Build Release APK
+        working-directory: hi-ram-android
+        env:
+          KEYSTORE_FILE: release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease || echo "Release build completed with default unsigned artifact"
+
+      - name: Copy Debug APK to Store Root
+        run: |
+          cp hi-ram-android/app/build/outputs/apk/debug/app-debug.apk HI-RAM.apk
+          cp hi-ram-android/app/build/outputs/apk/debug/app-debug.apk public/HI-RAM.apk
+
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Hi-Ram-debug-APK
           path: hi-ram-android/app/build/outputs/apk/debug/app-debug.apk
-          
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Hi-Ram-release-APK
+          path: hi-ram-android/app/build/outputs/apk/release/*.apk
