@@ -47,9 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton btnMic;
     private View viewMicRing;
 
-    private Button btnStartService;
-    private Button btnPauseService;
-    private Button btnStopService;
+    private Button btnToggleService;
     private Button btnOpenAccessibility;
     private TextView txtAccessibilityBadge;
 
@@ -115,9 +113,7 @@ public class MainActivity extends AppCompatActivity {
         btnMic = findViewById(R.id.btnMic);
         viewMicRing = findViewById(R.id.viewMicRing);
 
-        btnStartService = findViewById(R.id.btnStartService);
-        btnPauseService = findViewById(R.id.btnPauseService);
-        btnStopService = findViewById(R.id.btnStopService);
+        btnToggleService = findViewById(R.id.btnToggleService);
         btnOpenAccessibility = findViewById(R.id.btnOpenAccessibility);
         txtAccessibilityBadge = findViewById(R.id.txtAccessibilityBadge);
 
@@ -284,31 +280,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupServiceButtons() {
-        btnStartService.setOnClickListener(v -> {
+        updateBackgroundToggleUI();
+
+        btnToggleService.setOnClickListener(v -> {
             Intent intent = new Intent(this, VoiceAgentService.class);
-            intent.setAction(VoiceAgentService.ACTION_START);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
+
+            if (VoiceAgentService.isRunning()) {
+                intent.setAction(VoiceAgentService.ACTION_STOP);
                 startService(intent);
+                txtStatus.setText("Background listening OFF");
+            } else {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Microphone permission required", Toast.LENGTH_LONG).show();
+                    requestMicrophonePermission();
+                    return;
+                }
+
+                intent.setAction(VoiceAgentService.ACTION_START);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent);
+                } else {
+                    startService(intent);
+                }
+                txtStatus.setText("Background listening ON");
             }
-            Toast.makeText(this, "Hi Ram Background Service started", Toast.LENGTH_SHORT).show();
-        });
 
-        btnPauseService.setOnClickListener(v -> {
-            Intent intent = new Intent(this, VoiceAgentService.class);
-            intent.setAction(VoiceAgentService.ACTION_PAUSE);
-            startService(intent);
-            txtStatus.setText(R.string.status_paused);
+            mainHandler.postDelayed(this::updateBackgroundToggleUI, 700);
         });
+    }
 
-        btnStopService.setOnClickListener(v -> {
-            Intent intent = new Intent(this, VoiceAgentService.class);
-            intent.setAction(VoiceAgentService.ACTION_STOP);
-            startService(intent);
-            txtStatus.setText("Service stopped");
-            Toast.makeText(this, "Hi Ram Service stopped", Toast.LENGTH_SHORT).show();
-        });
+    private void updateBackgroundToggleUI() {
+        boolean running = VoiceAgentService.isRunning();
+        btnToggleService.setText(running
+                ? "Background ON • Tap to turn OFF"
+                : "Background OFF • Tap to turn ON");
+        btnToggleService.setBackgroundTintList(
+                ContextCompat.getColorStateList(this,
+                        running ? R.color.hiram_green : R.color.hiram_blue_accent));
     }
 
     private void checkPermissionsAndListen() {
@@ -488,6 +497,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         updatePermissionsUI();
         updateAccessibilityUI();
+        updateBackgroundToggleUI();
 
         IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORD);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

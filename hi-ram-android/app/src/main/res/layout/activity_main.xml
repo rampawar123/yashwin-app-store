@@ -129,36 +129,13 @@
                 android:layout_marginBottom="14dp">
 
                 <Button
-                    android:id="@+id/btnStartService"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:text="@string/btn_start_listening"
-                    android:textColor="@color/hiram_white"
-                    android:textSize="11sp"
-                    android:backgroundTint="@color/hiram_blue_accent"
-                    android:layout_marginEnd="6dp" />
-
-                <Button
-                    android:id="@+id/btnPauseService"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="0.8"
-                    android:text="@string/btn_pause_listening"
-                    android:textColor="@color/hiram_white"
-                    android:textSize="11sp"
-                    android:backgroundTint="@color/hiram_chip_bg"
-                    android:layout_marginEnd="6dp" />
-
-                <Button
-                    android:id="@+id/btnStopService"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="0.8"
-                    android:text="@string/btn_stop_listening"
-                    android:textColor="@color/hiram_white"
-                    android:textSize="11sp"
-                    android:backgroundTint="#B91C1C" />
+    android:id="@+id/btnToggleService"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:text="Background OFF • Tap to turn ON"
+    android:textColor="@color/hiram_white"
+    android:textSize="14sp"
+    android:backgroundTint="@color/hiram_blue_accent" />
             </LinearLayout>
 
             <!-- Recognized Speech Result & Spoken Feedback -->
