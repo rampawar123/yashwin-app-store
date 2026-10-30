@@ -18,11 +18,11 @@ export const CricYuvaModal: React.FC<CricYuvaModalProps> = ({
       <div className="bg-[#121620] border-b border-[#ff5a00]/40 px-4 py-2.5 flex items-center justify-between text-white shrink-0">
         <div className="flex items-center gap-3">
           <img
-            src="/cric-yuva-2/cric-yuva-logo.png"
+            src={`${import.meta.env.BASE_URL}cric-yuva-2/cric-yuva-logo.png`}
             alt="CRIC YUVA"
             className="w-7 h-7 rounded-full border border-[#ff5a00] object-cover"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = '/icon-512.png';
+              (e.currentTarget as HTMLImageElement).src = `${import.meta.env.BASE_URL}icon-512.png`;
             }}
           />
           <div>
@@ -37,7 +37,7 @@ export const CricYuvaModal: React.FC<CricYuvaModalProps> = ({
 
         <div className="flex items-center gap-2.5">
           <a
-            href="/cric-yuva-2/index.html"
+            href={`${import.meta.env.BASE_URL}cric-yuva-2/index.html`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-1 rounded-lg bg-[#1f293d] hover:bg-[#ff5a00] hover:text-black text-xs font-bold text-gray-200 border border-[#3b4c6e] transition-colors"
@@ -56,7 +56,7 @@ export const CricYuvaModal: React.FC<CricYuvaModalProps> = ({
 
       {/* Original Cric Yuva App Loaded Directly */}
       <iframe
-        src="/cric-yuva-2/index.html"
+        src={`${import.meta.env.BASE_URL}cric-yuva-2/index.html`}
         className="w-full flex-1 border-0 bg-[#0b0f19]"
         title="CRIC YUVA - Original Application"
       />

@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex min-h-[96px] items-center gap-2 py-3 sm:min-h-[112px] sm:gap-5">
           <img
             className="h-[62px] w-[62px] shrink-0 rounded-2xl border border-[#ffb21a] object-cover shadow-[0_0_20px_rgba(255,178,26,0.22)] sm:h-[78px] sm:w-[78px]"
-            src="/icon-512.png"
+            src={`${import.meta.env.BASE_URL}icon-512.png`}
             alt="YASHWIN APP STORE"
           />
 

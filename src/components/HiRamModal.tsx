@@ -11,7 +11,7 @@ interface HiRamModalProps {
 export const HiRamModal: React.FC<HiRamModalProps> = ({
   isOpen,
   onClose,
-  apkUrl = '/HI-RAM.apk',
+  apkUrl = `${import.meta.env.BASE_URL}HI-RAM.apk`,
   onShowToast,
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'commands' | 'setup' | 'security'>('overview');
@@ -45,7 +45,7 @@ export const HiRamModal: React.FC<HiRamModalProps> = ({
         <div className="flex items-center justify-between border-b border-[#1f3a66] bg-[#0d192e] px-5 py-4">
           <div className="flex items-center gap-3">
             <img
-              src="/icon-512.png"
+              src={`${import.meta.env.BASE_URL}icon-512.png`}
               alt="Hi Ram Robot"
               className="h-10 w-10 rounded-xl border border-[#4cc9f0] object-cover shadow-[0_0_12px_rgba(76,201,240,0.3)]"
             />

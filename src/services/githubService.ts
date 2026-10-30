@@ -16,41 +16,41 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     name: 'VANSH CALCULATOR',
     keys: ['vansh', 'calculator'],
     desc: 'Fast • Simple • Accurate calculation suite with history & saved maths',
-    icon: '/calculator-logo.png',
-    fallbackIcon: '/icon-512.png',
+    icon: `${import.meta.env.BASE_URL}calculator-logo.png`,
+    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
     openType: 'calculator',
     apkKeywords: ['vansh', 'calculator'],
-    defaultApk: '/VANSH-CALCULATOR.apk'
+    defaultApk: `${import.meta.env.BASE_URL}VANSH-CALCULATOR.apk`
   },
   {
     id: 'cric-yuva',
     name: 'CRIC YUVA',
     keys: ['cric-yuva', 'cric yuva', 'cric', 'cricket', 'yuva'],
     desc: 'Live Cricket Score • Teams • Match ID • Scorecard • Real-time stats',
-    icon: '/cric-yuva-2-logo.png',
-    fallbackIcon: '/icon-512.png',
+    icon: `${import.meta.env.BASE_URL}cric-yuva-2-logo.png`,
+    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
     openType: 'cric-yuva',
     apkKeywords: ['cric-yuva-2', 'cric yuva', 'cric', 'yuva'],
-    defaultApk: '/CRIC-YUVA.apk'
+    defaultApk: `${import.meta.env.BASE_URL}CRIC-YUVA.apk`
   },
   {
     id: 'hi-ram',
     name: 'HI RAM',
     keys: ['hi-ram', 'hi ram', 'hiram'],
     desc: 'Voice Controlled Android Assistant • Hindi Voice Commands • User-controlled Accessibility',
-    icon: '/icon-512.png',
-    fallbackIcon: '/icon-512.png',
+    icon: `${import.meta.env.BASE_URL}icon-512.png`,
+    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
     openType: 'hi-ram',
     apkKeywords: ['hi-ram', 'hiram'],
-    defaultApk: '/HI-RAM.apk'
+    defaultApk: `${import.meta.env.BASE_URL}HI-RAM.apk`
   },
   {
     id: 'store',
     name: 'YASHWIN APP STORE',
     keys: ['yashwin', 'store'],
     desc: 'Your App Hub • Direct APK Downloads • Always Updated from GitHub',
-    icon: '/icon-512.png',
-    fallbackIcon: '/icon-512.png',
+    icon: `${import.meta.env.BASE_URL}icon-512.png`,
+    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
     openType: 'external',
     apkKeywords: ['app-release-signed'],
     defaultApk: '/app-release-signed.apk'
