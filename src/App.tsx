@@ -140,7 +140,7 @@ export const App: React.FC = () => {
   };
 
   const handleShare = async (app: CatalogApp) => {
-    const url = app.apkUrl ? `${window.location.origin}${app.apkUrl}` : window.location.href;
+    const url = 'https://rampawar123.github.io/yashwin-app-store/';
     const title = `${app.name} - YASHWIN APP STORE`;
     const text = `Check out ${app.name} on YASHWIN APP STORE: ${app.desc}`;
 
