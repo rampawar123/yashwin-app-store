@@ -38,8 +38,8 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     name: 'HI RAM',
     keys: ['hi-ram', 'hi ram', 'hiram'],
     desc: 'Voice Controlled Android Assistant • Hindi Voice Commands • User-controlled Accessibility',
-    icon: `${import.meta.env.BASE_URL}icon-512.png`,
-    fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
+    icon: `${import.meta.env.BASE_URL}hi-ram-android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`,
+    fallbackIcon: `${import.meta.env.BASE_URL}hi-ram-android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`,
     openType: 'hi-ram',
     apkKeywords: ['hi-ram', 'hiram'],
     defaultApk: `${import.meta.env.BASE_URL}HI-RAM.apk`
