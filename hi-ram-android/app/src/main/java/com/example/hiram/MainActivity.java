@@ -479,5 +479,6 @@ public class MainActivity extends AppCompatActivity {
     private void requestMicrophonePermission() {
         multiplePermissionsLauncher.launch(new String[]{Manifest.permission.RECORD_AUDIO});
     }
-}    
+  }   
+}
 
