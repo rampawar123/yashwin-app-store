@@ -363,7 +363,6 @@ public class MainActivity extends AppCompatActivity {
         VoiceCommandProcessor.CommandResult result = commandProcessor.executeCommand(spokenText);
 
         if (result.requiresConfirmation) {
-            // Confirm sensitive action via dialog or device auth
             new AlertDialog.Builder(this)
                     .setTitle(R.string.auth_confirm_title)
                     .setMessage(result.feedbackMessage)
@@ -478,52 +477,57 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestMicrophonePermission() {
-        multiplePermissionsLauncher.launch(new String[]{
-                Manifest.permission.RECORD_AUDIO,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ? Manifest.permission.POST_NOTIFICATIONS : Manifest.permission.RECORD_AUDIO
-        });
+        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.RECORD_AUDIO});
     }
 
     private void requestContactsPermission() {
-        multiplePermissionsLauncher.launch(new String[]{ Manifest.permission.READ_CONTACTS, Manifest.permission.CALL_PHONE });
+        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.READ_CONTACTS});
     }
 
     private void requestCameraPermission() {
-        multiplePermissionsLauncher.launch(new String[]{ Manifest.permission.CAMERA });
+        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.CAMERA});
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updatePermissionsUI();
         updateAccessibilityUI();
-        updateBackgroundToggleUI();
-
-        IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORD);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(wakeWordReceiver, filter);
+        updatePermissionsUI();
+        
+        try {
+            IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORDS);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(wakeWordReceiver, filter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
         try {
             unregisterReceiver(wakeWordReceiver);
-        } catch (Exception ignored) {}
-        super.onPause();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         if (speechRecognizer != null) {
-            speechRecognizer.destroy();
-            speechRecognizer = null;
+            try {
+                speechRecognizer.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (ttsManager != null) {
             ttsManager.shutdown();
         }
-        super.onDestroy();
     }
 }
