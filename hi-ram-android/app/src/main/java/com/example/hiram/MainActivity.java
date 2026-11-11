@@ -1,4 +1,4 @@
-package com.example.hiram;
+   package com.example.hiram;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -479,6 +479,55 @@ public class MainActivity extends AppCompatActivity {
     private void requestMicrophonePermission() {
         multiplePermissionsLauncher.launch(new String[]{Manifest.permission.RECORD_AUDIO});
     }
-  }   
-}
 
+    private void requestContactsPermission() {
+        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.READ_CONTACTS});
+    }
+
+    private void requestCameraPermission() {
+        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.CAMERA});
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateAccessibilityUI();
+        updatePermissionsUI();
+
+        try {
+            IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORD);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(wakeWordReceiver, filter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            unregisterReceiver(wakeWordReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (speechRecognizer != null) {
+            try {
+                speechRecognizer.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (ttsManager != null) {
+            ttsManager.shutdown();
+        }
+    }
+}
