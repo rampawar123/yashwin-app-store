@@ -41,28 +41,22 @@
         android:textColor="#B0BEC5"
         android:textSize="14sp" />
 
-    <!-- Center Mic Animation & Button Area -->
+    <!-- Center Mic Button Area -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <View
-            android:id="@+id/viewMicRing"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            android:layout_gravity="center"
-            android:background="@drawable/mic_ring_background" />
+        android:layout_weight="1"
+        android:gravity="center">
 
         <Button
             android:id="@+id/btnMic"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_gravity="center"
             android:backgroundTint="#00E5FF"
-            android:contentDescription="Microphone Button"
             android:text="MIC"
             android:textColor="#121212"
+            android:textSize="22sp"
             android:textStyle="bold" />
     </FrameLayout>
 
