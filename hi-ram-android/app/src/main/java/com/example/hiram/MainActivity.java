@@ -14,9 +14,6 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -44,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtResult;
     private TextView txtFeedback;
     private Button btnMic;
-    private View viewMicRing;
 
     private Button btnToggleService;
     private Button btnOpenAccessibility;
@@ -103,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         txtResult = findViewById(R.id.txtResult);
         txtFeedback = findViewById(R.id.txtFeedback);
         btnMic = findViewById(R.id.btnMic);
-        viewMicRing = findViewById(R.id.viewMicRing);
 
         btnToggleService = findViewById(R.id.btnToggleService);
         btnOpenAccessibility = findViewById(R.id.btnOpenAccessibility);
@@ -154,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
                 isListening = true;
                 txtStatus.setText(R.string.status_listening);
                 txtStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.hiram_cyan));
-                startMicAnimation();
             }
 
             @Override
@@ -172,13 +166,11 @@ public class MainActivity extends AppCompatActivity {
             public void onEndOfSpeech() {
                 txtStatus.setText(R.string.status_processing);
                 txtStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.hiram_amber));
-                stopMicAnimation();
             }
 
             @Override
             public void onError(int error) {
                 isListening = false;
-                stopMicAnimation();
                 String errorMsg = getSpeechErrorMessage(error);
                 txtStatus.setText(errorMsg);
                 txtStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.hiram_red));
@@ -187,8 +179,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResults(Bundle results) {
                 isListening = false;
-                stopMicAnimation();
-
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
                     String recognizedText = matches.get(0);
@@ -327,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             txtStatus.setText("Error starting listener: " + e.getMessage());
             isListening = false;
-            stopMicAnimation();
         }
     }
 
@@ -336,7 +325,6 @@ public class MainActivity extends AppCompatActivity {
             speechRecognizer.stopListening();
         }
         isListening = false;
-        stopMicAnimation();
         txtStatus.setText(R.string.status_ready);
     }
 
@@ -400,25 +388,6 @@ public class MainActivity extends AppCompatActivity {
         processCommand(command);
     }
 
-    private void startMicAnimation() {
-        ScaleAnimation scale = new ScaleAnimation(1.0f, 1.25f, 1.0f, 1.25f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scale.setDuration(700);
-        scale.setRepeatCount(Animation.INFINITE);
-        scale.setRepeatMode(Animation.REVERSE);
-
-        AlphaAnimation alpha = new AlphaAnimation(0.3f, 0.9f);
-        alpha.setDuration(700);
-        alpha.setRepeatCount(Animation.INFINITE);
-        alpha.setRepeatMode(Animation.REVERSE);
-
-        viewMicRing.startAnimation(scale);
-    }
-
-    private void stopMicAnimation() {
-        viewMicRing.clearAnimation();
-    }
-
     private String getSpeechErrorMessage(int error) {
         switch (error) {
             case SpeechRecognizer.ERROR_AUDIO: return "Audio recording error.";
@@ -433,9 +402,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updatePermissionsUI() {
-        // Permissions UI handling if needed
-    }
+    private void updatePermissionsUI() {}
 
     private void updateAccessibilityUI() {
         boolean active = MyAccessibilityService.isRunning();
