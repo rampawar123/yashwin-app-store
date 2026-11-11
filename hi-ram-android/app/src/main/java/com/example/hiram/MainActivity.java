@@ -1,4 +1,4 @@
-   package com.example.hiram;
+      package com.example.hiram;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -20,7 +20,6 @@ import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,19 +43,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtStatus;
     private TextView txtResult;
     private TextView txtFeedback;
-    private ImageButton btnMic;
+    private Button btnMic;
     private View viewMicRing;
 
     private Button btnToggleService;
     private Button btnOpenAccessibility;
     private TextView txtAccessibilityBadge;
-
-    private TextView iconPermAudio;
-    private TextView iconPermContacts;
-    private TextView iconPermCamera;
-    private Button btnGrantAudio;
-    private Button btnGrantContacts;
-    private Button btnGrantCamera;
 
     private Spinner spinnerLanguage;
     private RecyclerView recyclerHistory;
@@ -117,13 +109,6 @@ public class MainActivity extends AppCompatActivity {
         btnOpenAccessibility = findViewById(R.id.btnOpenAccessibility);
         txtAccessibilityBadge = findViewById(R.id.txtAccessibilityBadge);
 
-        iconPermAudio = findViewById(R.id.iconPermAudio);
-        iconPermContacts = findViewById(R.id.iconPermContacts);
-        iconPermCamera = findViewById(R.id.iconPermCamera);
-        btnGrantAudio = findViewById(R.id.btnGrantAudio);
-        btnGrantContacts = findViewById(R.id.btnGrantContacts);
-        btnGrantCamera = findViewById(R.id.btnGrantCamera);
-
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         recyclerHistory = findViewById(R.id.recyclerHistory);
 
@@ -140,10 +125,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnOpenAccessibility.setOnClickListener(v -> appLauncher.openAccessibilitySettings());
-
-        btnGrantAudio.setOnClickListener(v -> requestMicrophonePermission());
-        btnGrantContacts.setOnClickListener(v -> requestContactsPermission());
-        btnGrantCamera.setOnClickListener(v -> requestCameraPermission());
     }
 
     private void initComponents() {
@@ -453,21 +434,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updatePermissionsUI() {
-        boolean hasAudio = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-        boolean hasContacts = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
-        boolean hasCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-
-        iconPermAudio.setText(hasAudio ? "✓" : "✕");
-        iconPermAudio.setTextColor(ContextCompat.getColor(this, hasAudio ? R.color.hiram_green : R.color.hiram_red));
-        btnGrantAudio.setVisibility(hasAudio ? View.GONE : View.VISIBLE);
-
-        iconPermContacts.setText(hasContacts ? "✓" : "✕");
-        iconPermContacts.setTextColor(ContextCompat.getColor(this, hasContacts ? R.color.hiram_green : R.color.hiram_red));
-        btnGrantContacts.setVisibility(hasContacts ? View.GONE : View.VISIBLE);
-
-        iconPermCamera.setText(hasCamera ? "✓" : "✕");
-        iconPermCamera.setTextColor(ContextCompat.getColor(this, hasCamera ? R.color.hiram_green : R.color.hiram_red));
-        btnGrantCamera.setVisibility(hasCamera ? View.GONE : View.VISIBLE);
+        // Permissions UI handling if needed
     }
 
     private void updateAccessibilityUI() {
@@ -478,14 +445,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestMicrophonePermission() {
         multiplePermissionsLauncher.launch(new String[]{Manifest.permission.RECORD_AUDIO});
-    }
-
-    private void requestContactsPermission() {
-        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.READ_CONTACTS});
-    }
-
-    private void requestCameraPermission() {
-        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.CAMERA});
     }
 
     @Override
