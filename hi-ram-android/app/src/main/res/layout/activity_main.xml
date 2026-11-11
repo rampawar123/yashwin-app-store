@@ -54,14 +54,16 @@
             android:layout_gravity="center"
             android:background="@drawable/mic_ring_background" />
 
-        <ImageButton
+        <Button
             android:id="@+id/btnMic"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_gravity="center"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:backgroundTint="#00E5FF"
             android:contentDescription="Microphone Button"
-            android:src="@drawable/ic_mic" />
+            android:text="MIC"
+            android:textColor="#121212"
+            android:textStyle="bold" />
     </FrameLayout>
 
     <!-- Voice Result & Feedback -->
