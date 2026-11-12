@@ -40,7 +40,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        // We do not record or monitor background screen events to uphold user privacy.
+        // Privacy safeguard: Background screen events ko record ya monitor nahi kiya jata.
     }
 
     @Override
@@ -87,7 +87,10 @@ public class MyAccessibilityService extends AccessibilityService {
      * Opens Android Quick Settings.
      */
     public boolean openQuickSettings() {
-        return performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS);
+        }
+        return false;
     }
 
     /**
@@ -120,7 +123,9 @@ public class MyAccessibilityService extends AccessibilityService {
             if (nodes != null && !nodes.isEmpty()) {
                 for (AccessibilityNodeInfo node : nodes) {
                     if (node != null) {
-                        if (performClickOnNodeOrAncestor(node)) {
+                        boolean clicked = performClickOnNodeOrAncestor(node);
+                        node.recycle();
+                        if (clicked) {
                             return true;
                         }
                     }
@@ -166,7 +171,8 @@ public class MyAccessibilityService extends AccessibilityService {
         AccessibilityNodeInfo current = node;
         while (current != null) {
             if (current.isClickable()) {
-                return current.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                boolean success = current.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if (success) return true;
             }
             AccessibilityNodeInfo parent = current.getParent();
             if (current != node) {
