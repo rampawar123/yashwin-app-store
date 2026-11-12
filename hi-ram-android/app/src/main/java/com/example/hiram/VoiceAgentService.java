@@ -1,4 +1,4 @@
-package com.yashwin.appstore; // Apna exact package name ensure kar lein
+package com.example.hiram;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -7,22 +7,26 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 public class VoiceAgentService extends Service {
 
+    private static final String TAG = "VoiceAgentService";
     public static final String CHANNEL_ID = "VoiceAgentServiceChannel";
     public static final int NOTIFICATION_ID = 1001;
+
+    private VoiceCommandProcessor commandProcessor;
 
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        commandProcessor = new VoiceCommandProcessor(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Foreground notification jo Android requirements ke mutabiq service ko alive rakhega
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Hi Ram Assistant Active")
                 .setContentText("Aapki voice commands sun raha hoon...")
@@ -32,15 +36,21 @@ public class VoiceAgentService extends Service {
                 .build();
 
         startForeground(NOTIFICATION_ID, notification);
-
-        // Background listening / speech processing logic yahan start hoga
         startListeningService();
 
         return START_STICKY;
     }
 
     private void startListeningService() {
-        // TODO: Yahan hum SpeechRecognizer / Voice processing logic jodenge
+        Log.d(TAG, "Voice Agent Service successfully started.");
+    }
+
+    public void processIncomingVoiceCommand(String spokenText) {
+        if (commandProcessor != null && spokenText != null && !spokenText.trim().isEmpty()) {
+            VoiceCommandProcessor.CommandResult result = commandProcessor.executeCommand(spokenText);
+            Log.d(TAG, "Action: " + result.action + " | Success: " + result.success);
+            Log.d(TAG, "Feedback: " + result.feedbackMessage);
+        }
     }
 
     @Override
@@ -65,5 +75,6 @@ public class VoiceAgentService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "Voice Agent Service destroyed.");
     }
 }
