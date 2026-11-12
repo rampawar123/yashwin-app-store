@@ -36,20 +36,13 @@ public class VoiceAgentService extends Service {
                 .build();
 
         startForeground(NOTIFICATION_ID, notification);
-        startListeningService();
-
         return START_STICKY;
-    }
-
-    private void startListeningService() {
-        Log.d(TAG, "Voice Agent Service successfully started.");
     }
 
     public void processIncomingVoiceCommand(String spokenText) {
         if (commandProcessor != null && spokenText != null && !spokenText.trim().isEmpty()) {
             VoiceCommandProcessor.CommandResult result = commandProcessor.executeCommand(spokenText);
-            Log.d(TAG, "Action: " + result.action + " | Success: " + result.success);
-            Log.d(TAG, "Feedback: " + result.feedbackMessage);
+            Log.d(TAG, "Action: " + result.action + " | Feedback: " + result.feedbackMessage);
         }
     }
 
@@ -70,11 +63,5 @@ public class VoiceAgentService extends Service {
                 manager.createNotificationChannel(serviceChannel);
             }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "Voice Agent Service destroyed.");
     }
 }
