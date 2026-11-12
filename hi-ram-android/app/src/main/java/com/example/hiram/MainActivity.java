@@ -425,8 +425,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.chipVolume).setOnClickListener(
                 v -> simulateCommand("Volume badhao")
         );
-            }
-        
+    }
+
+    
     private void setupServiceButtons() {
 
         updateBackgroundToggleUI();
@@ -963,3 +964,5 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 }
+
+   
