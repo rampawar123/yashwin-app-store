@@ -9,9 +9,6 @@ on:
       - 'hi-ram-android/**'
       - '.github/workflows/android.yml'
 
-permissions:
-  contents: read
-
 jobs:
   build:
     name: Build Hi Ram APK
@@ -27,11 +24,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
+        with:
+          accept-android-sdk-licenses: 'true'
+          log-accepted-android-sdk-licenses: 'false'
+          packages: ''
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -40,11 +38,11 @@ jobs:
         working-directory: hi-ram-android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon clean assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Hi-Ram-debug-APK
           path: hi-ram-android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
+          
