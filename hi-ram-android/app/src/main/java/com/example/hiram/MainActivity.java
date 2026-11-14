@@ -14,13 +14,9 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,19 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtStatus;
     private TextView txtResult;
     private TextView txtFeedback;
-    private ImageButton btnMic;
-    private View viewMicRing;
+    private Button btnMic;
 
     private Button btnToggleService;
     private Button btnOpenAccessibility;
     private TextView txtAccessibilityBadge;
-
-    private TextView iconPermAudio;
-    private TextView iconPermContacts;
-    private TextView iconPermCamera;
-    private Button btnGrantAudio;
-    private Button btnGrantContacts;
-    private Button btnGrantCamera;
 
     private Spinner spinnerLanguage;
     private RecyclerView recyclerHistory;
@@ -111,18 +99,10 @@ public class MainActivity extends AppCompatActivity {
         txtResult = findViewById(R.id.txtResult);
         txtFeedback = findViewById(R.id.txtFeedback);
         btnMic = findViewById(R.id.btnMic);
-        viewMicRing = findViewById(R.id.viewMicRing);
 
         btnToggleService = findViewById(R.id.btnToggleService);
         btnOpenAccessibility = findViewById(R.id.btnOpenAccessibility);
         txtAccessibilityBadge = findViewById(R.id.txtAccessibilityBadge);
-
-        iconPermAudio = findViewById(R.id.iconPermAudio);
-        iconPermContacts = findViewById(R.id.iconPermContacts);
-        iconPermCamera = findViewById(R.id.iconPermCamera);
-        btnGrantAudio = findViewById(R.id.btnGrantAudio);
-        btnGrantContacts = findViewById(R.id.btnGrantContacts);
-        btnGrantCamera = findViewById(R.id.btnGrantCamera);
 
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         recyclerHistory = findViewById(R.id.recyclerHistory);
@@ -140,10 +120,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnOpenAccessibility.setOnClickListener(v -> appLauncher.openAccessibilitySettings());
-
-        btnGrantAudio.setOnClickListener(v -> requestMicrophonePermission());
-        btnGrantContacts.setOnClickListener(v -> requestContactsPermission());
-        btnGrantCamera.setOnClickListener(v -> requestCameraPermission());
     }
 
     private void initComponents() {
@@ -173,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
                 isListening = true;
                 txtStatus.setText(R.string.status_listening);
                 txtStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.hiram_cyan));
-                startMicAnimation();
             }
 
             @Override
@@ -191,13 +166,11 @@ public class MainActivity extends AppCompatActivity {
             public void onEndOfSpeech() {
                 txtStatus.setText(R.string.status_processing);
                 txtStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.hiram_amber));
-                stopMicAnimation();
             }
 
             @Override
             public void onError(int error) {
                 isListening = false;
-                stopMicAnimation();
                 String errorMsg = getSpeechErrorMessage(error);
                 txtStatus.setText(errorMsg);
                 txtStatus.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.hiram_red));
@@ -206,8 +179,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResults(Bundle results) {
                 isListening = false;
-                stopMicAnimation();
-
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty()) {
                     String recognizedText = matches.get(0);
@@ -346,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             txtStatus.setText("Error starting listener: " + e.getMessage());
             isListening = false;
-            stopMicAnimation();
         }
     }
 
@@ -355,7 +325,6 @@ public class MainActivity extends AppCompatActivity {
             speechRecognizer.stopListening();
         }
         isListening = false;
-        stopMicAnimation();
         txtStatus.setText(R.string.status_ready);
     }
 
@@ -363,7 +332,6 @@ public class MainActivity extends AppCompatActivity {
         VoiceCommandProcessor.CommandResult result = commandProcessor.executeCommand(spokenText);
 
         if (result.requiresConfirmation) {
-            // Confirm sensitive action via dialog or device auth
             new AlertDialog.Builder(this)
                     .setTitle(R.string.auth_confirm_title)
                     .setMessage(result.feedbackMessage)
@@ -420,25 +388,6 @@ public class MainActivity extends AppCompatActivity {
         processCommand(command);
     }
 
-    private void startMicAnimation() {
-        ScaleAnimation scale = new ScaleAnimation(1.0f, 1.25f, 1.0f, 1.25f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        scale.setDuration(700);
-        scale.setRepeatCount(Animation.INFINITE);
-        scale.setRepeatMode(Animation.REVERSE);
-
-        AlphaAnimation alpha = new AlphaAnimation(0.3f, 0.9f);
-        alpha.setDuration(700);
-        alpha.setRepeatCount(Animation.INFINITE);
-        alpha.setRepeatMode(Animation.REVERSE);
-
-        viewMicRing.startAnimation(scale);
-    }
-
-    private void stopMicAnimation() {
-        viewMicRing.clearAnimation();
-    }
-
     private String getSpeechErrorMessage(int error) {
         switch (error) {
             case SpeechRecognizer.ERROR_AUDIO: return "Audio recording error.";
@@ -453,23 +402,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updatePermissionsUI() {
-        boolean hasAudio = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-        boolean hasContacts = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
-        boolean hasCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-
-        iconPermAudio.setText(hasAudio ? "✓" : "✕");
-        iconPermAudio.setTextColor(ContextCompat.getColor(this, hasAudio ? R.color.hiram_green : R.color.hiram_red));
-        btnGrantAudio.setVisibility(hasAudio ? View.GONE : View.VISIBLE);
-
-        iconPermContacts.setText(hasContacts ? "✓" : "✕");
-        iconPermContacts.setTextColor(ContextCompat.getColor(this, hasContacts ? R.color.hiram_green : R.color.hiram_red));
-        btnGrantContacts.setVisibility(hasContacts ? View.GONE : View.VISIBLE);
-
-        iconPermCamera.setText(hasCamera ? "✓" : "✕");
-        iconPermCamera.setTextColor(ContextCompat.getColor(this, hasCamera ? R.color.hiram_green : R.color.hiram_red));
-        btnGrantCamera.setVisibility(hasCamera ? View.GONE : View.VISIBLE);
-    }
+    private void updatePermissionsUI() {}
 
     private void updateAccessibilityUI() {
         boolean active = MyAccessibilityService.isRunning();
@@ -478,52 +411,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestMicrophonePermission() {
-        multiplePermissionsLauncher.launch(new String[]{
-                Manifest.permission.RECORD_AUDIO,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ? Manifest.permission.POST_NOTIFICATIONS : Manifest.permission.RECORD_AUDIO
-        });
-    }
-
-    private void requestContactsPermission() {
-        multiplePermissionsLauncher.launch(new String[]{ Manifest.permission.READ_CONTACTS, Manifest.permission.CALL_PHONE });
-    }
-
-    private void requestCameraPermission() {
-        multiplePermissionsLauncher.launch(new String[]{ Manifest.permission.CAMERA });
+        multiplePermissionsLauncher.launch(new String[]{Manifest.permission.RECORD_AUDIO});
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updatePermissionsUI();
         updateAccessibilityUI();
-        updateBackgroundToggleUI();
+        updatePermissionsUI();
 
-        IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORD);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(wakeWordReceiver, filter);
+        try {
+            IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORD);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(wakeWordReceiver, filter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
         try {
             unregisterReceiver(wakeWordReceiver);
-        } catch (Exception ignored) {}
-        super.onPause();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         if (speechRecognizer != null) {
-            speechRecognizer.destroy();
-            speechRecognizer = null;
+            try {
+                speechRecognizer.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (ttsManager != null) {
             ttsManager.shutdown();
         }
-        super.onDestroy();
     }
-}
+    }
