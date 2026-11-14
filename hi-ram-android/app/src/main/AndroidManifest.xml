@@ -70,6 +70,10 @@
             android:foregroundServiceType="microphone" />
 
         <service
+            android:name=".FloatingBubbleService"
+            android:exported="false" />
+
+        <service
             android:name=".MyAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true">

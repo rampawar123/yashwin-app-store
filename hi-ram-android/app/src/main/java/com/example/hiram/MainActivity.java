@@ -468,6 +468,16 @@ public class MainActivity extends AppCompatActivity {
         updateAccessibilityUI();
         updatePermissionsUI();
 
+        // Show Hi Ram floating bubble when overlay permission is available.
+        if (hasOverlayPermission()) {
+            try {
+                startService(new Intent(this, FloatingBubbleService.class));
+            } catch (RuntimeException e) {
+                Toast.makeText(this, "Floating bubble could not start",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+
         if (pendingStartAfterOverlay) {
             pendingStartAfterOverlay = false;
 
