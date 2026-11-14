@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.net.Uri;
+import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -59,12 +61,35 @@ public class MainActivity extends AppCompatActivity {
 
     private String selectedLanguageCode = "hi-IN";
     private boolean isListening = false;
+    private boolean pendingStartAfterOverlay = false;
+    private boolean pendingStartAfterMicPermission = false;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private final ActivityResultLauncher<String[]> multiplePermissionsLauncher =
             registerForActivityResult(
                     new ActivityResultContracts.RequestMultiplePermissions(),
-                    resultMap -> updatePermissionsUI());
+                    resultMap -> {
+                        updatePermissionsUI();
+
+                        if (pendingStartAfterMicPermission) {
+                            pendingStartAfterMicPermission = false;
+
+                            boolean micGranted = Boolean.TRUE.equals(
+                                    resultMap.get(Manifest.permission.RECORD_AUDIO));
+
+                            if (micGranted) {
+                                if (!hasOverlayPermission()) {
+                                    pendingStartAfterOverlay = true;
+                                    requestOverlayPermission();
+                                } else {
+                                    startVoiceService();
+                                }
+                            } else {
+                                Toast.makeText(this, "Microphone permission denied",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
 
     private final BroadcastReceiver wakeWordReceiver = new BroadcastReceiver() {
         @Override
@@ -75,6 +100,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private boolean hasOverlayPermission() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this);
+    }
+    private void requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,31 +290,43 @@ public class MainActivity extends AppCompatActivity {
         updateBackgroundToggleUI();
 
         btnToggleService.setOnClickListener(v -> {
-            Intent intent = new Intent(this, VoiceAgentService.class);
-
             if (VoiceAgentService.isRunning()) {
+                Intent intent = new Intent(this, VoiceAgentService.class);
                 intent.setAction(VoiceAgentService.ACTION_STOP);
                 startService(intent);
                 txtStatus.setText("Background listening OFF");
-            } else {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Microphone permission required", Toast.LENGTH_LONG).show();
-                    requestMicrophonePermission();
-                    return;
-                }
-
-                intent.setAction(VoiceAgentService.ACTION_START);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(intent);
-                } else {
-                    startService(intent);
-                }
-                txtStatus.setText("Background listening ON");
+                mainHandler.postDelayed(this::updateBackgroundToggleUI, 700);
+                return;
             }
 
-            mainHandler.postDelayed(this::updateBackgroundToggleUI, 700);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                pendingStartAfterMicPermission = true;
+                Toast.makeText(this, "Microphone permission required", Toast.LENGTH_LONG).show();
+                requestMicrophonePermission();
+                return;
+            }
+
+            if (!hasOverlayPermission()) {
+                pendingStartAfterOverlay = true;
+                requestOverlayPermission();
+                return;
+            }
+
+            startVoiceService();
         });
+    }
+
+    private void startVoiceService() {
+        Intent intent = new Intent(this, VoiceAgentService.class);
+        intent.setAction(VoiceAgentService.ACTION_START);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+        txtStatus.setText("Background listening ON");
+        mainHandler.postDelayed(this::updateBackgroundToggleUI, 700);
     }
 
     private void updateBackgroundToggleUI() {
@@ -419,6 +467,18 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         updateAccessibilityUI();
         updatePermissionsUI();
+
+        if (pendingStartAfterOverlay) {
+            pendingStartAfterOverlay = false;
+
+            if (hasOverlayPermission()
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                startVoiceService();
+            } else {
+                Toast.makeText(this, "Required permissions not granted", Toast.LENGTH_LONG).show();
+            }
+        }
 
         try {
             IntentFilter filter = new IntentFilter(VoiceAgentService.BROADCAST_WAKE_WORD);
