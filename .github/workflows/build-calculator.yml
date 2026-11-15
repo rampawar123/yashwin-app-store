@@ -42,6 +42,14 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Make Android SDK compatible with Bubblewrap
+        run: |
+          set -e
+          test -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          ln -s "$ANDROID_HOME/cmdline-tools/latest" "$ANDROID_HOME/tools"
+          test -x "$ANDROID_HOME/tools/bin/sdkmanager"
+          echo "Bubblewrap Android SDK path ready"
+
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
