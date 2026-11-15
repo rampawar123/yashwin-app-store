@@ -93,6 +93,31 @@ jobs:
         working-directory: twa
         run: bubblewrap update --skipVersionUpgrade --manifest=twa-manifest.json
 
+      - name: Set minimum Android SDK to 24
+        working-directory: twa
+        run: |
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          import re
+
+          files = [Path("app/build.gradle"), Path("app/build.gradle.kts")]
+          changed = False
+          for p in files:
+              if p.exists():
+                  s = p.read_text()
+                  s, n = re.subn(
+                      r'(?m)^(\s*(?:minSdkVersion\s+|minSdk\s*=\s*))21\b',
+                      r'\g<1>24',
+                      s
+                  )
+                  if n:
+                      p.write_text(s)
+                      changed = True
+                      print(f"Updated {p}: {n} change(s)")
+          if not changed:
+              raise SystemExit("ERROR: minSdk 21 setting not found")
+          PYCODE
+
       - name: Build signed APK and AAB
         working-directory: twa
         env:
