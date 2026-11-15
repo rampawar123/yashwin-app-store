@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (VoiceAgentService.BROADCAST_WAKE_WORD.equals(intent.getAction())) {
                 conversationMode = true;
-                ttsManager.speak("Haan ji, boliye!", this::startListening);
+                ttsManager.speak("Haan ji, boliye!", MainActivity.this::startListening);
             }
         }
     };
