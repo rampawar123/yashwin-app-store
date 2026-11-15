@@ -1,0 +1,43 @@
+
+name: Generate Permanent Android Signing Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Generate permanent keystore
+        env:
+          STORE_PASSWORD: ${{ secrets.PERMANENT_KEYSTORE_PASSWORD }}
+        run: |
+          test -n "$STORE_PASSWORD"
+          keytool -genkeypair \
+            -v \
+            -keystore permanent-release.jks \
+            -alias yashwin-release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$STORE_PASSWORD" \
+            -keypass "$STORE_PASSWORD" \
+            -dname "CN=YASHWIN RELEASE, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+
+      - name: Upload keystore backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: permanent-signing-key-backup
+          path: permanent-release.jks
+          retention-days: 1
+          
