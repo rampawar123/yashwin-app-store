@@ -127,6 +127,22 @@ jobs:
           KEY_PASSWORD: ${{ secrets.PERMANENT_KEYSTORE_PASSWORD }}
         run: bubblewrap build --skipPwaValidation
 
+      - name: Publish App Store APK to repository
+        run: |
+          test -s twa/app-release-signed.apk
+          mkdir -p public
+          cp twa/app-release-signed.apk app-release-signed.apk
+          cp twa/app-release-signed.apk public/app-release-signed.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app-release-signed.apk public/app-release-signed.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish latest YASHWIN APP STORE APK"
+            git push origin HEAD:main
+          else
+            echo "APK files are already up to date"
+          fi
+
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
