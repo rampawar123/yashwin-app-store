@@ -1,3 +1,4 @@
+
 name: Build CRIC YUVA APK
 
 on:
@@ -15,6 +16,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,15 +43,24 @@ jobs:
       - name: Install Bubblewrap
         run: npm install --global @bubblewrap/cli@1.25.0
 
-      - name: Configure Bubblewrap
+      - name: Configure Android SDK for Bubblewrap
         run: |
+          set -e
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+          test -d "$ANDROID_HOME"
+          test -d "$ANDROID_HOME/cmdline-tools/latest"
           mkdir -p "$HOME/.bubblewrap"
+          if [ ! -e "$ANDROID_HOME/tools" ]; then
+            ln -s "$ANDROID_HOME/cmdline-tools/latest" "$ANDROID_HOME/tools"
+          fi
           cat > "$HOME/.bubblewrap/config.json" <<EOF
           {
             "jdkPath": "$JAVA_HOME",
             "androidSdkPath": "$ANDROID_HOME"
           }
           EOF
+          cat "$HOME/.bubblewrap/config.json"
 
       - name: Restore permanent CRIC YUVA signing key
         env:
@@ -138,3 +149,4 @@ jobs:
           path: twa-cric-yuva/app-release-signed.apk
           if-no-files-found: error
           retention-days: 30
+          
