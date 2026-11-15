@@ -2,8 +2,9 @@ package com.example.hiram;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -11,18 +12,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * VoiceAuthManager - Device Authentication & Security Gateway
- *
- * Security Constitution:
- * 1. Voice matching alone is NOT a secure biometric authentication mechanism and must never
- *    be claimed as such (it is susceptible to replay attacks, synthetic voice clones, and acoustic spoofing).
- * 2. Sensitive operations (direct calling, deleting items, altering device settings, or accessing private data)
- *    require official Android device authentication (Biometric: Fingerprint/Face or Device Credential: PIN/Pattern).
- * 3. Raw audio recordings are NEVER stored or transmitted without explicit, informed user consent.
- */
 public class VoiceAuthManager {
+
+    private static final String TAG = "VoiceAuthManager";
 
     public interface AuthCallback {
         void onAuthenticated();
@@ -36,81 +30,117 @@ public class VoiceAuthManager {
         this.activity = activity;
     }
 
-    /**
-     * Checks if biometric or device credential security is enrolled on this phone.
-     */
     public boolean isDeviceSecurityAvailable() {
-        BiometricManager biometricManager = BiometricManager.from(activity);
-        int authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG
-                | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-        return biometricManager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS;
-    }
-
-    /**
-     * Authenticates the user via Android BiometricPrompt (PIN, Pattern, Fingerprint, Face).
-     */
-    public void authenticateForSensitiveAction(String actionTitle, String actionDetail, @NonNull AuthCallback callback) {
-        Executor executor = ContextCompat.getMainExecutor(activity);
-
-        BiometricPrompt.PromptInfo.Builder promptBuilder = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Hi Ram: " + actionTitle)
-                .setSubtitle("Confirm with phone PIN, pattern or biometric")
-                .setDescription(actionDetail);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            promptBuilder.setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG
-                            | BiometricManager.Authenticators.DEVICE_CREDENTIAL);
-        } else {
-            promptBuilder.setDeviceCredentialAllowed(true);
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return false;
         }
 
-        BiometricPrompt biometricPrompt = new BiometricPrompt(activity, executor,
+        BiometricManager manager = BiometricManager.from(activity);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            int authenticators =
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    | BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+
+            return manager.canAuthenticate(authenticators)
+                    == BiometricManager.BIOMETRIC_SUCCESS;
+        }
+
+        KeyguardManager keyguard =
+                (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
+
+        boolean secureDevice = keyguard != null && keyguard.isDeviceSecure();
+        boolean biometricAvailable =
+                manager.canAuthenticate(
+                        BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                        == BiometricManager.BIOMETRIC_SUCCESS;
+
+        return secureDevice || biometricAvailable;
+    }
+
+    public void authenticateForSensitiveAction(
+            String actionTitle,
+            String actionDetail,
+            @NonNull AuthCallback callback) {
+
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            callback.onAuthenticationFailed("Activity available nahi hai.");
+            return;
+        }
+
+        if (!isDeviceSecurityAvailable()) {
+            callback.onAuthenticationFailed(
+                    "Phone mein PIN, Pattern, Password ya supported biometric security set karein.");
+            return;
+        }
+
+        Executor executor = ContextCompat.getMainExecutor(activity);
+        AtomicBoolean completed = new AtomicBoolean(false);
+
+        BiometricPrompt.PromptInfo.Builder builder =
+                new BiometricPrompt.PromptInfo.Builder()
+                        .setTitle("Hi Ram: " + actionTitle)
+                        .setSubtitle("Phone PIN, Pattern ya biometric se confirm karein")
+                        .setDescription(actionDetail);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            builder.setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    | BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+        } else {
+            builder.setDeviceCredentialAllowed(true);
+        }
+
+        BiometricPrompt prompt = new BiometricPrompt(
+                activity,
+                executor,
                 new BiometricPrompt.AuthenticationCallback() {
-                    @Override
-                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                        super.onAuthenticationError(errorCode, errString);
-                        if (errorCode == BiometricPrompt.ERROR_USER_CANCELED
-                                || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                            callback.onCancelled();
-                        } else {
-                            callback.onAuthenticationFailed(errString.toString());
-                        }
-                    }
 
                     @Override
-                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                    public void onAuthenticationSucceeded(
+                            @NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
-                        callback.onAuthenticated();
+
+                        if (completed.compareAndSet(false, true)) {
+                            callback.onAuthenticated();
+                        }
                     }
 
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
-                        callback.onAuthenticationFailed("Authentication not recognized.");
+                        Log.w(TAG, "Biometric attempt not recognized; waiting for retry.");
+                    }
+
+                    @Override
+                    public void onAuthenticationError(
+                            int errorCode,
+                            @NonNull CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+
+                        if (!completed.compareAndSet(false, true)) {
+                            return;
+                        }
+
+                        if (errorCode == BiometricPrompt.ERROR_USER_CANCELED
+                                || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                                || errorCode == BiometricPrompt.ERROR_CANCELED) {
+                            callback.onCancelled();
+                        } else {
+                            callback.onAuthenticationFailed(errString.toString());
+                        }
                     }
                 });
 
         try {
-            biometricPrompt.authenticate(promptBuilder.build());
+            prompt.authenticate(builder.build());
         } catch (Exception e) {
-            // Fallback for devices without biometric hardware: use KeyguardManager
-            fallbackKeyguard(actionTitle, callback);
-        }
-    }
+            Log.e(TAG, "Authentication prompt could not start", e);
 
-    private void fallbackKeyguard(String title, @NonNull AuthCallback callback) {
-        KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
-        if (keyguardManager != null && keyguardManager.isKeyguardSecure()) {
-            Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(title, "Unlock to confirm sensitive command");
-            if (intent != null) {
-                activity.startActivity(intent);
-                // Note: onActivityResult would handle result; for direct safety, we invoke success on return
-                callback.onAuthenticated();
-                return;
+            if (completed.compareAndSet(false, true)) {
+                callback.onAuthenticationFailed(
+                        "Phone authentication start nahi ho saka. Sensitive action block kar diya gaya.");
             }
         }
-        // If device has no screen lock at all, proceed with explicit on-screen confirmation
-        callback.onAuthenticated();
     }
 }

@@ -93,9 +93,10 @@ public class WakeWordEngine {
         updateState(State.LISTENING_FOR_WAKE_WORD);
     }
 
-    public synchronized void stop() {
+    public synchronized boolean stop() {
         isRunning.set(false);
         isPaused.set(false);
+
         AudioRecord recorder = audioRecord;
         if (recorder != null) {
             try {
@@ -106,10 +107,32 @@ public class WakeWordEngine {
                 Log.w(TAG, "AudioRecord stop warning", e);
             }
         }
+
         Thread thread = recordingThread;
-        if (thread != null) thread.interrupt();
-        recordingThread = null;
+        if (thread != null) {
+            thread.interrupt();
+
+            if (thread != Thread.currentThread()) {
+                try {
+                    thread.join(3000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
+
+            if (thread.isAlive()) {
+                Log.w(TAG, "Wake-word thread is still shutting down");
+                return false;
+            }
+
+            if (recordingThread == thread) {
+                recordingThread = null;
+            }
+        }
+
         updateState(State.STOPPED);
+        return true;
     }
 
     public State getCurrentState() { return currentState; }
@@ -149,7 +172,11 @@ public class WakeWordEngine {
 
             while (isRunning.get() && !Thread.currentThread().isInterrupted()) {
                 int count = recorder.read(audioBuffer, 0, audioBuffer.length);
-                if (count <= 0) continue;
+                if (count < 0) {
+                    throw new IllegalStateException(
+                            "Microphone read failed with code: " + count);
+                }
+                if (count == 0) continue;
                 if (isPaused.get()) continue;
 
                 boolean finalResult = recognizer.acceptWaveForm(audioBuffer, count);
@@ -182,7 +209,10 @@ public class WakeWordEngine {
             }
             if (recognizer != null) try { recognizer.close(); } catch (Exception ignored) {}
             if (model != null) try { model.close(); } catch (Exception ignored) {}
-            if (!isRunning.get()) updateState(State.STOPPED);
+
+            isPaused.set(false);
+            isRunning.set(false);
+            updateState(State.STOPPED);
         }
     }
 
@@ -244,7 +274,12 @@ public class WakeWordEngine {
                     try (FileOutputStream out = new FileOutputStream(output)) {
                         byte[] buffer = new byte[16384];
                         int count;
-                        while ((count = zis.read(buffer)) != -1) out.write(buffer, 0, count);
+                        while ((count = zis.read(buffer)) != -1) {
+                            if (!isRunning.get() || Thread.currentThread().isInterrupted()) {
+                                throw new InterruptedException("Extraction cancelled");
+                            }
+                            out.write(buffer, 0, count);
+                        }
                     }
                 }
                 zis.closeEntry();

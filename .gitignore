@@ -32,3 +32,15 @@ hi-ram-android/local.properties
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+
+# Local backups - keep out of Git commits
+*.bak
+*.backup
+*.pre-safety
+*.fastapi-backup
+hi-ram-backup-before-upgrade/
+hi-ram-android/backup-icons/
+__pycache__/
+*.pyc
+*.gemini-backup
+*.permission-backup

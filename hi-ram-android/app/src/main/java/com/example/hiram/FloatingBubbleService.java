@@ -142,30 +142,29 @@ public class FloatingBubbleService extends Service {
     }
 
     private void toggleAssistant() {
-        Intent intent = new Intent(this, VoiceAgentService.class);
-
         if (VoiceAgentService.isRunning()) {
-            intent.setAction(VoiceAgentService.ACTION_STOP);
-            startService(intent);
+            Intent stopIntent = new Intent(this, VoiceAgentService.class);
+            stopIntent.setAction(VoiceAgentService.ACTION_STOP);
+            startService(stopIntent);
             Toast.makeText(this, "Hi Ram OFF", Toast.LENGTH_SHORT).show();
         } else {
-            intent.setAction(VoiceAgentService.ACTION_START);
-
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(intent);
-                } else {
-                    startService(intent);
-                }
-                Toast.makeText(this, "Hi Ram ON", Toast.LENGTH_SHORT).show();
-            } catch (SecurityException e) {
+                Intent openIntent = new Intent(this, MainActivity.class);
+                openIntent.putExtra("ENABLE_ASSISTANT", true);
+                openIntent.addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                );
+                startActivity(openIntent);
+            } catch (Exception e) {
                 Toast.makeText(this,
-                        "Microphone permission required. Open Hi Ram app.",
+                        "Hi Ram app could not open",
                         Toast.LENGTH_LONG).show();
             }
         }
 
-        bubbleView.postDelayed(this::updateBubbleAppearance, 800);
+        bubbleView.postDelayed(this::updateBubbleAppearance, 1000);
     }
 
     @Override

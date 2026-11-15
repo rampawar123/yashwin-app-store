@@ -41,6 +41,16 @@
         android:textColor="#B0BEC5"
         android:textSize="14sp" />
 
+    <TextView
+        android:id="@+id/txtPermissionStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="Permissions: checking..."
+        android:textColor="#B0BEC5"
+        android:textSize="11sp" />
+
     <!-- Center Mic Button Area -->
     <FrameLayout
         android:layout_width="match_parent"

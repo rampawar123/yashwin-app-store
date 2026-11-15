@@ -1,15 +1,18 @@
 package com.example.hiram;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
+import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
 
-/**
- * TtsManager - Speaks feedback to the user in Hindi or English
- */
 public class TtsManager {
 
     private static final String TAG = "TtsManager";
@@ -20,11 +23,26 @@ public class TtsManager {
         void onError(String error);
     }
 
+    private static class SpeechItem {
+        final String text;
+        final Runnable onComplete;
+
+        SpeechItem(String text, Runnable onComplete) {
+            this.text = text;
+            this.onComplete = onComplete;
+        }
+    }
+
     private final Context context;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Queue<SpeechItem> pendingSpeech = new ArrayDeque<>();
+    private final Map<String, Runnable> callbacks = new HashMap<>();
+
     private TextToSpeech tts;
-    private boolean isInitialized = false;
+    private volatile boolean isInitialized = false;
     private Locale currentLocale = new Locale("hi", "IN");
     private TtsListener listener;
+    private long utteranceCounter = 0;
 
     public TtsManager(Context context) {
         this.context = context.getApplicationContext();
@@ -40,80 +58,195 @@ public class TtsManager {
             if (status == TextToSpeech.SUCCESS) {
                 isInitialized = true;
                 setLanguage(currentLocale);
-                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+
+                tts.setOnUtteranceProgressListener(
+                        new UtteranceProgressListener() {
                     @Override
                     public void onStart(String utteranceId) {
-                        if (listener != null) listener.onSpeechStarted();
+                        mainHandler.post(() -> {
+                            if (listener != null) {
+                                listener.onSpeechStarted();
+                            }
+                        });
                     }
 
                     @Override
                     public void onDone(String utteranceId) {
-                        if (listener != null) listener.onSpeechCompleted();
+                        mainHandler.post(() -> {
+                            Runnable callback;
+                            synchronized (callbacks) {
+                                callback = callbacks.remove(utteranceId);
+                            }
+
+                            if (listener != null) {
+                                listener.onSpeechCompleted();
+                            }
+
+                            if (callback != null) {
+                                callback.run();
+                            }
+                        });
                     }
 
                     @Override
                     public void onError(String utteranceId) {
-                        if (listener != null) listener.onError("TTS playback failed");
+                        mainHandler.post(() -> {
+                            Runnable callback;
+                            synchronized (callbacks) {
+                                callback = callbacks.remove(utteranceId);
+                            }
+
+                            if (listener != null) {
+                                listener.onError("TTS playback failed");
+                            }
+
+                            if (callback != null) {
+                                callback.run();
+                            }
+                        });
                     }
                 });
-                Log.i(TAG, "TextToSpeech successfully initialized.");
+
+                Log.i(TAG, "TextToSpeech initialized.");
+                flushPendingSpeech();
+
             } else {
-                Log.w(TAG, "TextToSpeech initialization returned error status: " + status);
+                Log.e(TAG, "TTS initialization failed: " + status);
+                isInitialized = false;
+                mainHandler.post(() -> {
+                    if (listener != null) {
+                        listener.onError("TTS initialization failed");
+                    }
+                });
             }
         });
     }
 
     public void setLanguage(Locale locale) {
-        this.currentLocale = locale;
+        if (locale == null) return;
+
+        currentLocale = locale;
+
         if (!isInitialized || tts == null) return;
 
         int result = tts.setLanguage(locale);
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            Log.w(TAG, "Locale " + locale + " not fully supported, falling back to default/English.");
+
+        if (result == TextToSpeech.LANG_MISSING_DATA
+                || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            Log.w(TAG, "Language unavailable: " + locale);
             tts.setLanguage(Locale.ENGLISH);
         }
     }
 
     public void speak(String text) {
-        if (text == null || text.trim().isEmpty()) return;
+        speak(text, null);
+    }
 
-        if (!isInitialized || tts == null) {
-            Log.w(TAG, "TTS not ready yet to speak: " + text);
+    public void speak(String text, Runnable onComplete) {
+        if (text == null || text.trim().isEmpty()) {
+            if (onComplete != null) {
+                mainHandler.post(onComplete);
+            }
             return;
         }
 
-        // Auto-detect Hindi vs English text for natural accent
-        if (containsHindiCharacters(text)) {
+        synchronized (pendingSpeech) {
+            pendingSpeech.offer(new SpeechItem(text, onComplete));
+        }
+
+        flushPendingSpeech();
+    }
+
+    private void flushPendingSpeech() {
+        if (!isInitialized || tts == null) return;
+
+        synchronized (pendingSpeech) {
+            while (!pendingSpeech.isEmpty()) {
+                SpeechItem item = pendingSpeech.poll();
+                speakNow(item);
+            }
+        }
+    }
+
+    private void speakNow(SpeechItem item) {
+        if (containsHindiCharacters(item.text)) {
             tts.setLanguage(new Locale("hi", "IN"));
         } else {
             tts.setLanguage(currentLocale);
         }
 
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "Hiram_UTTERANCE_" + System.currentTimeMillis());
+        // Deeper, masculine-style speech profile.
+        // Actual voice gender depends on the installed TTS engine voice.
+        tts.setPitch(0.82f);
+        tts.setSpeechRate(0.96f);
+
+        String utteranceId = "Hiram_UTTERANCE_" + (++utteranceCounter);
+
+        if (item.onComplete != null) {
+            synchronized (callbacks) {
+                callbacks.put(utteranceId, item.onComplete);
+            }
+        }
+
+        int result = tts.speak(
+                item.text,
+                TextToSpeech.QUEUE_ADD,
+                null,
+                utteranceId
+        );
+
+        if (result == TextToSpeech.ERROR) {
+            Runnable callback;
+            synchronized (callbacks) {
+                callback = callbacks.remove(utteranceId);
+            }
+
+            if (listener != null) {
+                mainHandler.post(() ->
+                        listener.onError("TTS could not start"));
+            }
+
+            if (callback != null) {
+                mainHandler.post(callback);
+            }
+        }
     }
 
     public void stop() {
         if (tts != null) {
             tts.stop();
         }
+
+        synchronized (pendingSpeech) {
+            pendingSpeech.clear();
+        }
+
+        synchronized (callbacks) {
+            callbacks.clear();
+        }
     }
 
     public void shutdown() {
+        stop();
+
         if (tts != null) {
-            tts.stop();
             tts.shutdown();
             tts = null;
         }
+
         isInitialized = false;
     }
 
     private boolean containsHindiCharacters(String text) {
         for (int i = 0; i < text.length(); i++) {
-            Character.UnicodeBlock block = Character.UnicodeBlock.of(text.charAt(i));
+            Character.UnicodeBlock block =
+                    Character.UnicodeBlock.of(text.charAt(i));
+
             if (Character.UnicodeBlock.DEVANAGARI.equals(block)) {
                 return true;
             }
         }
+
         return false;
     }
 }
