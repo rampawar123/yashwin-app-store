@@ -1,0 +1,43 @@
+name: Generate Calculator Permanent Signing Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Calculator signing key
+        env:
+          STORE_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          set -e
+          test -n "$STORE_PASS"
+          test -n "$KEY_PASS"
+
+          keytool -genkeypair \
+            -v \
+            -keystore calculator-release.jks \
+            -alias calculator-release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            -dname "CN=VANSH CALCULATOR, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+
+          keytool -list \
+            -keystore calculator-release.jks \
+            -storepass "$STORE_PASS"
+
+      - name: Upload permanent signing key
+        uses: actions/upload-artifact@v4
+        with:
+          name: CALCULATOR-PERMANENT-SIGNING-KEY
+          path: calculator-release.jks
+          retention-days: 90
