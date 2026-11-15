@@ -1,0 +1,43 @@
+name: Generate CRIC YUVA Permanent Signing Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate CRIC YUVA signing key
+        env:
+          STORE_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          set -e
+          test -n "$STORE_PASS"
+          test -n "$KEY_PASS"
+
+          keytool -genkeypair \
+            -v \
+            -keystore cric-yuva-release.jks \
+            -alias cricyuva-release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            -dname "CN=CRIC YUVA, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+
+          keytool -list \
+            -keystore cric-yuva-release.jks \
+            -storepass "$STORE_PASS"
+
+      - name: Upload permanent signing key
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRIC-YUVA-PERMANENT-SIGNING-KEY
+          path: cric-yuva-release.jks
+          retention-days: 90
