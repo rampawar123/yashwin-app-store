@@ -38,6 +38,9 @@ jobs:
       - name: Configure Bubblewrap
         run: |
           mkdir -p "$HOME/.bubblewrap"
+          if [ ! -e "$ANDROID_HOME/tools" ]; then
+            ln -s "$ANDROID_HOME/cmdline-tools/latest" "$ANDROID_HOME/tools"
+          fi
           cat > "$HOME/.bubblewrap/config.json" <<EOF
           {
             "jdkPath": "$JAVA_HOME",
