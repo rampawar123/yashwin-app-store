@@ -11,6 +11,7 @@ on:
       - 'calculator-logo.png'
       - 'icon-512.png'
       - '.github/workflows/build-calculator.yml'
+
 permissions:
   contents: write
 
@@ -34,54 +35,49 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-
       - name: Install Bubblewrap
-        run: |
-          npm install -g @bubblewrap/cli
+        run: npm install -g @bubblewrap/cli
 
       - name: Create Bubblewrap config
         run: |
           mkdir -p ~/.bubblewrap
-          cat > ~/.bubblewrap/config.json <<EOF
+          cat > ~/.bubblewrap/config.json <<EOF2
           {
             "jdkPath": "${JAVA_HOME}",
             "androidSdkPath": "${ANDROID_HOME}"
           }
-          EOF
+          EOF2
 
-      - name: Create Calculator signing key
+      - name: Restore permanent Calculator signing key
         env:
+          KEY_BASE64: ${{ secrets.CALCULATOR_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          rm -f calculator.keystore
-
-          keytool -genkeypair \
-            -v \
-            -keystore calculator.keystore \
-            -alias calculator \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEY_PASSWORD" \
-            -dname "CN=VANSH CALCULATOR, OU=YASHWIN, O=YASHWIN, L=India, ST=Maharashtra, C=IN"
+          set -e
+          test -n "$KEY_BASE64"
+          test -n "$KEYSTORE_PASSWORD"
+          echo "$KEY_BASE64" | base64 --decode > calculator-release.jks
+          keytool -list \
+            -keystore calculator-release.jks \
+            -alias calculator-release \
+            -storepass "$KEYSTORE_PASSWORD"
 
       - name: Create Calculator TWA manifest
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
-          rm -rf twa
+          set -e
           mkdir -p twa
+          cp calculator-release.jks twa/calculator.keystore
 
-          cp calculator.keystore twa/calculator.keystore
-
-          cat > twa/twa-manifest.json <<'EOF'
+          cat > twa/twa-manifest.json <<EOF2
           {
             "packageId": "com.yashwin.calculator",
             "host": "rampawar123.github.io",
@@ -101,32 +97,45 @@ jobs:
             "splashScreenFadeOutDuration": 300,
             "signingKey": {
               "path": "calculator.keystore",
-              "alias": "calculator"
+              "alias": "calculator-release"
             },
-            "appVersionName": "1.0",
-            "appVersionCode": 2
+            "appVersionName": "1.0.${GITHUB_RUN_NUMBER}",
+            "appVersionCode": $((1000 + GITHUB_RUN_NUMBER))
           }
-          EOF
+          EOF2
 
       - name: Prepare Bubblewrap project
-        run: |
-          cd twa
-          bubblewrap update --appVersionName="1.0" --skipVersionUpgrade
+        working-directory: twa
+        run: bubblewrap update --skipVersionUpgrade --manifest=twa-manifest.json
 
       - name: Build signed Calculator APK
+        working-directory: twa
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
-          cd twa
-          bubblewrap build --skipPwaValidation
+        run: bubblewrap build --skipPwaValidation
 
-      - name: Rename Calculator APK
+      - name: Publish Calculator APK to repository
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cp twa/app-release-signed.apk twa/VANSH-CALCULATOR.apk
+          set -e
+          test -s twa/app-release-signed.apk
+          cp twa/app-release-signed.apk VANSH-CALCULATOR.apk
+          mkdir -p public
+          cp twa/app-release-signed.apk public/VANSH-CALCULATOR.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VANSH-CALCULATOR.apk public/VANSH-CALCULATOR.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish latest VANSH CALCULATOR APK"
+            git push origin HEAD:main
+          else
+            echo "Calculator APK is already up to date"
+          fi
 
-      - name: Upload Calculator APK
+      - name: Upload Calculator APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: VANSH-CALCULATOR-APK
-          path: twa/VANSH-CALCULATOR.apk
+          path: twa/app-release-signed.apk
