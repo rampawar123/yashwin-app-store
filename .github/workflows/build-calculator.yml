@@ -88,6 +88,7 @@ jobs:
           cat > twa/twa-manifest.json <<EOF2
           {
             "packageId": "com.yashwin.calculator",
+            "minSdkVersion": 24,
             "host": "rampawar123.github.io",
             "name": "VANSH CALCULATOR",
             "launcherName": "VANSH CALCULATOR",
