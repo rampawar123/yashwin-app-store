@@ -33,7 +33,7 @@
     <!-- Accessibility -->
     <string name="accessibility_description">Hi Ram Accessibility Service allows hands-free voice control of your phone: performing Home, Back, Recent Apps, opening notifications, and clicking on-screen buttons only when explicitly commanded by you.</string>
     <string name="accessibility_title">Android Accessibility Service</string>
-    <string name="accessibility_why_needed">Accessibility permission is needed to navigate Home, Back, open Notifications, and tap screen elements upon your voice command. Hi Ram never collects passwords or monitors your private information.</string>
+    <string name="accessibility_why_needed">Hi Ram uses Android Accessibility to inspect visible screen elements when needed for your requested voice commands. It can click buttons, enter text into the focused field, scroll screens, and perform Home, Back, Recent Apps and Notifications actions. Screen content is processed for the requested action and is not collected or stored by this Accessibility Service. Do not use voice commands to enter passwords or sensitive information. You can disable this permission anytime in Android Settings.</string>
     <string name="accessibility_enable_btn">Open Accessibility Settings</string>
     <string name="accessibility_status_active">Accessibility Active</string>
     <string name="accessibility_status_inactive">Accessibility Inactive (Tap to Enable)</string>
