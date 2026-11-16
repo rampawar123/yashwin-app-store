@@ -1061,10 +1061,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void continueConversation() {
-        if (conversationMode) {
-            ttsManager.speak("Theek hai, aage boliye.",
-                    () -> mainHandler.postDelayed(this::startListening, 400));
-        }
+        conversationMode = false;
+        resumeWakeWordListening();
     }
 
     private void executeSensitiveAction(VoiceCommandProcessor.CommandResult result) {
@@ -1137,15 +1135,8 @@ public class MainActivity extends AppCompatActivity {
         historyAdapter.notifyItemInserted(0);
         recyclerHistory.scrollToPosition(0);
 
-        if (result.action == VoiceCommandProcessor.CommandAction.END_CONVERSATION) {
-            conversationMode = false;
-            ttsManager.speak(result.feedbackMessage, this::resumeWakeWordListening);
-        } else if (conversationMode) {
-            ttsManager.speak(result.feedbackMessage, () ->
-                    mainHandler.postDelayed(this::startListening, 400));
-        } else {
-            ttsManager.speak(result.feedbackMessage);
-        }
+        conversationMode = false;
+        resumeWakeWordListening();
     }
 
     private void resumeWakeWordListening() {

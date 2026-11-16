@@ -112,8 +112,8 @@ public class VoiceCommandProcessor {
                     searching ? CommandAction.SEARCH_YOUTUBE : CommandAction.OPEN_YOUTUBE,
                     query, ok,
                     ok ? (searching
-                            ? "YouTube par " + query + " search kar raha hoon."
-                            : "YouTube khol raha hoon.")
+                            ? ""
+                            : "")
                        : "YouTube nahi khul saka.",
                     false
             );
@@ -123,7 +123,7 @@ public class VoiceCommandProcessor {
         if (lower.contains("whatsapp") || lower.contains("व्हाट्सएप")) {
             boolean ok = appLauncher.openWhatsApp();
             return result(CommandAction.OPEN_WHATSAPP, "", ok,
-                    ok ? "WhatsApp khol raha hoon. Chat ka naam bolne ke baad use screen par select kar sakte hain."
+                    ok ? ""
                        : "WhatsApp nahi khul saka.",
                     false);
         }
@@ -134,7 +134,7 @@ public class VoiceCommandProcessor {
                 || lower.contains("संगीत")) {
             boolean ok = appLauncher.playMusic();
             return result(CommandAction.PLAY_MUSIC, "", ok,
-                    ok ? "Music app khol raha hoon." : "Music app nahi khul saka.",
+                    ok ? "" : "Music app nahi khul saka.",
                     false);
         }
 
@@ -142,7 +142,7 @@ public class VoiceCommandProcessor {
         if (lower.contains("camera") || lower.contains("कैमरा")) {
             boolean ok = appLauncher.openCamera();
             return result(CommandAction.OPEN_CAMERA, "", ok,
-                    ok ? "Camera khol raha hoon." : "Camera nahi khul saka.", false);
+                    ok ? "" : "Camera nahi khul saka.", false);
         }
 
         // Home
@@ -213,7 +213,7 @@ public class VoiceCommandProcessor {
                 || lower.contains("वाईफाई") || lower.contains("वाई फाई")) {
             boolean ok = appLauncher.openWifiSettings();
             return result(CommandAction.OPEN_WIFI_SETTINGS, "", ok,
-                    ok ? "Wi-Fi settings khol raha hoon."
+                    ok ? ""
                        : "Wi-Fi settings nahi khul sakin.", false);
         }
 
@@ -221,7 +221,7 @@ public class VoiceCommandProcessor {
         if (lower.contains("bluetooth") || lower.contains("ब्लूटूथ")) {
             boolean ok = appLauncher.openBluetoothSettings();
             return result(CommandAction.OPEN_BLUETOOTH_SETTINGS, "", ok,
-                    ok ? "Bluetooth settings khol raha hoon."
+                    ok ? ""
                        : "Bluetooth settings nahi khul sakin.", false);
         }
 
@@ -231,7 +231,7 @@ public class VoiceCommandProcessor {
                 || lower.equals("सेटिंग खोलो")) {
             boolean ok = appLauncher.openSettings();
             return result(CommandAction.OPEN_SETTINGS, "", ok,
-                    ok ? "Settings khol raha hoon."
+                    ok ? ""
                        : "Settings nahi khul sakin.", false);
         }
 
@@ -473,7 +473,7 @@ public class VoiceCommandProcessor {
             boolean ok = appLauncher.openAppByName(appName);
 
             return result(CommandAction.OPEN_APP, appName, ok,
-                    ok ? appName + " khol raha hoon."
+                    ok ? ""
                        : appName + " app nahi mila.",
                     false);
         }

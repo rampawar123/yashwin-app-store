@@ -11,13 +11,13 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class FloatingBubbleService extends Service {
 
     private WindowManager windowManager;
-    private TextView bubbleView;
+    private ImageView bubbleView;
     private WindowManager.LayoutParams params;
 
     private int bubbleSize;
@@ -40,13 +40,11 @@ public class FloatingBubbleService extends Service {
     private void createBubble() {
         if (bubbleView != null) return;
 
-        bubbleView = new TextView(this);
-        bubbleView.setText("Hi\nRam");
-        bubbleView.setTextColor(Color.WHITE);
-        bubbleView.setTextSize(13);
-        bubbleView.setGravity(Gravity.CENTER);
+        bubbleView = new ImageView(this);
+        bubbleView.setImageResource(R.drawable.ic_hiram_robot);
+        bubbleView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        bubbleView.setPadding(3, 3, 3, 3);
         bubbleView.setElevation(12f);
-
         updateBubbleAppearance();
 
         params = new WindowManager.LayoutParams(
@@ -86,7 +84,7 @@ public class FloatingBubbleService extends Service {
         );
 
         bubbleView.setBackground(background);
-        bubbleView.setText(running ? "Hi\nRam\nON" : "Hi\nRam");
+        bubbleView.setImageResource(R.drawable.ic_hiram_robot);
     }
 
     private boolean handleTouch(View view, MotionEvent event) {
