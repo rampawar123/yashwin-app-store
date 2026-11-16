@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.IBinder;
@@ -11,13 +12,15 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class FloatingBubbleService extends Service {
 
     private WindowManager windowManager;
-    private ImageView bubbleView;
+    private FrameLayout bubbleView;
+    private TextView bubbleLabel;
     private WindowManager.LayoutParams params;
 
     private int bubbleSize;
@@ -32,7 +35,7 @@ public class FloatingBubbleService extends Service {
         super.onCreate();
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        bubbleSize = (int) (64 * getResources().getDisplayMetrics().density);
+        bubbleSize = (int) (48 * getResources().getDisplayMetrics().density);
 
         createBubble();
     }
@@ -40,12 +43,47 @@ public class FloatingBubbleService extends Service {
     private void createBubble() {
         if (bubbleView != null) return;
 
-        bubbleView = new ImageView(this);
-        bubbleView.setImageResource(R.drawable.ic_hiram_robot);
-        bubbleView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        bubbleView.setPadding(3, 3, 3, 3);
-        bubbleView.setElevation(12f);
+        float density = getResources().getDisplayMetrics().density;
+
+        bubbleView = new FrameLayout(this);
+
+        bubbleLabel = new TextView(this);
+        bubbleLabel.setText("Hi");
+        bubbleLabel.setTextColor(Color.WHITE);
+        bubbleLabel.setTextSize(15);
+        bubbleLabel.setTypeface(null, Typeface.BOLD);
+        bubbleLabel.setGravity(Gravity.CENTER);
         updateBubbleAppearance();
+
+        FrameLayout.LayoutParams labelParams = new FrameLayout.LayoutParams(
+                bubbleSize,
+                bubbleSize,
+                Gravity.CENTER
+        );
+        bubbleView.addView(bubbleLabel, labelParams);
+
+        TextView closeButton = new TextView(this);
+        closeButton.setText("×");
+        closeButton.setTextColor(Color.WHITE);
+        closeButton.setTextSize(17);
+        closeButton.setTypeface(null, Typeface.BOLD);
+        closeButton.setGravity(Gravity.CENTER);
+
+        GradientDrawable closeBackground = new GradientDrawable();
+        closeBackground.setShape(GradientDrawable.OVAL);
+        closeBackground.setColor(Color.parseColor("#EF4444"));
+        closeButton.setBackground(closeBackground);
+
+        int closeSize = (int) (20 * density);
+        FrameLayout.LayoutParams closeParams = new FrameLayout.LayoutParams(
+                closeSize,
+                closeSize,
+                Gravity.TOP | Gravity.END
+        );
+        bubbleView.addView(closeButton, closeParams);
+
+        closeButton.setOnClickListener(v -> stopSelf());
+        bubbleLabel.setOnTouchListener(this::handleTouch);
 
         params = new WindowManager.LayoutParams(
                 bubbleSize,
@@ -62,8 +100,6 @@ public class FloatingBubbleService extends Service {
         params.x = 20;
         params.y = 250;
 
-        bubbleView.setOnTouchListener(this::handleTouch);
-
         try {
             windowManager.addView(bubbleView, params);
         } catch (Exception e) {
@@ -73,6 +109,8 @@ public class FloatingBubbleService extends Service {
     }
 
     private void updateBubbleAppearance() {
+        if (bubbleLabel == null) return;
+
         boolean running = VoiceAgentService.isRunning();
 
         GradientDrawable background = new GradientDrawable();
@@ -83,8 +121,7 @@ public class FloatingBubbleService extends Service {
                 Color.parseColor(running ? "#10B981" : "#EF4444")
         );
 
-        bubbleView.setBackground(background);
-        bubbleView.setImageResource(R.drawable.ic_hiram_robot);
+        bubbleLabel.setBackground(background);
     }
 
     private boolean handleTouch(View view, MotionEvent event) {
@@ -144,6 +181,7 @@ public class FloatingBubbleService extends Service {
             Intent stopIntent = new Intent(this, VoiceAgentService.class);
             stopIntent.setAction(VoiceAgentService.ACTION_STOP);
             startService(stopIntent);
+
             Toast.makeText(this, "Hi Ram OFF", Toast.LENGTH_SHORT).show();
         } else {
             try {
@@ -156,9 +194,11 @@ public class FloatingBubbleService extends Service {
                 );
                 startActivity(openIntent);
             } catch (Exception e) {
-                Toast.makeText(this,
+                Toast.makeText(
+                        this,
                         "Hi Ram app could not open",
-                        Toast.LENGTH_LONG).show();
+                        Toast.LENGTH_LONG
+                ).show();
             }
         }
 
@@ -171,6 +211,7 @@ public class FloatingBubbleService extends Service {
             try {
                 windowManager.removeView(bubbleView);
             } catch (Exception ignored) {}
+
             bubbleView = null;
         }
 

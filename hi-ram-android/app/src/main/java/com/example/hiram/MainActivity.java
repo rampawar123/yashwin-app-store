@@ -1026,16 +1026,10 @@ public class MainActivity extends AppCompatActivity {
                                 aiSessionId = newSessionId;
                             }
 
-                            finalizeCommandExecution(
-                                    spokenText,
-                                    new VoiceCommandProcessor.CommandResult(
-                                            VoiceCommandProcessor.CommandAction.UNKNOWN,
-                                            spokenText,
-                                            true,
-                                            reply,
-                                            false
-                                    )
-                            );
+                            conversationMode = false;
+                            txtFeedback.setText(reply);
+                            txtStatus.setText("Jawab diya");
+                            ttsManager.speak(reply, MainActivity.this::resumeWakeWordListening);
                         });
                     }
 
