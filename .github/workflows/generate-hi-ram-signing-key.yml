@@ -3,12 +3,6 @@ name: Build Hi Ram Android APK
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'hi-ram-android/**'
-      - '.github/workflows/android.yml'
 
 permissions:
   contents: write
