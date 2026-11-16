@@ -1,4 +1,3 @@
-
 import { AppDefinition, CatalogApp } from '../types';
 
 export const OWNER = 'rampawar123';
@@ -8,7 +7,8 @@ export const BRANCH = 'main';
 export const API_URL =
   `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`;
 
-export const UPDATE_STORAGE_KEY = 'yashwinStoreApkStateV2';
+export const UPDATE_STORAGE_KEY = 'yashwinStoreApkStateV3';
+export const PENDING_UPDATES_KEY = 'yashwinStorePendingUpdatesV2';
 
 export const APP_DEFINITIONS: AppDefinition[] = [
   {
@@ -53,7 +53,7 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     fallbackIcon: `${import.meta.env.BASE_URL}icon-512.png`,
     openType: 'external',
     apkKeywords: ['app-release-signed'],
-    defaultApk: '/app-release-signed.apk'
+    defaultApk: `${import.meta.env.BASE_URL}app-release-signed.apk`
   }
 ];
 
@@ -65,9 +65,7 @@ export function scoreFile(path: string, keys: string[]): number {
   let score = 0;
 
   for (const key of keys) {
-    if (p.includes(key.toLowerCase())) {
-      score += 5;
-    }
+    if (p.includes(key.toLowerCase())) score += 5;
   }
 
   if (p.includes('debug')) score -= 3;
@@ -77,42 +75,26 @@ export function scoreFile(path: string, keys: string[]): number {
 }
 
 export function parseVersion(path: string): string {
-  const match = path.match(
-    /(?:v|version[-_ ]?)(\d+(?:\.\d+){0,2})/i
-  );
-
+  const match = path.match(/(?:v|version[-_ ]?)(\d+(?:\.\d+){0,2})/i);
   return match ? `Version ${match[1]}` : 'Latest';
 }
 
 export function rawGithubUrl(path: string): string {
-  const encoded = path
-    .split('/')
-    .map(encodeURIComponent)
-    .join('/');
-
+  const encoded = path.split('/').map(encodeURIComponent).join('/');
   return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encoded}?v=${Date.now()}`;
 }
 
-export const PENDING_UPDATES_KEY = 'yashwinStorePendingUpdatesV1';
-
 export function readPendingUpdates(): Record<string, string> {
   try {
-    return JSON.parse(
-      localStorage.getItem(PENDING_UPDATES_KEY) || '{}'
-    );
+    return JSON.parse(localStorage.getItem(PENDING_UPDATES_KEY) || '{}');
   } catch {
     return {};
   }
 }
 
-export function writePendingUpdates(
-  state: Record<string, string>
-): void {
+export function writePendingUpdates(state: Record<string, string>): void {
   try {
-    localStorage.setItem(
-      PENDING_UPDATES_KEY,
-      JSON.stringify(state)
-    );
+    localStorage.setItem(PENDING_UPDATES_KEY, JSON.stringify(state));
   } catch {
     // Ignore storage errors
   }
@@ -120,30 +102,21 @@ export function writePendingUpdates(
 
 export function clearPendingUpdate(appId: string): void {
   const pending = readPendingUpdates();
-
   delete pending[appId];
-
   writePendingUpdates(pending);
 }
 
 export function readStoredShaState(): Record<string, string> {
   try {
-    return JSON.parse(
-      localStorage.getItem(UPDATE_STORAGE_KEY) || '{}'
-    );
+    return JSON.parse(localStorage.getItem(UPDATE_STORAGE_KEY) || '{}');
   } catch {
     return {};
   }
 }
 
-export function writeStoredShaState(
-  state: Record<string, string>
-): void {
+export function writeStoredShaState(state: Record<string, string>): void {
   try {
-    localStorage.setItem(
-      UPDATE_STORAGE_KEY,
-      JSON.stringify(state)
-    );
+    localStorage.setItem(UPDATE_STORAGE_KEY, JSON.stringify(state));
   } catch {
     // Ignore storage errors
   }
@@ -158,103 +131,84 @@ export interface FetchResult {
 }
 
 export async function fetchLatestGithubCatalog(): Promise<FetchResult> {
-  const previousShaMap = readStoredShaState();
-  const nextShaMap: Record<string, string> = {};
+  const knownShaMap = readStoredShaState();
   const pendingUpdates = readPendingUpdates();
 
   try {
-    const response = await fetch(
-      `${API_URL}&t=${Date.now()}`,
-      {
-        cache: 'no-store',
-        headers: {
-          Accept: 'application/vnd.github+json'
-        }
+    const response = await fetch(`${API_URL}&t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/vnd.github+json'
       }
-    );
+    });
 
     if (!response.ok) {
-      throw new Error(
-        `GitHub API HTTP ${response.status}`
-      );
+      throw new Error(`GitHub API HTTP ${response.status}`);
     }
 
     const data = await response.json();
 
-    const files: Array<{
-      path: string;
-      sha: string;
-      type: string;
-    }> = (data.tree || []).filter(
-      (item: { type: string }) => item.type === 'blob'
-    );
+    const files: Array<{ path: string; sha: string; type: string }> =
+      (data.tree || []).filter(
+        (item: { type: string }) => item.type === 'blob'
+      );
 
     const catalog: CatalogApp[] = APP_DEFINITIONS.map(app => {
       const candidates = files
         .filter(file => scoreFile(file.path, app.apkKeywords) >= 0)
         .sort((a, b) => {
-          const scoreDifference =
+          const difference =
             scoreFile(b.path, app.apkKeywords) -
             scoreFile(a.path, app.apkKeywords);
 
-          if (scoreDifference !== 0) {
-            return scoreDifference;
-          }
-
-          return a.path.length - b.path.length;
+          return difference !== 0
+            ? difference
+            : a.path.length - b.path.length;
         });
 
       const chosen = candidates[0];
       const sha = chosen?.sha || '';
+      const knownSha = knownShaMap[app.id] || '';
 
-      const previousSha =
-        previousShaMap[app.id] ||
-        previousShaMap[app.name] ||
-        '';
-
-      if (chosen && previousSha && previousSha !== sha) {
+      if (chosen && knownSha && knownSha !== sha) {
         pendingUpdates[app.id] = sha;
       }
 
-      if (
-        chosen &&
-        pendingUpdates[app.id] &&
-        pendingUpdates[app.id] !== sha
-      ) {
-        pendingUpdates[app.id] = sha;
+      if (chosen && !knownSha) {
+        knownShaMap[app.id] = sha;
       }
 
-      const hasChanged = Boolean(
-        chosen && pendingUpdates[app.id]
+      const hasUpdate = Boolean(
+        chosen && pendingUpdates[app.id] === sha
       );
-
-      if (chosen) {
-        nextShaMap[app.id] = sha;
-      }
 
       return {
         ...app,
         apkUrl: chosen
           ? rawGithubUrl(chosen.path)
-          : (app.defaultApk || ''),
-        version: chosen
-          ? parseVersion(chosen.path)
-          : 'APK not uploaded',
+          : app.defaultApk || '',
+        version: chosen ? parseVersion(chosen.path) : 'APK not uploaded',
         updatedLabel: chosen
           ? `GitHub file: ${chosen.path}`
           : 'APK not uploaded yet',
         isLatest: Boolean(chosen),
-        hasUpdate: hasChanged,
+        hasUpdate,
         sha
       };
     });
 
-    writeStoredShaState(nextShaMap);
+    // Save the latest known SHA only for apps without a pending update.
+    // Pending updates remain visible until the user explicitly clears them.
+    for (const app of catalog) {
+      if (app.sha && !pendingUpdates[app.id]) {
+        knownShaMap[app.id] = app.sha;
+      }
+    }
+
+    writeStoredShaState(knownShaMap);
     writePendingUpdates(pendingUpdates);
 
-    const changedAny =
-      Object.keys(pendingUpdates).length > 0;
-
+    const changedAny = catalog.some(app => app.hasUpdate);
     const timeString = new Date().toLocaleTimeString();
 
     return {
@@ -267,21 +221,19 @@ export async function fetchLatestGithubCatalog(): Promise<FetchResult> {
       lastCheckedTime: timeString
     };
   } catch {
-    const fallbackCatalog: CatalogApp[] =
-      APP_DEFINITIONS.map(app => ({
-        ...app,
-        apkUrl: app.defaultApk || '',
-        version: 'APK not uploaded yet',
-        updatedLabel: 'Offline / Cached Catalog',
-        isLatest: false,
-        hasUpdate: false
-      }));
+    const fallbackCatalog: CatalogApp[] = APP_DEFINITIONS.map(app => ({
+      ...app,
+      apkUrl: app.defaultApk || '',
+      version: 'APK not uploaded yet',
+      updatedLabel: 'Offline / Cached Catalog',
+      isLatest: false,
+      hasUpdate: Boolean(pendingUpdates[app.id])
+    }));
 
     return {
       catalog: fallbackCatalog,
-      hasAnyUpdate: false,
-      message:
-        'GitHub check unavailable. Check internet connection and try again.',
+      hasAnyUpdate: fallbackCatalog.some(app => app.hasUpdate),
+      message: 'GitHub check unavailable. Check internet connection and try again.',
       isOnline: false,
       lastCheckedTime: new Date().toLocaleTimeString()
     };

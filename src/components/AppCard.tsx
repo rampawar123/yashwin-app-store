@@ -5,12 +5,14 @@ interface AppCardProps {
   app: CatalogApp;
   onOpenApp: (app: CatalogApp) => void;
   onShare: (app: CatalogApp) => void;
+  onUpdate: (app: CatalogApp) => void;
 }
 
 export const AppCard: React.FC<AppCardProps> = ({
   app,
   onOpenApp,
   onShare,
+  onUpdate,
 }) => {
   return (
     <article className="grid grid-cols-[64px_minmax(0,1fr)] gap-2 rounded-[16px] border border-[#245678] bg-gradient-to-br from-[#071c2d] via-[#092137] to-[#061321] p-2 shadow-[0_5px_14px_rgba(0,0,0,0.20)] transition duration-200 hover:border-[#3688b7] sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-5 sm:rounded-[27px] sm:p-5">
@@ -58,6 +60,12 @@ export const AppCard: React.FC<AppCardProps> = ({
 
         <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap">
           <a
+            onClick={(event) => {
+              if (app.hasUpdate) {
+                event.preventDefault();
+                onUpdate(app);
+              }
+            }}
             href={app.apkUrl || '#'}
             download={app.apkUrl ? app.apkUrl.split('/').pop() : undefined}
             aria-disabled={!app.apkUrl}

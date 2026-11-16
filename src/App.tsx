@@ -112,7 +112,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    pendingApps.forEach((app, index) => {
+    pendingApps.forEach(app => {
       const link = document.createElement('a');
       link.href = app.apkUrl;
       link.target = '_blank';
@@ -121,21 +121,11 @@ export const App: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-
-      clearPendingUpdate(app.id);
     });
-
-    setCatalog(current =>
-      current.map(app =>
-        pendingApps.some(pending => pending.id === app.id)
-          ? { ...app, hasUpdate: false }
-          : app
-      )
-    );
 
     showToast(
       'Started download requests for ' + pendingApps.length +
-      ' app update(s). Complete installation from Android when prompted.'
+      ' app update(s). Install the APK from Android when prompted.'
     );
   };
 
@@ -240,6 +230,21 @@ export const App: React.FC = () => {
                 app={app}
                 onOpenApp={handleOpenApp}
                 onShare={handleShare}
+                onUpdate={(selectedApp) => {
+                  if (!selectedApp.apkUrl) {
+                    showToast('APK is not available.');
+                    return;
+                  }
+                  const link = document.createElement('a');
+                  link.href = selectedApp.apkUrl;
+                  link.download = selectedApp.apkUrl.split('/').pop()?.split('?')[0] || selectedApp.id + '.apk';
+                  link.target = '_blank';
+                  link.rel = 'noopener noreferrer';
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                  showToast('Downloading ' + selectedApp.name + ' update. Install it from Android when prompted.');
+                }}
               />
             ))
           )}
