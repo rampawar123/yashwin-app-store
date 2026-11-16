@@ -1,3 +1,4 @@
+
 name: Build Hi Ram Android APK
 
 on:
@@ -8,6 +9,9 @@ on:
     paths:
       - 'hi-ram-android/**'
       - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -34,14 +38,62 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Debug APK
-        working-directory: hi-ram-android
+      - name: Restore permanent signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.HI_RAM_KEYSTORE_BASE64 }}
         run: |
+          set -e
+          test -n "$KEYSTORE_BASE64"
+          echo "$KEYSTORE_BASE64" | base64 --decode > hi-ram-android/app/hi-ram-release.jks
+          test -s hi-ram-android/app/hi-ram-release.jks
+          chmod 600 hi-ram-android/app/hi-ram-release.jks
+
+      - name: Build Debug and Signed Release APK
+        working-directory: hi-ram-android
+        env:
+          KEYSTORE_FILE: hi-ram-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.HI_RAM_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: hiram-release
+          KEY_PASSWORD: ${{ secrets.HI_RAM_KEY_PASSWORD }}
+        run: |
+          set -e
+          test -n "$KEYSTORE_PASSWORD"
+          test -n "$KEY_PASSWORD"
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug assembleRelease --stacktrace
+
+      - name: Verify Release APK signature
+        run: |
+          set -e
+          APK="hi-ram-android/app/build/outputs/apk/release/app-release.apk"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          test -n "$APKSIGNER"
+          test -f "$APK"
+          "$APKSIGNER" verify --verbose "$APK"
+
+      - name: Publish HI RAM APK
+        run: |
+          set -e
+          cp hi-ram-android/app/build/outputs/apk/release/app-release.apk HI-RAM.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add HI-RAM.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Update HI RAM signed APK"
+            git push
+          else
+            echo "HI-RAM.apk is already up to date"
+          fi
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Hi-Ram-debug-APK
           path: hi-ram-android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Signed Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hi-Ram-signed-release-APK
+          path: hi-ram-android/app/build/outputs/apk/release/app-release.apk
+          
