@@ -61,11 +61,11 @@ export const AppCard: React.FC<AppCardProps> = ({
             href={app.apkUrl || '#'}
             download={app.apkUrl ? app.apkUrl.split('/').pop() : undefined}
             aria-disabled={!app.apkUrl}
-            className={`flex min-h-[28px] items-center justify-center gap-0.5 rounded-xl bg-gradient-to-r from-[#1688ff] to-[#0873e8] px-1 py-1 text-center text-[9px] font-extrabold text-white sm:text-sm transition hover:brightness-110 active:scale-[0.98] sm:min-h-[50px] sm:px-4 sm:text-sm ${
+            className={`flex min-h-[28px] items-center justify-center gap-0.5 rounded-xl bg-gradient-to-r from-[#ff9f0a] to-[#ff6a00] px-1 py-1 text-center text-[9px] font-extrabold text-white sm:text-sm transition hover:brightness-110 active:scale-[0.98] sm:min-h-[50px] sm:px-4 sm:text-sm ${
               !app.apkUrl ? 'pointer-events-none opacity-50' : ''
             }`}
           >
-            ⬇ Download APK
+            {app.hasUpdate ? '⬇ Update APK' : '⬇ Download APK'}
           </a>
 
           <button
