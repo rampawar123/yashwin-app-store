@@ -402,13 +402,9 @@ public class VoiceCommandProcessor {
         }
 
         if (typingText != null && !typingText.isEmpty()) {
-            boolean ok = accessibility != null
-                    && accessibility.typeText(typingText);
-
-            return result(CommandAction.TYPE_TEXT, typingText, ok,
-                    ok ? "Text likh diya."
-                       : "Text box select karein aur Accessibility ON rakhein.",
-                    false);
+            return result(CommandAction.TYPE_TEXT, typingText, true,
+                    "Kya aap is text ko selected field mein likhna chahte hain?",
+                    true);
         }
 
         // Click / tap screen element
@@ -436,13 +432,9 @@ public class VoiceCommandProcessor {
         }
 
         if (clickTarget != null && !clickTarget.isEmpty()) {
-            boolean ok = accessibility != null
-                    && accessibility.clickByText(clickTarget);
-
             return result(CommandAction.CLICK_SCREEN_ELEMENT,
-                    clickTarget, ok,
-                    ok ? clickTarget + " par click kar diya."
-                       : "Element nahi mila. Accessibility ON karein.",
+                    clickTarget, true,
+                    "Kya screen par '" + clickTarget + "' ko click karna hai?",
                     true);
         }
 

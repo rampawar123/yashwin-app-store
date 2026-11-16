@@ -33,8 +33,13 @@
     <!-- Accessibility -->
     <string name="accessibility_description">Hi Ram Accessibility Service allows hands-free voice control of your phone: performing Home, Back, Recent Apps, opening notifications, and clicking on-screen buttons only when explicitly commanded by you.</string>
     <string name="accessibility_title">Android Accessibility Service</string>
-    <string name="accessibility_why_needed">Hi Ram uses Android Accessibility to inspect visible screen elements when needed for your requested voice commands. It can click buttons, enter text into the focused field, scroll screens, and perform Home, Back, Recent Apps and Notifications actions. Screen content is processed for the requested action and is not collected or stored by this Accessibility Service. Do not use voice commands to enter passwords or sensitive information. You can disable this permission anytime in Android Settings.</string>
+    <string name="accessibility_why_needed">Hi Ram uses Android Accessibility to identify visible screen controls and perform actions requested by your voice command. It may inspect visible text, click controls, enter text into a focused field and scroll. Spoken commands are sent to the Hi Ram backend and Google Gemini for processing. Avoid using this feature with passwords or sensitive information. You can disable this permission anytime in Android Settings.</string>
     <string name="accessibility_enable_btn">Open Accessibility Settings</string>
+    <string name="accessibility_consent_title">Before enabling Accessibility</string>
+    <string name="accessibility_consent_message">Hi Ram uses Android Accessibility to identify visible screen controls and perform actions you request by voice. It may inspect visible text, click requested controls, enter text into a focused field, scroll, or perform Home, Back, Recent Apps and Notifications actions. Your spoken commands are sent to the Hi Ram backend and Google Gemini to interpret your request. Do not use this feature on screens containing passwords, payment details or other sensitive information. You can turn off Accessibility anytime in Android Settings. Choose Agree only if you understand and want to enable this feature.</string>
+    <string name="accessibility_consent_agree">Agree and continue</string>
+    <string name="accessibility_consent_decline">Not now</string>
+    <string name="accessibility_consent_declined">Accessibility was not enabled.</string>
     <string name="accessibility_status_active">Accessibility Active</string>
     <string name="accessibility_status_inactive">Accessibility Inactive (Tap to Enable)</string>
 

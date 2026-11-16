@@ -244,7 +244,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnOpenAccessibility.setOnClickListener(v -> appLauncher.openAccessibilitySettings());
+        btnOpenAccessibility.setOnClickListener(v -> showAccessibilityDisclosure());
+    }
+
+    private void showAccessibilityDisclosure() {
+        android.content.SharedPreferences preferences =
+                getSharedPreferences("hi_ram_accessibility", MODE_PRIVATE);
+
+        if (preferences.getBoolean("user_consented", false)) {
+            appLauncher.openAccessibilitySettings();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.accessibility_consent_title)
+                .setMessage(R.string.accessibility_consent_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.accessibility_consent_agree,
+                        (dialog, which) -> {
+                            preferences.edit()
+                                    .putBoolean("user_consented", true)
+                                    .apply();
+                            appLauncher.openAccessibilitySettings();
+                        })
+                .setNegativeButton(R.string.accessibility_consent_decline,
+                        (dialog, which) -> Toast.makeText(
+                                MainActivity.this,
+                                R.string.accessibility_consent_declined,
+                                Toast.LENGTH_LONG).show())
+                .show();
     }
 
     private void initComponents() {
@@ -679,7 +707,9 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (action.requiresConfirmation
+                    if ((action.requiresConfirmation
+                            || "TYPE_TEXT".equals(action.actionType)
+                            || "SEARCH_APP".equals(action.actionType))
                             && !"CALL_CONTACT".equals(action.actionType)
                             && !"CLICK_ELEMENT".equals(action.actionType)) {
                         confirmStructuredAction(spokenText, action);
@@ -908,15 +938,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
             case "TYPE_TEXT": {
-                boolean ok = accessibility != null
-                        && accessibility.typeText(parameter);
                 result = new VoiceCommandProcessor.CommandResult(
                         VoiceCommandProcessor.CommandAction.TYPE_TEXT,
-                        parameter, ok,
-                        ok ? "Text field mein likh diya. Koi message send nahi kiya."
-                                : "Text field nahi mili. Pehle input field select karein aur Accessibility ON rakhein.",
-                        false);
-                break;
+                        parameter,
+                        true,
+                        "Kya aap selected field mein ye text likhna chahte hain?",
+                        true);
+                confirmAndExecute(result);
+                return;
             }
 
             case "CALL_CONTACT": {
@@ -1039,6 +1068,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void executeSensitiveAction(VoiceCommandProcessor.CommandResult result) {
+        if (result.action == VoiceCommandProcessor.CommandAction.TYPE_TEXT) {
+            MyAccessibilityService service =
+                    MyAccessibilityService.getInstance();
+            boolean typed = service != null && service.typeText(result.argument);
+
+            finalizeCommandExecution("Type text",
+                    new VoiceCommandProcessor.CommandResult(
+                            result.action, result.argument, typed,
+                            typed ? "Text field mein likh diya."
+                                    : "Text enter nahi ho saka. Input field select karein.",
+                            false));
+            return;
+        }
         if (result.action == VoiceCommandProcessor.CommandAction.CALL_CONTACT) {
             try {
                 ContactHelper helper = new ContactHelper(this);
