@@ -1,6 +1,9 @@
 import json
+import base64
 import os
+import ipaddress
 import threading
+import time
 from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.error import HTTPError, URLError
@@ -8,8 +11,37 @@ from urllib.request import Request, urlopen
 from uuid import uuid4
 
 from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials, auth
 
 load_dotenv()
+
+FIREBASE_AUTH_READY = False
+FIREBASE_AUTH_ERROR = ""
+
+try:
+    encoded_service_account = os.getenv(
+        "FIREBASE_SERVICE_ACCOUNT_JSON_BASE64", ""
+    ).strip()
+    if not encoded_service_account:
+        raise RuntimeError("Firebase service account is not configured")
+
+    service_account_info = json.loads(
+        base64.b64decode(encoded_service_account, validate=True)
+    )
+    if service_account_info.get("project_id") != "hi-ram":
+        raise RuntimeError("Firebase project ID mismatch")
+
+    try:
+        firebase_admin.get_app()
+    except ValueError:
+        firebase_admin.initialize_app(
+            credentials.Certificate(service_account_info)
+        )
+    FIREBASE_AUTH_READY = True
+except Exception as error:
+    FIREBASE_AUTH_ERROR = str(error)
+    print("Firebase authentication is not ready:", FIREBASE_AUTH_ERROR)
 
 API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
@@ -20,8 +52,16 @@ API_URL = (
 
 sessions = {}
 sessions_lock = threading.Lock()
+sessions_last_seen = {}
 MAX_SESSIONS = 100
 MAX_HISTORY = 10
+SESSION_IDLE_SECONDS = 30 * 60
+
+rate_limits = {}
+rate_limits_lock = threading.Lock()
+RATE_LIMIT_WINDOW = 60
+RATE_LIMITS = {"chat": 10, "command": 20}
+MAX_RATE_LIMIT_KEYS = 5000
 
 
 class HiRamHandler(BaseHTTPRequestHandler):
@@ -35,6 +75,41 @@ class HiRamHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def check_rate_limit(self, route):
+        # Firebase UID is assigned only after successful token verification.
+        user_id = getattr(self, "firebase_uid", "")
+        if not user_id:
+            self.send_json(401, {"error": "Authentication required"})
+            return False
+
+        now = time.monotonic()
+        key = (user_id, route)
+
+        with rate_limits_lock:
+            expired = [
+                item for item, value in rate_limits.items()
+                if now - value[0] > RATE_LIMIT_WINDOW
+            ]
+            for item in expired:
+                rate_limits.pop(item, None)
+
+            entry = rate_limits.get(key)
+
+            if entry is None or now - entry[0] >= RATE_LIMIT_WINDOW:
+                if len(rate_limits) >= MAX_RATE_LIMIT_KEYS:
+                    self.send_json(429, {"error": "Rate limit capacity reached"})
+                    return False
+
+                rate_limits[key] = [now, 1]
+                return True
+
+            if entry[1] >= RATE_LIMITS[route]:
+                self.send_json(429, {"error": "Too many requests"})
+                return False
+
+            entry[1] += 1
+            return True
+
     def do_GET(self):
         if self.path != "/health":
             self.send_json(404, {"error": "Not found"})
@@ -45,12 +120,50 @@ class HiRamHandler(BaseHTTPRequestHandler):
             "service": "Hi Ram Backend"
         })
 
+    def require_firebase_user(self):
+        if not FIREBASE_AUTH_READY:
+            self.send_json(503, {
+                "error": "Authentication service is not configured"
+            })
+            return False
+
+        authorization = self.headers.get("Authorization", "")
+        parts = authorization.split(None, 1)
+        if (
+            len(parts) != 2
+            or parts[0].lower() != "bearer"
+            or not parts[1].strip()
+            or len(parts[1]) > 8192
+        ):
+            self.send_json(401, {"error": "Authentication required"})
+            return False
+
+        try:
+            decoded_token = auth.verify_id_token(
+                parts[1].strip(), check_revoked=True
+            )
+            self.firebase_uid = decoded_token.get("uid")
+            if not self.firebase_uid:
+                raise ValueError("Token has no user ID")
+            return True
+        except Exception:
+            self.send_json(401, {"error": "Invalid or expired token"})
+            return False
+
     def do_POST(self):
         if self.path == "/command":
+            if not self.require_firebase_user():
+                return
+            if not self.check_rate_limit("command"):
+                return
             self.handle_command()
             return
         if self.path != "/chat":
             self.send_json(404, {"error": "Not found"})
+            return
+        if not self.require_firebase_user():
+            return
+        if not self.check_rate_limit("chat"):
             return
 
         if not API_KEY:
@@ -65,7 +178,15 @@ class HiRamHandler(BaseHTTPRequestHandler):
                 return
 
             data = json.loads(self.rfile.read(length))
-            message = str(data.get("message", "")).strip()
+            if not isinstance(data, dict):
+                self.send_json(400, {"error": "JSON object required"})
+                return
+
+            message_value = data.get("message", "")
+            if not isinstance(message_value, str):
+                self.send_json(400, {"error": "Message must be text"})
+                return
+            message = message_value.strip()
             session_id = str(data.get("session_id", "")).strip()
 
             if not message:
@@ -83,15 +204,31 @@ class HiRamHandler(BaseHTTPRequestHandler):
                 self.send_json(400, {"error": "Invalid session ID"})
                 return
 
+            session_key = self.firebase_uid + ":" + session_id
+
             with sessions_lock:
-                if session_id not in sessions:
+                now = time.monotonic()
+                expired = [
+                    sid for sid, last_seen in sessions_last_seen.items()
+                    if now - last_seen > SESSION_IDLE_SECONDS
+                ]
+                for sid in expired:
+                    sessions.pop(sid, None)
+                    sessions_last_seen.pop(sid, None)
+
+                if session_key not in sessions:
                     if len(sessions) >= MAX_SESSIONS:
-                        oldest = next(iter(sessions))
-                        del sessions[oldest]
+                        oldest = min(
+                            sessions,
+                            key=lambda sid: sessions_last_seen.get(sid, 0)
+                        )
+                        sessions.pop(oldest, None)
+                        sessions_last_seen.pop(oldest, None)
 
-                    sessions[session_id] = deque(maxlen=MAX_HISTORY)
+                    sessions[session_key] = deque(maxlen=MAX_HISTORY)
 
-                history = list(sessions[session_id])
+                sessions_last_seen[session_key] = now
+                history = list(sessions[session_key])
                 history.append({
                     "role": "user",
                     "parts": [{"text": message}]
@@ -138,11 +275,14 @@ class HiRamHandler(BaseHTTPRequestHandler):
                 raise ValueError("Empty AI response")
 
             with sessions_lock:
-                sessions[session_id].append({
+                if session_key not in sessions:
+                    sessions[session_key] = deque(maxlen=MAX_HISTORY)
+                sessions_last_seen[session_key] = time.monotonic()
+                sessions[session_key].append({
                     "role": "user",
                     "parts": [{"text": message}]
                 })
-                sessions[session_id].append({
+                sessions[session_key].append({
                     "role": "model",
                     "parts": [{"text": reply}]
                 })

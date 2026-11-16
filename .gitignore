@@ -49,3 +49,12 @@ cricyuva-cert.pem
 cricyuva-signature.der
 tore cric-yuva.keystore
 *cric-yuva.keystore*
+
+# Hi Ram local secrets and temporary files
+firebase-key-base64.txt
+hi-ram-firebase-adminsdk-*.json
+add_firebase_auth.py
+isolate_sessions.py
+*.firebase-backup
+*.bak
+*.backup

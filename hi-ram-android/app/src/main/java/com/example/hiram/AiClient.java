@@ -2,6 +2,11 @@ package com.example.hiram;
 
 import org.json.JSONObject;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.AuthResult;
+import com.google.android.gms.tasks.Task;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +25,9 @@ public class AiClient {
 
     private final OkHttpClient client;
     private final String backendUrl;
+    private final FirebaseAuth firebaseAuth;
+    private final Object authLock = new Object();
+    private Task<AuthResult> anonymousSignInTask;
 
     public interface AiCallback {
         void onSuccess(String reply, String sessionId);
@@ -39,6 +47,7 @@ public class AiClient {
         }
 
         this.backendUrl = backendUrl.replaceAll("/+$", "");
+        this.firebaseAuth = FirebaseAuth.getInstance();
 
         this.client = new OkHttpClient.Builder()
                 .connectTimeout(20, TimeUnit.SECONDS)
@@ -72,7 +81,7 @@ public class AiClient {
                     .header("Accept", "application/json")
                     .build();
 
-            client.newCall(request).enqueue(new Callback() {
+            enqueueAuthenticated(request, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     callback.onError("Network error: " + e.getMessage());
@@ -133,7 +142,7 @@ public class AiClient {
                     .header("Accept", "application/json")
                     .build();
 
-            client.newCall(request).enqueue(new Callback() {
+            enqueueAuthenticated(request, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     callback.onError("Command network error: "
@@ -178,6 +187,74 @@ public class AiClient {
         } catch (Exception e) {
             callback.onError("Command request error: " + e.getMessage());
         }
+    }
+
+    private void enqueueAuthenticated(Request request, Callback callback) {
+        FirebaseUser user;
+        Task<AuthResult> signInTask = null;
+
+        synchronized (authLock) {
+            user = firebaseAuth.getCurrentUser();
+
+            if (user == null) {
+                if (anonymousSignInTask == null) {
+                    anonymousSignInTask = firebaseAuth.signInAnonymously();
+                }
+                signInTask = anonymousSignInTask;
+            }
+        }
+
+        if (user != null) {
+            fetchFirebaseToken(user, request, callback);
+            return;
+        }
+
+        final Task<AuthResult> pendingTask = signInTask;
+
+        pendingTask.addOnCompleteListener(task -> {
+            synchronized (authLock) {
+                if (anonymousSignInTask == pendingTask) {
+                    anonymousSignInTask = null;
+                }
+            }
+
+            if (task.isSuccessful() && task.getResult() != null) {
+                fetchFirebaseToken(
+                        task.getResult().getUser(), request, callback);
+            } else {
+                callback.onFailure(
+                        null,
+                        new IOException("Firebase sign-in failed",
+                                task.getException()));
+            }
+        });
+    }
+
+    private void fetchFirebaseToken(
+            FirebaseUser user, Request request, Callback callback) {
+        if (user == null) {
+            callback.onFailure(null, new IOException("Firebase user unavailable"));
+            return;
+        }
+
+        user.getIdToken(false)
+                .addOnSuccessListener(result -> {
+                    String token = result.getToken();
+                    if (token == null || token.isEmpty()) {
+                        callback.onFailure(null,
+                                new IOException("Firebase ID token is empty"));
+                        return;
+                    }
+
+                    Request authenticatedRequest = request.newBuilder()
+                            .header("Authorization", "Bearer " + token)
+                            .build();
+
+                    client.newCall(authenticatedRequest).enqueue(callback);
+                })
+                .addOnFailureListener(error ->
+                        callback.onFailure(null,
+                                new IOException("Firebase token failed", error)));
     }
 
     private RequestBody createBody(JSONObject json) {

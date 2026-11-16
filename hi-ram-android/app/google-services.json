@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329901403869",
+    "project_id": "hi-ram",
+    "storage_bucket": "hi-ram.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329901403869:android:9879b17cb6ccc82117b534",
+        "android_client_info": {
+          "package_name": "com.example.hiram"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6pLrb-Kb-1YJJ7OtGDWTY3nJa085Odb0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
