@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     private Button btnOpenAccessibility;
     private TextView txtAccessibilityBadge;
 
-    private Spinner spinnerLanguage;
     private RecyclerView recyclerHistory;
     private CommandHistoryAdapter historyAdapter;
     private final List<CommandHistoryItem> historyList = new ArrayList<>();
@@ -165,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         initComponents();
-        setupLanguageSpinner();
         setupSuggestionChips();
         setupServiceButtons();
         updatePermissionsUI();
@@ -229,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
         btnOpenAccessibility = findViewById(R.id.btnOpenAccessibility);
         txtAccessibilityBadge = findViewById(R.id.txtAccessibilityBadge);
 
-        spinnerLanguage = findViewById(R.id.spinnerLanguage);
         recyclerHistory = findViewById(R.id.recyclerHistory);
 
         recyclerHistory.setLayoutManager(new LinearLayoutManager(this));
@@ -244,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnOpenAccessibility.setOnClickListener(v -> showAccessibilityDisclosure());
+        btnOpenAccessibility.setOnClickListener(v -> showAccessibilityPanel());
     }
 
     private void showAccessibilityDisclosure() {
@@ -280,6 +277,14 @@ public class MainActivity extends AppCompatActivity {
         appLauncher = new AppLauncher(this);
         authManager = new VoiceAuthManager(this);
         ttsManager = new TtsManager(this);
+
+        android.content.SharedPreferences languagePrefs =
+                getSharedPreferences("hi_ram_settings", MODE_PRIVATE);
+        selectedLanguageCode =
+                languagePrefs.getString("language_code", "hi-IN");
+        ttsManager.setLanguage(
+                new Locale(selectedLanguageCode.split("-")[0])
+        );
 
         if (AI_BACKEND_URL.startsWith("https://")) {
             aiClient = new AiClient(AI_BACKEND_URL);
@@ -394,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupLanguageSpinner() {
+    private void showLanguageSettings() {
         String[] languages = {
                 "Hindi (हिन्दी)",
                 "English (India)",
@@ -405,31 +410,68 @@ public class MainActivity extends AppCompatActivity {
                 "Telugu (తెలుగు)"
         };
 
-        String[] langCodes = {
-                "hi-IN",
-                "en-IN",
-                "en-US",
-                "mr-IN",
-                "gu-IN",
-                "ta-IN",
-                "te-IN"
+        String[] codes = {
+                "hi-IN", "en-IN", "en-US",
+                "mr-IN", "gu-IN", "ta-IN", "te-IN"
         };
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
-        spinnerLanguage.setAdapter(adapter);
+        android.content.SharedPreferences prefs =
+                getSharedPreferences("hi_ram_settings", MODE_PRIVATE);
 
-        spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLanguageCode = langCodes[position];
-                Locale locale = new Locale(selectedLanguageCode.split("-")[0]);
-                ttsManager.setLanguage(locale);
-                Toast.makeText(MainActivity.this, "Language: " + languages[position], Toast.LENGTH_SHORT).show();
+        selectedLanguageCode = prefs.getString("language_code", "hi-IN");
+
+        int selected = 0;
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i].equals(selectedLanguageCode)) {
+                selected = i;
+                break;
             }
+        }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        final int currentSelection = selected;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Choose Language")
+                .setSingleChoiceItems(languages, currentSelection, (dialog, which) -> {
+                    selectedLanguageCode = codes[which];
+
+                    prefs.edit()
+                            .putString("language_code", selectedLanguageCode)
+                            .apply();
+
+                    ttsManager.setLanguage(
+                            new Locale(selectedLanguageCode.split("-")[0])
+                    );
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Language: " + languages[which],
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private void showAccessibilityPanel() {
+        String[] options = {
+                "Change Language",
+                "Accessibility Service Settings"
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("Accessibility & Voice Settings")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        showLanguageSettings();
+                    } else if (which == 1) {
+                        showAccessibilityDisclosure();
+                    }
+                })
+                .setNegativeButton("Close", null)
+                .show();
     }
 
     private void setupSuggestionChips() {

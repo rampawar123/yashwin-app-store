@@ -1,204 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#090611"
+    android:fillViewport="true">
 
-    <!-- Top Bar: Title & Language Selector -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="18dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Hi Ram"
-            android:textColor="#00E5FF"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/spinnerLanguage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#00E5FF"
-            android:padding="4dp" />
-    </LinearLayout>
+            android:text="HI RAM"
+            android:textColor="#C084FC"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
 
-    <!-- Status -->
-    <TextView
-        android:id="@+id/txtStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:text="Tap mic or speak command"
-        android:textColor="#B0BEC5"
-        android:textSize="14sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="YOUR PERSONAL AI ASSISTANT"
+            android:textColor="#A78BBA"
+            android:textSize="11sp"/>
 
-    <TextView
-        android:id="@+id/txtPermissionStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center"
-        android:text="Permissions: checking..."
-        android:textColor="#B0BEC5"
-        android:textSize="11sp" />
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="#1B1228"
+            android:gravity="center"
+            android:padding="14dp"
+            android:text="Hi Ram is ready"
+            android:textColor="#E9D5FF"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
-    <!-- Center Mic Button Area -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center">
+        <TextView
+            android:id="@+id/txtPermissionStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Permissions: checking..."
+            android:textColor="#A78BBA"
+            android:textSize="11sp"/>
 
-        <Button
-            android:id="@+id/btnMic"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center"
-            android:backgroundTint="#00E5FF"
-            android:text="MIC"
-            android:textColor="#121212"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-    </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:layout_marginTop="12dp"
+            android:background="#120C1D">
 
-    <!-- Voice Result & Feedback -->
-    <TextView
-        android:id="@+id/txtResult"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:hint="Aapki command yahan dikhegi..."
-        android:textColor="#FFFFFF"
-        android:textColorHint="#546E7A"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/txtFeedback"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:textColor="#81C784"
-        android:textSize="14sp" />
+                <Button
+                    android:id="@+id/btnMic"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:backgroundTint="#9333EA"
+                    android:elevation="14dp"
+                    android:text="MIC"
+                    android:textColor="#FFFFFF"
+                    android:textSize="23sp"
+                    android:textStyle="bold"/>
 
-    <!-- Suggestion Chips Scroll View -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:scrollbars="none">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="TAP TO TALK"
+                    android:textColor="#D8B4FE"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/txtResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="14dp"
+            android:hint="Your command will appear here..."
+            android:textColor="#FFFFFF"
+            android:textColorHint="#786A85"
+            android:textSize="17sp"/>
+
+        <TextView
+            android:id="@+id/txtFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="6dp"
+            android:textColor="#C084FC"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="QUICK ACTIONS"
+            android:textColor="#D8B4FE"
+            android:textStyle="bold"/>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/chipYoutube"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="YouTube"
+                    android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/chipWhatsapp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="WhatsApp"
+                    android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/chipMusic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="Music"
+                    android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/chipBattery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="Battery"
+                    android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/chipTorch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="Torch"
+                    android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/chipHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="Home"
+                    android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/chipVolume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#38204F"
+                    android:text="Volume"
+                    android:textColor="#FFFFFF"/>
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/chipYoutube"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnToggleService"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginEnd="8dp"
-                android:text="YouTube kholo"
-                android:textColor="#00E5FF" />
+                android:backgroundTint="#7E22CE"
+                android:text="Background ON"
+                android:textColor="#FFFFFF"/>
 
             <Button
-                android:id="@+id/chipWhatsapp"
+                android:id="@+id/btnOpenAccessibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="WhatsApp"
-                android:textColor="#00E5FF" />
-
-            <Button
-                android:id="@+id/chipMusic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Music"
-                android:textColor="#00E5FF" />
-
-            <Button
-                android:id="@+id/chipBattery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Battery"
-                android:textColor="#00E5FF" />
-
-            <Button
-                android:id="@+id/chipTorch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Torch"
-                android:textColor="#00E5FF" />
-
-            <Button
-                android:id="@+id/chipHome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Home"
-                android:textColor="#00E5FF" />
-
-            <Button
-                android:id="@+id/chipVolume"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Volume"
-                android:textColor="#00E5FF" />
+                android:backgroundTint="#38204F"
+                android:text="Accessibility"
+                android:textColor="#FFFFFF"/>
         </LinearLayout>
-    </HorizontalScrollView>
 
-    <!-- Bottom Action Controls: Service Toggle & Accessibility -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnToggleService"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/txtAccessibilityBadge"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="Background ON"
-            android:textColor="#121212" />
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Accessibility: Inactive"
+            android:textColor="#FBBF24"
+            android:textSize="12sp"/>
 
-        <Button
-            android:id="@+id/btnOpenAccessibility"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Accessibility"
-            android:textColor="#00E5FF" />
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:text="RECENT COMMANDS"
+            android:textColor="#D8B4FE"
+            android:textStyle="bold"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerHistory"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="#1B1228"
+            android:padding="8dp"/>
+
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/txtAccessibilityBadge"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center"
-        android:text="Accessibility: Inactive"
-        android:textColor="#FFB74D"
-        android:textSize="12sp" />
-
-    <!-- History RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerHistory"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginTop="12dp" />
-
-</LinearLayout>
+</ScrollView>
