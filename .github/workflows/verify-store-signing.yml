@@ -1,0 +1,38 @@
+name: Verify Store Signing Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify permanent Store certificate
+        env:
+          KEYSTORE_BASE64: ${{ secrets.PERMANENT_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.PERMANENT_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.PERMANENT_KEYSTORE_ALIAS }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_BASE64"
+          test -n "$KEYSTORE_PASSWORD"
+          test -n "$KEY_ALIAS"
+
+          KEYSTORE_FILE="$RUNNER_TEMP/store-release.jks"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_FILE"
+
+          ACTUAL=$(keytool -list -v \
+            -keystore "$KEYSTORE_FILE" \
+            -alias "$KEY_ALIAS" \
+            -storepass "$KEYSTORE_PASSWORD" |
+            sed -n 's/.*SHA256: //p' |
+            head -1 | tr -d ':' | tr '[:lower:]' '[:upper:]')
+
+          EXPECTED="4A2C07B23AB370B058D5FFF6F6B5C849F014B2C4A3FB656528CD7EB447FB007D"
+
+          if [ "$ACTUAL" = "$EXPECTED" ]; then
+            echo "SUCCESS: Store signing key matches."
+          else
+            echo "ERROR: Store signing key does not match."
+            exit 1
+          fi
