@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CatalogApp } from './types';
-import {
-  fetchLatestGithubCatalog,
-  APP_DEFINITIONS,
-  clearPendingUpdate
-} from './services/githubService';
+import { fetchLatestGithubCatalog, APP_DEFINITIONS, clearPendingUpdate, rawGithubUrl } from './services/githubService';
+import { fetchAppVersionManifest, fetchInstalledApps, isAppUpdateAvailable, RemoteAppVersion } from './services/appVersionService';
+import { InstalledApp, isNativeStore, installNativeApp } from './services/nativeBridge';
 import { Header } from './components/Header';
 import { SearchBox } from './components/SearchBox';
 import { AboutSection } from './components/AboutModal';
@@ -15,7 +13,6 @@ import { VanshCalculatorModal } from './components/VanshCalculatorModal';
 import { CricYuvaModal } from './components/CricYuvaModal';
 import { HiRamModal } from './components/HiRamModal';
 import { Toast } from './components/Toast';
-
 export const App: React.FC = () => {
   const [catalog, setCatalog] = useState<CatalogApp[]>(() =>
     APP_DEFINITIONS.map(app => ({
@@ -42,7 +39,10 @@ export const App: React.FC = () => {
   }, []);
 
   const checkingRef = React.useRef(false);
-
+  const [installedVersions, setInstalledVersions] = useState<Record<string, InstalledApp>>({});
+const [remoteVersions, setRemoteVersions] = useState<Record<string, RemoteAppVersion>>({});
+const [updateQueue, setUpdateQueue] = useState<string[]>([]);
+const [isInstalling, setIsInstalling] = useState(false);
   const refreshCatalog = useCallback(async (manual: boolean = false) => {
     if (checkingRef.current) return;
     checkingRef.current = true;
@@ -51,13 +51,56 @@ export const App: React.FC = () => {
 
     try {
       const result = await fetchLatestGithubCatalog();
-      setCatalog(result.catalog);
+      let nextCatalog = result.catalog;
+
+      if (isNativeStore()) {
+        try {
+          const [manifest, installed] = await Promise.all([
+            fetchAppVersionManifest(),
+            fetchInstalledApps()
+          ]);
+
+          const installedMap: Record<string, InstalledApp> = {};
+          const remoteMap: Record<string, RemoteAppVersion> = {};
+
+          for (const app of installed) installedMap[app.id] = app;
+
+          for (const id of ['calculator', 'cric-yuva', 'hi-ram']) {
+            const remote = manifest.apps[id];
+            if (remote) remoteMap[id] = remote;
+          }
+
+          setInstalledVersions(installedMap);
+          setRemoteVersions(remoteMap);
+
+          nextCatalog = nextCatalog.map(app => {
+            const remote = remoteMap[app.id];
+            if (!remote || app.id === 'store') return app;
+
+            const local = installedMap[app.id];
+            const hasUpdate = isAppUpdateAvailable(remote, local);
+
+            return {
+              ...app,
+              apkUrl: rawGithubUrl(remote.apkFile),
+              version: remote.versionName || `Version ${remote.versionCode}`,
+              updatedLabel: `GitHub version ${remote.versionCode}`,
+              hasUpdate,
+              isLatest: Boolean(local?.installed) && !hasUpdate
+            };
+          });
+        } catch (error) {
+          console.warn('Native version check unavailable:', error);
+        }
+      }
+
+      setCatalog(nextCatalog);
       setStatusText(result.message);
 
       if (manual) {
         showToast(
-          result.hasAnyUpdate
-            ? 'New app update detected! Check UPDATE APK button to download.'
+          nextCatalog.some(app => app.hasUpdate)
+            ? 'New app update detected!'
             : result.isOnline
               ? 'Store is up to date with the latest GitHub files.'
               : 'GitHub check failed. Please try again later.'
@@ -65,12 +108,12 @@ export const App: React.FC = () => {
       }
     } catch {
       setStatusText('GitHub check failed. Please try again later.');
+      if (manual) showToast('GitHub check failed. Please try again later.');
     } finally {
       checkingRef.current = false;
       setIsChecking(false);
     }
   }, [showToast]);
-
   useEffect(() => {
     void refreshCatalog(false);
 
@@ -78,9 +121,50 @@ export const App: React.FC = () => {
       if (!document.hidden) void refreshCatalog(false);
     }, 5 * 60 * 1000);
 
-    const handleVisibility = () => {
-      // Refresh only when returning after the page was hidden.
-      if (!document.hidden) void refreshCatalog(false);
+    let verifyingQueue = false;
+
+    const handleVisibility = async () => {
+      if (document.hidden) return;
+      void refreshCatalog(false);
+
+      if (!isNativeStore() || !isInstalling || updateQueue.length === 0 || verifyingQueue) return;
+      verifyingQueue = true;
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        if (document.hidden) return;
+
+        const currentId = updateQueue[0];
+        const [manifest, installed] = await Promise.all([
+          fetchAppVersionManifest(),
+          fetchInstalledApps()
+        ]);
+        const remote = manifest.apps[currentId];
+        const local = installed.find(app => app.id === currentId);
+
+        if (remote && local?.installed && local.versionCode >= remote.versionCode) {
+          const remaining = updateQueue.slice(1);
+          setUpdateQueue(remaining);
+
+          if (remaining.length > 0) {
+            await installNativeApp(remaining[0]);
+            showToast('Update verified. Installing next app: ' + remaining[0]);
+          } else {
+            setIsInstalling(false);
+            showToast('All queued app updates were installed and verified.');
+          }
+        } else {
+          setUpdateQueue([]);
+          setIsInstalling(false);
+          showToast('Installation was cancelled or not verified. Remaining updates stopped.');
+        }
+      } catch (error) {
+        setUpdateQueue([]);
+        setIsInstalling(false);
+        showToast(error instanceof Error ? error.message : 'Could not verify installation. Queue stopped.');
+      } finally {
+        verifyingQueue = false;
+      }
     };
 
     document.addEventListener('visibilitychange', handleVisibility);
@@ -89,7 +173,7 @@ export const App: React.FC = () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [refreshCatalog]);
+  }, [refreshCatalog, isInstalling, updateQueue, showToast]);
 
   const handleOpenApp = (app: CatalogApp) => {
     if (app.openType === 'calculator') {
@@ -104,11 +188,35 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdateAll = () => {
-    const pendingApps = catalog.filter(app => app.hasUpdate && app.apkUrl);
+  const handleUpdateAll = async () => {
+    const pendingApps = catalog.filter(app => app.hasUpdate && app.apkUrl && app.id !== 'store');
 
     if (pendingApps.length === 0) {
       showToast('No app updates are currently available.');
+      return;
+    }
+
+    if (isNativeStore()) {
+      const ids = pendingApps
+        .filter(app => remoteVersions[app.id])
+        .map(app => app.id);
+
+      if (ids.length === 0) {
+        showToast('Native version information is unavailable. Refresh and try again.');
+        return;
+      }
+
+      setUpdateQueue(ids);
+      setIsInstalling(true);
+
+      try {
+        await installNativeApp(ids[0]);
+        showToast('Installing ' + pendingApps.find(app => app.id === ids[0])?.name + '. Return to Store after installation.');
+      } catch (error) {
+        setUpdateQueue([]);
+        setIsInstalling(false);
+        showToast(error instanceof Error ? error.message : 'Could not start installation.');
+      }
       return;
     }
 
@@ -123,10 +231,7 @@ export const App: React.FC = () => {
       link.remove();
     });
 
-    showToast(
-      'Started download requests for ' + pendingApps.length +
-      ' app update(s). Install the APK from Android when prompted.'
-    );
+    showToast('Started download requests for ' + pendingApps.length + ' app update(s).');
   };
 
   const handleShare = async (app: CatalogApp) => {
@@ -230,9 +335,18 @@ export const App: React.FC = () => {
                 app={app}
                 onOpenApp={handleOpenApp}
                 onShare={handleShare}
-                onUpdate={(selectedApp) => {
+                onUpdate={async (selectedApp) => {
                   if (!selectedApp.apkUrl) {
                     showToast('APK is not available.');
+                    return;
+                  }
+                  if (isNativeStore() && selectedApp.id !== 'store') {
+                    try {
+                      await installNativeApp(selectedApp.id);
+                      showToast('Installing ' + selectedApp.name + '. Return to Store after installation.');
+                    } catch (error) {
+                      showToast(error instanceof Error ? error.message : 'Could not start installation.');
+                    }
                     return;
                   }
                   const link = document.createElement('a');
@@ -243,7 +357,7 @@ export const App: React.FC = () => {
                   document.body.appendChild(link);
                   link.click();
                   link.remove();
-                  showToast('Downloading ' + selectedApp.name + ' update. Install it from Android when prompted.');
+                  showToast('Downloading ' + selectedApp.name + ' update.');
                 }}
               />
             ))

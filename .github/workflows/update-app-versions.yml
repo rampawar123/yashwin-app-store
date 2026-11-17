@@ -1,0 +1,148 @@
+name: Generate App Version Manifest
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Build VANSH CALCULATOR APK
+      - Build CRIC YUVA APK
+      - Build Hi Ram Android APK
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install Android build tools
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Generate version manifest
+        run: |
+          set -e
+          export AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          export APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          apps = {
+              "calculator": {
+                  "file": "VANSH-CALCULATOR.apk",
+                  "package": "com.yashwin.calculator",
+                  "cert": "7dc0c5364c5512b60ddaef3fa43da15d7b0d0410eaf530d3c48faa333c2b06f7"
+              },
+              "cric-yuva": {
+                  "file": "CRIC-YUVA.apk",
+                  "package": "com.yashwin.cricyuva",
+                  "cert": "53d2b1acab2a6238193ae9c1daf1b30165ff4f099a03ef7c3f366bdda98f8207"
+              },
+              "hi-ram": {
+                  "file": "HI-RAM.apk",
+                  "package": "com.example.hiram",
+                  "cert": "7d3d74d5309c85ece9efef44ed8ff68286b1b5400652bcea35967b171ced891b"
+              }
+          }
+
+          aapt = os.environ["AAPT"]
+          apksigner = os.environ["APKSIGNER"]
+          result = {}
+
+          for app_id, config in apps.items():
+              apk = Path(config["file"])
+              if not apk.is_file():
+                  raise SystemExit(f"Missing APK: {apk}")
+
+              output = subprocess.check_output(
+                  [aapt, "dump", "badging", str(apk)],
+                  text=True
+              )
+
+              match = re.search(
+                  r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']*)'",
+                  output,
+                  re.MULTILINE
+              )
+
+              if not match:
+                  raise SystemExit(f"Cannot read APK metadata: {apk}")
+
+              package, version_code, version_name = match.groups()
+
+              if package != config["package"]:
+                  raise SystemExit(
+                      f"Package mismatch for {app_id}: expected "
+                      f"{config['package']}, got {package}"
+                  )
+
+              signature = subprocess.check_output(
+                  [apksigner, "verify", "--print-certs", str(apk)],
+                  text=True,
+                  stderr=subprocess.STDOUT
+              )
+
+              cert_match = re.search(
+                  r"certificate SHA-256 digest:\s*([0-9a-fA-F:]+)",
+                  signature
+              )
+
+              if not cert_match:
+                  raise SystemExit(f"Cannot read signing certificate: {apk}")
+
+              actual_cert = cert_match.group(1).replace(":", "").lower()
+              if actual_cert != config["cert"]:
+                  raise SystemExit(
+                      f"Signing certificate mismatch for {app_id}: {actual_cert}"
+                  )
+
+              result[app_id] = {
+                  "packageName": package,
+                  "versionCode": int(version_code),
+                  "versionName": version_name,
+                  "apkFile": config["file"]
+              }
+
+          manifest = {
+              "schemaVersion": 1,
+              "generatedAt": datetime.now(timezone.utc).isoformat(),
+              "apps": result
+          }
+
+          Path("app-versions.json").write_text(
+              json.dumps(manifest, indent=2) + "\n"
+          )
+
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Publish version manifest
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app-versions.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Android app version manifest"
+            git push origin HEAD:main
+          else
+            echo "Version manifest is already current"
+          fi
