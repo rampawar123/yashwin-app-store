@@ -2,9 +2,6 @@ package com.yashwin.appstore;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
-import android.view.WindowInsets;
-import android.graphics.Insets;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebResourceRequest;
@@ -23,38 +20,20 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         assetLoader = new WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                .addPathHandler("/assets/",
+                        new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
 
         webView = new WebView(this);
-
-        webView.setOnApplyWindowInsetsListener((view, windowInsets) -> {
-            int top;
-            int bottom;
-
-            if (android.os.Build.VERSION.SDK_INT >= 30) {
-                Insets bars = windowInsets.getInsets(
-                        WindowInsets.Type.systemBars()
-                );
-                top = bars.top;
-                bottom = bars.bottom;
-            } else {
-                top = windowInsets.getSystemWindowInsetTop();
-                bottom = windowInsets.getSystemWindowInsetBottom();
-            }
-
-            view.setPadding(0, top, 0, bottom);
-            return windowInsets;
-        });
-
-        webView.requestApplyInsets();
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(false);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        settings.setMixedContentMode(
+                WebSettings.MIXED_CONTENT_NEVER_ALLOW
+        );
 
         webView.setWebViewClient(new WebViewClientCompat() {
             @Override
