@@ -58,3 +58,8 @@ isolate_sessions.py
 *.firebase-backup
 *.bak
 *.backup
+
+# Native Store Android build outputs
+store-android/.gradle/
+store-android/build/
+store-android/app/build/

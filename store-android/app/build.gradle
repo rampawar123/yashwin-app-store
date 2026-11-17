@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.yashwin.appstore'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.yashwin.appstore'
+        minSdk 24
+        targetSdk 35
+        versionCode 278
+        versionName '1.1'
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv("STORE_KEYSTORE_FILE")
+            if (ks != null && !ks.isEmpty()) {
+                storeFile file(ks)
+                storePassword System.getenv("STORE_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("STORE_KEYSTORE_ALIAS")
+                keyPassword System.getenv("STORE_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

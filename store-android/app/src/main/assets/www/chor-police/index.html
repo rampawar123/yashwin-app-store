@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Chor Police - Island Mission</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#071b24;color:white;font:15px system-ui;overflow:hidden}
+header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#102d37}
+header b{color:#8ee7ff;font-size:17px}
+button{border:1px solid #557783;background:#183c49;color:white;border-radius:10px;padding:10px;touch-action:manipulation}
+#hud{display:flex;gap:7px;flex-wrap:wrap;padding:7px;background:#102d37}
+.pill{background:#1d4149;border-radius:8px;padding:6px 9px;font-size:12px}
+#world{display:block;width:100%;height:calc(100dvh - 220px);min-height:220px;touch-action:none}
+#controls{display:flex;justify-content:space-around;align-items:center;gap:8px;padding:8px}
+.pad{display:grid;grid-template-columns:44px 44px 44px;grid-template-rows:38px 38px 38px;gap:3px}
+.pad button{padding:2px;font-size:19px}
+.pad .up{grid-column:2;grid-row:1}
+.pad .left{grid-column:1;grid-row:2}
+.pad .down{grid-column:2;grid-row:2}
+.pad .right{grid-column:3;grid-row:2}
+#actions{display:flex;flex-direction:column;gap:7px}
+#message{font-size:12px;color:#c9e5e9;text-align:center;padding:4px}
+#cover{position:fixed;inset:0;background:#061720ee;z-index:5;display:flex;align-items:center;justify-content:center;padding:20px}
+.panel{width:min(420px,100%);background:#12333e;border:1px solid #44717b;border-radius:18px;padding:20px;text-align:center}
+.panel h1{color:#8ee7ff}
+.panel p{line-height:1.6;color:#d0e4e7}
+.teams{display:flex;gap:10px}
+.teams button{flex:1;font-weight:bold;padding:15px}
+small{color:#aac9cf}
+</style>
+</head>
+<body>
+<header><b>🚨 CHOR POLICE</b><button onclick="location.reload()">↻ Restart</button></header>
+<div id="hud">
+ <span class="pill" id="team">TEAM: —</span>
+ <span class="pill" id="hp">❤️ HP 100</span>
+ <span class="pill" id="coins">🪙 0</span>
+ <span class="pill" id="clock">⏱ 180s</span>
+ <span class="pill" id="mission">MISSION: READY</span>
+</div>
+<canvas id="world"></canvas>
+<div id="controls">
+ <div class="pad">
+  <button class="up" data-dir="up">▲</button>
+  <button class="left" data-dir="left">◀</button>
+  <button class="down" data-dir="down">▼</button>
+  <button class="right" data-dir="right">▶</button>
+ </div>
+ <div id="actions">
+  <button id="missionBtn">🎯 Mission</button>
+  <button id="runBtn">🏃 Run</button>
+  <button id="mapBtn">🗺 Map</button>
+ </div>
+</div>
+<div id="message">चलने के लिए बटन दबाओ। बैंक तक पहुँचकर Mission दबाओ।</div>
+
+<div id="cover">
+ <div class="panel">
+  <h1>🏝 CHOR POLICE</h1>
+  <p>एक नए द्वीप पर अपना मिशन शुरू करो। यह पहला मुफ्त Map Prototype है।</p>
+  <div class="teams">
+   <button onclick="start('CHOR')">🕵️ CHOR</button>
+   <button onclick="start('POLICE')">🚔 POLICE</button>
+  </div>
+  <p><small>चोर: बैंक में चोरी करके Port तक पहुँचो।<br>पुलिस: अलर्ट के बाद बैंक तक पहुँचो।</small></p>
+ </div>
+</div>
+
+<script>
+const canvas=document.getElementById('world');
+const ctx=canvas.getContext('2d');
+const W=1600,H=1600;
+let team='',started=false,stolen=false,alerted=false,won=false;
+let hp=100,coins=0,time=180,run=false,showMap=false;
+let player={x:800,y:1160};
+let police={x:800,y:650};
+let keys={};
+const bank={x:900,y:800,r:55};
+const port={x:1250,y:1150,r:70};
+const station={x:790,y:600,r:65};
+let last=performance.now(),elapsed=0;
+
+function resize(){
+ const d=Math.min(devicePixelRatio||1,2);
+ canvas.width=canvas.clientWidth*d;
+ canvas.height=canvas.clientHeight*d;
+ ctx.setTransform(d,0,0,d,0,0);
+}
+addEventListener('resize',resize);resize();
+
+function rect(x,y,w,h,c){
+ ctx.fillStyle=c;ctx.fillRect(x,y,w,h);
+}
+function text(t,x,y,size=20,c='#fff'){
+ ctx.fillStyle=c;ctx.font=`bold ${size}px system-ui`;
+ ctx.textAlign='center';ctx.fillText(t,x,y);
+}
+function box(x,y,w,h,c,label){
+ ctx.fillStyle='#0004';ctx.fillRect(x-w/2+5,y-h/2+7,w,h);
+ ctx.fillStyle=c;ctx.fillRect(x-w/2,y-h/2,w,h);
+ ctx.strokeStyle='#ffffff70';ctx.strokeRect(x-w/2,y-h/2,w,h);
+ text(label,x,y+5,15);
+}
+function drawTree(x,y){
+ ctx.fillStyle='#174a39';ctx.beginPath();
+ ctx.moveTo(x,y-28);ctx.lineTo(x-17,y+9);ctx.lineTo(x+17,y+9);
+ ctx.closePath();ctx.fill();
+ ctx.fillStyle='#34764b';ctx.beginPath();
+ ctx.moveTo(x,y-35);ctx.lineTo(x-12,y-5);ctx.lineTo(x+12,y-5);
+ ctx.closePath();ctx.fill();
+}
+function draw(){
+ const cw=canvas.clientWidth,ch=canvas.clientHeight;
+ ctx.clearRect(0,0,cw,ch);
+ ctx.fillStyle='#087caa';ctx.fillRect(0,0,cw,ch);
+ const scale=Math.min(cw/700,ch/650);
+ const viewW=cw/scale,viewH=ch/scale;
+ const ox=Math.max(0,Math.min(W-viewW,player.x-viewW/2));
+ const oy=Math.max(0,Math.min(H-viewH,player.y-viewH/2));
+ ctx.save();ctx.scale(scale,scale);ctx.translate(-ox,-oy);
+
+ // Island land
+ ctx.fillStyle='#c5b77c';
+ ctx.beginPath();ctx.ellipse(800,800,760,755,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#568d53';
+ ctx.beginPath();ctx.ellipse(800,800,735,730,0,0,Math.PI*2);ctx.fill();
+
+ // Hills
+ for(let i=0;i<30;i++){
+  let x=70+(i*193)%1460,y=70+(i*277)%1460;
+  if(Math.hypot(x-800,y-800)>720)continue;
+  ctx.fillStyle=i%2?'#397448':'#477e49';
+  ctx.beginPath();ctx.moveTo(x,y-40);ctx.lineTo(x-65,y+35);ctx.lineTo(x+65,y+35);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#a3b77a';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x,y-35);ctx.lineTo(x-30,y+5);ctx.stroke();
+ }
+ // Roads
+ ctx.lineCap='round';
+ ctx.strokeStyle='#c9c2a1';ctx.lineWidth=45;
+ ctx.beginPath();ctx.moveTo(250,300);ctx.bezierCurveTo(500,500,400,850,800,950);
+ ctx.bezierCurveTo(1050,1050,1120,1200,1400,1300);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(800,300);ctx.bezierCurveTo(900,480,700,650,900,800);ctx.stroke();
+ ctx.strokeStyle='#747d77';ctx.lineWidth=29;
+ ctx.beginPath();ctx.moveTo(250,300);ctx.bezierCurveTo(500,500,400,850,800,950);
+ ctx.bezierCurveTo(1050,1050,1120,1200,1400,1300);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(800,300);ctx.bezierCurveTo(900,480,700,650,900,800);ctx.stroke();
+
+ // River
+ ctx.strokeStyle='#299dc0';ctx.lineWidth=32;
+ ctx.beginPath();ctx.moveTo(100,900);ctx.bezierCurveTo(350,800,250,600,500,450);ctx.stroke();
+
+ // Forest
+ for(let i=0;i<100;i++){
+  const x=100+(i*137)%1400,y=100+(i*211)%1400;
+  if(Math.hypot(x-800,y-800)<150)continue;
+  if(Math.hypot(x-800,y-800)>720)continue;
+  drawTree(x,y);
+ }
+
+ // Town
+ for(let i=0;i<25;i++){
+  let x=650+(i%5)*90,y=350+Math.floor(i/5)*80;
+  box(x,y,45,40,i%3?'#9d9a89':'#c1b59a','');
+ }
+ text('CENTRAL CITY',830,310,28);
+ box(800,600,140,110,'#526b7b','POLICE');
+ text('POLICE STATION',800,520,21,'#ffffff');
+ box(900,800,110,95,'#8c6341','BANK');
+ text(stolen?'BANK LOOTED':'BANK / LOOT',900,730,21,stolen?'#ffb4a0':'#ffe5a0');
+ box(1250,1150,130,85,'#536f7d','PORT');
+ text('ESCAPE PORT',1250,1085,21);
+ text('MOUNTAIN AREA',300,210,19);
+ text('FOREST',330,1130,19);
+ text('OCEAN',800,1500,30,'#d3f7ff');
+
+ // Players
+ if(team==='CHOR'){
+  box(police.x,police.y,26,30,'#d74747','P');
+ }
+ box(player.x,player.y,30,34,team==='POLICE'?'#478be1':'#e6bb42','YOU');
+ if(alerted&&!won){
+  ctx.strokeStyle='#ff5544';ctx.lineWidth=5;
+  ctx.beginPath();ctx.arc(bank.x,bank.y,70+Math.sin(elapsed*5)*8,0,Math.PI*2);ctx.stroke();
+ }
+ // minimap
+ if(!showMap){
+  ctx.fillStyle='#0009';ctx.fillRect(ox+viewW-155,oy+20,135,135);
+  ctx.fillStyle='#4e8c5c';ctx.fillRect(ox+viewW-148,oy+27,121,121);
+  ctx.fillStyle='#ffcf57';ctx.fillRect(ox+viewW-148+player.x/W*121-3,oy+27+player.y/H*121-3,7,7);
+  ctx.fillStyle='#e85b4e';ctx.fillRect(ox+viewW-148+bank.x/W*121-3,oy+27+bank.y/H*121-3,7,7);
+ }
+ ctx.restore();
+}
+function updateHUD(){
+ document.getElementById('team').textContent='TEAM: '+(team||'—');
+ document.getElementById('hp').textContent='❤️ HP '+hp;
+ document.getElementById('coins').textContent='🪙 '+coins;
+ document.getElementById('clock').textContent='⏱ '+Math.max(0,Math.ceil(time))+'s';
+ document.getElementById('mission').textContent='MISSION: '+(won?'FINISHED':stolen?'ESCAPE':alerted?'POLICE ALERT': 'READY');
+}
+function message(s){document.getElementById('message').textContent=s;}
+function start(t){
+ team=t;started=true;
+ player=t==='POLICE'?{x:800,y:650}:{x:350,y:350};
+ document.getElementById('cover').style.display='none';
+ message(t==='CHOR'?'बैंक तक जाओ और Mission दबाकर चोरी करो। फिर Port तक भागो.':'पुलिस स्टेशन से बैंक तक जाओ। चोरी शुरू होने पर अलर्ट मिलेगा।');
+ updateHUD();
+}
+function interact(){
+ if(!started||won)return;
+ const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ if(team==='CHOR'&&!stolen&&dist(player,bank)<100){
+  stolen=true;alerted=true;coins+=100;
+  police={x:station.x,y:station.y};
+  message('🚨 चोरी की सूचना पुलिस को मिल गई! Port तक पहुँचो!');
+ }else if(team==='POLICE'&&alerted&&dist(player,bank)<110){
+  won=true;coins+=200;
+  message('🏆 पुलिस ने मिशन सफलतापूर्वक पूरा किया!');
+ }else if(team==='CHOR'&&stolen&&dist(player,port)<120){
+  won=true;coins+=300;
+  message('🏆 चोर टीम सुरक्षित Escape Point पर पहुँच गई!');
+ }else{
+  message('मिशन पॉइंट से दूर हो। मैप पर Bank, Police Station और Port देखो।');
+ }
+ updateHUD();
+}
+function tick(now){
+ let dt=Math.min((now-last)/1000,.05);last=now;elapsed+=dt;
+ if(started&&!won){
+  time-=dt;
+  if(time<=0){time=0;won=true;message('⏱ समय समाप्त! मैच खत्म।');}
+  let dx=0,dy=0;
+  if(keys.up)dy--;if(keys.down)dy++;
+  if(keys.left)dx--;if(keys.right)dx++;
+  if(dx||dy){
+   const len=Math.hypot(dx,dy)||1;
+   const speed=run?240:145;
+   player.x+=dx/len*speed*dt;player.y+=dy/len*speed*dt;
+   player.x=Math.max(40,Math.min(W-40,player.x));
+   player.y=Math.max(40,Math.min(H-40,player.y));
+  }
+  if(team==='CHOR'&&alerted){
+   const dx=player.x-police.x,dy=player.y-police.y,d=Math.hypot(dx,dy)||1;
+   police.x+=dx/d*65*dt;police.y+=dy/d*65*dt;
+   if(d<30){hp=Math.max(0,hp-10*dt);if(hp===0){won=true;message('🚔 पुलिस ने चोर को पकड़ लिया। मैच खत्म!');}}
+  }
+  updateHUD();
+ }
+ draw();requestAnimationFrame(tick);
+}
+document.querySelectorAll('[data-dir]').forEach(b=>{
+ const dir=b.dataset.dir;
+ b.addEventListener('pointerdown',e=>{e.preventDefault();keys[dir]=true;b.setPointerCapture(e.pointerId)});
+ ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>keys[dir]=false));
+});
+addEventListener('keydown',e=>{
+ const k={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'}[e.key];
+ if(k)keys[k]=true;
+ if(e.key===' ')interact();
+});
+addEventListener('keyup',e=>{
+ const k={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'}[e.key];
+ if(k)keys[k]=false;
+});
+document.getElementById('missionBtn').onclick=interact;
+document.getElementById('runBtn').onpointerdown=()=>run=true;
+document.getElementById('runBtn').onpointerup=()=>run=false;
+document.getElementById('runBtn').onpointerleave=()=>run=false;
+document.getElementById('mapBtn').onclick=()=>{
+ showMap=!showMap;
+ message(showMap?'मैप देखने के लिए खिलाड़ी को चलाओ।':'गेम जारी है।');
+};
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
