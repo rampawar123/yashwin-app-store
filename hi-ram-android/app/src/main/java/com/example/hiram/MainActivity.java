@@ -1178,6 +1178,13 @@ public class MainActivity extends AppCompatActivity {
     private void resumeWakeWordListening() {
         conversationMode = false;
 
+        // Do not restart microphone listening when wake word is OFF.
+        if (!VoiceAgentService.isWakeWordEnabled(this)
+                || !VoiceAgentService.isRunning()) {
+            Log.i("MainActivity", "Wake word is OFF; automatic resume skipped.");
+            return;
+        }
+
         Intent intent = new Intent(this, VoiceAgentService.class);
         intent.setAction(VoiceAgentService.ACTION_RESUME_WAKE_WORD);
 

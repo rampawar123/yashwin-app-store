@@ -31,6 +31,21 @@ public class VoiceAgentService extends Service {
 
     private static volatile boolean running = false;
 
+    private static final String PREFS_NAME = "hi_ram_voice_settings";
+    private static final String KEY_WAKE_WORD_ENABLED = "wake_word_enabled";
+
+    public static boolean isWakeWordEnabled(android.content.Context context) {
+        return context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getBoolean(KEY_WAKE_WORD_ENABLED, false);
+    }
+
+    private void setWakeWordEnabled(boolean enabled) {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_WAKE_WORD_ENABLED, enabled)
+                .apply();
+    }
+
     private volatile WakeWordEngine wakeWordEngine;
     private VoiceCommandProcessor commandProcessor;
 
@@ -51,9 +66,19 @@ public class VoiceAgentService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent == null ? ACTION_START : intent.getAction();
+        String action = intent == null ? null : intent.getAction();
+
+        if (ACTION_START.equals(action)) {
+            setWakeWordEnabled(true);
+        } else if (ACTION_RESUME_WAKE_WORD.equals(action) || intent == null) {
+            if (!isWakeWordEnabled(this)) {
+                Log.i(TAG, "Wake word is OFF; ignoring automatic restart.");
+                return START_NOT_STICKY;
+            }
+        }
 
         if (ACTION_STOP.equals(action)) {
+            setWakeWordEnabled(false);
             synchronized (this) {
                 restartRequested = false;
                 if (stopPending) {
@@ -267,7 +292,7 @@ public class VoiceAgentService extends Service {
                 return;
             }
 
-            if (restartRequested) {
+            if (restartRequested && isWakeWordEnabled(this)) {
                 restartRequested = false;
                 stopPending = false;
                 running = true;
@@ -281,6 +306,7 @@ public class VoiceAgentService extends Service {
                 return;
             }
 
+            restartRequested = false;
             stopPending = false;
             running = false;
             stopForeground(true);
